@@ -9,10 +9,7 @@ import { PduGrid } from '../PduTab/PduGrid'
 import { getSelectableName } from '../PduTab/pduUtils'
 import SocketsLegendsList from '../PduTab/SocketsLegendsList'
 
-import {
-  ControlsSection,
-  PowerAdjustmentTabContainer,
-} from './PowerAdjustmentTab.styles'
+import { ControlsSection, PowerAdjustmentTabContainer } from './PowerAdjustmentTab.styles'
 import { PowerControlsPanel, type SelectedSocket } from './PowerControlsPanel'
 
 import type { RootState } from '@/app/store'

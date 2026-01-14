@@ -86,7 +86,8 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
   }
 
   // Group sockets by rack
-  const getSocketsByRack = (): Record<string, SelectedSocket[]> => _groupBy(selectedSockets, 'pduIndex')
+  const getSocketsByRack = (): Record<string, SelectedSocket[]> =>
+    _groupBy(selectedSockets, 'pduIndex')
 
   // Get model name from first connected miner
   const getModelName = (): string => {
@@ -131,10 +132,7 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
   if (!hasSelection) {
     return (
       <NoMinersSelectedContainer>
-        <NoDataSelected
-          text="No Selected"
-          subtext="Please select to view details"
-        />
+        <NoDataSelected text="No Selected" subtext="Please select to view details" />
       </NoMinersSelectedContainer>
     )
   }
@@ -144,7 +142,10 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
       <PanelHeader>
         <ModelTitle>{getModelName()}</ModelTitle>
         <RacksLabel>
-          {_join(_map(selectedRacks, (rack) => `Rack ${rack}`), ' | ')}
+          {_join(
+            _map(selectedRacks, (rack) => `Rack ${rack}`),
+            ' | ',
+          )}
         </RacksLabel>
       </PanelHeader>
 
@@ -170,15 +171,13 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
               $isActive={powerPercentage === preset}
               onClick={() => handlePresetClick(preset)}
             >
-              {preset}{UNITS.PERCENT}
+              {preset}
+              {UNITS.PERCENT}
             </PercentageButton>
           ))}
         </PercentageButtonsRow>
 
-        <ApplyButton
-          onClick={handleApply}
-          disabled={powerPercentage === null}
-        >
+        <ApplyButton onClick={handleApply} disabled={powerPercentage === null}>
           Apply
         </ApplyButton>
       </ControlsSection>
