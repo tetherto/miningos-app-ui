@@ -1,9 +1,12 @@
 import Button from 'antd/es/button'
-import message from 'antd/es/message'
+import _compact from 'lodash/compact'
 import _forEach from 'lodash/forEach'
+import _isEmpty from 'lodash/isEmpty'
+import _map from 'lodash/map'
 import _size from 'lodash/size'
+import _uniq from 'lodash/uniq'
 import { useRef, useState } from 'react'
-import { useSelector } from 'react-redux'
+import { useDispatch, useSelector } from 'react-redux'
 
 import { PduGrid } from '../PduTab/PduGrid'
 import { getSelectableName } from '../PduTab/pduUtils'
@@ -12,10 +15,17 @@ import SocketsLegendsList from '../PduTab/SocketsLegendsList'
 import { ControlsSection, PowerAdjustmentTabContainer } from './PowerAdjustmentTab.styles'
 import { PowerControlsPanel, type SelectedSocket } from './PowerControlsPanel'
 
+import { actionsSlice, selectPendingSubmissions } from '@/app/slices/actionsSlice'
 import type { RootState } from '@/app/store'
-import { getContainerPduData } from '@/app/utils/containerUtils'
+import { getConnectedMinerForSocket, getContainerPduData } from '@/app/utils/containerUtils'
+import { appendIdToTag } from '@/app/utils/deviceUtils'
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
+import { notifyInfo } from '@/app/utils/NotificationService'
 import { SocketSelectionContainer } from '@/Components/Container/Socket/Socket.styles'
+import { ACTION_TYPES } from '@/constants/actions'
+import { CROSS_THING_TYPES } from '@/constants/devices'
+import { useUpdateExistedActions } from '@/hooks/useUpdateExistedActions'
+import type { Device } from '@/types'
 
 interface PowerAdjustmentTabProps {
   data?: {
@@ -26,13 +36,18 @@ interface PowerAdjustmentTabProps {
   }
 }
 
+const { setAddPendingSubmissionAction } = actionsSlice.actions
+
 const PowerAdjustmentTab = ({ data }: PowerAdjustmentTabProps) => {
+  const dispatch = useDispatch()
   const isPduLayout = useSelector((state: RootState) => state.pdu.isPduLayout)
+  const pendingSubmissions = useSelector(selectPendingSubmissions)
   const printLayoutRef = useRef<HTMLDivElement | null>(null)
 
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 
   const { last, connectedMiners, type, info } = data || {}
+  const { updateExistedActions } = useUpdateExistedActions()
 
   const pdus = getContainerPduData(type || '', last ?? {}, isPduLayout) as
     | import('@/app/utils/containerUtils/containerPdu').PduData[]
@@ -57,12 +72,53 @@ const PowerAdjustmentTab = ({ data }: PowerAdjustmentTabProps) => {
   }
 
   const handleApply = (percentage: number, selectedSockets: SelectedSocket[]) => {
-    // TODO: Integrate with API when backend is ready
-    // For now, just show success toast
-    const socketCount = _size(selectedSockets)
-    message.success(
-      `Power set to ${percentage}% for ${socketCount} socket${socketCount !== 1 ? 's' : ''}`,
+    // Map selected sockets to their connected miners
+    const miners = _compact(
+      _map(selectedSockets, (socket) => {
+        const miner = getConnectedMinerForSocket(
+          (connectedMiners || []) as Device[],
+          socket.pduIndex,
+          socket.socketIndex,
+        )
+        return miner as Device | undefined
+      }),
     )
+
+    if (_isEmpty(miners)) {
+      notifyInfo('No actions added', 'No miners found for selected sockets')
+      return
+    }
+
+    // Get miner tags and container info
+    const minerTags = _map(miners, (miner) => appendIdToTag(miner.id))
+    const containerNames = _uniq(
+      _compact(_map(miners, (miner) => miner?.info?.container as string | undefined)),
+    )
+
+    // Update existing actions if any
+    updateExistedActions({
+      actionType: ACTION_TYPES.SET_POWER_PCT,
+      pendingSubmissions: pendingSubmissions as [],
+      selectedDevices: miners,
+    })
+
+    // Dispatch the action - params is percentage as string
+    dispatch(
+      setAddPendingSubmissionAction({
+        type: 'voting',
+        action: ACTION_TYPES.SET_POWER_PCT,
+        tags: minerTags,
+        params: [String(percentage)],
+        crossThing: {
+          type: CROSS_THING_TYPES.CONTAINER,
+          params: {
+            containers: containerNames,
+          },
+        },
+      }),
+    )
+
+    notifyInfo('Action added', `Set Power ${percentage}% for ${_size(miners)} miner(s)`)
   }
 
   if (!data) return null
