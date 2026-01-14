@@ -49,6 +49,7 @@ interface PduGridProps {
   mobileSelectionEnabled?: boolean
   detailsLoading?: boolean
   onRangesChange?: (ranges: Record<string, { min?: number; max?: number }>) => void
+  additionalToolbarControls?: React.ReactNode
 }
 
 const PduGrid = ({
@@ -67,6 +68,7 @@ const PduGrid = ({
   mobileSelectionEnabled,
   detailsLoading,
   onRangesChange,
+  additionalToolbarControls,
 }: PduGridProps) => {
   const selectablesContainerRef = useRef<HTMLElement | null>(null)
   const [showSelecto, setShowSelecto] = useState<boolean>(false)
@@ -378,6 +380,7 @@ const PduGrid = ({
             }
             ranges={ranges}
             detailsLoading={detailsLoading}
+            additionalToolbarControls={additionalToolbarControls}
           />
         ))}
       </SectionsList>
