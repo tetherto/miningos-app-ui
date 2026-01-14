@@ -19,6 +19,7 @@ export const ACTION_TYPES = {
   //Miner actions
   REBOOT: 'reboot',
   SET_POWER_MODE: 'setPowerMode',
+  SET_POWER_PCT: 'setPowerPct',
   SETUP_FREQUENCY_SPEED: 'setUpfreqSpeed',
   SET_LED: 'setLED',
   SETUP_POOLS: 'setupPools',
@@ -78,6 +79,7 @@ export const ACTION_NAMES_MAP = {
   //Miner actions
   [ACTION_TYPES.REBOOT]: 'Reboot Miner',
   [ACTION_TYPES.SET_POWER_MODE]: 'Set Power Mode',
+  [ACTION_TYPES.SET_POWER_PCT]: 'Set Power Percentage',
   [ACTION_TYPES.SETUP_FREQUENCY_SPEED]: 'Set Frequency Settings',
   [ACTION_TYPES.SET_LED]: 'Set LED',
   [ACTION_TYPES.SETUP_POOLS]: 'Setup Pools',
@@ -94,6 +96,7 @@ export const ACTION_NAMES_MAP = {
 export const MINER_ACTIONS = [
   ACTION_TYPES.REBOOT,
   ACTION_TYPES.SET_POWER_MODE,
+  ACTION_TYPES.SET_POWER_PCT,
   ACTION_TYPES.SET_LED,
   ACTION_TYPES.SETUP_POOLS,
 ] as const
