@@ -180,3 +180,11 @@ export const SocketBadge = styled.span`
     margin-right: 8px;
   }
 `
+
+export const ErrorMessageWrapper = styled.div`
+  color: ${COLOR.RED};
+  font-size: 12px;
+  line-height: 12px;
+  min-height: 15px;
+  padding-top: 3px;
+`
