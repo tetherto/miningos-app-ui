@@ -108,7 +108,6 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
     if (!hasSelection) {
       formik.resetForm()
     }
-     
   }, [hasSelection])
 
   // Get unique racks from selection
@@ -147,9 +146,7 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
   const containerName = (containerInfo?.container as string) || 'Container'
 
   const isApplyDisabled =
-    formik.values.powerPercentage === null ||
-    !formik.isValid ||
-    formik.isSubmitting
+    formik.values.powerPercentage === null || !formik.isValid || formik.isSubmitting
 
   if (!hasSelection) {
     return (
@@ -184,7 +181,9 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
               max={MAX_POWER_PERCENTAGE}
               placeholder="Mixed"
               addonAfter={UNITS.PERCENT}
-              status={formik.touched.powerPercentage && formik.errors.powerPercentage ? 'error' : ''}
+              status={
+                formik.touched.powerPercentage && formik.errors.powerPercentage ? 'error' : ''
+              }
             />
           </ManualInputRow>
           <ErrorMessageWrapper>
@@ -204,10 +203,7 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
             ))}
           </PercentageButtonsRow>
 
-          <ApplyButton
-            onClick={() => formik.handleSubmit()}
-            disabled={isApplyDisabled}
-          >
+          <ApplyButton onClick={() => formik.handleSubmit()} disabled={isApplyDisabled}>
             Apply
           </ApplyButton>
         </ControlsSection>
@@ -225,10 +221,10 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
                   <SocketBadge key={`${socket.pduIndex}-${socket.socketIndex}`}>
                     Socket: {socket.socketIndex}
                   </SocketBadge>
-              ))}
+                ))}
               </SocketBadgesRow>
             </RackGroup>
-        ))}
+          ))}
         </SelectionSummary>
       </PanelContainer>
     </FormikProvider>
