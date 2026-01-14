@@ -49,6 +49,11 @@ const HeatmapTab = lazy(() =>
     default: (m as { HeatmapTab: ComponentType<unknown> }).HeatmapTab,
   })),
 )
+const PowerAdjustmentTab = lazy(() =>
+  import('@/Views/Container/Tabs/PowerAdjustmentTab/PowerAdjustmentTab').then((m: unknown) => ({
+    default: (m as { PowerAdjustmentTab: ComponentType<unknown> }).PowerAdjustmentTab,
+  })),
+)
 
 interface TabConfig {
   key: string
@@ -65,6 +70,7 @@ interface AllContainerTabs {
   SETTINGS: TabConfig
   CHARTS: TabConfig
   HEATMAP: TabConfig
+  POWER_ADJUSTMENT: TabConfig
 }
 
 export const getAllContainerTabs = (data?: UnknownRecord): AllContainerTabs => {
@@ -110,6 +116,11 @@ export const getAllContainerTabs = (data?: UnknownRecord): AllContainerTabs => {
       label: 'Heatmap',
       children: <LazyTabWrapper Component={HeatmapTab} data={typedData} />,
     },
+    POWER_ADJUSTMENT: {
+      key: 'power-adjustment',
+      label: 'Power Adjustment',
+      children: <LazyTabWrapper Component={PowerAdjustmentTab} data={typedData} />,
+    },
   }
 }
 
@@ -149,6 +160,7 @@ export const getSupportedTabs = (type: string, data?: UnknownRecord): TabConfig[
     return [
       availableTabs.HOME,
       availableTabs.PDU,
+      availableTabs.POWER_ADJUSTMENT,
       availableTabs.SETTINGS,
       availableTabs.CHARTS,
       availableTabs.HEATMAP,
