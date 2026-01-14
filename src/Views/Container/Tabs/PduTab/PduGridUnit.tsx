@@ -67,6 +67,7 @@ interface PduGridUnitProps {
   getSelectableName?: (pdu: string | number, socket: string | number) => string
   ranges?: UnknownRecord
   detailsLoading?: boolean
+  additionalToolbarControls?: React.ReactNode
 }
 
 const LAYOUT_RESET_DELAY_MS = 250
@@ -87,6 +88,7 @@ const PduGridUnit = ({
   minersHashmap,
   getSelectableName,
   ranges,
+  additionalToolbarControls,
 }: PduGridUnitProps) => {
   const minersFormattedJson = getMinersFormattedJson(connectedMiners as Device[])
   const isAltDown = useKeyDown('Alt')
@@ -255,6 +257,7 @@ const PduGridUnit = ({
             <ButtonWrapper>
               <ToolbarPowerModeSelector />
             </ButtonWrapper>
+            {additionalToolbarControls}
           </PduControlsSection>
           <PduControlsSection>
             <Tooltip
