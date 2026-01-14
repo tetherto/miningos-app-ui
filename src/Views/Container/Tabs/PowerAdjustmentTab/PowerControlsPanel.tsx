@@ -2,9 +2,11 @@ import _compact from 'lodash/compact'
 import _groupBy from 'lodash/groupBy'
 import _head from 'lodash/head'
 import _isEmpty from 'lodash/isEmpty'
+import _isNaN from 'lodash/isNaN'
 import _join from 'lodash/join'
 import _keys from 'lodash/keys'
 import _map from 'lodash/map'
+import _parseInt from 'lodash/parseInt'
 import _size from 'lodash/size'
 import _sortBy from 'lodash/sortBy'
 import _uniq from 'lodash/uniq'
@@ -32,10 +34,9 @@ import {
   SummaryTitle,
 } from './PowerControlsPanel.styles'
 
+import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
 import { NoMinersSelectedContainer } from '@/Components/Explorer/DetailsView/DetailsView.styles'
 import NoDataSelected from '@/Components/Explorer/DetailsView/NoDataSelected/NoDataSelected'
-
-import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
 import { UNITS } from '@/constants/units'
 
 interface SelectedSocket {
@@ -104,8 +105,13 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
     }
   }, [hasSelection])
 
-  const handlePercentageChange = (value: number | null) => {
-    setPowerPercentage(value)
+  const handlePercentageChange = (value: string | number | null) => {
+    if (typeof value === 'string') {
+      const parsed = _parseInt(value, 10)
+      setPowerPercentage(_isNaN(parsed) ? null : parsed)
+    } else {
+      setPowerPercentage(value)
+    }
   }
 
   const handlePresetClick = (preset: number) => {
