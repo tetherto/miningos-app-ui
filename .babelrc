@@ -1,0 +1,31 @@
+{
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "esmodules": true
+        },
+        "bugfixes": true,
+        "modules": false
+      }
+    ],
+    ["@babel/preset-react", { "runtime": "automatic" }]
+  ],
+  "plugins": [
+    ["babel-plugin-react-compiler"],
+    ["babel-plugin-styled-components", {
+      "displayName": true,
+      "fileName": false,
+      "pure": true
+    }],
+    ["babel-plugin-date-fns", {
+      "onlyEnUS": true
+    }],
+    ["babel-plugin-import", {
+      "libraryName": "antd",
+      "libraryDirectory": "es",
+      "style": false
+    }]
+  ]
+}

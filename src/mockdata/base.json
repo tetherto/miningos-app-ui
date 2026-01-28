@@ -1,0 +1,261 @@
+{
+  "site-97730bbdf4ef": {
+    "data": {
+      "site": "Site A"
+    },
+    "meta": {
+      "request": {},
+      "response": {}
+    }
+  },
+  "featureConfig-c134c1c169f4": {
+    "data": {
+      "comments": true,
+      "inventory": false,
+      "lvCabinetWidgets": true,
+      "poolStats": true,
+      "powerAvailable": true,
+      "reporting": true,
+      "settings": true,
+      "isOneMinItvEnabled": false,
+      "powerModeTimeline": false,
+      "totalSystemConsumptionChart": false,
+      "exportHistKpiDashboard": false,
+      "showMinerConsumptionDashboard": false,
+      "totalSystemConsumptionHeader": false,
+      "energyProvision": true
+    },
+    "meta": {
+      "request": {},
+      "response": {}
+    }
+  },
+  "userinfo-b7c3862cf8dc": {
+    "data": {
+      "token": "pub:api:SANITIZED_TOKEN-1-roles:*",
+      "userId": 1,
+      "ips": ["::1"],
+      "metadata": {
+        "email": "mail@example.com",
+        "id": 1,
+        "roles": "[\"*\"]",
+        "password": null
+      },
+      "created": 1769600448,
+      "ttl": 86400
+    },
+    "meta": {
+      "request": {},
+      "response": {}
+    }
+  },
+  "featureConfig-a98ba7d67e70": {
+    "data": {
+      "comments": true,
+      "inventory": false,
+      "lvCabinetWidgets": true,
+      "poolStats": true,
+      "powerAvailable": true,
+      "reporting": true,
+      "settings": true,
+      "isOneMinItvEnabled": false,
+      "powerModeTimeline": false,
+      "totalSystemConsumptionChart": false,
+      "exportHistKpiDashboard": false,
+      "showMinerConsumptionDashboard": false,
+      "totalSystemConsumptionHeader": false,
+      "energyProvision": true
+    },
+    "meta": {
+      "request": {},
+      "response": {}
+    }
+  },
+  "permissions-9573d5cc4203": {
+    "data": {
+      "permissions": {
+        "write": true,
+        "caps": [
+          "miner",
+          "container",
+          "minerpool",
+          "powermeter",
+          "temp",
+          "electricity",
+          "features",
+          "revenue",
+          "users",
+          "actions",
+          "production",
+          "alerts",
+          "cabinets",
+          "comments",
+          "explorer",
+          "inventory",
+          "reporting",
+          "settings",
+          "ticket",
+          "power_spot_forecast"
+        ],
+        "superAdmin": true,
+        "permissions": [
+          "miner:rw",
+          "container:rw",
+          "minerpool:rw",
+          "powermeter:rw",
+          "temp:rw",
+          "electricity:rw",
+          "features:rw",
+          "revenue:rw",
+          "users:rw",
+          "actions:rw",
+          "production:rw",
+          "alerts:rw",
+          "cabinets:rw",
+          "comments:rw",
+          "explorer:rw",
+          "inventory:rw",
+          "reporting:rw",
+          "settings:rw",
+          "ticket:rw",
+          "power_spot_forecast:rw"
+        ]
+      }
+    },
+    "meta": {
+      "request": {},
+      "response": {}
+    }
+  },
+  "token-17f43c576c43": {
+    "data": {
+      "token": "pub:api:SANITIZED_TOKEN-1-roles:*"
+    },
+    "meta": {
+      "request": {},
+      "response": {}
+    }
+  },
+  "features-6888af1c3866": {
+    "data": {
+      "localWeatherInfoEnabled": true,
+      "userManagement": true,
+      "productionData": true,
+      "siteOperationsEnabled": true,
+      "siteKpiEnabled": true,
+      "containerKpiReport": true,
+      "hashrateReport": true,
+      "siteEnergyEnabled": true,
+      "energyProvision": true,
+      "minersOverview": true,
+      "inventory": true,
+      "alertsHistoricalLogEnabled": true,
+      "spotPriceSettings": true,
+      "weeklyForecast": true,
+      "oceanLuck": true
+    },
+    "meta": {
+      "request": {},
+      "response": {}
+    }
+  },
+  "features-6178fd37639d": {
+    "data": {
+      "userManagement": true,
+      "inventory": true
+    },
+    "meta": {
+      "request": {},
+      "response": {}
+    }
+  },
+  "global-config-dc81f2a24023": {
+    "data": [
+      {
+        "aggrTailLogTimezones": [
+          {
+            "code": "UTC",
+            "offset": 0
+          }
+        ],
+        "nominalSiteHashrate_MHS": 709032000000,
+        "nominalSiteMinerCapacity": 4232,
+        "nominalSiteWeightedAvgEfficiency": 28.36,
+        "nominalAvailablePowerMWh": 22.5,
+        "siteEnergyDataThresholdMWh": 0.05,
+        "consumptionLevels": {
+          "low": 50000,
+          "medium": 22450000,
+          "high": 22470000,
+          "critical": 22490000
+        },
+        "transformerThresholds": {
+          "medium": 1300000,
+          "high": 1400000
+        },
+        "isAutoSleepAllowed": true
+      }
+    ],
+    "meta": {
+      "request": {},
+      "response": {}
+    }
+  },
+  "global-config-23ac2c49c940": {
+    "data": [
+      {
+        "aggrTailLogTimezones": [
+          {
+            "code": "UTC",
+            "offset": 0
+          }
+        ],
+        "nominalSiteHashrate_MHS": 709032000000,
+        "nominalSiteMinerCapacity": 4232,
+        "nominalSiteWeightedAvgEfficiency": 28.36,
+        "nominalAvailablePowerMWh": 22.5,
+        "siteEnergyDataThresholdMWh": 0.05,
+        "consumptionLevels": {
+          "low": 50000,
+          "medium": 22450000,
+          "high": 22470000,
+          "critical": 22490000
+        },
+        "transformerThresholds": {
+          "medium": 1300000,
+          "high": 1400000
+        },
+        "isAutoSleepAllowed": true
+      }
+    ],
+    "meta": {
+      "request": {},
+      "response": {}
+    }
+  },
+  "users-da88540c8a4c": {
+    "data": {
+      "users": [
+        {
+          "id": 2,
+          "email": "mail@example.com",
+          "role": "site_operator"
+        },
+        {
+          "id": 3,
+          "email": "mail@example.com",
+          "role": "site_operator"
+        },
+        {
+          "id": 4,
+          "email": "mail@example.com",
+          "role": "read_only_user"
+        }
+      ]
+    },
+    "meta": {
+      "request": {},
+      "response": {}
+    }
+  }
+}
