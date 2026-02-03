@@ -11,6 +11,9 @@
   "dependencies": {
     "@ant-design/icons": "^5.3.7",
     "@ant-design/v5-patch-for-react-19": "^1.0.3",
+    "@capacitor/android": "^8.0.2",
+    "@capacitor/cli": "^8.0.2",
+    "@capacitor/core": "^8.0.2",
     "@reduxjs/toolkit": "^2.2.6",
     "@sentry/cli": "^2.33.1",
     "@sentry/react": "^8.24.0",
@@ -79,7 +82,11 @@
     "verify-build": "node scripts/verifyBuild.js",
     "verify-build:staging": "node scripts/verifyBuild.js staging",
     "verify-build:production": "node scripts/verifyBuild.js production",
-    "sanitize-mockdata": "node scripts/sanitizeMockdata.cjs"
+    "sanitize-mockdata": "node scripts/sanitizeMockdata.cjs",
+    "android:sync": "npx cap sync android",
+    "android:open": "npx cap open android",
+    "android:run": "npx cap run android",
+    "android:build": "npm run build && npm run android:sync"
   },
   "browserslist": {
     "production": [
