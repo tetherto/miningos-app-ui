@@ -30,7 +30,7 @@
     "lightweight-charts": "^5.1.0",
     "lodash-es": "^4.17.21",
     "nanoid": "^5.1.5",
-    "p-queue": "^8.0.1",
+    "p-queue": "^9.1.0",
     "p-retry": "^6.2.1",
     "pluralize": "8.0.0",
     "qs": "^6.13.1",
