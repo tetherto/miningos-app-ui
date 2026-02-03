@@ -42,8 +42,6 @@ export default defineConfig({
         'src/setupTests.ts',
         '**/*.d.ts',
         '**/*.config.js',
-        '**/*.stories.js',
-        '**/*.stories.jsx',
       ],
     },
     // Optimize transform mode

@@ -27,8 +27,6 @@ module.exports = defineConfig([
     '**/vitest.config.js',
     '**/prettier.config.cjs',
     '**/eslint.config.js.backup',
-    '**/.storybook/',
-    '**/stories/',
     '**/mockdata.ts',
   ]),
   {
