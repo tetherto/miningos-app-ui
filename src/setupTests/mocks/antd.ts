@@ -29,5 +29,5 @@ vi.mock('@ant-design/cssinjs', () => ({
   createCache: vi.fn(() => ({})),
   createTheme: vi.fn(() => ({})),
   StyleProvider: vi.fn(({ children }: { children: ReactNode }) => children),
-  Keyframes: vi.fn(() => ({})),
+  Keyframes: vi.fn(class {}),
 }))
