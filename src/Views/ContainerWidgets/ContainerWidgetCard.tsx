@@ -1,6 +1,6 @@
 import _get from 'lodash/get'
 import { MouseEvent, useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { BitmainImmersionSummaryBox } from './BitmainImmersion/BitmainImmersionSummaryBox'
 import {

@@ -1,7 +1,7 @@
 import _filter from 'lodash/filter'
 import _map from 'lodash/map'
 import _toLower from 'lodash/toLower'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import AllSites from '../../components/AllSites/AllSites'
 import ReportPage from '../../components/ReportPage/ReportPage'

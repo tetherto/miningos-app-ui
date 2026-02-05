@@ -1,5 +1,5 @@
 import _get from 'lodash/get'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import type { UnknownRecord } from '../app/utils/deviceUtils/types'
 

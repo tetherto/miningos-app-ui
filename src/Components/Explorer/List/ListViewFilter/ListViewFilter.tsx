@@ -11,7 +11,7 @@ import _map from 'lodash/map'
 import _toPairs from 'lodash/toPairs'
 import _toString from 'lodash/toString'
 import { useState } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 import { SEVERITY_KEY } from '../../../../constants/alerts'
 

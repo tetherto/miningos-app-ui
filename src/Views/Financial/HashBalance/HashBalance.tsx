@@ -1,6 +1,6 @@
 import Button from 'antd/es/button'
 import { Suspense, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import {
   DatePickerContainer,

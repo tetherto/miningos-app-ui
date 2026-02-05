@@ -4,7 +4,7 @@ import type { MenuProps } from 'antd/es/menu'
 import type { ReactNode } from 'react'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router'
 
 import useTimezone from '../../hooks/useTimezone'
 

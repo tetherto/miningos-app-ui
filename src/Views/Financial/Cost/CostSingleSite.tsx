@@ -1,7 +1,7 @@
 import { subYears } from 'date-fns/subYears'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import type { DateRangeChangeHandler } from '../Financial.types'
 import { FinancialDateRangeSection } from '../FinancialDateRangeSection'

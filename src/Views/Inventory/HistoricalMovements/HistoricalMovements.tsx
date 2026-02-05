@@ -11,7 +11,7 @@ import _toLower from 'lodash/toLower'
 import _trim from 'lodash/trim'
 import * as React from 'react'
 import { useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 
 import { useGetHistoricalLogsQuery, useGetListThingsQuery } from '../../../app/services/api'
 import { getMinerShortCode } from '../../../app/utils/deviceUtils'

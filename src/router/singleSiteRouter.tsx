@@ -1,6 +1,6 @@
 import type { ComponentType } from 'react'
 import { lazy } from 'react'
-import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router'
 
 import { isDemoMode } from '@/app/services/api.utils'
 import { SuspenseWrapper } from '@/Components/SuspenseWrapper/SuspenseWrapper'

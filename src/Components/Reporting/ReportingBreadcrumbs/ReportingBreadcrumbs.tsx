@@ -2,7 +2,7 @@ import { ReloadOutlined } from '@ant-design/icons'
 import Button from 'antd/es/button'
 import Tooltip from 'antd/es/tooltip'
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import useTimezone from '../../../hooks/useTimezone'
 import { Breadcrumbs } from '../../Breadcrumbs/Breadcrumbs'

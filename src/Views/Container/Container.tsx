@@ -3,7 +3,7 @@ import _find from 'lodash/find'
 import _noop from 'lodash/noop'
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 
 import { getBackUrl as getBackUrlParam } from '../../app/utils/domainUtils'
 

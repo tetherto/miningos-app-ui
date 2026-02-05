@@ -12,7 +12,7 @@ import _toLower from 'lodash/toLower'
 import _toUpperCase from 'lodash/toUpper'
 import { useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { useGetListThingsQuery, useGetSiteQuery } from '../../../app/services/api'
 import { getContainerMinersPosition } from '../../../app/utils/containerUtils'

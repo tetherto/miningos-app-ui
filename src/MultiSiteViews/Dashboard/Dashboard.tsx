@@ -21,7 +21,7 @@ import _toUpper from 'lodash/toUpper'
 import _uniq from 'lodash/uniq'
 import _values from 'lodash/values'
 import { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { getEfficiencyString } from '../../app/utils/format'
 import { CHART_COLORS } from '../../constants/colors'

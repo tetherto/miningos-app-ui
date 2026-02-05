@@ -3,7 +3,7 @@ import _map from 'lodash/map'
 import type { ComponentType } from 'react'
 import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router'
 
 import { MenuItem } from './MenuItem/MenuItem'
 import type { MultiSiteNavigationSite } from './Sidebar.config'

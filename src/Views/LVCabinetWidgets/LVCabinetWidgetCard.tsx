@@ -2,7 +2,7 @@ import _get from 'lodash/get'
 import _map from 'lodash/map'
 import _sumBy from 'lodash/sumBy'
 import { RefObject } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import {
   getCabinetTitle,

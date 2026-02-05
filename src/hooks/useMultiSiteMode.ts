@@ -5,7 +5,7 @@ import _map from 'lodash/map'
 import _toLower from 'lodash/toLower'
 import { useEffect, useMemo, useCallback } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { useGetFeatureConfigQuery } from '@/app/services/api'
 import { selectToken } from '@/app/slices/authSlice'

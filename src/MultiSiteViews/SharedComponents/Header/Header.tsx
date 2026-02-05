@@ -3,7 +3,7 @@ import _noop from 'lodash/noop'
 import _toUpper from 'lodash/toUpper'
 import { FC, useEffect } from 'react'
 import { useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { getSelectedSites } from '@/app/slices/multiSiteSlice'
 import { getBeginningOfMonth, getEndOfYesterday, getRangeTimestamps } from '@/app/utils/dateUtils'

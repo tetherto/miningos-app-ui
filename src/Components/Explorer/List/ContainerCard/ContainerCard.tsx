@@ -5,7 +5,7 @@ import _isBoolean from 'lodash/isBoolean'
 import _isString from 'lodash/isString'
 import { memo, MouseEvent } from 'react'
 import { useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import {
   selectSelectedContainers,

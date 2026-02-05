@@ -50,7 +50,7 @@ export default defineConfig(({ mode }) => {
         'react-redux',
         '@reduxjs/toolkit',
         'styled-components',
-        'react-router-dom',
+        'react-router',
       ],
       exclude: isDev || isStaging ? ['@sentry/react', '@sentry/cli'] : [],
       esbuildOptions: {

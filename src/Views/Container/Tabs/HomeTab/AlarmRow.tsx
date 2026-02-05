@@ -2,7 +2,7 @@ import { ExclamationOutlined, WarningFilled } from '@ant-design/icons'
 import _map from 'lodash/map'
 import _split from 'lodash/split'
 import type { CSSProperties, ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import {
   AlarmBody,

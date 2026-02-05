@@ -1,6 +1,6 @@
 import Empty from 'antd/es/empty'
 import _head from 'lodash/head'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { AntspaceStats, BitdeerStats, CommonStats, MicroBTStats } from './components'
 import {

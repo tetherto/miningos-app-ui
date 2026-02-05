@@ -3,7 +3,7 @@ import AntdApp from 'antd/es/app'
 import ConfigProvider from 'antd/es/config-provider'
 import enUS from 'antd/es/locale/en_US'
 import { useSelector } from 'react-redux'
-import { RouterProvider } from 'react-router-dom'
+import { RouterProvider } from 'react-router/dom'
 import { ThemeProvider } from 'styled-components'
 
 import { getMultiSiteRouter } from './router/multiSiteRouter'

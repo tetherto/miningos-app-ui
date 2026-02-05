@@ -2,7 +2,7 @@ import Tooltip from 'antd/es/tooltip'
 import _includes from 'lodash/includes'
 import _isString from 'lodash/isString'
 import { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import { CardContainer, CardTitle } from './Card.styles'
 import { LabeledCardBody, LabeledCardHeaderLabel } from './LabeledCard.styles'

@@ -6,7 +6,7 @@ import _head from 'lodash/head'
 import _size from 'lodash/size'
 import _trimEnd from 'lodash/trimEnd'
 import { useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router'
 
 import columns, { type ThingData } from './Things.columns'
 

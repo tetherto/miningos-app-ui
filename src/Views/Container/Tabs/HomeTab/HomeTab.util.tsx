@@ -6,7 +6,7 @@ import _join from 'lodash/join'
 import _map from 'lodash/map'
 import _partition from 'lodash/partition'
 import _round from 'lodash/round'
-import type { NavigateFunction } from 'react-router-dom'
+import type { NavigateFunction } from 'react-router'
 
 import type { Alert } from '@/app/utils/alertUtils'
 import { getLogFormattedAlertData } from '@/app/utils/alertUtils'

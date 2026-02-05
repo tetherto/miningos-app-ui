@@ -16,7 +16,7 @@ import _trim from 'lodash/trim'
 import * as React from 'react'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { useGetListThingsQuery, useGetSiteQuery } from '../../../app/services/api'
 import { getPartTypeAbbreviation } from '../../../app/utils/sparePartUtils'

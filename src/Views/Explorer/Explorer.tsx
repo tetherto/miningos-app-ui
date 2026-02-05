@@ -9,7 +9,7 @@ import _upperCase from 'lodash/upperCase'
 import _values from 'lodash/values'
 import { lazy, Suspense } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router'
 
 const ListView = lazy(() => import('../../Components/Explorer/List/ListView'))
 const DetailsView = lazy(() => import('../../Components/Explorer/DetailsView/DetailsView'))

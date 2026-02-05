@@ -4,7 +4,7 @@ import _get from 'lodash/get'
 import _map from 'lodash/map'
 import _meanBy from 'lodash/meanBy'
 import _toPairs from 'lodash/toPairs'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import useMultiSiteRTRequestParams from './useMultiSiteRTRequestParams'
 

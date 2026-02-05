@@ -1,4 +1,4 @@
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 
 import { useGetFeaturesQuery } from '../../app/services/api'
 import GateKeeper from '../../Components/GateKeeper/GateKeeper'

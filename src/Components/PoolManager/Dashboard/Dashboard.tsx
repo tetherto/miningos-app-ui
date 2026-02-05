@@ -11,7 +11,7 @@ import _isArray from 'lodash/isArray'
 import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
 import _slice from 'lodash/slice'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { alertsNeeded, MAX_ALERTS_DISPLAYED, navigationBlocks } from './constants'
 import {

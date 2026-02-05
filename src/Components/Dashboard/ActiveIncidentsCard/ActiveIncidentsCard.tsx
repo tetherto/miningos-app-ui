@@ -2,7 +2,7 @@ import _first from 'lodash/first'
 import _head from 'lodash/head'
 import _isArray from 'lodash/isArray'
 import { memo } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { useGetListThingsQuery } from '@/app/services/api'
 import { getAlertsForDevices, getAlertsSortedByGeneralFields } from '@/app/utils/alertUtils'

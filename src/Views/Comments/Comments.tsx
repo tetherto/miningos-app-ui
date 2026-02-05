@@ -4,7 +4,7 @@ import _size from 'lodash/size'
 import _slice from 'lodash/slice'
 import { useEffect, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { CommentsRoot } from './Comments.styles'
 import { getDevicesWithMaintenanceContainer, sortDevicesByLatestComment } from './Comments.util'
