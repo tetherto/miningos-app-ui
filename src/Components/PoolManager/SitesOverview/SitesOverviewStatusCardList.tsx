@@ -5,7 +5,7 @@ import _map from 'lodash/map'
 import _size from 'lodash/size'
 import _without from 'lodash/without'
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { SetPoolConfiguration } from './SetPoolConfiguration/SetPoolConfiguration'
 import SetPoolConfigurationModal from './SetPoolConfiguration/SetPoolConfigurationModal'

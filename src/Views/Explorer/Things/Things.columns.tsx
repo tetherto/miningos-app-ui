@@ -1,7 +1,7 @@
 import type { ColumnType } from 'antd/es/table'
 import Tag from 'antd/es/tag'
 import _map from 'lodash/map'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 export interface ThingData extends Record<string, unknown> {
   id: string

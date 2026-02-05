@@ -1,7 +1,7 @@
 import _endsWith from 'lodash/endsWith'
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
-import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams, useSearchParams } from 'react-router'
 
 import { AlertsOuterContainer, HistoricalAlertsWrapper } from './Alerts.styles'
 import { CurrentAlerts, LocalFilters } from './CurrentAlerts/CurrentAlerts'

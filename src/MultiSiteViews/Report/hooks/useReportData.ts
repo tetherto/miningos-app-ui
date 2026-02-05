@@ -3,7 +3,7 @@ import _map from 'lodash/map'
 import _toLower from 'lodash/toLower'
 import _toUpper from 'lodash/toUpper'
 import { useMemo } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router'
 
 import { parseDateRange, PERIOD_MAP } from '../Report.util'
 

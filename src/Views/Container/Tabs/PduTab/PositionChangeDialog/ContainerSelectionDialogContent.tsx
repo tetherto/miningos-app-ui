@@ -3,7 +3,7 @@ import _head from 'lodash/head'
 import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
 import _toUpper from 'lodash/toUpper'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import styled from 'styled-components'
 
 import { ModalFooter } from './PositionChangeDialog.styles'

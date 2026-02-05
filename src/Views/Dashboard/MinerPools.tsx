@@ -1,7 +1,7 @@
 import Empty from 'antd/es/empty'
 import Result from 'antd/es/result'
 import _size from 'lodash/size'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import LabeledCard from '../../Components/Card/LabeledCard'
 

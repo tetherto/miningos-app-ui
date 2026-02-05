@@ -4,7 +4,7 @@ import _map from 'lodash/map'
 import _toUpper from 'lodash/toUpper'
 import * as React from 'react'
 import { useMemo } from 'react'
-import { useParams, useSearchParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router'
 
 import ReportCover from './components/ReportCover/ReportCover'
 import ReportPage from './components/ReportPage/ReportPage'

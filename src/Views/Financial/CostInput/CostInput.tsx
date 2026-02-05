@@ -5,7 +5,7 @@ import _find from 'lodash/find'
 import _isNumber from 'lodash/isNumber'
 import _map from 'lodash/map'
 import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import {
   CostInputRoot,

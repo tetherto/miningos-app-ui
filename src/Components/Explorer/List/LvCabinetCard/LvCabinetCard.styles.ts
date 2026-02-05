@@ -1,5 +1,5 @@
 import Row from 'antd/es/row'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import styled from 'styled-components'
 
 import { DeviceCardContainer } from '../ListView.styles'

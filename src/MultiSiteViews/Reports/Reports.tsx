@@ -1,7 +1,7 @@
 import Radio from 'antd/es/radio'
 import { format } from 'date-fns/format'
 import _toLower from 'lodash/toLower'
-import { useParams, useSearchParams, useNavigate } from 'react-router-dom'
+import { useParams, useSearchParams, useNavigate } from 'react-router'
 
 import { Header } from '../SharedComponents/Header/Header'
 

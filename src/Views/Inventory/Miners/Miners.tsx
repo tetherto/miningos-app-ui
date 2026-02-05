@@ -11,7 +11,7 @@ import _split from 'lodash/split'
 import _startCase from 'lodash/startCase'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { useGetListThingsQuery, useGetSiteQuery } from '../../../app/services/api'
 import { devicesSlice, selectFilterTags } from '../../../app/slices/devicesSlice'

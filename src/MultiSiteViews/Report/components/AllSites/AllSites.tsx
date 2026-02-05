@@ -3,7 +3,7 @@ import _isString from 'lodash/isString'
 import _map from 'lodash/map'
 import _upper from 'lodash/upperCase'
 import _values from 'lodash/values'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import {
   AllSitesMetricsGrid,

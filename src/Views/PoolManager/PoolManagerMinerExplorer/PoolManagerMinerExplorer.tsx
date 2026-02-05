@@ -5,7 +5,7 @@ import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import { Header, HeaderSubtitle, PoolManagerDashboardRoot } from '../PoolManagerDashboard.styles'
 

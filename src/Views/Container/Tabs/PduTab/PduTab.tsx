@@ -1,6 +1,6 @@
 import _head from 'lodash/head'
 import { useEffect, useRef, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { useLocation, useNavigate, useParams } from 'react-router'
 
 import AddReplaceMinerDialog from './AddReplaceMinerDialog/AddReplaceMinerDialog'
 import EditFlowHeader from './EditFlowHeader'

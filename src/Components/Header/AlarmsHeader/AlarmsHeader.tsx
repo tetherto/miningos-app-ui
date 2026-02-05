@@ -3,7 +3,7 @@ import _head from 'lodash/head'
 import _isEmpty from 'lodash/isEmpty'
 import { useEffect, useRef } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
 import { getIsAlertEnabled } from '../../../app/slices/themeSlice'
 import { setIsAlertEnabled } from '../../../app/store'

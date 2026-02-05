@@ -2,7 +2,7 @@ import Tooltip from 'antd/es/tooltip'
 import _map from 'lodash/map'
 import _values from 'lodash/values'
 import { FC } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import { SEVERITY } from '../../../../constants/alerts'
 

@@ -8,7 +8,7 @@ import _map from 'lodash/map'
 import _size from 'lodash/size'
 import { FC } from 'react'
 import { useSelector } from 'react-redux'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router'
 
 import { selectPendingSubmissions } from '../../../app/slices/actionsSlice'
 import { selectSelectedContainers, selectSelectedSockets } from '../../../app/slices/devicesSlice'

@@ -1,7 +1,7 @@
 import _isString from 'lodash/isString'
 import { FC, ReactElement, useEffect } from 'react'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { selectToken } from '../../app/slices/authSlice'
 import { getSignInRedirectUrl } from '../../app/utils/authUtils'

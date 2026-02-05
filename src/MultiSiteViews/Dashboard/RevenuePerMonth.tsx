@@ -7,7 +7,7 @@ import _map from 'lodash/map'
 import _reduce from 'lodash/reduce'
 import _some from 'lodash/some'
 import _toUpper from 'lodash/toUpper'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { MultisitePageWrapper } from '../MultiSite.styles'
 

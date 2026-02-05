@@ -1,7 +1,7 @@
 import { List } from 'lodash'
 import _head from 'lodash/head'
 import type React from 'react'
-import type { NavigateFunction } from 'react-router-dom'
+import type { NavigateFunction } from 'react-router'
 
 import { useGetTailLogQuery } from '@/app/services/api'
 import type { Alert } from '@/app/utils/alertUtils'

@@ -4,7 +4,7 @@ import _includes from 'lodash/includes'
 import _replace from 'lodash/replace'
 import { useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { CABINET_IDENTIFIER, FeatureConfig } from './Comments'
 import { getCommentPayloadBase, mutateCommentAsync, sortCommentsByRecent } from './Comments.util'

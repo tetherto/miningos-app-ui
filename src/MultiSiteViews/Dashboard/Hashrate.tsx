@@ -1,6 +1,6 @@
 import _map from 'lodash/map'
 import _toUpper from 'lodash/toUpper'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { MultisitePageWrapper } from '../MultiSite.styles'
 

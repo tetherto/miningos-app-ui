@@ -4,7 +4,7 @@ import _find from 'lodash/find'
 import _isEmpty from 'lodash/isEmpty'
 import { FC, useEffect, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation, useSearchParams } from 'react-router-dom'
+import { useLocation, useSearchParams } from 'react-router'
 
 import { DeviceTable } from './components/DeviceTable'
 import { ListViewHeader } from './components/ListViewHeader'

@@ -5,7 +5,7 @@ import _head from 'lodash/head'
 import _includes from 'lodash/includes'
 import _map from 'lodash/map'
 import { useDispatch } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { SetPowerModeValues } from '../Explorer.constants'
 import { ErrorBannerWrapper } from '../Explorer.styles'

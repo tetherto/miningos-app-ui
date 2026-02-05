@@ -1,7 +1,7 @@
 import _includes from 'lodash/includes'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
 import { usePostTokenQuery } from '../app/services/api'
 import { authSlice } from '../app/slices/authSlice'

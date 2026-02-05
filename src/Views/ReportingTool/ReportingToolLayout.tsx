@@ -1,5 +1,5 @@
 import Empty from 'antd/es/empty'
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 
 import { useGetFeatureConfigQuery } from '../../app/services/api'
 import GateKeeper from '../../Components/GateKeeper/GateKeeper'

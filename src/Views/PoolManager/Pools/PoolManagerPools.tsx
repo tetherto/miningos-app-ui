@@ -4,7 +4,7 @@ import type { CollapseProps } from 'antd/es/collapse'
 import _map from 'lodash/map'
 import _values from 'lodash/values'
 import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 
 import { Header, HeaderSubtitle, PoolManagerDashboardRoot } from '../PoolManagerDashboard.styles'
 

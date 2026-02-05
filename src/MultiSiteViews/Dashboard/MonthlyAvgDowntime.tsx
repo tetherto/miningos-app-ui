@@ -5,7 +5,7 @@ import _map from 'lodash/map'
 import _reduce from 'lodash/reduce'
 import _sortBy from 'lodash/sortBy'
 import _uniq from 'lodash/uniq'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { MultisitePageWrapper } from '../MultiSite.styles'
 

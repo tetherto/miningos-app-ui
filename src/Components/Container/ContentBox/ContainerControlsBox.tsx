@@ -17,7 +17,7 @@ import _map from 'lodash/map'
 import _values from 'lodash/values'
 import { useEffect, useState, FC } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router'
 
 import { TIME } from '../../../constants'
 import useSubtractedTime from '../../../hooks/useSubtractedTime'

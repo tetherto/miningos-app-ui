@@ -1,4 +1,4 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { getTotalAlerts } from '../HeaderStats/HeaderStats.helper'
 import BellIcon from '../Icons/BellIcon'

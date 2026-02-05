@@ -4,7 +4,7 @@ import Tooltip from 'antd/es/tooltip'
 import _find from 'lodash/find'
 import type { MouseEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { devicesSlice, selectSelectedDevices } from '../../../../app/slices/devicesSlice'
 import {

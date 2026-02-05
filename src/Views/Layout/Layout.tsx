@@ -2,7 +2,7 @@ import notification from 'antd/es/notification'
 import _isString from 'lodash/isString'
 import { lazy, Suspense, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Navigate, Outlet, useLocation, useSearchParams } from 'react-router-dom'
+import { Navigate, Outlet, useLocation, useSearchParams } from 'react-router'
 
 import {
   ActionsSidebarContainer,

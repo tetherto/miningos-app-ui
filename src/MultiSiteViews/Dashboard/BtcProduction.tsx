@@ -9,7 +9,7 @@ import _sortBy from 'lodash/sortBy'
 import _split from 'lodash/split'
 import _toUpper from 'lodash/toUpper'
 import _uniq from 'lodash/uniq'
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { MultisitePageWrapper } from '../MultiSite.styles'
 

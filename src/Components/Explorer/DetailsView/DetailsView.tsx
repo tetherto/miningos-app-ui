@@ -13,7 +13,7 @@ import _startsWith from 'lodash/startsWith'
 import _values from 'lodash/values'
 import { useEffect, useState, FC } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { useLocation, useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router'
 
 import { useGetListThingsQuery } from '../../../app/services/api'
 import {

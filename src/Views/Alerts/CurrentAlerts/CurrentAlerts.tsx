@@ -3,7 +3,7 @@ import _head from 'lodash/head'
 import _isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useRef, useState } from 'react'
 import { useSelector } from 'react-redux'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 
 import { useGetListThingsQuery } from '../../../app/services/api'
 import { selectFilterTags } from '../../../app/slices/devicesSlice'

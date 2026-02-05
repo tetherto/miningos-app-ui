@@ -7,7 +7,7 @@ import _head from 'lodash/head'
 import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
 import React from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router'
 
 import GateKeeper from '../../Components/GateKeeper/GateKeeper'
 import { getAlertTimelineItems } from '../Container/Tabs/HomeTab/HomeTab.util'

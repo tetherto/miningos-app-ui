@@ -5,7 +5,7 @@ import _isNil from 'lodash/isNil'
 import _keys from 'lodash/keys'
 import _map from 'lodash/map'
 import { useSelector } from 'react-redux'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
 import { useGetListThingsQuery } from '../../../app/services/api'
 import { selectSelectedLVCabinets } from '../../../app/slices/devicesSlice'

@@ -1,5 +1,5 @@
 import { lazy } from 'react'
-import { createBrowserRouter } from 'react-router-dom'
+import { createBrowserRouter } from 'react-router'
 
 import { lazyWithNoFeatures } from '@/Components/NoFeaturesRestriction/NoFeaturesRestriction'
 import { SuspenseWrapper } from '@/Components/SuspenseWrapper/SuspenseWrapper'

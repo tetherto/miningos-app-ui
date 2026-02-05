@@ -2,6 +2,10 @@ import { format } from 'date-fns/format'
 import { getTimezoneOffset } from 'date-fns-tz'
 import {
   createChart,
+  DeepPartial,
+  LineSeries,
+  LineStyleOptions,
+  SeriesOptionsCommon,
   type IChartApi,
   type LineData,
   type MouseEventHandler,
@@ -236,7 +240,7 @@ const LineChart = ({
         const dataset = data.datasets[i]
         const { borderColor, borderWidth } = dataset
 
-        const lineSeriesOptions: Parameters<IChartApi['addLineSeries']>[0] = {
+        const lineSeriesOptions: DeepPartial<LineStyleOptions & SeriesOptionsCommon> = {
           color: borderColor,
           ...(borderWidth && { lineWidth: borderWidth as 1 | 2 | 3 | 4 }),
           lastValueVisible: false,
@@ -246,7 +250,7 @@ const LineChart = ({
 
         lineSeriesOptions.autoscaleInfoProvider = autoscaleProvider(beginAtZero)
 
-        const lineSeries = chartRef.current.addLineSeries(lineSeriesOptions)
+        const lineSeries = chartRef.current.addSeries(LineSeries, lineSeriesOptions)
 
         lineSeriesRef.current.push(lineSeries)
         seriesToDatasetMap.current.set(lineSeries, dataset)
