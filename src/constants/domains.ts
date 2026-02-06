@@ -1,7 +1,7 @@
 export const STAGING_ENV = 'staging'
 
 export const WEBAPP_URLS = {
-  [STAGING_ENV]: ['your-staging.dev', 'localhost'],
+  [STAGING_ENV]: ['dev-moria.tether.to', 'localhost'],
 } as const
 
 // Type exports

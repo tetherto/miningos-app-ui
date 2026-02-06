@@ -8,6 +8,7 @@ import { useLazyGetHistoricalLogsQuery } from '../app/services/api'
 import { breakTimeIntoIntervals } from '../app/utils/breakTimeIntoIntervals'
 import type { UnknownRecord } from '../app/utils/deviceUtils/types'
 
+const ONE_DAY_IN_MS = 24 * 60 * 60 * 1_000 // 24 hours
 interface HistoricalLogData extends UnknownRecord {
   thing?: { id?: string }
 }
@@ -41,16 +42,20 @@ export const useFetchHistoricalLogsPaginatedData = ({
   start,
   end,
   logType,
-  intervalLength = 12 * 60 * 60 * 1000, // 12 hours
+  intervalLength = ONE_DAY_IN_MS,
 }: UseFetchHistoricalLogsPaginatedDataParams) => {
-  const [lazyHistoricalLogsQuery, { isLoading: isAlertsLogLoading }] =
-    useLazyGetHistoricalLogsQuery()
+  const [lazyHistoricalLogsQuery] = useLazyGetHistoricalLogsQuery()
   const [historicalData, setHistoricalData] = useState<HistoricalLogData[]>([])
+  const [isFetching, setIsFetching] = useState(false)
 
   useEffect(() => {
     if (!start || !end) return
+
     const intervals = breakTimeIntoIntervals(start, end, intervalLength)
+
     const fetchData = async () => {
+      setIsFetching(true)
+      setHistoricalData([])
       for (const interval of intervals) {
         try {
           const response = await lazyHistoricalLogsQuery({
@@ -66,9 +71,10 @@ export const useFetchHistoricalLogsPaginatedData = ({
           // Ignore errors for individual requests
         }
       }
+      setIsFetching(false)
     }
     fetchData()
   }, [logType, intervalLength, start, end, lazyHistoricalLogsQuery])
 
-  return { data: historicalData, isLoading: isAlertsLogLoading }
+  return { data: historicalData, isLoading: isFetching }
 }

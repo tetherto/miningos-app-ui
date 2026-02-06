@@ -21,8 +21,8 @@ export const getBaseUrl = () => import.meta.env.VITE_BASE_URL || '/'
 export const getApiUrl = () => import.meta.env.VITE_API_URL || ''
 
 export const getSentryConfig = (): { dsn: string; environment: string } => ({
-  dsn: String(import.meta.env.VITE_SENTRY_DSN || ''),
-  environment: String(import.meta.env.VITE_SENTRY_ENVIRONMENT || getAppEnvironment()),
+  dsn: (import.meta.env.VITE_SENTRY_DSN as string) || '',
+  environment: (import.meta.env.VITE_SENTRY_ENVIRONMENT as string) || getAppEnvironment(),
 })
 
 export const isDebugEnabled = () => import.meta.env.VITE_ENABLE_DEBUG === 'true'

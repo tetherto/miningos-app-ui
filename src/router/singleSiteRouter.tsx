@@ -2,6 +2,8 @@ import type { ComponentType } from 'react'
 import { lazy } from 'react'
 import { createBrowserRouter, Navigate } from 'react-router-dom'
 
+import { RootLayout } from './RootLayout'
+
 import { isDemoMode } from '@/app/services/api.utils'
 import { SuspenseWrapper } from '@/Components/SuspenseWrapper/SuspenseWrapper'
 
@@ -29,9 +31,9 @@ const Settings = lazy(() => import('@/Views/Settings/Settings'))
 const UserManagement = lazy(() => import('@/Views/Settings/UserManagement'))
 const Thing = lazy(() => import('@/Views/Explorer/Things/Thing'))
 const Things = lazy(() => import('@/Views/Explorer/Things/Things'))
-const OperationsDashboard = lazy(() => import('@/Views/ReportingTool/OperationsDashboard'))
+const OperationsDashboard = lazy(() => import('@/Views/Reports/OperationsDashboard'))
 const OperationsEfficiency = lazy(
-  () => import('@/Views/ReportingTool/OperationsEfficiency/OperationsEfficiency'),
+  () => import('@/Views/Reports/OperationsEfficiency/OperationsEfficiency'),
 )
 const InventoryDashboard = lazy(() => import('@/Views/Inventory/Dashboard'))
 const InventorySpareParts = lazy(() => import('@/Views/Inventory/SpareParts/SpareParts'))
@@ -48,7 +50,7 @@ const ContainerCharts = lazy(() => import('@/Views/ContainersChart/ContainerChar
 const Cabinet = lazy(() => import('@/Views/Cabinet/Cabinet'))
 const LVCabinetWidgets = lazy(() => import('@/Views/LVCabinetWidgets/LVCabinetWidgets'))
 const Alerts = lazy(() => import('@/Views/Alerts/Alerts'))
-const ReportingToolLayout = lazy(() => import('@/Views/ReportingTool/ReportingToolLayout'))
+const ReportsLayout = lazy(() => import('@/Views/Reports/ReportsLayout'))
 const Comments = lazy(() => import('@/Views/Comments/Comments'))
 const SingleDeviceCommentsHistoryView = lazy(
   () => import('@/Views/Comments/SingleDeviceCommentsHistoryView'),
@@ -75,267 +77,292 @@ export const getSingleSiteRouter = () =>
   createBrowserRouter(
     [
       {
-        path: '/',
-        element: <SuspenseWrapper component={Layout} />,
+        element: <RootLayout />,
         children: [
-          { index: true, element: <SuspenseWrapper component={Dashboard} /> },
           {
-            path: 'operations',
+            path: '/',
+            element: <SuspenseWrapper component={Layout} />,
             children: [
+              { index: true, element: <SuspenseWrapper component={Dashboard} /> },
               {
-                index: true,
-                element: (
-                  <Navigate to={isDemoMode ? '/operations/mining' : '/operations/energy'} replace />
-                ),
+                path: 'operations',
+                children: [
+                  {
+                    index: true,
+                    element: (
+                      <Navigate
+                        to={isDemoMode ? '/operations/mining' : '/operations/energy'}
+                        replace
+                      />
+                    ),
+                  },
+                  ...(isDemoMode
+                    ? []
+                    : [
+                        {
+                          path: 'energy',
+                          children: [
+                            {
+                              index: true,
+                              element: <SuspenseWrapper component={LVCabinetWidgets} />,
+                            },
+                          ],
+                        },
+                      ]),
+                  {
+                    path: 'mining',
+                    children: [
+                      {
+                        index: true,
+                        element: (
+                          <Navigate to="/operations/mining/explorer?tab=container" replace />
+                        ),
+                      },
+                      {
+                        path: 'site-overview',
+                        children: [
+                          { index: true, element: <Navigate to="container-widgets" replace /> },
+                          {
+                            path: 'container-widgets',
+                            element: <SuspenseWrapper component={ContainerWidgets} />,
+                          },
+                          ...(isDemoMode
+                            ? []
+                            : [
+                                {
+                                  path: 'container-charts',
+                                  element: <SuspenseWrapper component={ContainerCharts} />,
+                                },
+                              ]),
+                        ],
+                      },
+                      {
+                        path: 'explorer',
+                        element: <SuspenseWrapper component={ExplorerLayout} />,
+                        children: [
+                          { index: true, element: <SuspenseWrapper component={Explorer} /> },
+                          {
+                            path: ':tag',
+                            children: [
+                              { index: true, element: <SuspenseWrapper component={Things} /> },
+                              {
+                                path: ':id/:tab?/:flow?',
+                                element: <SuspenseWrapper component={Thing} />,
+                              },
+                            ],
+                          },
+                        ],
+                      },
+                      {
+                        path: 'container-charts',
+                        element: <SuspenseWrapper component={ContainerCharts} />,
+                      },
+                    ],
+                  },
+                ],
+              },
+              // Backward compatibility redirects
+              {
+                path: 'explorer',
+                element: <Navigate to="/operations/mining/explorer" replace />,
+              },
+              {
+                path: 'containers',
+                element: <Navigate to="/operations/mining/site-overview" replace />,
+              },
+              {
+                path: 'cabinet-widgets',
+                element: <Navigate to="/operations/energy" replace />,
+              },
+              {
+                path: 'cabinets/:id',
+                children: [{ index: true, element: <SuspenseWrapper component={Cabinet} /> }],
+              },
+              {
+                path: 'inventory',
+                element: <SuspenseWrapper component={InventoryLayout} />,
+                children: [
+                  { path: '', element: <Navigate to="dashboard" replace /> },
+                  {
+                    path: 'dashboard',
+                    element: <SuspenseWrapper component={InventoryDashboard} />,
+                  },
+                  /**
+                   * Not implemented yet
+                   */
+                  // { path: 'dry-coolers', element: <SuspenseWrapper component={InventoryDryCooler} /> },
+                  /**
+                   * Not implemented yet
+                   */
+                  // {
+                  //   path: 'container',
+                  //   element: <SuspenseWrapper component={InventoryContainerList} />,
+                  // },
+                  {
+                    path: 'spare-parts',
+                    element: <SuspenseWrapper component={InventorySpareParts} />,
+                  },
+                  { path: 'miners', element: <SuspenseWrapper component={InventoryMiners} /> },
+                  { path: 'repairs', element: <SuspenseWrapper component={InventoryRepairs} /> },
+                  /**
+                   * Not implemented yet
+                   */
+                  // { path: 'shipping', element: <SuspenseWrapper component={InventoryShipping} /> },
+                  {
+                    path: 'movements',
+                    element: <SuspenseWrapper component={InventoryHistoricalMovements} />,
+                  },
+                  {
+                    path: 'movements/:deviceId',
+                    element: <SuspenseWrapper component={InventoryHistoricalMovements} />,
+                  },
+                ],
+              },
+              {
+                path: 'pool-manager',
+                element: <SuspenseWrapper component={PoolManagerLayout} />,
+                children: [
+                  { path: '', element: <Navigate to="dashboard" replace /> },
+                  {
+                    path: 'dashboard',
+                    element: <SuspenseWrapper component={PoolManagerDashboard} />,
+                  },
+                  {
+                    path: 'pool-endpoints',
+                    element: <SuspenseWrapper component={PoolManagerPools} />,
+                  },
+                  {
+                    path: 'sites-overview',
+                    element: <SuspenseWrapper component={SitesOverview} />,
+                  },
+                  {
+                    path: 'sites-overview/:unit',
+                    element: <SuspenseWrapper component={SiteOverviewDetails} />,
+                  },
+                  {
+                    path: 'miner-explorer',
+                    element: <SuspenseWrapper component={PoolManagerMinerExplorer} />,
+                  },
+                ],
+              },
+              {
+                path: 'reports',
+                element: <SuspenseWrapper component={ReportsLayout} />,
+                children: [
+                  { index: true, element: <Navigate to="/reports/operations/dashboard" replace /> },
+                  {
+                    path: 'operations',
+                    children: [
+                      { index: true, element: <Navigate to="dashboard" replace /> },
+                      {
+                        path: 'dashboard',
+                        element: <SuspenseWrapper component={OperationsDashboard} />,
+                      },
+                      {
+                        path: 'hashrate',
+                        element: <SuspenseWrapper component={Hashrate} />,
+                      },
+                      { path: 'energy', element: <SuspenseWrapper component={EnergyReport} /> },
+                      { path: 'miners', element: <SuspenseWrapper component={MinersReport} /> },
+                      {
+                        path: 'efficiency',
+                        element: <SuspenseWrapper component={OperationsEfficiency} />,
+                      },
+                    ],
+                  },
+                  {
+                    path: 'financial',
+                    children: [
+                      { index: true, element: <Navigate to="revenue-summary" replace /> },
+                      {
+                        path: 'revenue-summary',
+                        element: <SuspenseWrapper component={RevenueSummary} />,
+                      },
+                      {
+                        path: 'cost-summary',
+                        element: <SuspenseWrapper component={Cost} />,
+                      },
+                      {
+                        path: 'ebitda',
+                        element: <SuspenseWrapper component={Ebitda} />,
+                      },
+                      {
+                        path: 'subsidy-fee',
+                        element: <SuspenseWrapper component={SubsidyFee} />,
+                      },
+                      {
+                        path: 'energy-revenue-cost',
+                        element: <SuspenseWrapper component={EnergyRevenue} />,
+                      },
+                      {
+                        path: 'hash-balance',
+                        element: <SuspenseWrapper component={HashBalance} />,
+                      },
+                      {
+                        path: 'cost-input',
+                        element: <SuspenseWrapper component={CostInput} />,
+                      },
+                      {
+                        path: 'energy-balance',
+                        element: <SuspenseWrapper component={EnergyBalance} />,
+                      },
+                    ],
+                  },
+                ],
+              },
+              // Backward compatibility redirect
+              {
+                path: 'reporting-tool',
+                element: <Navigate to="/reports" replace />,
               },
               ...(isDemoMode
                 ? []
                 : [
                     {
-                      path: 'energy',
+                      path: 'comments',
+                      element: <SuspenseWrapper component={CommentsLayout} />,
                       children: [
                         {
                           index: true,
-                          element: <SuspenseWrapper component={LVCabinetWidgets} />,
+                          element: <SuspenseWrapper component={Comments} />,
+                        },
+                        {
+                          path: ':id',
+                          element: <SuspenseWrapper component={SingleDeviceCommentsHistoryView} />,
                         },
                       ],
                     },
                   ]),
               {
-                path: 'mining',
-                children: [
-                  {
-                    index: true,
-                    element: <Navigate to="/operations/mining/explorer?tab=container" replace />,
-                  },
-                  {
-                    path: 'site-overview',
-                    children: [
-                      { index: true, element: <Navigate to="container-widgets" replace /> },
-                      {
-                        path: 'container-widgets',
-                        element: <SuspenseWrapper component={ContainerWidgets} />,
-                      },
-                      ...(isDemoMode
-                        ? []
-                        : [
-                            {
-                              path: 'container-charts',
-                              element: <SuspenseWrapper component={ContainerCharts} />,
-                            },
-                          ]),
-                    ],
-                  },
-                  {
-                    path: 'explorer',
-                    element: <SuspenseWrapper component={ExplorerLayout} />,
-                    children: [
-                      { index: true, element: <SuspenseWrapper component={Explorer} /> },
-                      {
-                        path: ':tag',
-                        children: [
-                          { index: true, element: <SuspenseWrapper component={Things} /> },
-                          {
-                            path: ':id/:tab?/:flow?',
-                            element: <SuspenseWrapper component={Thing} />,
-                          },
-                        ],
-                      },
-                    ],
-                  },
-                  {
-                    path: 'container-charts',
-                    element: <SuspenseWrapper component={ContainerCharts} />,
-                  },
-                ],
-              },
-            ],
-          },
-          // Backward compatibility redirects
-          {
-            path: 'explorer',
-            element: <Navigate to="/operations/mining/explorer" replace />,
-          },
-          {
-            path: 'containers',
-            element: <Navigate to="/operations/mining/site-overview" replace />,
-          },
-          {
-            path: 'cabinet-widgets',
-            element: <Navigate to="/operations/energy" replace />,
-          },
-          {
-            path: 'cabinets/:id',
-            children: [{ index: true, element: <SuspenseWrapper component={Cabinet} /> }],
-          },
-          {
-            path: 'inventory',
-            element: <SuspenseWrapper component={InventoryLayout} />,
-            children: [
-              { path: '', element: <Navigate to="dashboard" replace /> },
-              { path: 'dashboard', element: <SuspenseWrapper component={InventoryDashboard} /> },
-              /**
-               * Not implemented yet
-               */
-              // { path: 'dry-coolers', element: <SuspenseWrapper component={InventoryDryCooler} /> },
-              /**
-               * Not implemented yet
-               */
-              // {
-              //   path: 'container',
-              //   element: <SuspenseWrapper component={InventoryContainerList} />,
-              // },
-              { path: 'spare-parts', element: <SuspenseWrapper component={InventorySpareParts} /> },
-              { path: 'miners', element: <SuspenseWrapper component={InventoryMiners} /> },
-              { path: 'repairs', element: <SuspenseWrapper component={InventoryRepairs} /> },
-              /**
-               * Not implemented yet
-               */
-              // { path: 'shipping', element: <SuspenseWrapper component={InventoryShipping} /> },
-              {
-                path: 'movements',
-                element: <SuspenseWrapper component={InventoryHistoricalMovements} />,
-              },
-              {
-                path: 'movements/:deviceId',
-                element: <SuspenseWrapper component={InventoryHistoricalMovements} />,
-              },
-            ],
-          },
-          {
-            path: 'pool-manager',
-            element: <SuspenseWrapper component={PoolManagerLayout} />,
-            children: [
-              { path: '', element: <Navigate to="dashboard" replace /> },
-              { path: 'dashboard', element: <SuspenseWrapper component={PoolManagerDashboard} /> },
-              { path: 'pool-endpoints', element: <SuspenseWrapper component={PoolManagerPools} /> },
-              { path: 'sites-overview', element: <SuspenseWrapper component={SitesOverview} /> },
-              {
-                path: 'sites-overview/:unit',
-                element: <SuspenseWrapper component={SiteOverviewDetails} />,
-              },
-              {
-                path: 'miner-explorer',
-                element: <SuspenseWrapper component={PoolManagerMinerExplorer} />,
-              },
-            ],
-          },
-          {
-            path: 'reports',
-            element: <SuspenseWrapper component={ReportingToolLayout} />,
-            children: [
-              { index: true, element: <Navigate to="/reports/operations/dashboard" replace /> },
-              {
-                path: 'operations',
+                path: 'settings',
                 children: [
                   { index: true, element: <Navigate to="dashboard" replace /> },
-                  {
-                    path: 'dashboard',
-                    element: <SuspenseWrapper component={OperationsDashboard} />,
-                  },
-                  {
-                    path: 'hashrate',
-                    element: <SuspenseWrapper component={Hashrate} />,
-                  },
-                  { path: 'energy', element: <SuspenseWrapper component={EnergyReport} /> },
-                  { path: 'miners', element: <SuspenseWrapper component={MinersReport} /> },
-                  {
-                    path: 'efficiency',
-                    element: <SuspenseWrapper component={OperationsEfficiency} />,
-                  },
+                  ...(isDemoMode
+                    ? []
+                    : [
+                        {
+                          path: 'dashboard',
+                          element: <SuspenseWrapper component={Settings} />,
+                        },
+                      ]),
+                  { path: 'users', element: <SuspenseWrapper component={UserManagement} /> },
                 ],
               },
               {
-                path: 'financial',
+                path: 'alerts',
+                element: <SuspenseWrapper component={AlertsLayout} />,
                 children: [
-                  { index: true, element: <Navigate to="revenue-summary" replace /> },
-                  {
-                    path: 'revenue-summary',
-                    element: <SuspenseWrapper component={RevenueSummary} />,
-                  },
-                  {
-                    path: 'cost-summary',
-                    element: <SuspenseWrapper component={Cost} />,
-                  },
-                  {
-                    path: 'ebitda',
-                    element: <SuspenseWrapper component={Ebitda} />,
-                  },
-                  {
-                    path: 'subsidy-fee',
-                    element: <SuspenseWrapper component={SubsidyFee} />,
-                  },
-                  {
-                    path: 'energy-revenue-cost',
-                    element: <SuspenseWrapper component={EnergyRevenue} />,
-                  },
-                  {
-                    path: 'hash-balance',
-                    element: <SuspenseWrapper component={HashBalance} />,
-                  },
-                  {
-                    path: 'cost-input',
-                    element: <SuspenseWrapper component={CostInput} />,
-                  },
-                  {
-                    path: 'energy-balance',
-                    element: <SuspenseWrapper component={EnergyBalance} />,
-                  },
+                  { index: true, element: <SuspenseWrapper component={Alerts} /> },
+                  { path: ':id', element: <SuspenseWrapper component={Alerts} /> },
                 ],
               },
             ],
           },
-          // Backward compatibility redirect
-          {
-            path: 'reporting-tool',
-            element: <Navigate to="/reports" replace />,
-          },
-          ...(isDemoMode
-            ? []
-            : [
-                {
-                  path: 'comments',
-                  element: <SuspenseWrapper component={CommentsLayout} />,
-                  children: [
-                    {
-                      index: true,
-                      element: <SuspenseWrapper component={Comments} />,
-                    },
-                    {
-                      path: ':id',
-                      element: <SuspenseWrapper component={SingleDeviceCommentsHistoryView} />,
-                    },
-                  ],
-                },
-              ]),
-          {
-            path: 'settings',
-            children: [
-              { index: true, element: <Navigate to="dashboard" replace /> },
-              ...(isDemoMode
-                ? []
-                : [
-                    {
-                      path: 'dashboard',
-                      element: <SuspenseWrapper component={Settings} />,
-                    },
-                  ]),
-              { path: 'users', element: <SuspenseWrapper component={UserManagement} /> },
-            ],
-          },
-          {
-            path: 'alerts',
-            element: <SuspenseWrapper component={AlertsLayout} />,
-            children: [
-              { index: true, element: <SuspenseWrapper component={Alerts} /> },
-              { path: ':id', element: <SuspenseWrapper component={Alerts} /> },
-            ],
-          },
+          { path: 'signin', element: <SuspenseWrapper component={SignIn} /> },
+          { path: 'signout', element: <SuspenseWrapper component={SignOut} /> },
+          { path: '*', element: <SuspenseWrapper component={NotFoundPage} /> },
         ],
       },
-      { path: 'signin', element: <SuspenseWrapper component={SignIn} /> },
-      { path: 'signout', element: <SuspenseWrapper component={SignOut} /> },
-      { path: '*', element: <SuspenseWrapper component={NotFoundPage} /> },
     ],
     { basename: import.meta.env.VITE_BASE_URL ?? '/' },
   )

@@ -6,7 +6,7 @@ import _isFinite from 'lodash/isFinite'
 import _map from 'lodash/map'
 import _toNumber from 'lodash/toNumber'
 import _uniqBy from 'lodash/uniqBy'
-import { useRef, useState } from 'react'
+import { memo, useRef, useState } from 'react'
 
 const MILLISECONDS_IN_DAY = 24 * 60 * 60 * 1000
 
@@ -24,6 +24,7 @@ import {
 } from './SiteOperationChart.styles'
 
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
+import { ChartLegendPosition } from '@/app/utils/utils.types'
 import { ChartContainer } from '@/Components/ChartContainer/ChartContainer'
 import LineChart from '@/Components/LineChart/LineChart'
 import { CHART_COLORS, COLOR } from '@/constants/colors'
@@ -52,7 +53,7 @@ export interface SiteOperationsChartProps {
   nominalValue?: number
   legend?: Array<{ label: string; color?: string }>
   redirectTo?: string
-  legendPosition?: 'center' | 'left' | 'right'
+  legendPosition?: ChartLegendPosition
   yTicksFormatter?: (value: number) => string
   customDateFormat?: string
   showDateInTooltip?: boolean
@@ -218,4 +219,4 @@ const SiteOperationsChart = ({
   )
 }
 
-export default SiteOperationsChart
+export default memo(SiteOperationsChart)

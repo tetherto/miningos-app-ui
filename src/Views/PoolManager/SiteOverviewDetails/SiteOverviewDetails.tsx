@@ -2,9 +2,14 @@ import { ArrowLeftOutlined } from '@ant-design/icons'
 import _get from 'lodash/get'
 import _head from 'lodash/head'
 import _isNil from 'lodash/isNil'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
-import { Header, HeaderSubtitle, PoolManagerDashboardRoot } from '../PoolManagerDashboard.styles'
+import {
+  Header,
+  HeaderSubtitle,
+  HeaderSubtitleLink,
+  PoolManagerDashboardRoot,
+} from '../PoolManagerDashboard.styles'
 
 import { useGetListThingsQuery } from '@/app/services/api'
 import { getContainerName } from '@/app/utils/containerUtils'
@@ -60,10 +65,10 @@ const SiteOverviewDetails = () => {
         <div>
           <div>Site Overview</div>
           <HeaderSubtitle>
-            <Link to={ROUTE.POOL_MANAGER_SITES_OVERVIEW}>
+            <HeaderSubtitleLink to={ROUTE.POOL_MANAGER_SITES_OVERVIEW}>
               <ArrowLeftOutlined /> Site Overview
-            </Link>
-            {` / ${unitName}`}
+            </HeaderSubtitleLink>
+            {` ${unitName ? ` / ${unitName}` : ''}`}
           </HeaderSubtitle>
         </div>
       </Header>

@@ -35,11 +35,10 @@ import AppTable from '@/Components/AppTable/AppTable'
 import { MinersActivityChart } from '@/Components/Explorer/DetailsView/MinersActivityChart/MinersActivityChart'
 import SiteOperationsChart from '@/Components/SiteOperationChart/SiteOperationChart'
 import { Spinner } from '@/Components/Spinner/Spinner'
-import { COLOR } from '@/constants/colors'
-import { CHART_COLORS } from '@/constants/colors'
+import { CHART_COLORS, COLOR } from '@/constants/colors'
 import { UNITS } from '@/constants/units'
 import { getContainerMinersChartData } from '@/Views/ContainerWidgets/ContainerWidget.util'
-import { formatPowerConsumption } from '@/Views/ReportingTool/OperationsDashboard/utils'
+import { formatPowerConsumption } from '@/Views/Reports/OperationsDashboard/utils'
 
 const TOOLTIP_TITLE =
   'This count represents unique miners of this type. Status columns may sum to more than this total because: Power modes (Normal/High/Low/Sleep) are mutually exclusive, but Maintenance and Error can overlap with any power mode. For example, a miner can be in Normal power mode while also flagged for Maintenance, so it appears in both columns.'
@@ -114,6 +113,7 @@ const EnergyReportSiteView = ({ dateRange }: EnergyReportSiteViewProps) => {
               unit={UNITS.ENERGY_MW}
               nominalValue={powerConsumptionData.nominalValue ?? undefined}
               isLoading={powerConsumptionData.isLoading}
+              legendPosition="left"
               legend={[
                 { color: CHART_COLORS.METALLIC_BLUE, label: 'Power Consumption' },
                 ...(_isFinite(powerConsumptionData.nominalValue)

@@ -1,6 +1,7 @@
 import { getMonthlyRevenueDataset, processRevenueDataset } from './helper'
 
 import { formatValueUnit } from '@/app/utils/format'
+import { ChartLegendPosition } from '@/app/utils/utils.types'
 import BarChart, { BarChartDataset } from '@/Components/BarChart/BarChart'
 import { ChartContainer } from '@/Components/ChartContainer/ChartContainer'
 import { useChartDataCheck } from '@/hooks/useChartDataCheck'
@@ -23,7 +24,7 @@ interface RevenueChartProps {
   data?: RevenueDataItem[]
   isLoading?: boolean
   siteList?: (string | SiteItem)[]
-  legendPosition?: 'top' | 'bottom' | 'left' | 'right'
+  legendPosition?: ChartLegendPosition
   legendAlign?: 'start' | 'center' | 'end'
 }
 

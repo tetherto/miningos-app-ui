@@ -110,6 +110,23 @@ export const useFetchExtDataPaginated = <Item extends WithTimestamp>({
             key: queryKey,
             start: currentStart,
             end: currentEnd,
+            fields: {
+              ts: 1,
+              'stats.poolType': 1,
+              'stats.username': 1,
+              'stats.timestamp': 1,
+              'stats.balance': 1,
+              'stats.unsettled': 1,
+              'stats.revenue_24h': 1,
+              'stats.estimated_today_income': 1,
+              'stats.hashrate': 1,
+              'stats.hashrate_1h': 1,
+              'stats.hashrate_24h': 1,
+              'stats.hashrate_stale_1h': 1,
+              'stats.hashrate_stale_24h': 1,
+              'stats.worker_count': 1,
+              'stats.active_workers_count': 1,
+            },
           }),
         }).unwrap()
 

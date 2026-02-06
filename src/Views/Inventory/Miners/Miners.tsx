@@ -3,9 +3,9 @@ import _filter from 'lodash/filter'
 import _find from 'lodash/find'
 import _forEach from 'lodash/forEach'
 import _get from 'lodash/get'
-import _head from 'lodash/head'
 import _includes from 'lodash/includes'
 import _isArray from 'lodash/isArray'
+import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
 import _split from 'lodash/split'
 import _startCase from 'lodash/startCase'
@@ -13,7 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
 
-import { useGetListThingsQuery, useGetSiteQuery } from '../../../app/services/api'
+import { useGetSiteQuery } from '../../../app/services/api'
 import { devicesSlice, selectFilterTags } from '../../../app/slices/devicesSlice'
 import { Breadcrumbs } from '../../../Components/Breadcrumbs/Breadcrumbs'
 import AddMinerModal from '../../../Components/Inventory/Miners/AddMinerModal/AddMinerModal'
@@ -52,6 +52,7 @@ import {
 } from '@/constants/inventoryPagination'
 import { AUTH_LEVELS, AUTH_PERMISSIONS } from '@/constants/permissions.constants'
 import { ROUTE } from '@/constants/routes'
+import { useGetListThingsPaginated } from '@/hooks/useGetListThingsPaginated'
 import useInventoryPagination from '@/hooks/useInventoryPagination'
 import { useListViewFilters } from '@/hooks/useListViewFilters'
 import { useCheckPerm } from '@/hooks/usePermissions'
@@ -126,11 +127,11 @@ const InventoryMiners = () => {
   )
 
   const {
-    data,
-    isLoading: isLoadingMiners,
+    things: miners,
     refetch,
+    isLoading: isLoadingMiners,
     isFetching: isFetchingMiners,
-  } = useGetListThingsQuery({
+  } = useGetListThingsPaginated({
     overwriteCache: true,
     query: getListQuery(filterTags, inventoryMinersFilters, ['t-miner']),
     fields: JSON.stringify({
@@ -285,9 +286,8 @@ const InventoryMiners = () => {
   }, [])
 
   useEffect(() => {
-    const miners = _head(data as unknown[]) as UnknownRecord[] | undefined
     if (!isLoadingMiners && _isArray(miners)) {
-      const mappedItems = _map(miners, (miner: UnknownRecord) => ({
+      const mapper = (miner: UnknownRecord) => ({
         type: miner.type as string,
         site: _get(miner, 'info.site') as string,
         pos: _get(miner, 'info.pos') as string,
@@ -308,17 +308,17 @@ const InventoryMiners = () => {
           _get(MINER_MODEL_TO_TYPE_MAP, _split(miner.type as string, '-')[1] as string, 'unknown'),
         ),
         raw: miner,
-      }))
+      })
+      const mappedItems = _map(miners, (miner) => mapper(miner as UnknownRecord))
       setFilteredItems(mappedItems)
     }
-  }, [data, isLoadingMiners])
-
-  const isLoading = isLoadingMiners || isFetchingMiners || isSiteLoading
+  }, [miners, isLoadingMiners])
 
   const handleSearch = (value: unknown) => {
     dispatch(setFilterTags(value as string[]))
   }
 
+  const showSpinner = (isLoadingMiners && _isEmpty(miners)) || isSiteLoading
   return (
     <Wrapper>
       <HeaderWrapper>
@@ -348,7 +348,7 @@ const InventoryMiners = () => {
         </StyledFilterWrapper>
       </StyledRow>
 
-      {isLoading ? (
+      {showSpinner ? (
         <Spinner />
       ) : (
         <AppTable<Miner>
@@ -361,7 +361,7 @@ const InventoryMiners = () => {
             canEditMiner,
             getFormattedDate,
           })}
-          loading={isLoading}
+          loading={isFetchingMiners}
           scroll={{ x: 'max-content', y: 600 }}
           pagination={{
             ...pagination,

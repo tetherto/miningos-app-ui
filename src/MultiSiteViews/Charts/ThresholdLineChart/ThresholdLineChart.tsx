@@ -18,7 +18,7 @@ import { useState } from 'react'
 import { Line } from 'react-chartjs-2'
 
 import { LEGEND_PLACEMENT } from '../constants'
-import CustomLegend from '../Legend/Legend'
+import CustomLegend, { type LegendDataset } from '../Legend/Legend'
 
 import {
   defaultLabelFormatter,
@@ -126,7 +126,7 @@ export const ThresholdLineChart = ({
         <ChartHeader>
           <ChartTitle>{title}</ChartTitle>
           <CustomLegend
-            datasets={chartData.datasets}
+            datasets={chartData.datasets as LegendDataset[]}
             hiddenDatasets={hiddenDatasets}
             onToggleDataset={toggleDataset}
             usePointStyle={false}
@@ -141,7 +141,7 @@ export const ThresholdLineChart = ({
       </InnerChartWrapper>
       {showLegendAtBottom && (
         <CustomLegend
-          datasets={chartData.datasets}
+          datasets={chartData.datasets as LegendDataset[]}
           hiddenDatasets={hiddenDatasets}
           onToggleDataset={toggleDataset}
           usePointStyle={false}

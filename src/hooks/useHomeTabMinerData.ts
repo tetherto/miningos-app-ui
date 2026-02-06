@@ -70,6 +70,7 @@ export const useHomeTabMinerData = ({
       aggrFields: JSON.stringify({
         offline_cnt: 1,
         not_mining_cnt: 1,
+        power_mode_normal_include_error_cnt: 1,
         power_mode_low_cnt: 1,
         power_mode_normal_cnt: 1,
         power_mode_high_cnt: 1,
@@ -80,6 +81,7 @@ export const useHomeTabMinerData = ({
       fields: JSON.stringify({
         offline_cnt: 1,
         not_mining_cnt: 1,
+        power_mode_normal_include_error_cnt: 1,
         power_mode_low_cnt: 1,
         power_mode_normal_cnt: 1,
         power_mode_high_cnt: 1,
