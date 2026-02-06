@@ -36,6 +36,7 @@ export const FooterButtonsContainer = styled.div<StyledProps>`
   ${flexRow};
   gap: 12px;
   padding-top: 24px;
+  padding-right: 10px;
   justify-content: flex-end;
   border-top: 1px solid ${COLOR.WHITE_ALPHA_01};
   margin-top: ${({ $hideMarginTop }) => ($hideMarginTop ? '0' : '24px')};
