@@ -1,8 +1,15 @@
 import { endOfDay } from 'date-fns/endOfDay'
+import { endOfMonth } from 'date-fns/endOfMonth'
+import { getDate } from 'date-fns/getDate'
+import { getDaysInMonth } from 'date-fns/getDaysInMonth'
+import { getMonth } from 'date-fns/getMonth'
+import { getYear } from 'date-fns/getYear'
+import { isAfter } from 'date-fns/isAfter'
 import { isValid } from 'date-fns/isValid'
 import { startOfDay } from 'date-fns/startOfDay'
+import { startOfMonth } from 'date-fns/startOfMonth'
 import { subDays } from 'date-fns/subDays'
-import { toZonedTime } from 'date-fns-tz'
+import { fromZonedTime, toZonedTime } from 'date-fns-tz'
 
 export const isValidTimestamp = (timestamp: number | string | Date): boolean => {
   const date = new Date(timestamp)
@@ -47,41 +54,71 @@ export const parseMonthLabelToDate = (label: unknown): Date | null => {
 export const getRangeTimestamps = (
   range: [Date, Date] | null | undefined,
   timezone: string,
+  preserveUTC: boolean = false,
 ): [Date, Date] | [null, null] => {
   if (!range) return [null, null]
 
   const [startDate, endDate] = range
 
+  // If dates are already normalized (from pre-calculated sources like weeksOfMonth),
+  // preserve their UTC timestamps without re-interpreting them
+  if (preserveUTC) {
+    return [startDate, endDate]
+  }
+
+  // Date picker gives us Date objects that represent the user's selection.
+  // The year/month/day values in these Date objects are what the user selected,
+  // regardless of the browser's timezone. We need to extract these values and
+  // treat them as being in the target timezone (e.g., America/Bahia).
+  const startYear = getYear(startDate)
+  const startMonth = getMonth(startDate)
+  const startDay = getDate(startDate)
+
+  const endYear = getYear(endDate)
+  const endMonth = getMonth(endDate)
+  const endDay = getDate(endDate)
+
   // Check if this represents a full month selection
-  // A full month starts on the 1st and ends on the last day of the month
-  const isFullMonth =
-    startDate.getDate() === 1 &&
-    endDate.getDate() === new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0).getDate()
+  const startMonthDate = new Date(startYear, startMonth, 1)
+  const isFullMonth = startDay === 1 && endDay === getDaysInMonth(startMonthDate)
 
   if (isFullMonth) {
-    // For full month selections, preserve the exact month boundaries
-    // Convert to start and end of the days in UTC, preserving month boundaries
-    const startUTC = new Date(startDate.getFullYear(), startDate.getMonth(), 1, 0, 0, 0, 0)
-    const endUTC = new Date(endDate.getFullYear(), endDate.getMonth() + 1, 0, 23, 59, 59, 999)
+    // Full month: create dates representing start/end of month in target timezone
+    const startInZone = startOfMonth(startMonthDate)
+    const endInZone = endOfMonth(startMonthDate)
 
-    return [startUTC, endUTC]
+    // Convert from target timezone to UTC
+    return [fromZonedTime(startInZone, timezone), fromZonedTime(endInZone, timezone)]
   }
 
-  const todayInZone = startOfDay(toZonedTime(new Date(), timezone))
-  // For other date ranges, use the standard timezone conversion
-  const startOfUserDay = startOfDay(toZonedTime(startDate, timezone))
+  // For non-full-month ranges, create dates representing start/end of day in target timezone
+  const startInZone = startOfDay(new Date(startYear, startMonth, startDay))
+  const endInZone = endOfDay(new Date(endYear, endMonth, endDay))
 
-  let endOfDayInZone: Date
-  if (endDate > todayInZone) {
-    // if endDate is in the future → use yesterday
-    const yesterday = subDays(todayInZone, 1)
-    endOfDayInZone = endOfDay(yesterday)
+  // Convert from target timezone to UTC
+  const startUtc = fromZonedTime(startInZone, timezone)
+  const endUtc = fromZonedTime(endInZone, timezone)
+
+  // Check if end date is in the future (using target timezone for consistency)
+  const now = new Date()
+  const nowInTargetZone = toZonedTime(now, timezone)
+  const nowInZone = startOfDay(nowInTargetZone)
+  const nowUtc = fromZonedTime(nowInZone, timezone)
+
+  const endDateInZone = startOfDay(new Date(endYear, endMonth, endDay))
+  const endDateUtc = fromZonedTime(endDateInZone, timezone)
+
+  let finalEndUtc: Date
+  if (isAfter(endDateUtc, nowUtc)) {
+    // if endDate is in the future → use yesterday in target timezone
+    const yesterdayInZone = endOfDay(subDays(nowInTargetZone, 1))
+    finalEndUtc = fromZonedTime(yesterdayInZone, timezone)
   } else {
     // otherwise, use endDate
-    endOfDayInZone = endOfDay(endDate)
+    finalEndUtc = endUtc
   }
 
-  return [startOfUserDay, endOfDayInZone]
+  return [startUtc, finalEndUtc]
 }
 
 export const getPastDateFromDate = ({

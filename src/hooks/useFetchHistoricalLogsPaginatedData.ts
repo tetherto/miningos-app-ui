@@ -51,12 +51,18 @@ export const useFetchHistoricalLogsPaginatedData = ({
   useEffect(() => {
     if (!start || !end) return
 
+    let active = true // Prevent stale state updates when date range changes
+
     const intervals = breakTimeIntoIntervals(start, end, intervalLength)
 
     const fetchData = async () => {
       setIsFetching(true)
       setHistoricalData([])
-      for (const interval of intervals) {
+      for (let i = 0; i < intervals.length; i++) {
+        const interval = intervals[i]
+        // Check if this fetch is still active (date range hasn't changed)
+        if (!active) break
+
         try {
           const response = await lazyHistoricalLogsQuery({
             start: interval.start,
@@ -64,16 +70,26 @@ export const useFetchHistoricalLogsPaginatedData = ({
             logType,
           }).unwrap()
 
-          setHistoricalData((prev) =>
-            updateHistoricalData(_head(response) as HistoricalLogData[], prev),
-          )
+          const newData = _head(response) as HistoricalLogData[]
+
+          // Only update state if this fetch is still active
+          if (active) {
+            setHistoricalData((prev) => updateHistoricalData(newData, prev))
+          }
         } catch {
           // Ignore errors for individual requests
         }
       }
-      setIsFetching(false)
+      if (active) {
+        setIsFetching(false)
+      }
     }
     fetchData()
+
+    // Cleanup: mark as inactive when date range changes or component unmounts
+    return () => {
+      active = false
+    }
   }, [logType, intervalLength, start, end, lazyHistoricalLogsQuery])
 
   return { data: historicalData, isLoading: isFetching }

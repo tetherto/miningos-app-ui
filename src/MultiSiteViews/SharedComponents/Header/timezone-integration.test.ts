@@ -11,8 +11,8 @@ interface Week {
   disabled?: boolean
 }
 
-vi.mock('date-fns-tz', () => ({
-  toZonedTime: vi.fn((date: Date, timezone: string): Date => {
+vi.mock('date-fns-tz', () => {
+  const toZonedTimeMock = vi.fn((date: Date, timezone: string): Date => {
     const utcTime = date.getTime()
 
     switch (timezone) {
@@ -25,12 +25,44 @@ vi.mock('date-fns-tz', () => ({
       default:
         return new Date(utcTime)
     }
-  }),
-}))
+  })
+
+  const fromZonedTimeMock = vi.fn((date: Date, timezone: string): Date => {
+    const year = date.getUTCFullYear()
+    const month = date.getUTCMonth()
+    const day = date.getUTCDate()
+    const hours = date.getUTCHours()
+    const minutes = date.getUTCMinutes()
+    const seconds = date.getUTCSeconds()
+    const milliseconds = date.getUTCMilliseconds()
+
+    const utcFromComponents = Date.UTC(year, month, day, hours, minutes, seconds, milliseconds)
+
+    // Apply the target timezone offset (subtract offset to convert from timezone to UTC)
+    switch (timezone) {
+      case 'Europe/Madrid':
+        return new Date(utcFromComponents - 2 * 60 * 60 * 1000)
+      case 'America/New_York':
+        return new Date(utcFromComponents + 4 * 60 * 60 * 1000)
+      case 'Asia/Tokyo':
+        return new Date(utcFromComponents - 9 * 60 * 60 * 1000)
+      case 'UTC':
+        return new Date(utcFromComponents)
+      default:
+        return new Date(utcFromComponents)
+    }
+  })
+
+  return {
+    toZonedTime: toZonedTimeMock,
+    fromZonedTime: fromZonedTimeMock,
+  }
+})
 
 describe('Timezone Integration Tests', () => {
   beforeEach(() => {
     vi.clearAllMocks()
+    vi.resetAllMocks()
   })
 
   describe('Week calculation consistency across timezones', () => {
@@ -80,8 +112,12 @@ describe('Timezone Integration Tests', () => {
       const utcWeek: Week = utcWeeks[0]
       const madridWeek: Week = madridWeeks[0]
 
-      const utcRange = getRangeTimestamps([utcWeek.start, utcWeek.end], 'UTC')
-      const madridRange = getRangeTimestamps([madridWeek.start, madridWeek.end], 'Europe/Madrid')
+      const utcRange = getRangeTimestamps([utcWeek.start, utcWeek.end], 'UTC', true)
+      const madridRange = getRangeTimestamps(
+        [madridWeek.start, madridWeek.end],
+        'Europe/Madrid',
+        true,
+      )
 
       expect(utcRange[0]).not.toBeNull()
       expect(utcRange[1]).not.toBeNull()
