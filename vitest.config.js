@@ -65,11 +65,7 @@ export default defineConfig({
     },
     // Add performance optimizations
     pool: 'threads', // Use thread pool for better parallelism
-    poolOptions: {
-      threads: {
-        singleThread: false, // Allow multiple threads
-      },
-    },
+    singleThread: false, // Allow multiple threads
     // Optimize test timeout
     testTimeout: 10000, // 10 seconds should be enough for most tests
     // Enable test result caching (using Vite's cacheDir instead)
