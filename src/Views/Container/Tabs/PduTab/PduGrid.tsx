@@ -1,3 +1,4 @@
+import _filter from 'lodash/filter'
 import _forEach from 'lodash/forEach'
 import _isEqual from 'lodash/isEqual'
 import _keys from 'lodash/keys'
@@ -238,6 +239,12 @@ const PduGrid = ({
     return getSelectableName(pduIndex, socketIndex)
   }
 
+  const hasConnectedMiner = (pduIndex?: string, socketIndex?: string): boolean => {
+    if (!pduIndex || !socketIndex) return false
+    const miner = minersHashmap?.[`${pduIndex}_${socketIndex}`] as UnknownRecord | undefined
+    return !!(miner && !(miner as UnknownRecord)?.error)
+  }
+
   const handleSelectEnd = (e: {
     inputEvent?: { target?: { classList?: { contains: (className: string) => boolean } } }
     added?: HTMLElement[]
@@ -283,7 +290,17 @@ const PduGrid = ({
         }
       }
 
-      _forEach(addedElements, (socketElement: HTMLElement) => {
+      const shouldFilterByMiner = (addedElements?.length ?? 0) > 1
+      const filteredAddedElements = shouldFilterByMiner
+        ? _filter(addedElements, (socketElement) => {
+            const { dataset } = socketElement as unknown as {
+              dataset: { pduIndex?: string; socketIndex?: string }
+            }
+            return hasConnectedMiner(dataset.pduIndex, dataset.socketIndex)
+          })
+        : addedElements
+
+      _forEach(filteredAddedElements, (socketElement: HTMLElement) => {
         const { dataset } = socketElement as unknown as {
           dataset: { pduIndex: string; socketIndex: string }
         }

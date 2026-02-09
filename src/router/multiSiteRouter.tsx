@@ -1,6 +1,8 @@
 import { lazy } from 'react'
 import { createBrowserRouter } from 'react-router-dom'
 
+import { RootLayout } from './RootLayout'
+
 import { lazyWithNoFeatures } from '@/Components/NoFeaturesRestriction/NoFeaturesRestriction'
 import { SuspenseWrapper } from '@/Components/SuspenseWrapper/SuspenseWrapper'
 
@@ -44,81 +46,13 @@ export const getMultiSiteRouter = () =>
   createBrowserRouter(
     [
       {
-        path: '/',
-        element: <SuspenseWrapper component={Layout} />,
+        element: <RootLayout />,
         children: [
-          { index: true, element: <SuspenseWrapper component={Dashboard} /> },
           {
-            path: 'dashboard',
+            path: '/',
+            element: <SuspenseWrapper component={Layout} />,
             children: [
               { index: true, element: <SuspenseWrapper component={Dashboard} /> },
-              {
-                path: 'revenue',
-                element: <SuspenseWrapper component={RevenuePerMonth} />,
-              },
-              {
-                path: 'btc-production-cost',
-                element: <SuspenseWrapper component={BtcProduction} />,
-              },
-              {
-                path: 'hashrate',
-                element: <SuspenseWrapper component={Hashrate} />,
-              },
-              {
-                path: 'monthly-avg-downtime',
-                element: <SuspenseWrapper component={MonthlyAvgDowntime} />,
-              },
-            ],
-          },
-          {
-            path: 'revenue-and-cost',
-            children: [
-              {
-                path: 'revenue',
-                element: <SuspenseWrapper component={Revenue} />,
-              },
-              {
-                path: 'cost',
-                element: <SuspenseWrapper component={Cost} />,
-              },
-              {
-                path: 'cost-input',
-                element: <SuspenseWrapper component={CostInput} />,
-              },
-            ],
-          },
-          {
-            path: 'site-operations',
-            children: [
-              { index: true, element: <SuspenseWrapper component={SiteOperations} /> },
-              { path: 'dashboard', element: <SuspenseWrapper component={SiteOperations} /> },
-              { path: 'hashrate', element: <SuspenseWrapper component={SiteOperationsHashrate} /> },
-              {
-                path: 'efficiency',
-                element: <SuspenseWrapper component={SiteOperationsEfficiency} />,
-              },
-              { path: 'miners', element: <SuspenseWrapper component={SiteOperationsMiners} /> },
-              {
-                path: 'power-consumption',
-                element: <SuspenseWrapper component={SiteOperationsPowerConsumption} />,
-              },
-            ],
-          },
-          {
-            path: 'site-reports',
-            element: <SuspenseWrapper component={SiteReportsLayout} />,
-            children: [
-              { index: true, element: <SuspenseWrapper component={Reports} /> },
-              { path: 'report', element: <SuspenseWrapper component={Report} /> },
-            ],
-          },
-          {
-            path: 'sites/:siteId',
-            children: [
-              {
-                index: true,
-                element: <SuspenseWrapper component={Dashboard} />,
-              },
               {
                 path: 'dashboard',
                 children: [
@@ -131,7 +65,10 @@ export const getMultiSiteRouter = () =>
                     path: 'btc-production-cost',
                     element: <SuspenseWrapper component={BtcProduction} />,
                   },
-                  { path: 'hashrate', element: <SuspenseWrapper component={Hashrate} /> },
+                  {
+                    path: 'hashrate',
+                    element: <SuspenseWrapper component={Hashrate} />,
+                  },
                   {
                     path: 'monthly-avg-downtime',
                     element: <SuspenseWrapper component={MonthlyAvgDowntime} />,
@@ -141,16 +78,14 @@ export const getMultiSiteRouter = () =>
               {
                 path: 'revenue-and-cost',
                 children: [
-                  { index: true, element: <SuspenseWrapper component={Revenue} /> },
-                  { path: 'ebitda', element: <SuspenseWrapper component={Ebitda} /> },
-                  { path: 'subsidy-fee', element: <SuspenseWrapper component={SubsidyFee} /> },
                   {
-                    path: 'energy-revenue',
-                    element: <SuspenseWrapper component={EnergyRevenue} />,
+                    path: 'revenue',
+                    element: <SuspenseWrapper component={Revenue} />,
                   },
-                  { path: 'energy-cost', element: <SuspenseWrapper component={EnergyCost} /> },
-                  { path: 'hash-revenue', element: <SuspenseWrapper component={HashRevenue} /> },
-                  { path: 'hash-cost', element: <SuspenseWrapper component={HashCost} /> },
+                  {
+                    path: 'cost',
+                    element: <SuspenseWrapper component={Cost} />,
+                  },
                   {
                     path: 'cost-input',
                     element: <SuspenseWrapper component={CostInput} />,
@@ -170,10 +105,7 @@ export const getMultiSiteRouter = () =>
                     path: 'efficiency',
                     element: <SuspenseWrapper component={SiteOperationsEfficiency} />,
                   },
-                  {
-                    path: 'miners',
-                    element: <SuspenseWrapper component={SiteOperationsMiners} />,
-                  },
+                  { path: 'miners', element: <SuspenseWrapper component={SiteOperationsMiners} /> },
                   {
                     path: 'power-consumption',
                     element: <SuspenseWrapper component={SiteOperationsPowerConsumption} />,
@@ -188,22 +120,106 @@ export const getMultiSiteRouter = () =>
                   { path: 'report', element: <SuspenseWrapper component={Report} /> },
                 ],
               },
-            ],
-          },
-          {
-            path: 'settings',
-            children: [
               {
-                index: true,
-                element: <SuspenseWrapper component={UserManagement} />,
+                path: 'sites/:siteId',
+                children: [
+                  {
+                    index: true,
+                    element: <SuspenseWrapper component={Dashboard} />,
+                  },
+                  {
+                    path: 'dashboard',
+                    children: [
+                      { index: true, element: <SuspenseWrapper component={Dashboard} /> },
+                      {
+                        path: 'revenue',
+                        element: <SuspenseWrapper component={RevenuePerMonth} />,
+                      },
+                      {
+                        path: 'btc-production-cost',
+                        element: <SuspenseWrapper component={BtcProduction} />,
+                      },
+                      { path: 'hashrate', element: <SuspenseWrapper component={Hashrate} /> },
+                      {
+                        path: 'monthly-avg-downtime',
+                        element: <SuspenseWrapper component={MonthlyAvgDowntime} />,
+                      },
+                    ],
+                  },
+                  {
+                    path: 'revenue-and-cost',
+                    children: [
+                      { index: true, element: <SuspenseWrapper component={Revenue} /> },
+                      { path: 'ebitda', element: <SuspenseWrapper component={Ebitda} /> },
+                      { path: 'subsidy-fee', element: <SuspenseWrapper component={SubsidyFee} /> },
+                      {
+                        path: 'energy-revenue',
+                        element: <SuspenseWrapper component={EnergyRevenue} />,
+                      },
+                      { path: 'energy-cost', element: <SuspenseWrapper component={EnergyCost} /> },
+                      {
+                        path: 'hash-revenue',
+                        element: <SuspenseWrapper component={HashRevenue} />,
+                      },
+                      { path: 'hash-cost', element: <SuspenseWrapper component={HashCost} /> },
+                      {
+                        path: 'cost-input',
+                        element: <SuspenseWrapper component={CostInput} />,
+                      },
+                    ],
+                  },
+                  {
+                    path: 'site-operations',
+                    children: [
+                      { index: true, element: <SuspenseWrapper component={SiteOperations} /> },
+                      {
+                        path: 'dashboard',
+                        element: <SuspenseWrapper component={SiteOperations} />,
+                      },
+                      {
+                        path: 'hashrate',
+                        element: <SuspenseWrapper component={SiteOperationsHashrate} />,
+                      },
+                      {
+                        path: 'efficiency',
+                        element: <SuspenseWrapper component={SiteOperationsEfficiency} />,
+                      },
+                      {
+                        path: 'miners',
+                        element: <SuspenseWrapper component={SiteOperationsMiners} />,
+                      },
+                      {
+                        path: 'power-consumption',
+                        element: <SuspenseWrapper component={SiteOperationsPowerConsumption} />,
+                      },
+                    ],
+                  },
+                  {
+                    path: 'site-reports',
+                    element: <SuspenseWrapper component={SiteReportsLayout} />,
+                    children: [
+                      { index: true, element: <SuspenseWrapper component={Reports} /> },
+                      { path: 'report', element: <SuspenseWrapper component={Report} /> },
+                    ],
+                  },
+                ],
+              },
+              {
+                path: 'settings',
+                children: [
+                  {
+                    index: true,
+                    element: <SuspenseWrapper component={UserManagement} />,
+                  },
+                ],
               },
             ],
           },
+          { path: 'signin', element: <SuspenseWrapper component={SignIn} /> },
+          { path: 'signout', element: <SuspenseWrapper component={SignOut} /> },
+          { path: '*', element: <SuspenseWrapper component={NotFoundPage} /> },
         ],
       },
-      { path: 'signin', element: <SuspenseWrapper component={SignIn} /> },
-      { path: 'signout', element: <SuspenseWrapper component={SignOut} /> },
-      { path: '*', element: <SuspenseWrapper component={NotFoundPage} /> },
     ],
     { basename: import.meta.env.VITE_BASE_URL ?? '/' },
   )

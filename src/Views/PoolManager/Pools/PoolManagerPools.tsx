@@ -3,10 +3,14 @@ import Button from 'antd/es/button'
 import type { CollapseProps } from 'antd/es/collapse'
 import _map from 'lodash/map'
 import _values from 'lodash/values'
-import React, { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
 
-import { Header, HeaderSubtitle, PoolManagerDashboardRoot } from '../PoolManagerDashboard.styles'
+import {
+  Header,
+  HeaderSubtitle,
+  HeaderSubtitleLink,
+  PoolManagerDashboardRoot,
+} from '../PoolManagerDashboard.styles'
 
 import { PoolsCollapse } from './PoolManagerPools.styles'
 import { getPools } from './PoolManagerPools.utils'
@@ -91,9 +95,9 @@ const PoolManagerPools = () => {
         <div>
           <div>Pools</div>
           <HeaderSubtitle>
-            <Link to={ROUTE.POOL_MANAGER}>
+            <HeaderSubtitleLink to={ROUTE.POOL_MANAGER}>
               <ArrowLeftOutlined /> Pool Manager
-            </Link>
+            </HeaderSubtitleLink>
           </HeaderSubtitle>
         </div>
         {ADD_POOL_ENABLED && (

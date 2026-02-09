@@ -8,6 +8,7 @@ import { useLazyGetHistoricalLogsQuery } from '../app/services/api'
 import { breakTimeIntoIntervals } from '../app/utils/breakTimeIntoIntervals'
 import type { UnknownRecord } from '../app/utils/deviceUtils/types'
 
+const ONE_DAY_IN_MS = 24 * 60 * 60 * 1_000 // 24 hours
 interface HistoricalLogData extends UnknownRecord {
   thing?: { id?: string }
 }
@@ -41,17 +42,27 @@ export const useFetchHistoricalLogsPaginatedData = ({
   start,
   end,
   logType,
-  intervalLength = 12 * 60 * 60 * 1000, // 12 hours
+  intervalLength = ONE_DAY_IN_MS,
 }: UseFetchHistoricalLogsPaginatedDataParams) => {
-  const [lazyHistoricalLogsQuery, { isLoading: isAlertsLogLoading }] =
-    useLazyGetHistoricalLogsQuery()
+  const [lazyHistoricalLogsQuery] = useLazyGetHistoricalLogsQuery()
   const [historicalData, setHistoricalData] = useState<HistoricalLogData[]>([])
+  const [isFetching, setIsFetching] = useState(false)
 
   useEffect(() => {
     if (!start || !end) return
+
+    let active = true // Prevent stale state updates when date range changes
+
     const intervals = breakTimeIntoIntervals(start, end, intervalLength)
+
     const fetchData = async () => {
-      for (const interval of intervals) {
+      setIsFetching(true)
+      setHistoricalData([])
+      for (let i = 0; i < intervals.length; i++) {
+        const interval = intervals[i]
+        // Check if this fetch is still active (date range hasn't changed)
+        if (!active) break
+
         try {
           const response = await lazyHistoricalLogsQuery({
             start: interval.start,
@@ -59,16 +70,27 @@ export const useFetchHistoricalLogsPaginatedData = ({
             logType,
           }).unwrap()
 
-          setHistoricalData((prev) =>
-            updateHistoricalData(_head(response) as HistoricalLogData[], prev),
-          )
+          const newData = _head(response) as HistoricalLogData[]
+
+          // Only update state if this fetch is still active
+          if (active) {
+            setHistoricalData((prev) => updateHistoricalData(newData, prev))
+          }
         } catch {
           // Ignore errors for individual requests
         }
       }
+      if (active) {
+        setIsFetching(false)
+      }
     }
     fetchData()
+
+    // Cleanup: mark as inactive when date range changes or component unmounts
+    return () => {
+      active = false
+    }
   }, [logType, intervalLength, start, end, lazyHistoricalLogsQuery])
 
-  return { data: historicalData, isLoading: isAlertsLogLoading }
+  return { data: historicalData, isLoading: isFetching }
 }

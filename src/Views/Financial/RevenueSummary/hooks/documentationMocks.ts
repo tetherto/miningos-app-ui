@@ -25,7 +25,7 @@ import type {
 export const USE_DOCUMENTATION_MOCKS = false
 
 // Transactions API Response
-// API: /auth/ext-data?type=minerpool&query={"start":1761955200000,"end":1764460800000,"key":"transactions"}
+// API: https://dev-moria.tether.to/auth/ext-data?type=minerpool&query={"start":1761955200000,"end":1764460800000,"key":"transactions"}
 export const mockTransactionsDataFromDoc: MinerTransactionResponse = {
   data: [
     [
@@ -875,7 +875,7 @@ export const mockTransactionsDataFromDoc: MinerTransactionResponse = {
 }
 
 // Range Aggregation API Response
-// API: /auth/tail-log/range-aggr?keys=[...]
+// API: https://dev-moria.tether.to/auth/tail-log/range-aggr?keys=[...]
 // Note: Using type assertion because aggregated response structure differs from type definition
 export const mockTailLogRangeAggrDataFromDoc = {
   data: [
@@ -920,7 +920,7 @@ export const mockTailLogRangeAggrDataFromDoc = {
 } as unknown as HashrateAggregateResponse
 
 // Historical Prices API Response
-// API: /auth/ext-data?type=mempool&key=HISTORICAL_PRICES&start=1761955200000&end=1764460800000
+// API: https://dev-moria.tether.to/auth/ext-data?type=mempool&key=HISTORICAL_PRICES&start=1761955200000&end=1764460800000
 export const mockHistoricalPricesDataFromDoc: MinerHistoricalPriceResponse = {
   data: [
     [
@@ -960,7 +960,7 @@ export const mockHistoricalPricesDataFromDoc: MinerHistoricalPriceResponse = {
 }
 
 // Global Config API Response
-// API: /auth/global-config?
+// API: https://dev-moria.tether.to/auth/global-config?
 export const mockGlobalConfigFromDoc = {
   aggrTailLogTimezones: [
     {

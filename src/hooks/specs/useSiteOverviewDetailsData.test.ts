@@ -42,11 +42,13 @@ describe('useSiteOverviewDetailsData', () => {
   }
 
   const mockMinerTailLogData = [
-    {
-      hashrate_mhs_1m_group_sum_aggr: {
-        'container-bd-d40': 1000000,
+    [
+      {
+        hashrate_mhs_1m_group_sum_aggr: {
+          'container-bd-d40': 1000000,
+        },
       },
-    },
+    ],
   ]
 
   const mockConnectedMiners = [
@@ -130,7 +132,7 @@ describe('useSiteOverviewDetailsData', () => {
     expect(result.current.actualMinersCount).toBe(90)
     expect(containerWidgetUtil.getContainerMinersChartData).toHaveBeenCalledWith(
       'container-bd-d40',
-      mockMinerTailLogData[0],
+      mockMinerTailLogData[0][0],
       100,
     )
   })

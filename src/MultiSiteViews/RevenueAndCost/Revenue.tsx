@@ -1,3 +1,4 @@
+import _every from 'lodash/every'
 import _map from 'lodash/map'
 import _values from 'lodash/values'
 
@@ -43,6 +44,10 @@ const Revenue = () => {
 
   const isChartLoading = isRevenueLoading || isRevenueFetching
 
+  const noDataAvailable = _every(chartData as unknown as never[], (item) =>
+    _every(selectedSites, (site) => item[site] <= 0),
+  )
+
   return (
     <PageRoot>
       {isLoading && <Spinner />}
@@ -70,9 +75,9 @@ const Revenue = () => {
       </MetricCardWrapper>
 
       <RevenueChart
-        data={chartData as unknown as never[]}
         isLoading={isChartLoading}
         siteList={siteList as never[]}
+        data={noDataAvailable ? [] : (chartData as unknown as never[])}
       />
 
       <DataWrapper>

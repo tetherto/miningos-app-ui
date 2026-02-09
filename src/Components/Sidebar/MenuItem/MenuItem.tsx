@@ -46,6 +46,7 @@ interface MenuItemProps {
   disabled?: boolean
   shouldShowExpandedLabel?: boolean
   onClickItem: (item: { to: string }) => void
+  onClose?: VoidFunction
   item: { to?: string }
   currentPath: string
   currentTab: string | null
@@ -64,6 +65,7 @@ const MenuItem = ({
   disabled = false,
   shouldShowExpandedLabel = false,
   onClickItem,
+  onClose,
   item,
   currentPath,
   currentTab,
@@ -133,6 +135,10 @@ const MenuItem = ({
   const handleClick = () => {
     if (item?.to && !isActive) {
       onClickItem({ to: item.to })
+      // Close sidebar on mobile when clicking a menu item without children
+      if (isMobile && !hasSubgroup && onClose) {
+        onClose()
+      }
     }
   }
 
@@ -158,6 +164,7 @@ const MenuItem = ({
         disabled={item.disabled}
         isCollapsed={isCollapsed && !isItemActive}
         onClickItem={onClickItem}
+        onClose={onClose}
         isMobile={isMobile}
         currentPath={currentPath}
         currentTab={currentTab}

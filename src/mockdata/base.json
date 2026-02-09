@@ -41,7 +41,7 @@
         "roles": "[\"*\"]",
         "password": null
       },
-      "created": 1769600448,
+      "created": 1769686513,
       "ttl": 86400
     },
     "meta": {
@@ -64,7 +64,8 @@
       "exportHistKpiDashboard": false,
       "showMinerConsumptionDashboard": false,
       "totalSystemConsumptionHeader": false,
-      "energyProvision": true
+      "energyProvision": true,
+      "admeStats": true
     },
     "meta": {
       "request": {},
@@ -147,6 +148,7 @@
       "hashrateReport": true,
       "siteEnergyEnabled": true,
       "energyProvision": true,
+      "admeStatsEnabled": true,
       "minersOverview": true,
       "inventory": true,
       "alertsHistoricalLogEnabled": true,

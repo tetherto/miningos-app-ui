@@ -23,18 +23,19 @@ export const ExplorerViewRow = styled.div<{ $isMinerTab: boolean }>`
 
 export const MainExplorerView = styled.div`
   padding: 20px;
-  box-sizing: border-box;
-  height: calc(100vh - 95px);
+  min-height: 100vh;
   overflow: hidden;
+  box-sizing: border-box;
 `
 
 export const ExplorerCol = styled.div<{ $hasSelection?: boolean }>`
-  box-sizing: border-box;
   padding: 20px;
   padding-top: 0;
+  box-sizing: border-box;
+  background: ${COLOR.EBONY};
   height: calc(100vh - 145px);
-  border-right: ${(props) => (props.$hasSelection ? `1px solid ${COLOR.DARKER_GREY}` : 'none')};
   width: ${(props) => (props.$hasSelection ? '70%' : '100%')};
+  border-right: ${(props) => (props.$hasSelection ? `1px solid ${COLOR.DARKER_GREY}` : 'none')};
 
   @media (max-width: 992px) {
     max-width: 100%;
