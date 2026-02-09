@@ -52,7 +52,7 @@ interface UseEnergyReportSiteViewReturn {
   powerConsumptionData: ReturnType<typeof useEnergyReportData>
   powerModeData: PowerModeDataItem[]
   containers: ContainerWithMinersCount[]
-  tailLogData: MinerTailLogItem[]
+  tailLogData: MinerTailLogItem[][]
   isLoading: boolean
   refetchSnapshotData: () => void
 }
@@ -131,7 +131,7 @@ export const useEnergyReportSiteView = (dateRange: DateRange): UseEnergyReportSi
   const powerModeData = useMemo(
     () =>
       _map(_values(COMPLETE_MINER_TYPES), (type) => {
-        const tailLogItem = _head(tailLogData)
+        const tailLogItem = _head(_head(tailLogData as unknown[][])) as unknown as MinerTailLogItem
         const statusData = getMinersTypePowerModeChartData(type, tailLogItem)
 
         return {
@@ -150,7 +150,7 @@ export const useEnergyReportSiteView = (dateRange: DateRange): UseEnergyReportSi
   const minersOnlineWebappHashTable: Record<string, number> = useMemo(
     () =>
       (
-        _head(tailLogData) as {
+        _head(_head(tailLogData)) as {
           hashrate_mhs_5m_active_container_group_cnt?: Record<string, number>
         }
       )?.hashrate_mhs_5m_active_container_group_cnt ?? {},

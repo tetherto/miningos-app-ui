@@ -161,7 +161,7 @@ const EnergyReportSiteView = ({ dateRange }: EnergyReportSiteViewProps) => {
                     showLabel={false}
                     data={getContainerMinersChartData(
                       container.info?.container ?? '',
-                      _head(tailLogData) ?? {},
+                      _head(_head(tailLogData)) ?? {},
                       container.info?.nominalMinerCapacity ?? 0,
                     )}
                   />
