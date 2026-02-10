@@ -36,7 +36,7 @@ export const useTokenPermissions = (): UseTokenPermissionsReturn => {
         const response = (await requestPermissions({}).unwrap()) as { permissions?: unknown }
         if (response?.permissions) {
           dispatch(setPermissions(response?.permissions))
-        } 
+        }
       } catch (error) {
         dispatch(setPermissions(null))
         throw error
