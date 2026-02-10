@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { useLazyGetUserPermissionsQuery } from '../app/services/api'
@@ -30,7 +30,7 @@ export const useTokenPermissions = (): UseTokenPermissionsReturn => {
   const authToken = useSelector(selectToken)
   const [requestPermissions] = useLazyGetUserPermissionsQuery()
 
-  const fetchPermissions = (): void => {
+  const fetchPermissions = useCallback((): void => {
     const getPermissions = async (): Promise<void> => {
       try {
         const response = (await requestPermissions({}).unwrap()) as { permissions?: unknown }
@@ -47,12 +47,11 @@ export const useTokenPermissions = (): UseTokenPermissionsReturn => {
     }
 
     getPermissions()
-  }
+  }, [authToken, dispatch, requestPermissions])
 
-  // Note: React Compiler automatically memoizes fetchPermissions, so this won't cause infinite loops
   useEffect(() => {
     fetchPermissions()
-  }, [fetchPermissions])
+  }, [])
 
   return {
     fetchPermissions,

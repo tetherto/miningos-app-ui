@@ -1,4 +1,5 @@
 import { format, toZonedTime } from 'date-fns-tz'
+import { useCallback, useMemo } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { setTimezone } from '../app/store'
@@ -17,22 +18,27 @@ const useTimezone = (): UseTimezoneReturn => {
 
   const dispatch = useDispatch()
 
-  return {
-    getFormattedDate: (
-      date: Date | number,
-      fixedTimezone?: string,
-      formatString?: string,
-    ): string => {
+  const getFormattedDate = useCallback(
+    (date: Date | number, fixedTimezone?: string, formatString?: string): string => {
       const zonedDate = toZonedTime(date, fixedTimezone || timezone)
       return format(zonedDate, formatString || DATE_TIME_FORMAT_WITH_SECONDS, {
         timeZone: fixedTimezone || timezone,
       })
     },
-    timezone,
-    changeTimezone: (tz: string): void => {
+    [timezone],
+  )
+
+  const changeTimezone = useCallback(
+    (tz: string): void => {
       dispatch(setTimezone(tz))
     },
-  }
+    [dispatch],
+  )
+
+  return useMemo(
+    () => ({ getFormattedDate, timezone, changeTimezone }),
+    [getFormattedDate, timezone, changeTimezone],
+  )
 }
 
 export default useTimezone
