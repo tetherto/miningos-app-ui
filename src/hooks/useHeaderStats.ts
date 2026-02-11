@@ -198,7 +198,7 @@ export const useHeaderStats = () => {
   const minerEntry = _head(minerLogData)
   const powerMeterLogEntry = _head(powermeterLogData)
   const containerEntry = _head(containerLogData)
-  const containerNominalEntry = _head(containerTail as TailLogEntry[])
+  const containerNominalEntry = _head(_head(containerTail as TailLogEntry[][]) as TailLogEntry[])
 
   useEffect(() => {
     if (minerEntry) {
