@@ -112,24 +112,20 @@ const Dashboard = () => {
     },
   ]
 
-  const isLoading = isStatsLoading || isAlertThingsDataLoading
-
   return (
     <DashboardWrapper>
-      <StatBlocks>
-        {_map(stats, (stat) => (
-          <StatBlock key={stat.label}>
-            <StatBlockHeader>
-              <StatBlockLabel>{stat.label}</StatBlockLabel>
-              <StatBlockStatus
-                $color={stat.type === 'ERROR' ? COLOR.RED : COLOR.GREEN}
-              ></StatBlockStatus>
-            </StatBlockHeader>
-            <StatValueWrapper>
-              {isStatsLoading ? (
-                <Spinner />
-              ) : (
-                <>
+      {!isStatsLoading && (
+        <>
+          <StatBlocks>
+            {_map(stats, (stat) => (
+              <StatBlock key={stat.label}>
+                <StatBlockHeader>
+                  <StatBlockLabel>{stat.label}</StatBlockLabel>
+                  <StatBlockStatus
+                    $color={stat.type === 'ERROR' ? COLOR.RED : COLOR.GREEN}
+                  ></StatBlockStatus>
+                </StatBlockHeader>
+                <StatValueWrapper>
                   <StatValue>{stat.value}</StatValue>
                   {stat.secondaryValue && (
                     <StatSecondaryValue>
@@ -137,13 +133,13 @@ const Dashboard = () => {
                       {stat.secondaryValue}
                     </StatSecondaryValue>
                   )}
-                </>
-              )}
-            </StatValueWrapper>
-          </StatBlock>
-        ))}
-      </StatBlocks>
-      <Divider />
+                </StatValueWrapper>
+              </StatBlock>
+            ))}
+          </StatBlocks>
+          <Divider />
+        </>
+      )}
       <NavigationBlocks>
         {_map(navigationBlocks, (block) => (
           <NavigationBlock key={block.title}>
@@ -159,31 +155,33 @@ const Dashboard = () => {
           </NavigationBlock>
         ))}
       </NavigationBlocks>
-      <Divider />
-      <AlertsWrapper>
-        <AlertsTitle>Recent Alerts</AlertsTitle>
-        {isAlertThingsDataLoading ? (
-          <Spinner />
-        ) : _isEmpty(alerts) ? (
-          <div>No recent alerts</div>
-        ) : (
-          <Alerts>
-            {_map(alerts, (alert) => (
-              <AlertWrapper key={alert.id ?? alert.uuid ?? Math.random()}>
-                <AlertText>
-                  <AlertStatus $color={_get(SEVERITY_COLORS, alert.severity)}></AlertStatus>
-                  <div>
-                    {_get(ALERT_TYPE_POOL_NAME, alert.description, alert.description)} - Miner #
-                    {alert.code}
-                  </div>
-                </AlertText>
-                <AlertTime>{formatDistance(new Date(), new Date(alert.createdAt))}</AlertTime>
-              </AlertWrapper>
-            ))}
-          </Alerts>
-        )}
-        <Button onClick={() => navigate('/alerts')}>View All Alerts</Button>
-      </AlertsWrapper>
+      {!isAlertThingsDataLoading && (
+        <>
+          <Divider />
+          <AlertsWrapper>
+            <AlertsTitle>Recent Alerts</AlertsTitle>
+            {_isEmpty(alerts) ? (
+              <div>No recent alerts</div>
+            ) : (
+              <Alerts>
+                {_map(alerts, (alert) => (
+                  <AlertWrapper key={alert.id ?? alert.uuid ?? Math.random()}>
+                    <AlertText>
+                      <AlertStatus $color={_get(SEVERITY_COLORS, alert.severity)}></AlertStatus>
+                      <div>
+                        {_get(ALERT_TYPE_POOL_NAME, alert.description, alert.description)} - Miner #
+                        {alert.code}
+                      </div>
+                    </AlertText>
+                    <AlertTime>{formatDistance(new Date(), new Date(alert.createdAt))}</AlertTime>
+                  </AlertWrapper>
+                ))}
+              </Alerts>
+            )}
+            <Button onClick={() => navigate('/alerts')}>View All Alerts</Button>
+          </AlertsWrapper>
+        </>
+      )}
     </DashboardWrapper>
   )
 }
