@@ -62,15 +62,12 @@ const Dashboard = () => {
     days: 5,
   }).valueOf()
 
-  // Fetch alerts once without polling - not critical real-time data
+  // Fetch recent alerts once without polling
   const { data: alertThingsData } = useGetListThingsQuery(
     {
       query: JSON.stringify({
         'last.alerts': {
           $elemMatch: {
-            name: {
-              $in: [...alertsNeeded],
-            },
             createdAt: {
               $gt: alertsFilterTime,
             },
@@ -78,6 +75,7 @@ const Dashboard = () => {
         },
       }),
       status: 1,
+      limit: 50,
     },
     {
       pollingInterval: 0, // Disable polling - fetch once only
@@ -87,7 +85,7 @@ const Dashboard = () => {
   const alertThingsArray = _isArray(alertThingsData) ? alertThingsData : []
   const things = _head(alertThingsArray) ?? []
 
-  // Extract all alerts from all things
+  // Extract all recent alerts from all things
   const thingAlerts: Alert[] = _flatMap(things, (item) => {
     const itemAlerts = _get(item, ['last', 'alerts'], []) as Alert[]
     const code = _get(item, ['code'])
@@ -97,11 +95,20 @@ const Dashboard = () => {
     }))
   })
 
+  // Filter to show only recent alerts (last 5 days) and prioritize pool-related alerts
+  const recentAlerts: Alert[] = _filter(
+    thingAlerts,
+    (alert: Alert) => alert.createdAt && Number(alert.createdAt) > alertsFilterTime,
+  ) as Alert[]
+  const poolAlerts: Alert[] = _filter(
+    recentAlerts,
+    (alert: Alert) => alertsNeeded.has(alert.name),
+  ) as Alert[]
   const alerts: Alert[] = _slice(
-    _filter(thingAlerts, (alert) => alertsNeeded.has(alert.name)),
+    poolAlerts.length > 0 ? poolAlerts : recentAlerts,
     0,
     MAX_ALERTS_DISPLAYED,
-  )
+  ) as Alert[]
 
   const totalMiners =
     (minersAmount?.onlineOrMinorErrors ?? 0) +
