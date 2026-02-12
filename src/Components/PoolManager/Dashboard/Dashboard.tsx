@@ -116,31 +116,33 @@ const Dashboard = () => {
 
   return (
     <DashboardWrapper>
-      {isLoading ? (
-        <Spinner />
-      ) : (
-        <StatBlocks>
-          {_map(stats, (stat) => (
-            <StatBlock key={stat.label}>
-              <StatBlockHeader>
-                <StatBlockLabel>{stat.label}</StatBlockLabel>
-                <StatBlockStatus
-                  $color={stat.type === 'ERROR' ? COLOR.RED : COLOR.GREEN}
-                ></StatBlockStatus>
-              </StatBlockHeader>
-              <StatValueWrapper>
-                <StatValue>{stat.value}</StatValue>
-                {stat.secondaryValue && (
-                  <StatSecondaryValue>
-                    {'/ '}
-                    {stat.secondaryValue}
-                  </StatSecondaryValue>
-                )}
-              </StatValueWrapper>
-            </StatBlock>
-          ))}
-        </StatBlocks>
-      )}
+      <StatBlocks>
+        {_map(stats, (stat) => (
+          <StatBlock key={stat.label}>
+            <StatBlockHeader>
+              <StatBlockLabel>{stat.label}</StatBlockLabel>
+              <StatBlockStatus
+                $color={stat.type === 'ERROR' ? COLOR.RED : COLOR.GREEN}
+              ></StatBlockStatus>
+            </StatBlockHeader>
+            <StatValueWrapper>
+              {isStatsLoading ? (
+                <Spinner />
+              ) : (
+                <>
+                  <StatValue>{stat.value}</StatValue>
+                  {stat.secondaryValue && (
+                    <StatSecondaryValue>
+                      {'/ '}
+                      {stat.secondaryValue}
+                    </StatSecondaryValue>
+                  )}
+                </>
+              )}
+            </StatValueWrapper>
+          </StatBlock>
+        ))}
+      </StatBlocks>
       <Divider />
       <NavigationBlocks>
         {_map(navigationBlocks, (block) => (
@@ -160,7 +162,9 @@ const Dashboard = () => {
       <Divider />
       <AlertsWrapper>
         <AlertsTitle>Recent Alerts</AlertsTitle>
-        {_isEmpty(alerts) ? (
+        {isAlertThingsDataLoading ? (
+          <Spinner />
+        ) : _isEmpty(alerts) ? (
           <div>No recent alerts</div>
         ) : (
           <Alerts>
