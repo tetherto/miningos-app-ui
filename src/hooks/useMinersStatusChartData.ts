@@ -9,6 +9,7 @@ import _isNil from 'lodash/isNil'
 import { useState } from 'react'
 
 import { useGetTailLogQuery } from '@/app/services/api'
+import { isDemoMode } from '@/app/services/api.utils'
 import type { BarChartData } from '@/Components/BarChart/BarChart'
 import {
   sumObjectValues,
@@ -76,8 +77,7 @@ export const useMinersStatusChartData = (): UseMinersStatusChartDataReturn => {
 
   // In demo mode, always use the fixed date range from when mock data was captured
   // This ensures charts display data regardless of the selected date range
-  const isDemoMode = import.meta.env.VITE_USE_MOCKDATA === 'true'
-  const [queryStart, queryEnd] = isDemoMode
+  const [queryStart, queryEnd] = isDemoMode()
     ? [1769025600000, 1769630399999] // Jan 21-28, 2026 (fixed demo data range)
     : [start.getTime(), end.getTime()]
 
