@@ -159,6 +159,7 @@ module.exports = defineConfig([
       parserOptions: {
         ecmaVersion: 2022,
         sourceType: 'module',
+        project: './tsconfig.json',
         ecmaFeatures: {
           jsx: true,
         },
@@ -292,7 +293,33 @@ module.exports = defineConfig([
     },
   },
   {
-    files: ['**/*.test.js', '**/*.spec.js', '**/*.test.ts', '**/*.spec.ts', '**/*.test.tsx', '**/*.spec.tsx'],
+    files: ['**/*.test.js', '**/*.spec.js'],
+    rules: {
+      'react/display-name': 'off',
+      'react-hooks/exhaustive-deps': 'off',
+      'no-case-declarations': 'off',
+      'react/prop-types': 'off',
+      'no-undef': 'off',
+    },
+  },
+  {
+    files: ['**/*.test.ts', '**/*.spec.ts', '**/*.test.tsx', '**/*.spec.tsx'],
+    languageOptions: {
+      parser: typescriptParser,
+      parserOptions: {
+        ecmaVersion: 2022,
+        sourceType: 'module',
+        project: './tsconfig.json',
+        ecmaFeatures: {
+          jsx: true,
+        },
+      },
+      globals: {
+        ...globals.browser,
+        ...globals.node,
+        VoidFunction: 'readonly',
+      },
+    },
     rules: {
       'react/display-name': 'off',
       'react-hooks/exhaustive-deps': 'off',
