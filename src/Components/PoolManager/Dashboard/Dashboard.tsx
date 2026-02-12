@@ -88,6 +88,9 @@ const Dashboard = () => {
   const alertThingsArray = _isArray(alertThingsData) ? alertThingsData : []
   const things = _head(alertThingsArray) ?? []
 
+  console.log('Pool Manager Dashboard - alertThingsData:', alertThingsData)
+  console.log('Pool Manager Dashboard - things count:', things.length)
+
   // Extract all recent alerts from all things
   const thingAlerts: Alert[] = _flatMap(things, (item) => {
     const itemAlerts = _get(item, ['last', 'alerts'], []) as Alert[]
@@ -97,6 +100,8 @@ const Dashboard = () => {
       code,
     }))
   })
+
+  console.log('Pool Manager Dashboard - thingAlerts count:', thingAlerts.length)
 
   // Sort by most recent and show only last 5 days
   const sortedAlerts = thingAlerts.sort((a, b) => {
@@ -113,7 +118,12 @@ const Dashboard = () => {
       Number(alert.createdAt) > alertsFilterTime,
   ) as Alert[]
   
+  console.log('Pool Manager Dashboard - recentAlerts count:', recentAlerts.length)
+  console.log('Pool Manager Dashboard - alertsFilterTime:', new Date(alertsFilterTime))
+  
   const alerts: Alert[] = _slice(recentAlerts, 0, MAX_ALERTS_DISPLAYED) as Alert[]
+  
+  console.log('Pool Manager Dashboard - final alerts:', alerts)
 
   const totalMiners =
     (minersAmount?.onlineOrMinorErrors ?? 0) +
