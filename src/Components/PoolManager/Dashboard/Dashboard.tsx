@@ -97,7 +97,7 @@ const Dashboard = () => {
     const bTime = Number(b.createdAt) || 0
     return bTime - aTime
   })
-  
+
   const alerts: Alert[] = _slice(sortedAlerts, 0, MAX_ALERTS_DISPLAYED) as Alert[]
 
   const totalMiners =

@@ -98,7 +98,9 @@ const SubsidyFee = () => {
         />
       </DurationButtonsWrapper>
 
-      {!isDemoMode && isError && <ErrorMessage>Error loading block data. Please try again later.</ErrorMessage>}
+      {!isDemoMode && isError && (
+        <ErrorMessage>Error loading block data. Please try again later.</ErrorMessage>
+      )}
 
       {!dateRange && (
         <InfoText>

@@ -28,6 +28,7 @@ module.exports = defineConfig([
     '**/prettier.config.cjs',
     '**/eslint.config.js.backup',
     '**/mockdata.ts',
+    '**/*.d.ts',
   ]),
   {
     files: ['src/**/*.js', 'src/**/*.jsx'],

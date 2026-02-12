@@ -24,7 +24,7 @@ export const useFinancialDateRange = (options?: UseFinancialDateRangeOptions) =>
   const { defaultPeriod = PERIOD.DAILY } = options || {}
   const dispatch = useDispatch()
   const { timezone } = useTimezone()
-  
+
   // In demo mode, initialize with fixed date range immediately
   const [dateRange, setDateRange] = useState<DateRange | null>(
     isDemoMode
@@ -58,18 +58,23 @@ export const useFinancialDateRange = (options?: UseFinancialDateRangeOptions) =>
       handleRangeChange([startOfMonth(now), endOfMonth(now)], { period: defaultPeriod })
     }
     if (dateRange) {
-      dispatch(setTimeframeType(TIMEFRAME_BY_PERIOD[dateRange.period || defaultPeriod] || TIMEFRAME_TYPE.MONTH))
+      dispatch(
+        setTimeframeType(
+          TIMEFRAME_BY_PERIOD[dateRange.period || defaultPeriod] || TIMEFRAME_TYPE.MONTH,
+        ),
+      )
     }
   }, [dateRange?.period])
 
   // In demo mode, always return the fixed date range regardless of user selection
-  const effectiveDateRange = isDemoMode && dateRange
-    ? {
-        start: 1769025600000, // Jan 21, 2026 20:00:00 UTC (Jan 22 00:00 UTC+4)
-        end: 1769630399999, // Jan 28, 2026 19:59:59 UTC (Jan 28 23:59:59 UTC+4)
-        period: dateRange.period,
-      }
-    : dateRange
+  const effectiveDateRange =
+    isDemoMode && dateRange
+      ? {
+          start: 1769025600000, // Jan 21, 2026 20:00:00 UTC (Jan 22 00:00 UTC+4)
+          end: 1769630399999, // Jan 28, 2026 19:59:59 UTC (Jan 28 23:59:59 UTC+4)
+          period: dateRange.period,
+        }
+      : dateRange
 
   return {
     dateRange: effectiveDateRange,
