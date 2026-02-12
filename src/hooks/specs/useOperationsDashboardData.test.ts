@@ -137,13 +137,84 @@ describe('useOperationsDashboardData', () => {
     expect(data.consumption.nominalValue).toBe(5_000_000) // MW → Watts
     expect(data.miners.data?.dataset).toEqual([
       {
-        ts: 1,
-        online: 10,
-        error: 0,
-        notMining: 5,
-        offline: 2,
-        sleep: 0,
-        maintenance: 4,
+        '01-01': {
+          style: {
+            backgroundColor: ['#03C04A4d', '#03C04A1a'],
+            borderColor: '#03C04A',
+            borderWidth: {
+              top: 2,
+            },
+            legendColor: '#03C04A',
+          },
+          value: 10,
+        },
+        label: 'Online',
+        legendColor: '#03C04A',
+        stackGroup: 'miners',
+      },
+      {
+        '01-01': {
+          style: {
+            backgroundColor: ['#EF44444d', '#EF44441a'],
+            borderColor: '#EF4444',
+            borderWidth: {
+              top: 2,
+            },
+            legendColor: '#EF4444',
+          },
+          value: 0,
+        },
+        label: 'Error',
+        legendColor: '#EF4444',
+        stackGroup: 'miners',
+      },
+      {
+        '01-01': {
+          style: {
+            backgroundColor: ['#FFFFFF4d', '#FFFFFF1a'],
+            borderColor: '#FFFFFF',
+            borderWidth: {
+              top: 2,
+            },
+            legendColor: '#FFFFFF',
+          },
+          value: 2,
+        },
+        label: 'Offline',
+        legendColor: '#FFFFFF',
+        stackGroup: 'miners',
+      },
+      {
+        '01-01': {
+          style: {
+            backgroundColor: ['#3B82F64d', '#3B82F61a'],
+            borderColor: '#3B82F6',
+            borderWidth: {
+              top: 2,
+            },
+            legendColor: '#3B82F6',
+          },
+          value: 0,
+        },
+        label: 'Sleep',
+        legendColor: '#3B82F6',
+        stackGroup: 'miners',
+      },
+      {
+        '01-01': {
+          style: {
+            backgroundColor: ['#F59E0B4d', '#F59E0B1a'],
+            borderColor: '#F59E0B',
+            borderWidth: {
+              top: 2,
+            },
+            legendColor: '#F59E0B',
+          },
+          value: 4,
+        },
+        label: 'Maintenance',
+        legendColor: '#F59E0B',
+        stackGroup: 'miners',
       },
     ])
 

@@ -1,12 +1,12 @@
-import Checkbox from 'antd/es/checkbox'
 import type { CheckboxProps } from 'antd/es/checkbox'
+import Checkbox from 'antd/es/checkbox'
 import Col from 'antd/es/col'
 import Row from 'antd/es/row'
 import { FormikProvider, useFormik } from 'formik'
 import _head from 'lodash/head'
 import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 import * as yup from 'yup'
 
@@ -88,13 +88,20 @@ const ConfirmChangePositionDialogContent = ({
   const { checkDuplicate, duplicateError, isDuplicateCheckLoading, setDuplicateError } =
     useMinerDuplicateValidation()
 
+  const isBackFromMaintenance =
+    (
+      (selectedSocketToReplace as UnknownRecord | undefined)?.containerInfo as
+        | UnknownRecord
+        | undefined
+    )?.container === MAINTENANCE_CONTAINER
+
   const formik = useFormik({
     initialValues: {
       containerMinerRackId:
         ((
           (selectedSocketToReplace as UnknownRecord | undefined)?.miner as UnknownRecord | undefined
         )?.rack as string | undefined) || '',
-      forceSetIp: false,
+      forceSetIp: isBackFromMaintenance,
       minerIp: minerIp || '',
     },
     validationSchema,
@@ -102,13 +109,6 @@ const ConfirmChangePositionDialogContent = ({
       await onChangePosition(values)
     },
   })
-
-  const isBackFromMaintenance =
-    (
-      (selectedSocketToReplace as UnknownRecord | undefined)?.containerInfo as
-        | UnknownRecord
-        | undefined
-    )?.container === MAINTENANCE_CONTAINER
 
   const getNotificationText = () => {
     if (isBackFromMaintenance) {
@@ -248,16 +248,18 @@ const ConfirmChangePositionDialogContent = ({
             )}
           <StaticMinerIpAssigment
             forceSetIp={formik.values.forceSetIp}
-            isStaticIpAssignment={isStaticIpAssignment}
+            isStaticIpAssignment={isStaticIpAssignment || isBackFromMaintenance}
             minerIp={formik.values.minerIp}
             setMinerIp={(ip) => formik.setFieldValue('minerIp', ip)}
             isChangeInfo={false}
           />
-          <Col span={24}>
-            <Checkbox onChange={onSetIpCheckboxChange} checked={formik.values.forceSetIp}>
-              Force set new IP
-            </Checkbox>
-          </Col>
+          {!isBackFromMaintenance && (
+            <Col span={24}>
+              <Checkbox onChange={onSetIpCheckboxChange} checked={formik.values.forceSetIp}>
+                Force set new IP
+              </Checkbox>
+            </Col>
+          )}
           {duplicateError && (
             <DuplicateErrorMsg>IP address is already being used.</DuplicateErrorMsg>
           )}

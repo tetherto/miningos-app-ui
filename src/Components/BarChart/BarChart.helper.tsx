@@ -25,6 +25,7 @@ import {
   handleLegendClick,
 } from '@/app/utils/chartUtils'
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
+import { ChartLegendPosition } from '@/app/utils/utils.types'
 import { LABEL_TO_IGNORE } from '@/constants/charts'
 import { CHART_COLORS, COLOR } from '@/constants/colors'
 import { MINER_TYPE_MESSAGE } from '@/constants/deviceConstants'
@@ -257,7 +258,7 @@ interface VerticalChartOptions {
   isLegendVisible: boolean
   isStacked: boolean
   displayColors?: boolean
-  legendPosition?: string
+  legendPosition?: ChartLegendPosition
   legendAlign?: string
   hasSuffix?: boolean
 }
@@ -319,7 +320,7 @@ export const getVerticalChartOptions = ({
       ...commonPluginsOptions,
       legend: {
         display: isLegendVisible,
-        position: legendPosition as 'top' | 'bottom' | 'left' | 'right' | 'center' | 'chartArea',
+        position: legendPosition,
         align: legendAlign as 'start' | 'center' | 'end',
         labels: getLegendOptions(),
       },
@@ -348,7 +349,7 @@ interface HorizontalChartOptions {
   isLegendVisible: boolean
   isStacked: boolean
   displayColors?: boolean
-  legendPosition?: string
+  legendPosition?: ChartLegendPosition
   legendAlign?: string
   hasSuffix?: boolean
 }
@@ -399,7 +400,7 @@ export const getHorizontalChartOptions = ({
     ...commonPluginsOptions,
     legend: {
       display: isLegendVisible,
-      position: legendPosition as 'top' | 'bottom' | 'left' | 'right' | 'center' | 'chartArea',
+      position: legendPosition,
       align: legendAlign as 'start' | 'center' | 'end',
       labels: getLegendOptions(),
     },

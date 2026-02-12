@@ -24,14 +24,15 @@ import { Bar } from 'react-chartjs-2'
 import {
   adapter,
   convertLineDataset,
-  yAxisTooltipPlugin,
   getHorizontalChartOptions,
   getVerticalChartOptions,
+  yAxisTooltipPlugin,
   type CustomDataset,
 } from './BarChart.helper'
 import { NoDataWrapper } from './Barchart.styles'
 
 import { naturalSorting } from '@/app/utils/containerUtils'
+import { ChartLegendPosition } from '@/app/utils/utils.types'
 import { withErrorBoundary } from '@/Components/ErrorBoundary'
 import { CHART_EMPTY_DESCRIPTION, LABEL_TO_IGNORE } from '@/constants/charts'
 import { COLOR } from '@/constants/colors'
@@ -94,7 +95,7 @@ interface BarChartProps {
   barWidth?: number
   isLegendVisible?: boolean
   allowGrouping?: boolean
-  legendPosition?: string
+  legendPosition?: ChartLegendPosition
   legendAlign?: string
   hasSuffix?: boolean
   showYAxisTooltip?: boolean

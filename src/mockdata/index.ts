@@ -8,6 +8,7 @@
 // Import mock data files
 import alertsData from './alerts.json'
 import baseData from './base.json'
+import containersData from './containers.json'
 import operationsData from './operations.json'
 
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
@@ -23,6 +24,7 @@ function mergeMockData(...sources: UnknownRecord[]): UnknownRecord {
 // Merge all mock data
 const mockdata = mergeMockData(
   baseData as UnknownRecord,
+  containersData as UnknownRecord,
   operationsData as UnknownRecord,
   alertsData as UnknownRecord,
 )

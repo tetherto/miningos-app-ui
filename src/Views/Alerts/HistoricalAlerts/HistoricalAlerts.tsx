@@ -37,15 +37,16 @@ export const HistoricalAlerts: React.FC<HistoricalAlertsProps> = ({
   const onRangeChangeHandler = (dates: [Date, Date] | null) => {
     if (!dates) return
 
-    const nextTableDateRange = getRangeTimestamps(dates, timezone)
-    if (nextTableDateRange && nextTableDateRange[0] && nextTableDateRange[1]) {
-      onTableDateRangeChange([nextTableDateRange[0], nextTableDateRange[1]])
-    }
     setPickerDates({
       start: dates[0].getTime(),
       end: dates[1].getTime(),
       period: '',
     })
+
+    const nextTableDateRange = getRangeTimestamps(dates, timezone)
+    if (nextTableDateRange && nextTableDateRange[0] && nextTableDateRange[1]) {
+      onTableDateRangeChange([nextTableDateRange[0], nextTableDateRange[1]])
+    }
   }
 
   const { data: alertsLogData, isLoading: isAlertsLogLoading } =
@@ -63,7 +64,7 @@ export const HistoricalAlerts: React.FC<HistoricalAlertsProps> = ({
           title="Historical Alerts Log"
           subtitle={
             <PresetDateRangePicker
-              defaultValue={[new Date(pickerDates.start), new Date(pickerDates.end)]}
+              currentValue={[new Date(pickerDates.start), new Date(pickerDates.end)]}
               onRangeChange={onRangeChangeHandler}
             />
           }

@@ -947,7 +947,7 @@ export const useRevenueSummaryData = () => {
     const currentYear = getYear(now)
     const currentMonth = getMonth(now)
     const [start, end] = rangeOfMonth(currentYear, currentMonth)
-    const timestamps = getRangeTimestamps([start, end], timezone)
+    const timestamps = getRangeTimestamps([start, end], timezone, true)
     if (!timestamps[0] || !timestamps[1]) return null
     return {
       start: timestamps[0].getTime(),
@@ -964,7 +964,7 @@ export const useRevenueSummaryData = () => {
     const lastYearDate = subYears(new Date(), 1)
     const year = getYear(lastYearDate)
     const [start, end] = rangeOfYear(year)
-    const timestamps = getRangeTimestamps([start, end], timezone)
+    const timestamps = getRangeTimestamps([start, end], timezone, true)
     if (!timestamps[0] || !timestamps[1]) return null
     return {
       start: timestamps[0].getTime(),

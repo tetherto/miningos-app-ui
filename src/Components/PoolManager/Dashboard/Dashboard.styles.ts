@@ -70,6 +70,11 @@ export const NavigationBlocks = styled.div`
   ${flexRow};
   gap: 24px;
   padding: 10px;
+  flex-direction: column;
+
+  @media (min-width: 992px) {
+    flex-direction: row;
+  }
 `
 
 export const NavigationBlock = styled.div`

@@ -51,9 +51,13 @@ const Sidebar = ({
   const shouldShowExpandedLabel = !isExpanded && isMultiSiteModeEnabled
   const { setSidebarState } = sidebarSlice.actions
 
+  const handleDispatchToggleSidebar = () => {
+    dispatch({ type: TOGGLE_SIDEBAR, payload: false })
+  }
+
   const handleExpandClick = () => {
     if (isMobile) {
-      dispatch({ type: TOGGLE_SIDEBAR, payload: false })
+      handleDispatchToggleSidebar()
       return
     }
 
@@ -77,7 +81,7 @@ const Sidebar = ({
         dispatch(setSidebarState(true))
         // Hide the sidebar overlay if it's currently showing
         if (showSidebar) {
-          dispatch({ type: TOGGLE_SIDEBAR, payload: false })
+          handleDispatchToggleSidebar()
         }
       }
       // For desktop, the Redux persisted state will be used automatically
@@ -105,6 +109,12 @@ const Sidebar = ({
   const handleItemClick = (item: { to: string }) => {
     const path = item.to.startsWith('/') ? item.to : '/' + item.to
     navigate(path)
+  }
+
+  const handleClose = () => {
+    if (isMobile) {
+      handleDispatchToggleSidebar()
+    }
   }
 
   return (
@@ -139,6 +149,7 @@ const Sidebar = ({
               currentTab={currentTab ?? ''}
               item={item}
               onClickItem={handleItemClick}
+              onClose={handleClose}
             />
           ))}
         </MenuItems>

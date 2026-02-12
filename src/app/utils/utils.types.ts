@@ -59,3 +59,8 @@ export interface WeightedDataPoint {
   value: number
   weight: number
 }
+
+// ============================================================================
+// Chart Legend Position Type
+// ============================================================================
+export type ChartLegendPosition = 'top' | 'bottom' | 'left' | 'right' | 'center' | 'chartArea'

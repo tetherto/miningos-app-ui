@@ -89,6 +89,7 @@ const PowerModesMap: Record<
 > = {
   offline_cnt: MinerStatuses.OFFLINE,
   not_mining_cnt: MinerStatuses.NOT_MINING,
+  power_mode_normal_include_error_cnt: MinerStatuses.ERROR,
   power_mode_low_cnt: MINER_POWER_MODE.LOW,
   power_mode_normal_cnt: MINER_POWER_MODE.NORMAL,
   power_mode_high_cnt: MINER_POWER_MODE.HIGH,

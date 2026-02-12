@@ -13,7 +13,7 @@ import type { BarChartData } from '@/Components/BarChart/BarChart'
 import {
   sumObjectValues,
   transformMinersStatusData,
-} from '@/Views/ReportingTool/OperationsDashboard/utils'
+} from '@/Views/Reports/OperationsDashboard/utils'
 
 const DEFAULT_TIME_FRAME_DAYS = 7
 

@@ -64,13 +64,15 @@ describe('useSitesOverviewData', () => {
   ]
 
   const mockMinerTailLogData = [
-    {
-      hashrate_mhs_1m_group_sum_aggr: {
-        'container-bd-d40': 1000000, // 1 PH/s
-        'container-bd-d50': 500000, // 0.5 PH/s
-        'container-bd-d60': 0,
+    [
+      {
+        hashrate_mhs_1m_group_sum_aggr: {
+          'container-bd-d40': 1000000, // 1 PH/s
+          'container-bd-d50': 500000, // 0.5 PH/s
+          'container-bd-d60': 0,
+        },
       },
-    },
+    ],
   ]
 
   beforeEach(() => {
@@ -232,7 +234,7 @@ describe('useSitesOverviewData', () => {
 
   it('should handle missing hashrate data in tail log', () => {
     vi.mocked(api.useGetTailLogQuery).mockReturnValue({
-      data: [{ hashrate_mhs_1m_group_sum_aggr: {} }],
+      data: [[{ hashrate_mhs_1m_group_sum_aggr: {} }]],
       isLoading: false,
       isFetching: false,
       error: undefined,

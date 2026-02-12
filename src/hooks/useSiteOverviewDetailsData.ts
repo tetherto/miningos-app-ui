@@ -124,7 +124,7 @@ export const useSiteOverviewDetailsData = (unit?: UnitData): UseSiteOverviewDeta
   // Calculate container hash rate
   const getContainerHashRate = (): string => {
     const model = info?.container
-    const tailLogArray = (minerTailLogData as TailLogDataItem[] | undefined) || []
+    const tailLogArray = (_head(minerTailLogData) as TailLogDataItem[] | undefined) || []
     const tailLogItem = _head(tailLogArray) as TailLogDataItem | undefined
     const hashRate = (model && tailLogItem?.hashrate_mhs_1m_group_sum_aggr?.[model]) ?? 0
     const hashRatePhs = convertUnits(
@@ -141,7 +141,7 @@ export const useSiteOverviewDetailsData = (unit?: UnitData): UseSiteOverviewDeta
   const actualMinersCount =
     getContainerMinersChartData(
       (info?.container as string) ?? '',
-      _head(minerTailLogData as MinerTailLogItem[]) ?? ({} as MinerTailLogItem),
+      _head(_head(minerTailLogData) as MinerTailLogItem[]) ?? ({} as MinerTailLogItem),
       Number(info?.nominalMinerCapacity) || 0,
     )?.actualMiners ?? 0
 

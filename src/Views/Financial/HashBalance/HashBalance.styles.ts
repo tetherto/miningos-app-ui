@@ -6,7 +6,7 @@ import { MetricCardWrapper } from '@/MultiSiteViews/Common.style'
 
 export const HashBalanceRoot = styled.div`
   min-height: 91vh;
-  padding: 0 20px;
+  padding: 0 20px 20px 20px;
 `
 
 export const TabsWrapper = styled.div`
