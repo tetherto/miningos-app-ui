@@ -5,7 +5,6 @@ import _map from 'lodash/map'
 import _size from 'lodash/size'
 import _sum from 'lodash/sum'
 import _values from 'lodash/values'
-import type React from 'react'
 import { FC } from 'react'
 
 import { formatNumber } from '../../../../app/utils/format'
