@@ -13,7 +13,7 @@ import _map from 'lodash/map'
 import _slice from 'lodash/slice'
 import { useNavigate } from 'react-router-dom'
 
-import { alertsNeeded, MAX_ALERTS_DISPLAYED, navigationBlocks } from './constants'
+import { MAX_ALERTS_DISPLAYED, navigationBlocks } from './constants'
 import {
   Alerts,
   AlertStatus,
@@ -62,20 +62,23 @@ const Dashboard = () => {
     days: 5,
   }).valueOf()
 
-  // Fetch recent alerts once without polling
+  // Fetch critical alerts once without polling
   const { data: alertThingsData } = useGetListThingsQuery(
     {
       query: JSON.stringify({
         'last.alerts': {
           $elemMatch: {
-            createdAt: {
-              $gt: alertsFilterTime,
-            },
+            severity: 'critical',
           },
         },
       }),
       status: 1,
       limit: 50,
+      fields: JSON.stringify({
+        'last.alerts': 1,
+        id: 1,
+        code: 1,
+      }),
     },
     {
       pollingInterval: 0, // Disable polling - fetch once only
@@ -88,27 +91,26 @@ const Dashboard = () => {
   // Extract all recent alerts from all things
   const thingAlerts: Alert[] = _flatMap(things, (item) => {
     const itemAlerts = _get(item, ['last', 'alerts'], []) as Alert[]
-    const code = _get(item, ['code'])
+    const code = _get(item, ['info', 'serialNum']) || _get(item, ['code']) || 'Unknown'
     return _map(itemAlerts, (alert) => ({
       ...alert,
       code,
     }))
   })
 
-  // Filter to show only recent alerts (last 5 days) and prioritize pool-related alerts
+  // Sort by most recent and show only last 5 days
+  const sortedAlerts = thingAlerts.sort((a, b) => {
+    const aTime = Number(a.createdAt) || 0
+    const bTime = Number(b.createdAt) || 0
+    return bTime - aTime
+  })
+
   const recentAlerts: Alert[] = _filter(
-    thingAlerts,
+    sortedAlerts,
     (alert: Alert) => alert.createdAt && Number(alert.createdAt) > alertsFilterTime,
   ) as Alert[]
-  const poolAlerts: Alert[] = _filter(
-    recentAlerts,
-    (alert: Alert) => alertsNeeded.has(alert.name),
-  ) as Alert[]
-  const alerts: Alert[] = _slice(
-    poolAlerts.length > 0 ? poolAlerts : recentAlerts,
-    0,
-    MAX_ALERTS_DISPLAYED,
-  ) as Alert[]
+  
+  const alerts: Alert[] = _slice(recentAlerts, 0, MAX_ALERTS_DISPLAYED) as Alert[]
 
   const totalMiners =
     (minersAmount?.onlineOrMinorErrors ?? 0) +
