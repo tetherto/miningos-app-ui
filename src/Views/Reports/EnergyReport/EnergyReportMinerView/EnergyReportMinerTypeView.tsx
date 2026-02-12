@@ -61,7 +61,9 @@ const EnergyReportMinerView = ({
 
   const { title, key: tailLogField, getLabelName, filterCategory } = sliceConfig[slice]
 
-  const tailLogEntry = _head(_head(tailLogData)) as Record<string, Record<string, number>> | undefined
+  const tailLogEntry = _head(_head(tailLogData)) as
+    | Record<string, Record<string, number>>
+    | undefined
 
   const categories = _filter(_keys(_get(tailLogEntry, [tailLogField], {})), (category) => {
     if (filterCategory) {
