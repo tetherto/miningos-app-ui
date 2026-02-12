@@ -163,8 +163,8 @@ export const useOperationsDashboardData = (dateRange: DateRange): OperationsDash
     key: 'stat-3h',
     type: 'miner',
     tag: 't-miner',
-    start: dateRange.start,
-    end: dateRange.end,
+    start: fixedDateRange.start,
+    end: fixedDateRange.end,
     aggrFields: JSON.stringify({
       online_or_minor_error_miners_amount_aggr: 1,
       error_miners_amount_aggr: 1,
