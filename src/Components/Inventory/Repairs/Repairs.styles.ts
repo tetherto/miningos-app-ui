@@ -21,7 +21,11 @@ export const AddedLabel = styled.div`
   ${flexCenterRow};
 `
 
-export const MinerCodeSkeleton = styled(Skeleton.Node)`
-  width: 160px;
-  height: 10px;
+export const MinerCodeSkeleton = styled(Skeleton.Input)`
+  width: 120px;
+
+  .ant-skeleton-input {
+    height: 20px;
+    min-width: 120px;
+  }
 `

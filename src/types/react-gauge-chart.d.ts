@@ -1,5 +1,6 @@
 declare module 'react-gauge-chart' {
-  import { type CSSProperties, type FC } from 'react'
+  import type React from 'react'
+  import type { CSSProperties } from 'react'
 
   export interface GaugeChartProps {
     id?: string
@@ -11,17 +12,18 @@ declare module 'react-gauge-chart' {
     percent?: number
     arcPadding?: number
     arcWidth?: number
+    arcsLength?: number[]
     colors?: string[]
     textColor?: string
     needleColor?: string
     needleBaseColor?: string
     hideText?: boolean
-    arcsLength?: number[]
     animate?: boolean
     animDelay?: number
+    animateDuration?: number
     formatTextValue?: (value: string) => string
   }
 
-  const GaugeChart: FC<GaugeChartProps>
+  const GaugeChart: React.FC<GaugeChartProps>
   export default GaugeChart
 }

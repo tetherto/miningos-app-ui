@@ -10,6 +10,7 @@ import {
   useGetTailLogQuery,
   useGetTailLogRangeAggrQuery,
 } from '@/app/services/api'
+import { isDemoMode } from '@/app/services/api.utils'
 import {
   sumObjectValues,
   transformMinersStatusData,
@@ -84,7 +85,6 @@ interface DataPoint {
 export const useOperationsDashboardData = (dateRange: DateRange): OperationsDashboardData => {
   // In demo mode, always use the fixed date range from when mock data was captured
   // This ensures charts display data regardless of the selected date range
-  const isDemoMode = import.meta.env.VITE_USE_MOCKDATA === 'true'
   const fixedDateRange = isDemoMode
     ? {
         start: 1769025600000, // Jan 21, 2026 20:00:00 UTC (Jan 22 00:00 UTC+4)
@@ -163,8 +163,8 @@ export const useOperationsDashboardData = (dateRange: DateRange): OperationsDash
     key: 'stat-3h',
     type: 'miner',
     tag: 't-miner',
-    start: dateRange.start,
-    end: dateRange.end,
+    start: fixedDateRange.start,
+    end: fixedDateRange.end,
     aggrFields: JSON.stringify({
       online_or_minor_error_miners_amount_aggr: 1,
       error_miners_amount_aggr: 1,

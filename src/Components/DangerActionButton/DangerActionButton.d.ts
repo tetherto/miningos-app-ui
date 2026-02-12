@@ -19,4 +19,4 @@ export interface DangerActionButtonProps {
   block?: boolean
 }
 
-export const DangerActionButton: FC<DangerActionButtonProps>
+export declare const DangerActionButton: FC<DangerActionButtonProps>

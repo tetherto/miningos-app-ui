@@ -20,6 +20,7 @@ import {
 } from './EBITDA.styles'
 import useEBITDA from './useEBITDA.hook'
 
+import { isDemoMode } from '@/app/services/api.utils'
 import { FALLBACK, formatValueUnit } from '@/app/utils/format'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { PERIOD } from '@/constants/ranges'
@@ -70,7 +71,7 @@ const EBITDA = () => {
         />
       </DurationButtonsWrapper>
 
-      {!_isEmpty(errors) && (
+      {!isDemoMode && !_isEmpty(errors) && (
         <ErrorMessage>
           Error loading EBITDA data. Please try again later.
           {errors.map((error) => (

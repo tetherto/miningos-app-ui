@@ -187,7 +187,7 @@ export const ContainerWidgetCard = ({
           <MinersSummaryBox data={{ ...containerData, powerW }} />
           <MinersActivityChart
             data={minersStatusData}
-            isLoading={isMinerTailLogLoading}
+            isLoading={isMinerTailLogLoading && !minerTailLogItem}
             isError={isMinerTailLogError}
             error={minerTailLogError as MinerActivityChartErrorProp}
           />

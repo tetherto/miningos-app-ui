@@ -1,12 +1,10 @@
 import Alert from 'antd/es/alert'
 import Tooltip from 'antd/es/tooltip'
 import _compact from 'lodash/compact'
-import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
 import _size from 'lodash/size'
 import _sum from 'lodash/sum'
 import _values from 'lodash/values'
-import type React from 'react'
 import { FC } from 'react'
 
 import { formatNumber } from '../../../../app/utils/format'
@@ -110,8 +108,9 @@ const MinersActivityChart: FC<MinersActivityChartProps> = ({
     )
   }
 
-  // Show loading skeleton only when actually loading, not when showing empty data in demo mode
-  if (isLoading || (_isEmpty(displayData) && !isError)) {
+  // Show loading skeleton only when actually loading
+  // Don't show loading if data is simply empty after successful load
+  if (isLoading) {
     return (
       <ChartLoadingSkeleton
         minHeight={large ? SKELETON_MIN_HEIGHT_LARGE : SKELETON_MIN_HEIGHT_DEFAULT}
