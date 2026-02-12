@@ -61,7 +61,11 @@ const EnergyReportMinerView = ({
 
   const { title, key: tailLogField, getLabelName, filterCategory } = sliceConfig[slice]
 
-  const categories = _filter(_keys(_get(_head(tailLogData), [tailLogField], {})), (category) => {
+  const tailLogEntry = _head(_head(tailLogData)) as
+    | Record<string, Record<string, number>>
+    | undefined
+
+  const categories = _filter(_keys(_get(tailLogEntry, [tailLogField], {})), (category) => {
     if (filterCategory) {
       return filterCategory(category)
     }
@@ -73,7 +77,7 @@ const EnergyReportMinerView = ({
     labels,
     dataSet1: {
       label: 'Power Consumption',
-      data: _map(categories, (label) => _get(_head(tailLogData), [tailLogField, label])),
+      data: _map(categories, (label) => _get(tailLogEntry, [tailLogField, label], 0)),
     },
   }
 
