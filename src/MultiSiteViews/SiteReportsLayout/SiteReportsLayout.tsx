@@ -5,9 +5,13 @@ import { useGetFeatureConfigQuery } from '@/app/services/api'
 import { EmptyStateContainer } from '@/styles/shared-styles'
 
 const SiteReportsLayout = () => {
-  const { data: featureConfig } = useGetFeatureConfigQuery(undefined)
+  const { data: featureConfig, isLoading } = useGetFeatureConfigQuery(undefined)
 
   const isReportingEnabled = featureConfig?.reporting
+
+  if (isLoading) {
+    return null
+  }
 
   if (!isReportingEnabled) {
     return (

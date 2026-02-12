@@ -8,7 +8,7 @@ import _min from 'lodash/minBy'
 import _noop from 'lodash/noop'
 import _split from 'lodash/split'
 import _values from 'lodash/values'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import Selecto from 'react-selecto'
 
@@ -70,10 +70,10 @@ const PduGrid = ({
 }: PduGridProps) => {
   const selectablesContainerRef = useRef<HTMLElement | null>(null)
   const [showSelecto, setShowSelecto] = useState<boolean>(false)
-  const registerSelectablesContainer = (node: HTMLElement | null) => {
+  const registerSelectablesContainer = useCallback((node: HTMLElement | null) => {
     selectablesContainerRef.current = node
     setShowSelecto(!!node)
-  }
+  }, [])
   const isAltDown = useKeyDown('Alt')
   const lastSelectionTimeRef = useRef<number>(0)
   const RAPID_CLICK_THRESHOLD = 300 // ms - if clicks happen within this time, don't clear selection
