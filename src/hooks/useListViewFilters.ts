@@ -7,7 +7,7 @@ import _setWith from 'lodash/setWith'
 import _sortBy from 'lodash/sortBy'
 import _toLower from 'lodash/toLower'
 import _unset from 'lodash/unset'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { useGetAvailableDevices } from './useGetAvailableDevices'
 
@@ -63,7 +63,7 @@ export const useListViewFilters = ({ site, selectedType }: UseListViewFiltersPar
     setPreviousFilters(undefined)
   }, [selectedType])
 
-  const onFiltersChange = (e: FilterSelectionTuple[]) => {
+  const onFiltersChange = useCallback((e: FilterSelectionTuple[]) => {
     // Use functional update to access previous filters without adding to dependencies
     setFilters((currentFilters) => {
       setPreviousFilters(currentFilters)
@@ -86,7 +86,7 @@ export const useListViewFilters = ({ site, selectedType }: UseListViewFiltersPar
 
       return groupedSelections
     })
-  }
+  }, [])
 
   return {
     onFiltersChange,
