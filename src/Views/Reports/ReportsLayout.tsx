@@ -8,9 +8,13 @@ import { AUTH_LEVELS, AUTH_PERMISSIONS } from '../../constants/permissions.const
 import { EmptyStateContainer } from '@/styles/shared-styles'
 
 const ReportsLayout = () => {
-  const { data: featureConfig } = useGetFeatureConfigQuery()
+  const { data: featureConfig, isLoading } = useGetFeatureConfigQuery()
 
   const isReportingEnabled = featureConfig?.reporting
+
+  if (isLoading) {
+    return null
+  }
 
   if (!isReportingEnabled) {
     return (
