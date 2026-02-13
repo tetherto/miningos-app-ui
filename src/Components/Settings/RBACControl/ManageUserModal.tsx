@@ -26,10 +26,10 @@ import {
   SectionDescription,
   SectionTitle,
 } from './ManageUserModal.styles'
+import { PERMISSION_LABELS, ROLE_PERMISSIONS, type PermLevel } from './rolePermissions'
 
 import { useUpdateUserMutation } from '@/app/services/api'
 import { FormikInput, FormikSelect } from '@/Components/FormInputs'
-import { AUTH_PERMISSIONS, USER_ROLE } from '@/constants/permissions.constants'
 import { useNotification } from '@/hooks/useNotification'
 
 const validationSchema = yup.object({
@@ -57,155 +57,29 @@ interface ManageUserModalProps {
   roles: Role[]
 }
 
-// All permission categories with human-readable labels
-const ALL_PERMISSIONS: { key: string; label: string }[] = [
-  { key: AUTH_PERMISSIONS.USERS, label: 'Manage Users' },
-  { key: AUTH_PERMISSIONS.SETTINGS, label: 'Manage Settings' },
-  { key: AUTH_PERMISSIONS.ACTIONS, label: 'Actions' },
-  { key: AUTH_PERMISSIONS.MINER, label: 'Miners' },
-  { key: AUTH_PERMISSIONS.CONTAINER, label: 'Containers' },
-  { key: AUTH_PERMISSIONS.MINERPOOL, label: 'Miner Pool' },
-  { key: AUTH_PERMISSIONS.EXPLORER, label: 'Explorer' },
-  { key: AUTH_PERMISSIONS.INVENTORY, label: 'Inventory' },
-  { key: AUTH_PERMISSIONS.ALERTS, label: 'Alerts' },
-  { key: AUTH_PERMISSIONS.COMMENTS, label: 'Comments' },
-  { key: AUTH_PERMISSIONS.REPORTING, label: 'Reporting' },
-  { key: AUTH_PERMISSIONS.REVENUE, label: 'Revenue' },
-  { key: AUTH_PERMISSIONS.CABINETS, label: 'Cabinets' },
-  { key: AUTH_PERMISSIONS.POWERMETER, label: 'Power Meter' },
-  { key: AUTH_PERMISSIONS.ELECTRICITY, label: 'Electricity' },
-  { key: AUTH_PERMISSIONS.FEATURES, label: 'Features' },
-  { key: AUTH_PERMISSIONS.TICKETS, label: 'Tickets' },
-]
-
-type PermLevel = 'rw' | 'r' | false
-
-// Map of role to permission levels (read/write, read-only, or no access)
-const ROLE_PERMISSIONS: Record<string, Record<string, PermLevel>> = {
-  [USER_ROLE.ADMIN]: Object.fromEntries(
-    ALL_PERMISSIONS.map(({ key }) => [key, 'rw' as PermLevel]),
-  ),
-  [USER_ROLE.SITE_MANAGER]: {
-    [AUTH_PERMISSIONS.USERS]: 'rw',
-    [AUTH_PERMISSIONS.SETTINGS]: 'rw',
-    [AUTH_PERMISSIONS.ACTIONS]: 'rw',
-    [AUTH_PERMISSIONS.MINER]: 'rw',
-    [AUTH_PERMISSIONS.CONTAINER]: 'rw',
-    [AUTH_PERMISSIONS.MINERPOOL]: 'rw',
-    [AUTH_PERMISSIONS.EXPLORER]: 'rw',
-    [AUTH_PERMISSIONS.INVENTORY]: 'rw',
-    [AUTH_PERMISSIONS.ALERTS]: 'rw',
-    [AUTH_PERMISSIONS.COMMENTS]: 'rw',
-    [AUTH_PERMISSIONS.REPORTING]: 'rw',
-    [AUTH_PERMISSIONS.REVENUE]: 'r',
-    [AUTH_PERMISSIONS.CABINETS]: 'rw',
-    [AUTH_PERMISSIONS.POWERMETER]: 'r',
-    [AUTH_PERMISSIONS.ELECTRICITY]: 'r',
-    [AUTH_PERMISSIONS.FEATURES]: 'r',
-    [AUTH_PERMISSIONS.TICKETS]: 'rw',
-  },
-  [USER_ROLE.REPORTING_TOOL_MANAGER]: {
-    [AUTH_PERMISSIONS.USERS]: false,
-    [AUTH_PERMISSIONS.SETTINGS]: 'r',
-    [AUTH_PERMISSIONS.ACTIONS]: false,
-    [AUTH_PERMISSIONS.MINER]: 'r',
-    [AUTH_PERMISSIONS.CONTAINER]: 'r',
-    [AUTH_PERMISSIONS.MINERPOOL]: 'r',
-    [AUTH_PERMISSIONS.EXPLORER]: 'r',
-    [AUTH_PERMISSIONS.INVENTORY]: 'r',
-    [AUTH_PERMISSIONS.ALERTS]: 'r',
-    [AUTH_PERMISSIONS.COMMENTS]: 'r',
-    [AUTH_PERMISSIONS.REPORTING]: 'rw',
-    [AUTH_PERMISSIONS.REVENUE]: 'rw',
-    [AUTH_PERMISSIONS.CABINETS]: 'r',
-    [AUTH_PERMISSIONS.POWERMETER]: 'r',
-    [AUTH_PERMISSIONS.ELECTRICITY]: 'r',
-    [AUTH_PERMISSIONS.FEATURES]: false,
-    [AUTH_PERMISSIONS.TICKETS]: false,
-  },
-  [USER_ROLE.SITE_OPERATOR]: {
-    [AUTH_PERMISSIONS.USERS]: false,
-    [AUTH_PERMISSIONS.SETTINGS]: 'r',
-    [AUTH_PERMISSIONS.ACTIONS]: 'rw',
-    [AUTH_PERMISSIONS.MINER]: 'rw',
-    [AUTH_PERMISSIONS.CONTAINER]: 'rw',
-    [AUTH_PERMISSIONS.MINERPOOL]: 'r',
-    [AUTH_PERMISSIONS.EXPLORER]: 'rw',
-    [AUTH_PERMISSIONS.INVENTORY]: 'rw',
-    [AUTH_PERMISSIONS.ALERTS]: 'rw',
-    [AUTH_PERMISSIONS.COMMENTS]: 'rw',
-    [AUTH_PERMISSIONS.REPORTING]: 'r',
-    [AUTH_PERMISSIONS.REVENUE]: false,
-    [AUTH_PERMISSIONS.CABINETS]: 'rw',
-    [AUTH_PERMISSIONS.POWERMETER]: 'r',
-    [AUTH_PERMISSIONS.ELECTRICITY]: 'r',
-    [AUTH_PERMISSIONS.FEATURES]: false,
-    [AUTH_PERMISSIONS.TICKETS]: 'rw',
-  },
-  [USER_ROLE.FIELD_OPERATOR]: {
-    [AUTH_PERMISSIONS.USERS]: false,
-    [AUTH_PERMISSIONS.SETTINGS]: false,
-    [AUTH_PERMISSIONS.ACTIONS]: 'r',
-    [AUTH_PERMISSIONS.MINER]: 'r',
-    [AUTH_PERMISSIONS.CONTAINER]: 'r',
-    [AUTH_PERMISSIONS.MINERPOOL]: 'r',
-    [AUTH_PERMISSIONS.EXPLORER]: 'r',
-    [AUTH_PERMISSIONS.INVENTORY]: 'r',
-    [AUTH_PERMISSIONS.ALERTS]: 'r',
-    [AUTH_PERMISSIONS.COMMENTS]: 'rw',
-    [AUTH_PERMISSIONS.REPORTING]: 'r',
-    [AUTH_PERMISSIONS.REVENUE]: false,
-    [AUTH_PERMISSIONS.CABINETS]: 'r',
-    [AUTH_PERMISSIONS.POWERMETER]: 'r',
-    [AUTH_PERMISSIONS.ELECTRICITY]: 'r',
-    [AUTH_PERMISSIONS.FEATURES]: false,
-    [AUTH_PERMISSIONS.TICKETS]: 'r',
-  },
-  [USER_ROLE.REPAIR_TECHNICIAN]: {
-    [AUTH_PERMISSIONS.USERS]: false,
-    [AUTH_PERMISSIONS.SETTINGS]: false,
-    [AUTH_PERMISSIONS.ACTIONS]: false,
-    [AUTH_PERMISSIONS.MINER]: 'r',
-    [AUTH_PERMISSIONS.CONTAINER]: 'r',
-    [AUTH_PERMISSIONS.MINERPOOL]: false,
-    [AUTH_PERMISSIONS.EXPLORER]: 'r',
-    [AUTH_PERMISSIONS.INVENTORY]: 'rw',
-    [AUTH_PERMISSIONS.ALERTS]: 'r',
-    [AUTH_PERMISSIONS.COMMENTS]: 'rw',
-    [AUTH_PERMISSIONS.REPORTING]: false,
-    [AUTH_PERMISSIONS.REVENUE]: false,
-    [AUTH_PERMISSIONS.CABINETS]: 'r',
-    [AUTH_PERMISSIONS.POWERMETER]: false,
-    [AUTH_PERMISSIONS.ELECTRICITY]: false,
-    [AUTH_PERMISSIONS.FEATURES]: false,
-    [AUTH_PERMISSIONS.TICKETS]: 'rw',
-  },
-  [USER_ROLE.READ_ONLY]: {
-    [AUTH_PERMISSIONS.USERS]: false,
-    [AUTH_PERMISSIONS.SETTINGS]: 'r',
-    [AUTH_PERMISSIONS.ACTIONS]: false,
-    [AUTH_PERMISSIONS.MINER]: 'r',
-    [AUTH_PERMISSIONS.CONTAINER]: 'r',
-    [AUTH_PERMISSIONS.MINERPOOL]: 'r',
-    [AUTH_PERMISSIONS.EXPLORER]: 'r',
-    [AUTH_PERMISSIONS.INVENTORY]: 'r',
-    [AUTH_PERMISSIONS.ALERTS]: 'r',
-    [AUTH_PERMISSIONS.COMMENTS]: 'r',
-    [AUTH_PERMISSIONS.REPORTING]: 'r',
-    [AUTH_PERMISSIONS.REVENUE]: false,
-    [AUTH_PERMISSIONS.CABINETS]: 'r',
-    [AUTH_PERMISSIONS.POWERMETER]: 'r',
-    [AUTH_PERMISSIONS.ELECTRICITY]: 'r',
-    [AUTH_PERMISSIONS.FEATURES]: false,
-    [AUTH_PERMISSIONS.TICKETS]: false,
-  },
+const PermissionIcon = ({ level }: { level: PermLevel }) => {
+  if (level === 'rw') {
+    return (
+      <CheckIconWrapper>
+        <CheckOutlined /> Read &amp; Write
+      </CheckIconWrapper>
+    )
+  }
+  if (level === 'r') {
+    return (
+      <ReadOnlyIconWrapper>
+        <CheckOutlined /> Read Only
+      </ReadOnlyIconWrapper>
+    )
+  }
+  return (
+    <CloseIconWrapper>
+      <CloseOutlined /> No Access
+    </CloseIconWrapper>
+  )
 }
 
-const formatPermLevel = (level: PermLevel): string => {
-  if (level === 'rw') return 'Read & Write'
-  if (level === 'r') return 'Read Only'
-  return 'No Access'
-}
+const permissionKeys = Object.keys(PERMISSION_LABELS)
 
 const ManageUserModal = ({ open, onClose, user, roles }: ManageUserModalProps) => {
   const { notifyError, notifySuccess } = useNotification()
@@ -321,25 +195,15 @@ const ManageUserModal = ({ open, onClose, user, roles }: ManageUserModalProps) =
                 </PermissionsTableHeaderCell>
               </PermissionsTableHeader>
 
-              {ALL_PERMISSIONS.map(({ key, label }) => {
-                const level = rolePerms[key] ?? false
+              {permissionKeys.map((key) => {
+                const level: PermLevel = rolePerms[key] ?? false
                 return (
                   <PermissionsTableRow key={key}>
-                    <PermissionsTableCell $flex={1}>{label}</PermissionsTableCell>
+                    <PermissionsTableCell $flex={1}>
+                      {PERMISSION_LABELS[key]}
+                    </PermissionsTableCell>
                     <IconWrapper $width="120px" $align="center">
-                      {level === 'rw' ? (
-                        <CheckIconWrapper>
-                          <CheckOutlined /> {formatPermLevel(level)}
-                        </CheckIconWrapper>
-                      ) : level === 'r' ? (
-                        <ReadOnlyIconWrapper>
-                          <CheckOutlined /> {formatPermLevel(level)}
-                        </ReadOnlyIconWrapper>
-                      ) : (
-                        <CloseIconWrapper>
-                          <CloseOutlined /> {formatPermLevel(level)}
-                        </CloseIconWrapper>
-                      )}
+                      <PermissionIcon level={level} />
                     </IconWrapper>
                   </PermissionsTableRow>
                 )

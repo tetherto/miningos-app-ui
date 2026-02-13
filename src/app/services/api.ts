@@ -695,7 +695,7 @@ export const api = createApi({
       },
     }),
     getUsers: builder.query({
-      query: _constant('users'),
+      query: () => `users?bust_cache=${Date.now()}`,
       providesTags: ['User'],
       extraOptions: {
         maxRetries: 3,

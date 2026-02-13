@@ -95,11 +95,7 @@ const HeaderStats = () => {
             on={_isNumber(onlineOrMinorErrors) ? onlineOrMinorErrors : 0}
             error={_isNumber(majorErrors) ? majorErrors : 0}
             off={_isNumber(offlineOrSleep) ? offlineOrSleep : 0}
-            total={
-              _isNumber(totalContainerCapacity)
-                ? totalContainerCapacity
-                : 0
-            }
+            total={_isNumber(totalContainerCapacity) ? totalContainerCapacity : 0}
             poolOn={_isNumber(poolMinersOn) ? poolMinersOn : 0}
             poolTotal={_isNumber(poolMinersTotal) ? poolMinersTotal : 0}
             showMos={preferences.mosMiners}
