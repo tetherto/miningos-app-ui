@@ -15,7 +15,7 @@ export const AccordionContainer = styled.div<StyledProps>`
   ${flexColumn};
   border: ${(props) => (props.$open ? `1px solid ${COLOR.WHITE_ALPHA_01}` : 'none')};
   background-color: ${(props) =>
-    props.$open && !props.$solidBackground ? COLOR.TRANSPARENT : COLOR.BLACK_ALPHA_05};
+    props.$open && !props.$solidBackground ? COLOR.ONYX : COLOR.BLACK_ALPHA_05};
 
   a {
     text-decoration: none;
@@ -32,6 +32,7 @@ export const AccordionHeader = styled.div<StyledProps>`
   user-select: none;
   padding: 10px 20px;
   border-bottom: ${({ $noBorder }) => ($noBorder ? 'none' : `1px solid ${COLOR.COLD_ORANGE}`)};
+  background-color: transparent;
 
   @media (max-width: 768px) {
     font-size: 16px;

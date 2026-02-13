@@ -46,6 +46,12 @@ export const HeaderTabs = styled(Tabs)`
     color: ${COLOR.COLD_ORANGE};
   }
 `
+
+export const AccordionsContainer = styled.div`
+  ${flexColumn};
+  gap: 20px;
+  margin-top: 20px;
+`
 export const RebootDescription = styled.span`
   ${flexColumn};
   gap: 20px;

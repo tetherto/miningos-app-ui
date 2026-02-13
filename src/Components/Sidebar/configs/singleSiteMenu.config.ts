@@ -278,7 +278,7 @@ export const SIDEBAR_MENU_ITEMS: SidebarItem[] = [
   },
   {
     id: MENU_IDS.SETTINGS,
-    to: isUseMockdataEnabled ? ROUTE.SETTINGS_USERS : ROUTE.SETTINGS_DASHBOARD,
+    to: ROUTE.SETTINGS_DASHBOARD,
     icon: Settings,
     label: MENU_LABELS.SETTINGS,
     featConfigKey: FEATURE_CONFIG_KEYS.SETTINGS,
@@ -291,15 +291,6 @@ export const SIDEBAR_MENU_ITEMS: SidebarItem[] = [
         to: ROUTE.SETTINGS_DASHBOARD,
         label: MENU_LABELS.DASHBOARD,
         disabled: isUseMockdataEnabled,
-      },
-      {
-        id: MENU_IDS.SETTINGS_USER_MANAGEMENT,
-        to: ROUTE.SETTINGS_USERS,
-        label: MENU_LABELS.USER_MANAGEMENT,
-        featFlagKey: FEATURE_FLAG_KEYS.USER_MANAGEMENT,
-        authPermKey: {
-          perm: `${AUTH_PERMISSIONS.USERS}:${AUTH_LEVELS.READ}`,
-        },
       },
     ],
   },
