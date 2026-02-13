@@ -73,6 +73,10 @@ export const useGetListThingsPaginated = ({
 
   const [things, setThings] = useState<unknown[]>([])
 
+  useEffect(() => {
+    fetchThings()
+  }, [query, fields, perPage, overwriteCache])
+
   const fetchThings = async () => {
     const things = await getListThingsPaginated({
       queryFn: async (params: GetListThingsPaginatedQueryFnParams) => {
