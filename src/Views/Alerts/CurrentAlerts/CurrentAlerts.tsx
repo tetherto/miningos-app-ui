@@ -1,4 +1,5 @@
 import { Howl, Howler } from 'howler'
+import _castArray from 'lodash/castArray'
 import _head from 'lodash/head'
 import _isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useRef, useState } from 'react'
@@ -50,11 +51,11 @@ interface CurrentAlertsProps {
   onAlertClick?: (id?: string, uuid?: string) => void
 }
 
-export const CurrentAlerts: React.FC<CurrentAlertsProps> = ({
+export const CurrentAlerts = ({
   localFilters,
-  onLocalFiltersChange,
   onAlertClick,
-}) => {
+  onLocalFiltersChange,
+}: CurrentAlertsProps) => {
   const smartPolling20s = useSmartPolling(POLLING_20s)
   const { id } = useParams<{ id?: string }>()
   const { isMobile } = useDeviceResolution()
@@ -71,11 +72,8 @@ export const CurrentAlerts: React.FC<CurrentAlertsProps> = ({
   const hasCriticalAlerts = !alertsLoading && !_isEmpty(_head(alertsData as unknown[]))
 
   // Only play sound when severity filter is "critical" or no severity filter is set
-  const severityFilter = localFilters.severity
   const isCriticalFilter =
-    !severityFilter ||
-    severityFilter === SEVERITY.CRITICAL ||
-    (Array.isArray(severityFilter) && severityFilter.includes(SEVERITY.CRITICAL))
+    _isEmpty(localFilters.severity) || _castArray(localFilters.severity).includes(SEVERITY.CRITICAL)
 
   const isAlertPlaying = !isDemoMode && isAlertEnabled && hasCriticalAlerts && isCriticalFilter
   const alarm = useRef<Howl | null>(null)
