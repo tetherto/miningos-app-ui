@@ -160,7 +160,10 @@ module.exports = defineConfig([
       parserOptions: {
         ecmaVersion: 2022,
         sourceType: 'module',
+<<<<<<< HEAD
         project: './tsconfig.json',
+=======
+>>>>>>> acfd0b7a8dd42779e65c58817b8bf4967e6cc19f
         ecmaFeatures: {
           jsx: true,
         },
@@ -294,6 +297,7 @@ module.exports = defineConfig([
     },
   },
   {
+<<<<<<< HEAD
     files: ['**/*.test.js', '**/*.spec.js'],
     rules: {
       'react/display-name': 'off',
@@ -321,6 +325,9 @@ module.exports = defineConfig([
         VoidFunction: 'readonly',
       },
     },
+=======
+    files: ['**/*.test.js', '**/*.spec.js', '**/*.test.ts', '**/*.spec.ts', '**/*.test.tsx', '**/*.spec.tsx'],
+>>>>>>> acfd0b7a8dd42779e65c58817b8bf4967e6cc19f
     rules: {
       'react/display-name': 'off',
       'react-hooks/exhaustive-deps': 'off',
