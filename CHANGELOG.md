@@ -36,4 +36,4 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Upgraded Vite to v7.3.1 for faster build times
 - Updated multiple dependencies for security and performance improvements
 
-[1.0.0]: https://github.com/your-org/miningos-app-ui/releases/tag/v1.0.0
+[1.0.0]: https://github.com/tetherto/miningos-app-ui/releases/tag/v1.0.0
