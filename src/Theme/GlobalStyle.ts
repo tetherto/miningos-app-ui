@@ -243,4 +243,9 @@ export const GlobalStyle = createGlobalStyle`
     white-space: nowrap;
     overflow: visible;
   }
+
+  /* Ensure pagination size changer is always visible on mobile/responsive views */
+  .ant-pagination-options {
+    display: inline-flex !important;
+  }
 `

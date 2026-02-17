@@ -26,6 +26,9 @@ const HeaderStats = () => {
     minersAmount,
   } = useHeaderStats()
 
+  const { totalContainerCapacity, offlineOrSleep, majorErrors, onlineOrMinorErrors } =
+    minersAmount || {}
+
   const hashrateValue = _isNumber(minerEntry?.hashrate_mhs_1m_sum_aggr)
     ? minerEntry.hashrate_mhs_1m_sum_aggr
     : 0
@@ -35,15 +38,13 @@ const HeaderStats = () => {
     <WebappHeaderStatsContainer>
       <HeaderRightBorder />
       <HeaderMinersBox
-        on={_isNumber(minersAmount.onlineOrMinorErrors) ? minersAmount.onlineOrMinorErrors : 0}
-        error={_isNumber(minersAmount.majorErrors) ? minersAmount.majorErrors : 0}
-        off={_isNumber(minersAmount.offlineOrSleep) ? minersAmount.offlineOrSleep : 0}
-        total={
-          _isNumber(minersAmount.totalContainerCapacity) ? minersAmount.totalContainerCapacity : 0
-        }
-        poolOn={_isNumber(poolMinersOn) ? poolMinersOn : 0}
-        poolTotal={_isNumber(poolMinersTotal) ? poolMinersTotal : 0}
         isLoading={isLoading}
+        total={_isNumber(totalContainerCapacity) ? totalContainerCapacity : 0}
+        error={_isNumber(majorErrors) ? majorErrors : 0}
+        poolOn={_isNumber(poolMinersOn) ? poolMinersOn : 0}
+        off={_isNumber(offlineOrSleep) ? offlineOrSleep : 0}
+        poolTotal={_isNumber(poolMinersTotal) ? poolMinersTotal : 0}
+        on={_isNumber(onlineOrMinorErrors) ? onlineOrMinorErrors : 0}
       />
       <HeaderRightBorder />
       <HeaderHashrateBox

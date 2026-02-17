@@ -28,6 +28,7 @@ import {
 import type { EnergyBalanceTab } from './EnergyBalance.types'
 import useEnergyBalance from './useEnergyBalance.hook'
 
+import { isDemoMode } from '@/app/services/api.utils'
 import { formatNumber, formatValueUnit } from '@/app/utils/format'
 import { Mosaic } from '@/Components/Mosaic/Mosaic'
 import { Spinner } from '@/Components/Spinner/Spinner'
@@ -125,7 +126,7 @@ const EnergyBalance = () => {
         ))}
       </TabsWrapper>
 
-      {!_isEmpty(errors) && (
+      {!isDemoMode && !_isEmpty(errors) && (
         <ErrorMessage>
           Error loading Energy Balance data. Please try again later.
           {_map(errors, (error) => (

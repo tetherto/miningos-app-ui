@@ -1,3 +1,6 @@
+import _entries from 'lodash/entries'
+import _head from 'lodash/head'
+import _some from 'lodash/some'
 import { useEffect } from 'react'
 import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
@@ -53,6 +56,16 @@ const RevenueSummary = () => {
     siteList,
   } = useRevenueSummaryData()
 
+  const firstEntry = _head(revenueChartData)
+
+  const hasRevenueData = firstEntry
+    ? _some(
+        _entries(firstEntry),
+        ([key, value]) =>
+          !['timeKey', 'period', 'timestamp'].includes(key) && (value as number) > 0,
+      )
+    : false
+
   const handleResetWithYearSelected = () => {
     dispatch(setTimeframeType(TIMEFRAME_TYPE.YEAR))
     handleReset()
@@ -98,7 +111,11 @@ const RevenueSummary = () => {
 
           {/* Revenue Chart */}
           <ChartsContainer>
-            <RevenueChart data={revenueChartData} isLoading={isLoading} siteList={siteList} />
+            <RevenueChart
+              siteList={siteList}
+              isLoading={isLoading}
+              data={!hasRevenueData ? [] : revenueChartData}
+            />
           </ChartsContainer>
 
           {/* Charts Row: Subsidy/Fees Donut and Metrics Grid */}

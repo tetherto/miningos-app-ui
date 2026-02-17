@@ -56,7 +56,7 @@ export const getRepairHistoryColumns = ({
         return value
       }
       if (isMinerDataLoading) {
-        return <MinerCodeSkeleton />
+        return <MinerCodeSkeleton active size="small" />
       }
       return <>Unknown</>
     },

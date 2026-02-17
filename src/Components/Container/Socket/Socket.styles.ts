@@ -177,14 +177,16 @@ export const SocketContainer = styled.div<StyledProps>`
     // Fallback to original logic
     return getSocketBackgroundColor(props.$status as SocketStatusKey)
   }};
-  border: ${(props) => {
+  border: ${({ $selected, $status, $enabled }) => {
     // Show green border when selected: 1px solid #72F59E
-    if (props.$selected) {
+    if ($selected) {
       return `1px solid ${COLOR.GREEN}`
     }
-    // Show border for empty sockets: 1px solid #FFFFFF1A
-    if (props.$status === SOCKET_STATUSES.MINER_DISCONNECTED && props.$enabled === true) {
-      return `1px solid ${COLOR.WHITE_ALPHA_01}`
+    // Disconnected (empty) socket:
+    // - green border when socket is enabled
+    // - subtle white border when disabled
+    if ($status === SOCKET_STATUSES.MINER_DISCONNECTED) {
+      return `1px solid ${$enabled ? COLOR.SOCKET_ON_GREEN : COLOR.WHITE_ALPHA_01}`
     }
     return 'none'
   }};

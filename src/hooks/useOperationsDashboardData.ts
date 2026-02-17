@@ -10,10 +10,11 @@ import {
   useGetTailLogQuery,
   useGetTailLogRangeAggrQuery,
 } from '@/app/services/api'
+import { isDemoMode } from '@/app/services/api.utils'
 import {
   sumObjectValues,
   transformMinersStatusData,
-} from '@/Views/ReportingTool/OperationsDashboard/utils'
+} from '@/Views/Reports/OperationsDashboard/utils'
 
 interface DateRange {
   start: number
@@ -82,9 +83,18 @@ interface DataPoint {
  * Uses backend daily aggregation APIs for better performance
  */
 export const useOperationsDashboardData = (dateRange: DateRange): OperationsDashboardData => {
+  // In demo mode, always use the fixed date range from when mock data was captured
+  // This ensures charts display data regardless of the selected date range
+  const fixedDateRange = isDemoMode
+    ? {
+        start: 1769025600000, // Jan 21, 2026 20:00:00 UTC (Jan 22 00:00 UTC+4)
+        end: 1769630399999, // Jan 28, 2026 19:59:59 UTC (Jan 28 23:59:59 UTC+4)
+      }
+    : dateRange
+
   // Convert timestamps to ISO date strings
-  const startDate = new Date(dateRange.start).toISOString()
-  const endDate = new Date(dateRange.end).toISOString()
+  const startDate = new Date(fixedDateRange.start).toISOString()
+  const endDate = new Date(fixedDateRange.end).toISOString()
 
   // Fetch global config for nominal values
   const { data: globalConfig, isLoading: isLoadingNominalValues } = useGetGlobalConfigQuery({})
@@ -153,8 +163,8 @@ export const useOperationsDashboardData = (dateRange: DateRange): OperationsDash
     key: 'stat-3h',
     type: 'miner',
     tag: 't-miner',
-    start: dateRange.start,
-    end: dateRange.end,
+    start: fixedDateRange.start,
+    end: fixedDateRange.end,
     aggrFields: JSON.stringify({
       online_or_minor_error_miners_amount_aggr: 1,
       error_miners_amount_aggr: 1,

@@ -81,13 +81,16 @@ export const useSitesOverviewData = (): UseSitesOverviewDataResult => {
 
   // Process units data
   const unitsDataArray = Array.isArray(unitsData) ? unitsData : []
+  const tailLogArray = (_head(minerTailLogData) as MinerTailLogItem[] | undefined) || []
+  const tailLogItem = _head(tailLogArray) ?? ({} as MinerTailLogItem)
+
   const rawUnits = _map(
     _head(unitsDataArray) as ContainerUnit[] | undefined,
     (unit: ContainerUnit) => ({
       ...unit,
       miners: getContainerMinersChartData(
         unit.info?.container ?? '',
-        _head(minerTailLogData as MinerTailLogItem[]) ?? ({} as MinerTailLogItem),
+        tailLogItem,
         Number(unit?.info?.nominalMinerCapacity) || 0,
       ),
     }),
@@ -96,14 +99,9 @@ export const useSitesOverviewData = (): UseSitesOverviewDataResult => {
   // Calculate hash rate for each unit
   const getHashRate = (unit: ContainerUnit): string => {
     const model = unit.info?.container
-
-    const minerTailLogDataArray = Array.isArray(minerTailLogData) ? minerTailLogData : []
     const hashRate =
-      (
-        _head(minerTailLogDataArray) as
-          | { hashrate_mhs_1m_group_sum_aggr?: Record<string, number> }
-          | undefined
-      )?.hashrate_mhs_1m_group_sum_aggr?.[model ?? ''] ?? 0
+      (tailLogItem as { hashrate_mhs_1m_group_sum_aggr?: Record<string, number> })
+        ?.hashrate_mhs_1m_group_sum_aggr?.[model ?? ''] ?? 0
     const hashRatePhs = convertUnits(megaToTera(hashRate), UNIT_LABELS.TERA, UNIT_LABELS.PETA)
     return formatValueUnit(hashRatePhs, UNITS.HASHRATE_PH_S)
   }

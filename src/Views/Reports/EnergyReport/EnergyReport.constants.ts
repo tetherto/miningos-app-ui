@@ -54,13 +54,13 @@ export const MINER_MODES: MinerMode[] = [
 ]
 
 export const MinerTypePowerModesMap = {
-  offline_type_cnt: [MinerStatuses.OFFLINE],
-  error_type_cnt: [MinerStatuses.ERROR],
-  power_mode_sleep_type_cnt: [MINER_POWER_MODE.SLEEP],
-  power_mode_low_type_cnt: [MINER_POWER_MODE.LOW],
-  power_mode_normal_type_cnt: [MINER_POWER_MODE.NORMAL],
-  power_mode_high_type_cnt: [MINER_POWER_MODE.HIGH],
-  maintenance_type_cnt: [MinerStatuses.MAINTENANCE],
+  offline_type_cnt: MinerStatuses.OFFLINE,
+  error_type_cnt: MinerStatuses.ERROR,
+  power_mode_sleep_type_cnt: MINER_POWER_MODE.SLEEP,
+  power_mode_low_type_cnt: MINER_POWER_MODE.LOW,
+  power_mode_normal_type_cnt: MINER_POWER_MODE.NORMAL,
+  power_mode_high_type_cnt: MINER_POWER_MODE.HIGH,
+  maintenance_type_cnt: MinerStatuses.MAINTENANCE,
 } as const
 
 export type MinerModeKey = keyof typeof MinerTypePowerModesMap

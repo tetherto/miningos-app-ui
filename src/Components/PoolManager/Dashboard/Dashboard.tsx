@@ -2,8 +2,6 @@ import { ArrowRightOutlined } from '@ant-design/icons'
 import Button from 'antd/es/button'
 import Divider from 'antd/es/divider'
 import { formatDistance } from 'date-fns/formatDistance'
-import { sub } from 'date-fns/sub'
-import _filter from 'lodash/filter'
 import _flatMap from 'lodash/flatMap'
 import _get from 'lodash/get'
 import _head from 'lodash/head'
@@ -13,7 +11,7 @@ import _map from 'lodash/map'
 import _slice from 'lodash/slice'
 import { useNavigate } from 'react-router-dom'
 
-import { alertsNeeded, MAX_ALERTS_DISPLAYED, navigationBlocks } from './constants'
+import { MAX_ALERTS_DISPLAYED, navigationBlocks } from './constants'
 import {
   Alerts,
   AlertStatus,
@@ -41,7 +39,6 @@ import {
 } from './Dashboard.styles'
 
 import { useGetListThingsQuery } from '@/app/services/api'
-import { Spinner } from '@/Components/Spinner/Spinner'
 import { SEVERITY_COLORS } from '@/constants/alerts'
 import { COLOR } from '@/constants/colors'
 import { ALERT_TYPE_POOL_NAME } from '@/constants/deviceConstants'
@@ -59,41 +56,49 @@ const Dashboard = () => {
   const navigate = useNavigate()
   const { minersAmount, isLoading: isStatsLoading } = useHeaderStats()
 
-  const alertsFilterTime = sub(new Date(), {
-    days: 5,
-  }).valueOf()
-
-  const { data: alertThingsData, isLoading: isAlertThingsDataLoading } = useGetListThingsQuery({
-    query: JSON.stringify({
-      'last.alerts': {
-        $elemMatch: {
-          name: {
-            $in: [...alertsNeeded],
-          },
-          createdAt: {
-            $gt: alertsFilterTime,
-          },
+  // Fetch recent alerts once without polling (get devices with any alerts)
+  const { data: alertThingsData } = useGetListThingsQuery(
+    {
+      query: JSON.stringify({
+        'last.alerts': {
+          $exists: true,
+          $ne: [],
         },
-      },
-    }),
-    status: 1,
-  })
+      }),
+      status: 1,
+      limit: 50,
+      fields: JSON.stringify({
+        'last.alerts': 1,
+        'info.serialNum': 1,
+        id: 1,
+      }),
+    },
+    {
+      pollingInterval: 0, // Disable polling - fetch once only
+    },
+  )
 
   const alertThingsArray = _isArray(alertThingsData) ? alertThingsData : []
-  const firstThing = _head(alertThingsArray)
+  const things = _head(alertThingsArray) ?? []
 
-  const thingAlerts: Alert[] = firstThing
-    ? _flatMap(firstThing, (item) => ({
-        code: _get(item, ['code']),
-        ..._head(_get(item, ['last', 'alerts'], [])),
-      }))
-    : []
+  // Extract all alerts from all things
+  const thingAlerts: Alert[] = _flatMap(things, (item) => {
+    const itemAlerts = _get(item, ['last', 'alerts'], []) as Alert[]
+    const code = _get(item, ['info', 'serialNum']) || _get(item, ['code']) || 'Unknown'
+    return _map(itemAlerts, (alert) => ({
+      ...alert,
+      code,
+    }))
+  })
 
-  const alerts: Alert[] = _slice(
-    _filter(thingAlerts, (alert) => alertsNeeded.has(alert.name)),
-    0,
-    MAX_ALERTS_DISPLAYED,
-  )
+  // Sort by most recent and take top 5
+  const sortedAlerts = thingAlerts.sort((a, b) => {
+    const aTime = Number(a.createdAt) || 0
+    const bTime = Number(b.createdAt) || 0
+    return bTime - aTime
+  })
+
+  const alerts: Alert[] = _slice(sortedAlerts, 0, MAX_ALERTS_DISPLAYED) as Alert[]
 
   const totalMiners =
     (minersAmount?.onlineOrMinorErrors ?? 0) +
@@ -112,36 +117,34 @@ const Dashboard = () => {
     },
   ]
 
-  const isLoading = isStatsLoading || isAlertThingsDataLoading
-
   return (
     <DashboardWrapper>
-      {isLoading ? (
-        <Spinner />
-      ) : (
-        <StatBlocks>
-          {_map(stats, (stat) => (
-            <StatBlock key={stat.label}>
-              <StatBlockHeader>
-                <StatBlockLabel>{stat.label}</StatBlockLabel>
-                <StatBlockStatus
-                  $color={stat.type === 'ERROR' ? COLOR.RED : COLOR.GREEN}
-                ></StatBlockStatus>
-              </StatBlockHeader>
-              <StatValueWrapper>
-                <StatValue>{stat.value}</StatValue>
-                {stat.secondaryValue && (
-                  <StatSecondaryValue>
-                    {'/ '}
-                    {stat.secondaryValue}
-                  </StatSecondaryValue>
-                )}
-              </StatValueWrapper>
-            </StatBlock>
-          ))}
-        </StatBlocks>
+      {!isStatsLoading && (
+        <>
+          <StatBlocks>
+            {_map(stats, (stat) => (
+              <StatBlock key={stat.label}>
+                <StatBlockHeader>
+                  <StatBlockLabel>{stat.label}</StatBlockLabel>
+                  <StatBlockStatus
+                    $color={stat.type === 'ERROR' ? COLOR.RED : COLOR.GREEN}
+                  ></StatBlockStatus>
+                </StatBlockHeader>
+                <StatValueWrapper>
+                  <StatValue>{stat.value}</StatValue>
+                  {stat.secondaryValue && (
+                    <StatSecondaryValue>
+                      {'/ '}
+                      {stat.secondaryValue}
+                    </StatSecondaryValue>
+                  )}
+                </StatValueWrapper>
+              </StatBlock>
+            ))}
+          </StatBlocks>
+          <Divider />
+        </>
       )}
-      <Divider />
       <NavigationBlocks>
         {_map(navigationBlocks, (block) => (
           <NavigationBlock key={block.title}>

@@ -22,10 +22,10 @@ export const LayoutRoot = styled.div<{ $frozen?: boolean }>`
 
 export const MainWrapper = styled.main`
   ${flexRow};
-  height: calc(100% - 78px);
+  height: 100vh;
   margin-top: 77px;
-  background: ${COLOR.EBONY};
   position: relative;
+  background: ${COLOR.EBONY};
 `
 
 export const OutletContainer = styled.div<PinnedProps>`
@@ -43,7 +43,7 @@ export const ContentOutletContainer = styled.div<PinnedProps>`
   background: ${COLOR.EBONY};
   max-height: fit-content;
   position: relative;
-  min-height: calc(100vh - 78px);
+  min-height: 100vh;
   z-index: 1;
 `
 

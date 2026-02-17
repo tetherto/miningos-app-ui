@@ -1,12 +1,10 @@
 import Alert from 'antd/es/alert'
 import Tooltip from 'antd/es/tooltip'
 import _compact from 'lodash/compact'
-import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
 import _size from 'lodash/size'
 import _sum from 'lodash/sum'
 import _values from 'lodash/values'
-import type React from 'react'
 import { FC } from 'react'
 
 import { formatNumber } from '../../../../app/utils/format'
@@ -26,6 +24,7 @@ import {
   MinersActivityChartRoot,
 } from './MinersActivityChart.styles'
 
+import { isDemoMode } from '@/app/services/api.utils'
 import { percentage } from '@/app/utils/numberUtils'
 import ChartLoadingSkeleton from '@/Components/ChartLoadingSkeleton/ChartLoadingSkeleton'
 import { SOCKET_CONTAINER_COLOR } from '@/Components/Container/Socket/Socket.styles'
@@ -93,9 +92,12 @@ const MinersActivityChart: FC<MinersActivityChartProps> = ({
 
   const items = hasMaintenance ? itemsRoot.WITH_MAINTENANCE : itemsRoot.WOUT_MAINTENANCE
 
-  const totalValues = _sum(_compact(_values(data)))
+  // In demo mode, if there's an error (missing mock data), use empty data instead
+  const displayData = isError && isDemoMode ? {} : data
+  const totalValues = _sum(_compact(_values(displayData)))
 
-  if (isError) {
+  // In demo mode, hide errors and show empty data instead
+  if (isError && !isDemoMode) {
     return (
       <Alert
         message="Failed to load miner activity data"
@@ -106,7 +108,9 @@ const MinersActivityChart: FC<MinersActivityChartProps> = ({
     )
   }
 
-  if (isLoading || _isEmpty(data)) {
+  // Show loading skeleton only when actually loading
+  // Don't show loading if data is simply empty after successful load
+  if (isLoading) {
     return (
       <ChartLoadingSkeleton
         minHeight={large ? SKELETON_MIN_HEIGHT_LARGE : SKELETON_MIN_HEIGHT_DEFAULT}
@@ -119,12 +123,12 @@ const MinersActivityChart: FC<MinersActivityChartProps> = ({
       {showBarChart && (
         <Chart>
           {_map(items, (value) => {
-            const barValue = data[value]
-            const barSize = getBarSize(data, barValue, totalValues)
+            const barValue = displayData[value]
+            const barSize = getBarSize(displayData, barValue, totalValues)
 
             if (!barValue) return null
 
-            const barElement = getBar(data, value, barSize)
+            const barElement = getBar(displayData, value, barSize)
 
             const tooltip = MINERS_ACTIVITY_TOOLTIPS[value as keyof typeof MINERS_ACTIVITY_TOOLTIPS]
 
@@ -153,7 +157,7 @@ const MinersActivityChart: FC<MinersActivityChartProps> = ({
                   {MINERS_ACTIVITY_LABELS[value as keyof typeof MINERS_ACTIVITY_LABELS] || value}
                 </MinersActivityChartItemLabel>
               )}
-              <span>{formatNumber((data[value] as number | undefined) || 0)}</span>
+              <span>{formatNumber((displayData[value] as number | undefined) || 0)}</span>
             </MinersActivityChartItem>
           )
 

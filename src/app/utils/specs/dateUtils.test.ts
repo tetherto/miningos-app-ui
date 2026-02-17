@@ -1,3 +1,5 @@
+import { toZonedTime } from 'date-fns-tz'
+
 import { getLastMinuteTime } from '../dateTimeUtils'
 import { getRangeTimestamps, isValidTimestamp, parseMonthLabelToDate } from '../dateUtils'
 
@@ -27,8 +29,8 @@ describe('getRangeTimestamps', () => {
   const timezone = 'Europe/Berlin'
 
   it('returns full month correctly', () => {
-    const startDate = new Date('2025-08-01T05:00:00Z') // Aug 1
-    const endDate = new Date('2025-08-31T20:00:00Z') // Aug 31
+    const startDate = new Date(2025, 7, 1) // Aug 1, 2025 in local timezone
+    const endDate = new Date(2025, 7, 31) // Aug 31, 2025 in local timezone
 
     const [startUTC, endUTC] = getRangeTimestamps([startDate, endDate], timezone)
 
@@ -36,17 +38,52 @@ describe('getRangeTimestamps', () => {
     expect(endUTC).not.toBeNull()
 
     if (startUTC && endUTC) {
-      expect(startUTC.getFullYear()).toBe(2025)
-      expect(startUTC.getMonth()).toBe(7) // August (0-indexed)
-      expect(startUTC.getDate()).toBe(1)
-      expect(startUTC.getHours()).toBe(0)
+      const startInBerlin = toZonedTime(startUTC, timezone)
+      const endInBerlin = toZonedTime(endUTC, timezone)
 
-      expect(endUTC.getFullYear()).toBe(2025)
-      expect(endUTC.getMonth()).toBe(7) // August
-      expect(endUTC.getDate()).toBe(31)
-      expect(endUTC.getHours()).toBe(23)
-      expect(endUTC.getMinutes()).toBe(59)
-      expect(endUTC.getSeconds()).toBe(59)
+      expect(startInBerlin.getFullYear()).toBe(2025)
+      expect(startInBerlin.getMonth()).toBe(7) // August (0-indexed)
+      expect(startInBerlin.getDate()).toBe(1)
+      expect(startInBerlin.getHours()).toBe(0)
+
+      expect(endInBerlin.getFullYear()).toBe(2025)
+      expect(endInBerlin.getMonth()).toBe(7) // August
+      expect(endInBerlin.getDate()).toBe(31)
+      expect(endInBerlin.getHours()).toBe(23)
+      expect(endInBerlin.getMinutes()).toBe(59)
+      expect(endInBerlin.getSeconds()).toBe(59)
+    }
+  })
+
+  it('returns non-full-month range correctly with timezone awareness', () => {
+    // Test case: Feb 6-7, 2026
+    // This should correctly convert to UTC timestamps that represent Feb 6-7 in the target timezone
+    const startDate = new Date(2026, 1, 6) // Feb 6, 2026 in local timezone
+    const endDate = new Date(2026, 1, 7) // Feb 7, 2026 in local timezone
+
+    const [startUTC, endUTC] = getRangeTimestamps([startDate, endDate], timezone)
+
+    expect(startUTC).not.toBeNull()
+    expect(endUTC).not.toBeNull()
+
+    if (startUTC && endUTC) {
+      const startInBerlin = toZonedTime(startUTC, timezone)
+      const endInBerlin = toZonedTime(endUTC, timezone)
+
+      // Verify that the dates in the target timezone match what was selected
+      expect(startInBerlin.getFullYear()).toBe(2026)
+      expect(startInBerlin.getMonth()).toBe(1) // February (0-indexed)
+      expect(startInBerlin.getDate()).toBe(6)
+      expect(startInBerlin.getHours()).toBe(0)
+      expect(startInBerlin.getMinutes()).toBe(0)
+      expect(startInBerlin.getSeconds()).toBe(0)
+
+      expect(endInBerlin.getFullYear()).toBe(2026)
+      expect(endInBerlin.getMonth()).toBe(1) // February
+      expect(endInBerlin.getDate()).toBe(7)
+      expect(endInBerlin.getHours()).toBe(23)
+      expect(endInBerlin.getMinutes()).toBe(59)
+      expect(endInBerlin.getSeconds()).toBe(59)
     }
   })
 })

@@ -17,15 +17,15 @@ export const StatusColors: Record<'normal' | 'warning' | 'fault' | 'unavailable'
 } as const
 
 export const MinersActivityBarsColors: StatusColorMap = {
-  [MinerStatuses.OFFLINE]: COLOR.GREY_IDLE,
+  [MinerStatuses.OFFLINE]: COLOR.DARK_GREY,
   [MinerStatuses.ERROR]: COLOR.RED,
   [MINER_POWER_MODE.SLEEP]: COLOR.SLEEP_BLUE,
   [MinerStatuses.NOT_MINING]: COLOR.RED,
-  [MINER_POWER_MODE.LOW]: COLOR.MINT_GREEN,
+  [MINER_POWER_MODE.LOW]: COLOR.LOW_YELLOW,
   [MINER_POWER_MODE.NORMAL]: COLOR.GREEN,
-  [MINER_POWER_MODE.HIGH]: COLOR.OCEAN_GREEN,
+  [MINER_POWER_MODE.HIGH]: COLOR.PURPLE_HIGH,
   [MinerStatuses.MAINTENANCE]: COLOR.ORANGE_WARNING,
-  [SOCKET_STATUSES.MINER_DISCONNECTED]: COLOR.ORANGE_WARNING,
+  [SOCKET_STATUSES.MINER_DISCONNECTED]: COLOR.GREY_IDLE,
 } as const
 
 export const PowerModeColors: Record<

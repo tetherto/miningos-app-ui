@@ -1,3 +1,4 @@
+import _filter from 'lodash/filter'
 import _forEach from 'lodash/forEach'
 import _isEqual from 'lodash/isEqual'
 import _keys from 'lodash/keys'
@@ -7,7 +8,7 @@ import _min from 'lodash/minBy'
 import _noop from 'lodash/noop'
 import _split from 'lodash/split'
 import _values from 'lodash/values'
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import Selecto from 'react-selecto'
 
@@ -69,10 +70,10 @@ const PduGrid = ({
 }: PduGridProps) => {
   const selectablesContainerRef = useRef<HTMLElement | null>(null)
   const [showSelecto, setShowSelecto] = useState<boolean>(false)
-  const registerSelectablesContainer = (node: HTMLElement | null) => {
+  const registerSelectablesContainer = useCallback((node: HTMLElement | null) => {
     selectablesContainerRef.current = node
     setShowSelecto(!!node)
-  }
+  }, [])
   const isAltDown = useKeyDown('Alt')
   const lastSelectionTimeRef = useRef<number>(0)
   const RAPID_CLICK_THRESHOLD = 300 // ms - if clicks happen within this time, don't clear selection
@@ -238,6 +239,12 @@ const PduGrid = ({
     return getSelectableName(pduIndex, socketIndex)
   }
 
+  const hasConnectedMiner = (pduIndex?: string, socketIndex?: string): boolean => {
+    if (!pduIndex || !socketIndex) return false
+    const miner = minersHashmap?.[`${pduIndex}_${socketIndex}`] as UnknownRecord | undefined
+    return !!(miner && !(miner as UnknownRecord)?.error)
+  }
+
   const handleSelectEnd = (e: {
     inputEvent?: { target?: { classList?: { contains: (className: string) => boolean } } }
     added?: HTMLElement[]
@@ -283,7 +290,17 @@ const PduGrid = ({
         }
       }
 
-      _forEach(addedElements, (socketElement: HTMLElement) => {
+      const shouldFilterByMiner = (addedElements?.length ?? 0) > 1
+      const filteredAddedElements = shouldFilterByMiner
+        ? _filter(addedElements, (socketElement) => {
+            const { dataset } = socketElement as unknown as {
+              dataset: { pduIndex?: string; socketIndex?: string }
+            }
+            return hasConnectedMiner(dataset.pduIndex, dataset.socketIndex)
+          })
+        : addedElements
+
+      _forEach(filteredAddedElements, (socketElement: HTMLElement) => {
         const { dataset } = socketElement as unknown as {
           dataset: { pduIndex: string; socketIndex: string }
         }

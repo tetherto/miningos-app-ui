@@ -3,6 +3,7 @@ import { startOfMonth } from 'date-fns/startOfMonth'
 import { useEffect, useState } from 'react'
 import { useDispatch } from 'react-redux'
 
+import { isDemoMode } from '@/app/services/api.utils'
 import { setTimeframeType } from '@/app/slices/multiSiteSlice'
 import { getRangeTimestamps } from '@/app/utils/dateUtils'
 import { PERIOD, TIMEFRAME_TYPE } from '@/constants/ranges'
@@ -23,7 +24,17 @@ export const useFinancialDateRange = (options?: UseFinancialDateRangeOptions) =>
   const { defaultPeriod = PERIOD.DAILY } = options || {}
   const dispatch = useDispatch()
   const { timezone } = useTimezone()
-  const [dateRange, setDateRange] = useState<DateRange | null>(null)
+
+  // In demo mode, initialize with fixed date range immediately
+  const [dateRange, setDateRange] = useState<DateRange | null>(
+    isDemoMode
+      ? {
+          start: 1769025600000, // Jan 21, 2026 20:00:00 UTC (Jan 22 00:00 UTC+4)
+          end: 1769630399999, // Jan 28, 2026 19:59:59 UTC (Jan 28 23:59:59 UTC+4)
+          period: defaultPeriod,
+        }
+      : null,
+  )
 
   const handleRangeChange = (
     dates: [Date, Date] | null,
@@ -41,15 +52,32 @@ export const useFinancialDateRange = (options?: UseFinancialDateRangeOptions) =>
   }
 
   useEffect(() => {
-    if (!dateRange) {
+    if (!dateRange && !isDemoMode) {
+      // Only set default date range in production mode (demo mode already initialized in useState)
       const now = new Date()
       handleRangeChange([startOfMonth(now), endOfMonth(now)], { period: defaultPeriod })
-      dispatch(setTimeframeType(TIMEFRAME_BY_PERIOD[defaultPeriod] || TIMEFRAME_TYPE.MONTH))
     }
-  }, [])
+    if (dateRange) {
+      dispatch(
+        setTimeframeType(
+          TIMEFRAME_BY_PERIOD[dateRange.period || defaultPeriod] || TIMEFRAME_TYPE.MONTH,
+        ),
+      )
+    }
+  }, [dateRange?.period])
+
+  // In demo mode, always return the fixed date range regardless of user selection
+  const effectiveDateRange =
+    isDemoMode && dateRange
+      ? {
+          start: 1769025600000, // Jan 21, 2026 20:00:00 UTC (Jan 22 00:00 UTC+4)
+          end: 1769630399999, // Jan 28, 2026 19:59:59 UTC (Jan 28 23:59:59 UTC+4)
+          period: dateRange.period,
+        }
+      : dateRange
 
   return {
-    dateRange,
+    dateRange: effectiveDateRange,
     setDateRange,
     handleRangeChange,
     timezone,

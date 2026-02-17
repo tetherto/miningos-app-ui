@@ -4,8 +4,8 @@ import {
   MinersStatusChartCardContent,
   MinersStatusChartCardHeader,
   MinersStatusChartCardTitle,
-  MinersStatusChartNoData,
   MinersStatusChartError,
+  MinersStatusChartNoData,
 } from './MinerTypesReport.styles'
 
 import BarChart from '@/Components/BarChart/BarChart'

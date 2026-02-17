@@ -13,7 +13,6 @@ import _split from 'lodash/split'
 import PQueue from 'p-queue'
 import qs from 'qs'
 
-import '../../mockdata/index'
 import { selectToken } from '../slices/authSlice'
 import type { RootState } from '../store'
 
@@ -77,6 +76,7 @@ async function getMockdataKey(args: string | FetchArgs) {
 function mockdataFetchBaseQuery() {
   return async (args: string | FetchArgs) => {
     const mockdataKey = await getMockdataKey(args)
+    await import('../../mockdata/index')
     const mockData = window.__mockdata[mockdataKey]
 
     if (!mockData) {
@@ -94,6 +94,7 @@ function mockdataFetchBaseQuery() {
 }
 
 async function saveMockdata(args: string | FetchArgs, result: unknown) {
+  if (!window.__mockdata) window.__mockdata = {}
   const mockdataKey = await getMockdataKey(args)
   if (mockdataKey.startsWith('ext-data')) {
     // Fix: Check that data[0] is array-like before slicing for lint safety.

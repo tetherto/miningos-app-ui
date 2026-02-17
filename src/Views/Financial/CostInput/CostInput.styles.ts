@@ -8,7 +8,7 @@ import { COLOR } from '@/constants/colors'
 export const CostInputRoot = styled.div`
   min-height: 91vh;
   margin-top: 40px;
-  padding: 0 20px;
+  padding: 0 20px 20px 20px;
 `
 
 export const StyledInputNumber = styled(InputNumber)`
@@ -27,9 +27,10 @@ export const Header = styled.div`
 
 export const HeaderSubtitle = styled.div`
   font-size: 14px;
+  margin-top: 10px;
   line-height: 100%;
-  color: ${COLOR.COLD_ORANGE};
   text-transform: none;
+  color: ${COLOR.COLD_ORANGE};
 `
 
 export const DatePickerContainer = styled.div`

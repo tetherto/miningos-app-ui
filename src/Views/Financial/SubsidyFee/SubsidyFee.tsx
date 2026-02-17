@@ -20,6 +20,7 @@ import {
 import type { MempoolBlockData } from './SubsidyFee.types'
 
 import { useGetExtDataQuery } from '@/app/services/api'
+import { isDemoMode } from '@/app/services/api.utils'
 import { formatValueUnit } from '@/app/utils/format'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import ThresholdBarChart from '@/MultiSiteViews/Charts/ThresholdBarChart/ThresholdBarChart'
@@ -97,7 +98,9 @@ const SubsidyFee = () => {
         />
       </DurationButtonsWrapper>
 
-      {isError && <ErrorMessage>Error loading block data. Please try again later.</ErrorMessage>}
+      {!isDemoMode && isError && (
+        <ErrorMessage>Error loading block data. Please try again later.</ErrorMessage>
+      )}
 
       {!dateRange && (
         <InfoText>

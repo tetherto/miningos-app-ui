@@ -10,8 +10,7 @@ import _map from 'lodash/map'
 import _size from 'lodash/size'
 import _values from 'lodash/values'
 import pluralize from 'pluralize'
-import { useState } from 'react'
-import { FC } from 'react'
+import { FC, useState } from 'react'
 import { useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 
@@ -20,9 +19,9 @@ import {
   selectSelectedSockets,
 } from '../../../../app/slices/devicesSlice'
 import {
+  getContainerName,
   getNumberSelected,
   isContainerControlNotsupported,
-  getContainerName,
 } from '../../../../app/utils/containerUtils'
 import { appendContainerToTag } from '../../../../app/utils/deviceUtils'
 import { SecondaryButton } from '../../../../styles/shared-styles'
@@ -32,11 +31,11 @@ import { Socket } from '../../../Container/Socket/Socket'
 import { WarningDeviceCardColText } from '../../List/ListView.styles'
 
 import {
-  SocketListWrapper,
   ContainerSectionRowTitle,
   ContainerUnitRow,
   SectionRowTitle,
   SelectedSocketsListStyledRow,
+  SocketListWrapper,
 } from './SelectedSocketsList.styles'
 
 import { ROUTE } from '@/constants/routes'
@@ -120,19 +119,19 @@ const SelectedContainerSockets: FC<SelectedContainerSocketsProps> = ({
           {_map(_keys(segregatedSockets), (pduIndex: string) => (
             <div key={pduIndex}>
               {!_isNil(pduIndex) ? <SectionRowTitle>P-{pduIndex}</SectionRowTitle> : null}
-              <SocketListWrapper style={{ columnGap: '5px' }}>
+              <SocketListWrapper>
                 {_map(segregatedSockets[pduIndex], (selectedSocket: SocketData, index: number) => (
                   <Col key={`${pduIndex}-${index}`}>
                     <Socket
                       isContainerControlSupported={
                         !isContainerControlNotsupported(selectedContainer || '')
                       }
-                      current_a={undefined}
+                      current_a={selectedSocket?.current_a}
                       enabled={getIsSocketEnabled(selectedSocket)}
                       miner={
                         selectedSocket?.miner as { id?: string; [key: string]: unknown } | undefined
                       }
-                      power_w={undefined}
+                      power_w={selectedSocket?.power_w}
                       socket={
                         _isNumber(selectedSocket?.socketIndex) ? selectedSocket.socketIndex : null
                       }

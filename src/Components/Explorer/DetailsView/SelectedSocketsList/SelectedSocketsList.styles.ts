@@ -35,4 +35,5 @@ export const SocketListWrapper = styled.div`
   flex-wrap: wrap;
   gap: 5px;
   max-width: 500px;
+  column-gap: 16px;
 `

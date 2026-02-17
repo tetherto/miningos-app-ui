@@ -5,9 +5,13 @@ import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
 import { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
-import { Link } from 'react-router-dom'
 
-import { Header, HeaderSubtitle, PoolManagerDashboardRoot } from '../PoolManagerDashboard.styles'
+import {
+  Header,
+  HeaderSubtitle,
+  HeaderSubtitleLink,
+  PoolManagerDashboardRoot,
+} from '../PoolManagerDashboard.styles'
 
 import { actionsSlice, selectPendingSubmissions } from '@/app/slices/actionsSlice'
 import { appendIdToTag } from '@/app/utils/deviceUtils'
@@ -87,9 +91,9 @@ export const PoolManagerMinerExplorer = () => {
         <div>
           <div>Miner Explorer</div>
           <HeaderSubtitle>
-            <Link to={ROUTE.POOL_MANAGER}>
+            <HeaderSubtitleLink to={ROUTE.POOL_MANAGER}>
               <ArrowLeftOutlined /> Pool Manager
-            </Link>
+            </HeaderSubtitleLink>
           </HeaderSubtitle>
         </div>
         <Tooltip title={getSetupPoolsTooltip()}>

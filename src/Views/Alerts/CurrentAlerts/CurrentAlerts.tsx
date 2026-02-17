@@ -1,4 +1,5 @@
 import { Howl, Howler } from 'howler'
+import _castArray from 'lodash/castArray'
 import _head from 'lodash/head'
 import _isEmpty from 'lodash/isEmpty'
 import React, { useEffect, useRef, useState } from 'react'
@@ -23,6 +24,7 @@ import AlertConfirmationModal from './AlertConfirmationModal'
 
 import { isDemoMode } from '@/app/services/api.utils'
 import AppTable from '@/Components/AppTable/AppTable'
+import { SEVERITY } from '@/constants/alerts'
 import { ROUTE } from '@/constants/routes'
 import type { Device } from '@/hooks/hooks.types'
 
@@ -49,11 +51,11 @@ interface CurrentAlertsProps {
   onAlertClick?: (id?: string, uuid?: string) => void
 }
 
-export const CurrentAlerts: React.FC<CurrentAlertsProps> = ({
+export const CurrentAlerts = ({
   localFilters,
-  onLocalFiltersChange,
   onAlertClick,
-}) => {
+  onLocalFiltersChange,
+}: CurrentAlertsProps) => {
   const smartPolling20s = useSmartPolling(POLLING_20s)
   const { id } = useParams<{ id?: string }>()
   const { isMobile } = useDeviceResolution()
@@ -63,46 +65,73 @@ export const CurrentAlerts: React.FC<CurrentAlertsProps> = ({
   const filterTags = useSelector(selectFilterTags) as string[]
 
   const [confirmed, setConfirmed] = useState(
-    () =>
-      // Check sessionStorage to see if user already confirmed
-      sessionStorage.getItem(ALERT_CONFIRMATION_KEY) === 'true',
+    () => sessionStorage.getItem(ALERT_CONFIRMATION_KEY) === 'true',
   )
   const isAlertEnabled = useSelector(getIsAlertEnabled)
   const { isLoading: alertsLoading, data: alertsData } = useAlerts()
-  const isAlertPlaying =
-    !isDemoMode && isAlertEnabled && !alertsLoading && !_isEmpty(_head(alertsData as unknown[]))
+  const hasCriticalAlerts = !alertsLoading && !_isEmpty(_head(alertsData as unknown[]))
+
+  // Only play sound when severity filter is "critical" or no severity filter is set
+  const isCriticalFilter =
+    _isEmpty(localFilters.severity) || _castArray(localFilters.severity).includes(SEVERITY.CRITICAL)
+
+  const isAlertPlaying = !isDemoMode && isAlertEnabled && hasCriticalAlerts && isCriticalFilter
   const alarm = useRef<Howl | null>(null)
 
   useEffect(() => {
-    if (!alarm.current && confirmed) {
+    if (confirmed && !alarm.current) {
       alarm.current = new Howl({
         src: [ALARM.PATH],
         loop: true,
+        volume: ALARM.VOLUME,
       })
-      Howler.volume(ALARM.VOLUME)
     }
 
     return () => {
-      alarm.current?.stop()
-      alarm.current?.unload()
+      if (alarm.current) {
+        alarm.current.stop()
+        alarm.current.unload()
+        alarm.current = null
+      }
     }
   }, [confirmed])
 
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout>
+    let unlockHandler: (() => void) | null = null
+    const shouldPlay = confirmed && isAlertPlaying
 
-    if (confirmed && isAlertPlaying) {
-      timeoutId = setTimeout(() => {
-        alarm.current?.play()
-      }, ALARM.TIMEOUT)
-    } else {
-      alarm.current?.pause()
+    if (shouldPlay && alarm.current) {
+      const tryPlay = () => {
+        // Resume AudioContext if browser suspended it (autoplay policy)
+        if (Howler.ctx?.state === 'suspended') {
+          Howler.ctx.resume()
+        }
+        if (alarm.current && !alarm.current.playing()) {
+          alarm.current.play()
+        }
+      }
+
+      timeoutId = setTimeout(tryPlay, ALARM.TIMEOUT)
+
+      // Fallback: on user gesture, resume AudioContext so queued sound starts
+      unlockHandler = () => {
+        if (Howler.ctx?.state === 'suspended') {
+          Howler.ctx.resume()
+        }
+      }
+      document.addEventListener('click', unlockHandler)
+      document.addEventListener('touchstart', unlockHandler)
+    } else if (alarm.current?.playing()) {
+      alarm.current.pause()
     }
 
     return () => {
-      alarm.current?.pause()
-      alarm.current?.unload()
       if (timeoutId) clearTimeout(timeoutId)
+      if (unlockHandler) {
+        document.removeEventListener('click', unlockHandler)
+        document.removeEventListener('touchstart', unlockHandler)
+      }
     }
   }, [isAlertPlaying, confirmed])
 

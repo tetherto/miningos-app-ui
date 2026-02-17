@@ -5,7 +5,7 @@ import _map from 'lodash/map'
 import _reduce from 'lodash/reduce'
 import _reject from 'lodash/reject'
 import _some from 'lodash/some'
-import { type FC, useEffect, useState } from 'react'
+import { type FC, useEffect, useMemo, useState } from 'react'
 import type { MouseEvent } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -91,7 +91,7 @@ export const TimeframeControls: FC<TimeframeControlsProps> = ({
     disabled?: boolean
   }
 
-  const weeksCache = (() => {
+  const weeksCache = useMemo(() => {
     const map: Record<string, WeekData[]> = {}
     _forEach(YEARS, (y: number) => {
       _forEach(MONTHS, ({ month }) => {
@@ -99,7 +99,7 @@ export const TimeframeControls: FC<TimeframeControlsProps> = ({
       })
     })
     return map
-  })()
+  }, [timezone])
 
   const visibleYears = _filter(YEARS, (y: number) =>
     _some(MONTHS, ({ month }) => {
