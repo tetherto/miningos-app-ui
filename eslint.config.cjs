@@ -160,10 +160,7 @@ module.exports = defineConfig([
       parserOptions: {
         ecmaVersion: 2022,
         sourceType: 'module',
-<<<<<<< HEAD
         project: './tsconfig.json',
-=======
->>>>>>> acfd0b7a8dd42779e65c58817b8bf4967e6cc19f
         ecmaFeatures: {
           jsx: true,
         },
