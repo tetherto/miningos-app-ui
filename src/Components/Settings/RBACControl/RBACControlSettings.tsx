@@ -44,9 +44,7 @@ const RBACControlSettings = () => {
   const { roles: apiRoles, isLoading: isLoadingApiRoles } = useRolesPermissions()
   const showAdd = useCheckPerm({ perm: usersWritePermission })
 
-  const rolesConfig = useMemo(() => {
-    return apiRoles.length > 0 ? apiRoles : userRoles
-  }, [apiRoles, userRoles])
+  const rolesConfig = useMemo(() => apiRoles.length > 0 ? apiRoles : userRoles, [apiRoles, userRoles])
 
   const filteredUsers = users.filter((user: User) => {
     if (!searchQuery) return true
