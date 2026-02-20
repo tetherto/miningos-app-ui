@@ -1,7 +1,7 @@
 import { SearchOutlined } from '@ant-design/icons'
 import Button from 'antd/es/button'
 import Input from 'antd/es/input'
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 
 import { useGetUsersQuery } from '../../../app/services/api'
 import AddUserModal from '../UserManagement/AddUserModal'
@@ -22,6 +22,7 @@ import UserTableRow from './UserTableRow'
 
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { useCheckPerm } from '@/hooks/usePermissions'
+import { useRolesPermissions } from '@/hooks/useRolesPermissions'
 import { useAppUserRoles } from '@/hooks/useUserRole'
 
 interface User {
@@ -40,7 +41,12 @@ const RBACControlSettings = () => {
   const { data, isLoading } = useGetUsersQuery(undefined)
   const users = ((data as { users?: User[] })?.users || []) as User[]
   const { userRoles, isLoading: isLoadingRoles } = useAppUserRoles()
+  const { roles: apiRoles, isLoading: isLoadingApiRoles } = useRolesPermissions()
   const showAdd = useCheckPerm({ perm: usersWritePermission })
+
+  const rolesConfig = useMemo(() => {
+    return apiRoles.length > 0 ? apiRoles : userRoles
+  }, [apiRoles, userRoles])
 
   const filteredUsers = users.filter((user: User) => {
     if (!searchQuery) return true
@@ -52,7 +58,7 @@ const RBACControlSettings = () => {
     )
   })
 
-  if (isLoading || isLoadingRoles) {
+  if (isLoading || isLoadingRoles || isLoadingApiRoles) {
     return <Spinner />
   }
 
@@ -89,13 +95,13 @@ const RBACControlSettings = () => {
         </TableHeader>
         <TableBody>
           {filteredUsers?.map((user: User) => (
-            <UserTableRow key={user.id} user={user} roles={userRoles} />
+            <UserTableRow key={user.id} user={user} roles={rolesConfig} />
           ))}
         </TableBody>
       </Table>
 
       {addModalOpen && (
-        <AddUserModal open onClose={() => setAddModalOpen(false)} roles={userRoles} />
+        <AddUserModal open onClose={() => setAddModalOpen(false)} roles={rolesConfig} />
       )}
     </RBACContainer>
   )

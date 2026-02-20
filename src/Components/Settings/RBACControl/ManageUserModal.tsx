@@ -26,11 +26,12 @@ import {
   SectionDescription,
   SectionTitle,
 } from './ManageUserModal.styles'
-import { PERMISSION_LABELS, ROLE_PERMISSIONS, type PermLevel } from './rolePermissions'
+import { type PermLevel } from './rolePermissions'
 
 import { useUpdateUserMutation } from '@/app/services/api'
 import { FormikInput, FormikSelect } from '@/Components/FormInputs'
 import { useNotification } from '@/hooks/useNotification'
+import { useRolesPermissions } from '@/hooks/useRolesPermissions'
 
 const validationSchema = yup.object({
   name: yup.string().required('Name is required').trim(),
@@ -79,12 +80,13 @@ const PermissionIcon = ({ level }: { level: PermLevel }) => {
   )
 }
 
-const permissionKeys = Object.keys(PERMISSION_LABELS)
-
 const ManageUserModal = ({ open, onClose, user, roles }: ManageUserModalProps) => {
   const { notifyError, notifySuccess } = useNotification()
   const [updateUser] = useUpdateUserMutation()
   const [selectedRole, setSelectedRole] = useState(user.role)
+  const { permissions: apiPermissions, permissionLabels } = useRolesPermissions()
+
+  const permissionKeys = Object.keys(permissionLabels)
 
   const formik = useFormik({
     initialValues: {
@@ -125,7 +127,7 @@ const ManageUserModal = ({ open, onClose, user, roles }: ManageUserModalProps) =
     setSelectedRole(formik.values.role)
   }, [formik.values.role])
 
-  const rolePerms = ROLE_PERMISSIONS[selectedRole] || {}
+  const rolePerms = apiPermissions[selectedRole] || {}
 
   return (
     <AddUserModalBase
@@ -199,7 +201,7 @@ const ManageUserModal = ({ open, onClose, user, roles }: ManageUserModalProps) =
                 const level: PermLevel = rolePerms[key] ?? false
                 return (
                   <PermissionsTableRow key={key}>
-                    <PermissionsTableCell $flex={1}>{PERMISSION_LABELS[key]}</PermissionsTableCell>
+                    <PermissionsTableCell $flex={1}>{permissionLabels[key]}</PermissionsTableCell>
                     <IconWrapper $width="120px" $align="center">
                       <PermissionIcon level={level} />
                     </IconWrapper>

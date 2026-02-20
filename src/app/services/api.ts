@@ -149,6 +149,7 @@ export const api = createApi({
     'Settings',
     'HeaderControls',
     'ProductionCosts',
+    'RolePermissions',
     'ContainerSettings',
   ],
   // Performance optimization: Better cache management
@@ -188,6 +189,17 @@ export const api = createApi({
        * @returns {Object}
        */
       query: () => ({ url: 'permissions', method: 'GET' }),
+      extraOptions: {
+        maxRetries: 3,
+      },
+    }),
+
+    getRolesPermissions: builder.query({
+      /**
+       * @returns {Object} { permissions, roles, permissionLabels }
+       */
+      query: () => ({ url: 'roles/permissions', method: 'GET' }),
+      providesTags: ['RolePermissions'],
       extraOptions: {
         maxRetries: 3,
       },
@@ -1105,6 +1117,7 @@ export const {
   useDeleteUserMutation,
   useCreateUserMutation,
   useLazyGetUserPermissionsQuery,
+  useGetRolesPermissionsQuery,
   useGetWorkerConfigQuery,
   useGetThingConfigQuery,
   useGetSettingsQuery,
