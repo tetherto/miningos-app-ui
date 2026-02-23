@@ -21,6 +21,8 @@ import {
 const HashrateBox = ({
   hashrate = { unit: UNITS.HASHRATE_TH_S, value: 0 },
   poolHashrate = { unit: UNITS.HASHRATE_TH_S, value: 0 },
+  showMos = true,
+  showPool = true,
 }) => {
   const { data: featureConfig } = useGetFeatureConfigQuery({})
   const isPoolStatsEnabled = (featureConfig as import('@/types/api').FeatureFlags)?.poolStats
@@ -34,16 +36,18 @@ const HashrateBox = ({
         </HeaderStatBoxHeading>
       </HeaderStatBoxLeftCol>
       <HeaderStatBoxRightCol>
-        <HeaderStatsRow>
-          <HeaderStatsRowTitle>{WEBAPP_SHORT_NAME}</HeaderStatsRowTitle>
-          <HeaderStatBoxValueWrapper>
-            <HeaderStatBoxValue>
-              {formatNumber(hashrate?.value, { maximumFractionDigits: 3 })}
-            </HeaderStatBoxValue>
-            <HeaderStatBoxValueSuffix>{hashrate?.unit}</HeaderStatBoxValueSuffix>
-          </HeaderStatBoxValueWrapper>
-        </HeaderStatsRow>
-        {isPoolStatsEnabled && (
+        {showMos && (
+          <HeaderStatsRow>
+            <HeaderStatsRowTitle>{WEBAPP_SHORT_NAME}</HeaderStatsRowTitle>
+            <HeaderStatBoxValueWrapper>
+              <HeaderStatBoxValue>
+                {formatNumber(hashrate?.value, { maximumFractionDigits: 3 })}
+              </HeaderStatBoxValue>
+              <HeaderStatBoxValueSuffix>{hashrate?.unit}</HeaderStatBoxValueSuffix>
+            </HeaderStatBoxValueWrapper>
+          </HeaderStatsRow>
+        )}
+        {isPoolStatsEnabled && showPool && (
           <HeaderStatsRow>
             <HeaderStatsRowTitle>Pool</HeaderStatsRowTitle>
             <HeaderStatBoxValueWrapper>

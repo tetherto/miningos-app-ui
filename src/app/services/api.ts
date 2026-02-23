@@ -147,7 +147,9 @@ export const api = createApi({
     'Reports',
     'Action',
     'Settings',
+    'HeaderControls',
     'ProductionCosts',
+    'RolePermissions',
     'ContainerSettings',
   ],
   // Performance optimization: Better cache management
@@ -187,6 +189,17 @@ export const api = createApi({
        * @returns {Object}
        */
       query: () => ({ url: 'permissions', method: 'GET' }),
+      extraOptions: {
+        maxRetries: 3,
+      },
+    }),
+
+    getRolesPermissions: builder.query({
+      /**
+       * @returns {Object} { permissions, roles, permissionLabels }
+       */
+      query: () => ({ url: 'roles/permissions', method: 'GET' }),
+      providesTags: ['RolePermissions'],
       extraOptions: {
         maxRetries: 3,
       },
@@ -628,6 +641,41 @@ export const api = createApi({
         maxRetries: 3,
       },
     }),
+    getHeaderControls: builder.query({
+      query: () => 'settings/header-controls',
+      providesTags: ['HeaderControls'],
+      extraOptions: {
+        maxRetries: 3,
+      },
+    }),
+    updateHeaderControls: builder.mutation({
+      query: (payload) => ({
+        url: 'settings/header-controls',
+        method: 'PUT',
+        body: payload,
+      }),
+      invalidatesTags: ['HeaderControls'],
+      extraOptions: {
+        maxRetries: 3,
+      },
+    }),
+    getExportSettings: builder.query({
+      query: () => 'settings/export',
+      extraOptions: {
+        maxRetries: 3,
+      },
+    }),
+    importSettings: builder.mutation({
+      query: (payload) => ({
+        url: 'settings/import',
+        method: 'POST',
+        body: payload,
+      }),
+      invalidatesTags: ['HeaderControls', 'Features', 'Settings'],
+      extraOptions: {
+        maxRetries: 3,
+      },
+    }),
     getSite: builder.query({
       query: _constant('site'),
       extraOptions: {
@@ -659,7 +707,7 @@ export const api = createApi({
       },
     }),
     getUsers: builder.query({
-      query: _constant('users'),
+      query: () => `users?bust_cache=${Date.now()}`,
       providesTags: ['User'],
       extraOptions: {
         maxRetries: 3,
@@ -1069,6 +1117,7 @@ export const {
   useDeleteUserMutation,
   useCreateUserMutation,
   useLazyGetUserPermissionsQuery,
+  useGetRolesPermissionsQuery,
   useGetWorkerConfigQuery,
   useGetThingConfigQuery,
   useGetSettingsQuery,
@@ -1101,4 +1150,8 @@ export const {
   useGetFeaturesQuery,
   useGetReportsQuery,
   useLazyGetReportsQuery,
+  useGetHeaderControlsQuery,
+  useUpdateHeaderControlsMutation,
+  useGetExportSettingsQuery,
+  useImportSettingsMutation,
 } = api

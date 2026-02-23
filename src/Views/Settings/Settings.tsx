@@ -4,12 +4,21 @@ import Row from 'antd/es/row'
 import _head from 'lodash/head'
 import { useDispatch } from 'react-redux'
 
+import Accordion from '../../Components/Accordion/Accordion'
 import GateKeeper from '../../Components/GateKeeper/GateKeeper'
 import FeatureFlagsSettings from '../../Components/Settings/FeatureFlagsSettings/FeatureFlagsSettings'
+import HeaderControlsSettings from '../../Components/Settings/HeaderControls/HeaderControlsSettings'
+import ImportExportSettings from '../../Components/Settings/ImportExport/ImportExportSettings'
+import RBACControlSettings from '../../Components/Settings/RBACControl/RBACControlSettings'
 import { WEBAPP_NAME } from '../../constants'
 import { COLOR } from '../../constants/colors'
 
-import { HeaderTabs, RebootDescription, SettingsContainer, SettingsTitle } from './Settings.styles'
+import {
+  AccordionsContainer,
+  RebootDescription,
+  SettingsContainer,
+  SettingsTitle,
+} from './Settings.styles'
 
 import {
   useGetFeatureConfigQuery,
@@ -17,6 +26,7 @@ import {
   useSetGlobalConfigMutation,
 } from '@/app/services/api'
 import { actionsSlice } from '@/app/slices/actionsSlice'
+import { isProduction } from '@/app/utils/environment'
 import { notifyError, notifySuccess } from '@/app/utils/NotificationService'
 import { ConsumptionLevels } from '@/app/utils/statusUtils'
 import { DangerActionButton } from '@/Components/DangerActionButton/DangerActionButton'
@@ -63,13 +73,6 @@ const Settings = () => {
   if (!isSettingsEnabled) {
     return null
   }
-  const headerTabItems = [
-    {
-      label: 'Enable / Disable Features',
-      key: 'FEATURE_FLAGS',
-      children: <FeatureFlagsSettings />,
-    },
-  ]
 
   const settingsReadPermission = `${AUTH_PERMISSIONS.SETTINGS}:${AUTH_LEVELS.READ}`
 
@@ -144,12 +147,25 @@ const Settings = () => {
             </Col>
           )}
         </Row>
-        <HeaderTabs
-          defaultActiveKey="FEATURE_MANAGEMENT"
-          centered
-          type="card"
-          items={headerTabItems}
-        />
+        <AccordionsContainer>
+          <Accordion title="Header Controls" isOpened={false}>
+            <HeaderControlsSettings />
+          </Accordion>
+
+          <Accordion title="RBAC Control" isOpened={false}>
+            <RBACControlSettings />
+          </Accordion>
+
+          <Accordion title="Import / Export Settings" isOpened={false}>
+            <ImportExportSettings />
+          </Accordion>
+
+          {!isProduction() && (
+            <Accordion title="Feature Flags (Developer Mode)" isOpened={false}>
+              <FeatureFlagsSettings />
+            </Accordion>
+          )}
+        </AccordionsContainer>
       </SettingsContainer>
     </GateKeeper>
   )

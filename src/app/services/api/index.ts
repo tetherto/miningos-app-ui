@@ -52,6 +52,7 @@ export const {
   useDeleteUserMutation,
   useCreateUserMutation,
   useLazyGetUserPermissionsQuery,
+  useGetRolesPermissionsQuery,
   useGetWorkerConfigQuery,
   useGetThingConfigQuery,
   useGetSettingsQuery,

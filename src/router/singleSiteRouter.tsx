@@ -28,7 +28,6 @@ const SignIn = lazy(() => import('@/Views/SignIn/SignIn'))
 const SignOut = lazy(() => import('@/Views/SignOut/SignOut'))
 const Explorer = lazy(() => import('@/Views/Explorer/Explorer'))
 const Settings = lazy(() => import('@/Views/Settings/Settings'))
-const UserManagement = lazy(() => import('@/Views/Settings/UserManagement'))
 const Thing = lazy(() => import('@/Views/Explorer/Things/Thing'))
 const Things = lazy(() => import('@/Views/Explorer/Things/Things'))
 const OperationsDashboard = lazy(() => import('@/Views/Reports/OperationsDashboard'))
@@ -345,7 +344,6 @@ export const getSingleSiteRouter = () =>
                           element: <SuspenseWrapper component={Settings} />,
                         },
                       ]),
-                  { path: 'users', element: <SuspenseWrapper component={UserManagement} /> },
                 ],
               },
               {
