@@ -1,0 +1,288 @@
+name: PR - Test & Validate (Local)
+
+on:
+  push:
+    branches: [main, staging, dev, develop]
+  pull_request_target:
+    branches: [main, staging, dev, develop]
+    types: [opened, reopened, synchronize]
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  NODE_VERSION: '20.x'
+
+jobs:
+  dependency-review:
+    name: 📋 Dependency Review
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request_target' || github.event_name == 'pull_request'
+    permissions:
+      contents: read
+      pull-requests: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v4
+        with:
+          fail-on-severity: high
+          vulnerability-check: true
+          license-check: false
+
+  setup:
+    name: 📦 Setup Dependencies
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+    outputs:
+      cache-key: ${{ steps.setup-node.outputs.cache-key }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: true
+          ref: ${{ github.event.pull_request.number && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Check package-lock.json consistency
+        continue-on-error: true
+        run: |
+          if [ -f package-lock.json ]; then
+            npm install --package-lock-only --no-audit --no-fund
+            git diff --exit-code package-lock.json || (
+              echo "::error::package-lock.json is out of sync with package.json. Run 'npm install' and commit the updated lockfile."
+              exit 1
+            )
+          fi
+
+      - name: Setup Node.js with cache
+        id: setup-node
+        uses: ./.github/actions/node-setup-cache
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+  supply-chain:
+    name: 🔐 Supply Chain Security
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    needs: setup
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: true
+          ref: ${{ github.event.pull_request.number && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
+
+      - name: Restore Node.js and Cache
+        uses: ./.github/actions/node-restore-cache
+        with:
+          cache-key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Verify package integrity (npm audit signatures)
+        run: |
+          echo "🔐 Verifying npm package signatures..."
+          npm audit signatures 2>&1 || echo "::warning::Some packages may not have verified signatures (npm 10.7+ for full support)"
+        continue-on-error: true
+
+      - name: Check for known vulnerabilities (npm audit)
+        run: |
+          echo "🛡️ Checking for known vulnerabilities..."
+          npm audit --audit-level=high 2>&1 || echo "::warning::High severity vulnerabilities detected. Consider 'npm audit fix' or updating dependencies."
+        continue-on-error: true
+
+  lint:
+    name: ✨ Lint Code
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    needs: setup
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: true
+          ref: ${{ github.event.pull_request.number && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
+
+      - name: Restore Node.js and Cache
+        uses: ./.github/actions/node-restore-cache
+        with:
+          cache-key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Run linting
+        continue-on-error: true
+        run: |
+          echo "Running linting..."
+          npm run lint --if-present || echo "::warning::Linting failed but continuing workflow"
+
+      - name: Run typecheck (optional)
+        continue-on-error: true
+        run: |
+          npm run typecheck --if-present || true
+
+  test-and-sonarqube:
+    name: 🧪 Test Coverage & SonarQube Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: setup
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+        with:
+          persist-credentials: true
+          fetch-depth: 0
+          ref: ${{ github.event.pull_request.number && format('refs/pull/{0}/head', github.event.pull_request.number) || github.ref }}
+
+      - name: Restore Node.js and Cache
+        uses: ./.github/actions/node-restore-cache
+        with:
+          cache-key: ${{ needs.setup.outputs.cache-key }}
+
+      - name: Setup project configuration
+        run: |
+          echo "Setting up project configuration..."
+          if [ -f ./setup-config.sh ]; then
+            chmod +x ./setup-config.sh
+            ./setup-config.sh
+          fi
+
+      - name: Run tests with coverage
+        continue-on-error: true
+        run: |
+          echo "Running tests with coverage..."
+          npm run test:coverage --if-present || npm test --if-present || echo "::warning::Tests failed but continuing workflow"
+
+      - name: Run build (optional)
+        continue-on-error: true
+        run: npm run build --if-present || true
+
+      - name: Tailscale
+        id: tailscale
+        if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || github.event_name == 'workflow_dispatch'
+        uses: tailscale/github-action@v4
+        with:
+          oauth-client-id: ${{ secrets.TS_OAUTH_CLIENT_ID }}
+          oauth-secret: ${{ secrets.TS_OAUTH_CLIENT_SECRET }}
+          tags: tag:ci-sast
+          version: latest
+          ping: dev-sonarcube-0.tail8a2a3f.ts.net
+
+      - name: Generate ESLint JSON report
+        if: steps.tailscale.outcome == 'success'
+        continue-on-error: true
+        run: |
+          if [ -f eslint.config.cjs ]; then
+            npx eslint . --format json --output-file eslint-report.json
+          fi
+
+      - name: Prepare SonarQube Configuration
+        if: steps.tailscale.outcome == 'success'
+        run: |
+          echo "Creating sonar-project.properties..."
+
+          # Base configuration
+          cat > sonar-project.properties << 'SONAR_EOF'
+          sonar.projectKey=${{ github.event.repository.name }}
+          sonar.projectName=${{ github.event.repository.name }}
+          sonar.projectVersion=${{ github.sha }}
+          sonar.sources=.
+          sonar.language=js
+          sonar.sourceEncoding=UTF-8
+          sonar.javascript.lcov.reportPaths=coverage/lcov.info
+          sonar.javascript.node.maxspace=4096
+          sonar.javascript.environments=node
+          sonar.qualitygate.wait=true
+          sonar.test.inclusions=**/*.test.js,**/*.spec.js
+          SONAR_EOF
+
+          # Add ESLint report if it exists
+          if [ -f eslint-report.json ]; then
+            echo "sonar.eslint.reportPaths=eslint-report.json" >> sonar-project.properties
+          fi
+
+          # Base exclusions
+          BASE_EXCLUSIONS="**/node_modules/**,**/coverage/**,**/dist/**,**/build/**,.github/**,**/*.test.js,**/*.spec.js,**/*.json,**/*.md,**/*.yml,**/*.yaml"
+
+          # Add tests configuration if folder exists
+          if [ -d "tests" ]; then
+            echo "Tests folder found - including test configuration"
+            echo "sonar.tests=tests" >> sonar-project.properties
+            echo "sonar.exclusions=${BASE_EXCLUSIONS},**/tests/**" >> sonar-project.properties
+            echo "sonar.cpd.exclusions=**/tests/**,**/node_modules/**" >> sonar-project.properties
+          else
+            echo "No tests folder found - skipping test configuration"
+            echo "sonar.exclusions=${BASE_EXCLUSIONS}" >> sonar-project.properties
+          fi
+
+          echo "Configuration file created"
+
+      - name: SonarQube Scan
+        if: steps.tailscale.outcome == 'success'
+        continue-on-error: true
+        uses: SonarSource/sonarqube-scan-action@v7.0.0
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
+  summary:
+    name: 📋 CI Summary
+    runs-on: ubuntu-latest
+    needs: [setup, supply-chain, lint, test-and-sonarqube]
+    if: always() && !cancelled()
+    permissions:
+      contents: read
+
+    steps:
+      - name: 📥 Checkout for summary
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 1
+
+      - name: 📊 Print summary
+        env:
+          R_SETUP: ${{ needs.setup.result || 'skipped' }}
+          R_SUPPLY: ${{ needs.supply-chain.result || 'skipped' }}
+          R_LINT: ${{ needs.lint.result || 'skipped' }}
+          R_TEST: ${{ needs.test-and-sonarqube.result || 'skipped' }}
+        run: |
+          {
+            echo "## 📊 CI Pipeline Summary"
+            echo ""
+            echo "### 📋 Commit information"
+            echo "- **Commit:** $(git rev-parse HEAD)"
+            echo "- **Message:** $(git log -1 --pretty=format:'%s')"
+            echo "- **Author:** $(git log -1 --pretty=format:'%an <%ae>')"
+            echo "- **Date:** $(git log -1 --pretty=format:'%ad' --date=short)"
+            echo ""
+            echo "### 🎯 Job results"
+            [ "${R_SETUP}" != "skipped" ] && echo "- 📦 Setup: ${R_SETUP:-?}"
+            [ "${R_SUPPLY}" != "skipped" ] && echo "- 🔐 Supply Chain: ${R_SUPPLY:-?}"
+            [ "${R_LINT}" != "skipped" ] && echo "- ✨ Lint: ${R_LINT:-?}"
+            [ "${R_TEST}" != "skipped" ] && echo "- 🧪 Test & SonarQube: ${R_TEST:-?}"
+            echo ""
+            echo "### 🔧 Pipeline"
+            echo "- ✅ Dependency review (PR only)"
+            echo "- ✅ Lockfile check, npm audit, lint, tests"
+            echo "- ✅ SonarQube (push to main or manual run)"
+          } | tee -a "$GITHUB_STEP_SUMMARY"
