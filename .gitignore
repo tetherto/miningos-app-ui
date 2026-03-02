@@ -40,3 +40,6 @@ stats.html
 mockdata-raw.json
 mockdata-current.json
 src/mockdata.ts.backup
+
+# OWASP review utils (PDFs, internal docs — not for version control)
+owasp/utils/
