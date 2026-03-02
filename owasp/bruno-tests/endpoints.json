@@ -1,0 +1,488 @@
+[
+  {
+    "slug": "site-status-live",
+    "method": "GET",
+    "path": "/auth/site/status/live",
+    "priority": "P0",
+    "description": "Header bar — total hashrate, power, efficiency, miner counts, alert severity, pool summary",
+    "queryParams": {
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["hashrate", "power", "efficiency", "miners", "alerts", "pools", "ts"],
+    "reviewed": true
+  },
+  {
+    "slug": "site-alerts",
+    "method": "GET",
+    "path": "/auth/site/alerts",
+    "priority": "P0",
+    "description": "Current alerts — devices with active alerts, severity-bucketed lists, summary",
+    "queryParams": {
+      "filter": { "type": "string", "required": false, "bruValue": "{}" },
+      "sort": { "type": "string", "required": false, "bruValue": "{}" },
+      "search": { "type": "string", "required": false, "bruValue": "" },
+      "offset": { "type": "integer", "required": false, "bruValue": "0" },
+      "limit": { "type": "integer", "required": false, "bruValue": "100" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["alerts", "summary"],
+    "reviewed": false
+  },
+  {
+    "slug": "miners",
+    "method": "GET",
+    "path": "/auth/miners",
+    "priority": "P0",
+    "description": "Explorer miner list — filterable, sortable, paginated miner listing",
+    "queryParams": {
+      "filter": { "type": "string", "required": false, "bruValue": "{}" },
+      "sort": { "type": "string", "required": false, "bruValue": "{}" },
+      "fields": { "type": "string", "required": false, "bruValue": "" },
+      "search": { "type": "string", "required": false, "bruValue": "" },
+      "offset": { "type": "integer", "required": false, "bruValue": "0" },
+      "limit": { "type": "integer", "required": false, "bruValue": "50" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["miners", "summary"],
+    "reviewed": false
+  },
+  {
+    "slug": "containers",
+    "method": "GET",
+    "path": "/auth/containers",
+    "priority": "P0",
+    "description": "Explorer container list — filterable, sortable, paginated container listing",
+    "queryParams": {
+      "filter": { "type": "string", "required": false, "bruValue": "{}" },
+      "sort": { "type": "string", "required": false, "bruValue": "{}" },
+      "fields": { "type": "string", "required": false, "bruValue": "" },
+      "search": { "type": "string", "required": false, "bruValue": "" },
+      "offset": { "type": "integer", "required": false, "bruValue": "0" },
+      "limit": { "type": "integer", "required": false, "bruValue": "50" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["containers", "summary"],
+    "reviewed": false
+  },
+  {
+    "slug": "container-telemetry",
+    "method": "GET",
+    "path": "/auth/containers/:id/telemetry",
+    "priority": "P1",
+    "description": "Container detail — PDU socket mapping, tank/pump data, temperature ranges",
+    "queryParams": {
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {
+      ":id": "{{containerId}}"
+    },
+    "expectedResponseKeys": ["telemetry"],
+    "reviewed": false
+  },
+  {
+    "slug": "cabinets",
+    "method": "GET",
+    "path": "/auth/cabinets",
+    "priority": "P1",
+    "description": "LV Cabinet list — virtual entities grouped from powermeters + temp sensors",
+    "queryParams": {
+      "filter": { "type": "string", "required": false, "bruValue": "{}" },
+      "sort": { "type": "string", "required": false, "bruValue": "{}" },
+      "offset": { "type": "integer", "required": false, "bruValue": "0" },
+      "limit": { "type": "integer", "required": false, "bruValue": "50" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["cabinets", "summary"],
+    "reviewed": false
+  },
+  {
+    "slug": "cabinet-detail",
+    "method": "GET",
+    "path": "/auth/cabinets/:id",
+    "priority": "P1",
+    "description": "Single cabinet detail — power, temperature, alert aggregation",
+    "queryParams": {
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {
+      ":id": "{{cabinetId}}"
+    },
+    "expectedResponseKeys": ["cabinet"],
+    "reviewed": false
+  },
+  {
+    "slug": "pools",
+    "method": "GET",
+    "path": "/auth/pools",
+    "priority": "P1",
+    "description": "Pool list — per-pool breakdown with site-wide summary",
+    "queryParams": {
+      "filter": { "type": "string", "required": false, "bruValue": "{}" },
+      "sort": { "type": "string", "required": false, "bruValue": "{}" },
+      "fields": { "type": "string", "required": false, "bruValue": "" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["pools", "summary"],
+    "reviewed": false
+  },
+  {
+    "slug": "metrics-hashrate",
+    "method": "GET",
+    "path": "/auth/metrics/hashrate",
+    "priority": "P0",
+    "description": "Hashrate time-series — dashboard chart, hashrate report, ops dashboard",
+    "queryParams": {
+      "range": { "type": "string", "required": false, "bruValue": "24h" },
+      "interval": { "type": "string", "required": false, "bruValue": "auto" },
+      "start": { "type": "integer", "required": false, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": false, "bruValue": "{{endTs}}" },
+      "container": { "type": "string", "required": false, "bruValue": "" },
+      "minerType": { "type": "string", "required": false, "bruValue": "" },
+      "groupBy": { "type": "string", "required": false, "bruValue": "" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data"],
+    "reviewed": false
+  },
+  {
+    "slug": "metrics-consumption",
+    "method": "GET",
+    "path": "/auth/metrics/consumption",
+    "priority": "P1",
+    "description": "Power consumption time-series — dashboard, energy report",
+    "queryParams": {
+      "range": { "type": "string", "required": false, "bruValue": "24h" },
+      "interval": { "type": "string", "required": false, "bruValue": "auto" },
+      "start": { "type": "integer", "required": false, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": false, "bruValue": "{{endTs}}" },
+      "container": { "type": "string", "required": false, "bruValue": "" },
+      "groupBy": { "type": "string", "required": false, "bruValue": "" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data"],
+    "reviewed": false
+  },
+  {
+    "slug": "metrics-efficiency",
+    "method": "GET",
+    "path": "/auth/metrics/efficiency",
+    "priority": "P1",
+    "description": "Efficiency (W/TH) time-series — ops dashboard",
+    "queryParams": {
+      "range": { "type": "string", "required": false, "bruValue": "24h" },
+      "interval": { "type": "string", "required": false, "bruValue": "auto" },
+      "start": { "type": "integer", "required": false, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": false, "bruValue": "{{endTs}}" },
+      "container": { "type": "string", "required": false, "bruValue": "" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data"],
+    "reviewed": false
+  },
+  {
+    "slug": "metrics-miner-status",
+    "method": "GET",
+    "path": "/auth/metrics/miner-status",
+    "priority": "P1",
+    "description": "Miner status stacked area chart — online/offline/error/sleep counts over time",
+    "queryParams": {
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "interval": { "type": "string", "required": false, "bruValue": "auto" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data"],
+    "reviewed": false
+  },
+  {
+    "slug": "metrics-power-mode",
+    "method": "GET",
+    "path": "/auth/metrics/power-mode",
+    "priority": "P1",
+    "description": "Power mode distribution stacked chart — counts per mode over time",
+    "queryParams": {
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "interval": { "type": "string", "required": false, "bruValue": "auto" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data"],
+    "reviewed": false
+  },
+  {
+    "slug": "metrics-power-mode-timeline",
+    "method": "GET",
+    "path": "/auth/metrics/power-mode/timeline",
+    "priority": "P1",
+    "description": "Per-miner power mode timeline — merged segments with from/to/powerMode",
+    "queryParams": {
+      "start": { "type": "integer", "required": false, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": false, "bruValue": "{{endTs}}" },
+      "container": { "type": "string", "required": false, "bruValue": "" },
+      "limit": { "type": "integer", "required": false, "bruValue": "10080" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data"],
+    "reviewed": false
+  },
+  {
+    "slug": "metrics-temperature",
+    "method": "GET",
+    "path": "/auth/metrics/temperature",
+    "priority": "P1",
+    "description": "Temperature history — per-container max/avg temperature plus site-wide aggregates",
+    "queryParams": {
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "interval": { "type": "string", "required": false, "bruValue": "auto" },
+      "container": { "type": "string", "required": false, "bruValue": "" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data"],
+    "reviewed": false
+  },
+  {
+    "slug": "container-telemetry-history",
+    "method": "GET",
+    "path": "/auth/containers/:id/telemetry/history",
+    "priority": "P1",
+    "description": "Container sensor history — polymorphic time-series by hardware type",
+    "queryParams": {
+      "start": { "type": "integer", "required": false, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": false, "bruValue": "{{endTs}}" },
+      "limit": { "type": "integer", "required": false, "bruValue": "10080" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {
+      ":id": "{{containerId}}"
+    },
+    "expectedResponseKeys": ["data"],
+    "reviewed": false
+  },
+  {
+    "slug": "finance-revenue",
+    "method": "GET",
+    "path": "/auth/finance/revenue",
+    "priority": "P0",
+    "description": "Revenue chart — daily/weekly/monthly/yearly revenue with fees and net revenue",
+    "queryParams": {
+      "period": { "type": "string", "required": false, "bruValue": "daily" },
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "pool": { "type": "string", "required": false, "bruValue": "all" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data", "summary"],
+    "reviewed": false
+  },
+  {
+    "slug": "finance-revenue-summary",
+    "method": "GET",
+    "path": "/auth/finance/revenue-summary",
+    "priority": "P0",
+    "description": "Revenue Summary page — replaces 9 API calls + 1500 LOC of FE processing",
+    "queryParams": {
+      "period": { "type": "string", "required": false, "bruValue": "daily" },
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data", "summary"],
+    "reviewed": false
+  },
+  {
+    "slug": "finance-ebitda",
+    "method": "GET",
+    "path": "/auth/finance/ebitda",
+    "priority": "P0",
+    "description": "EBITDA chart — revenue, costs, two EBITDA scenarios (sell vs hodl)",
+    "queryParams": {
+      "period": { "type": "string", "required": false, "bruValue": "monthly" },
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data", "summary"],
+    "reviewed": false
+  },
+  {
+    "slug": "finance-energy-balance",
+    "method": "GET",
+    "path": "/auth/finance/energy-balance",
+    "priority": "P0",
+    "description": "Energy Balance — revenue per MWh, all-in cost, curtailment, utilization",
+    "queryParams": {
+      "period": { "type": "string", "required": false, "bruValue": "daily" },
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data", "summary"],
+    "reviewed": false
+  },
+  {
+    "slug": "finance-cost-summary",
+    "method": "GET",
+    "path": "/auth/finance/cost-summary",
+    "priority": "P1",
+    "description": "Cost Summary — energy costs, operational costs, BTC price aggregated by period",
+    "queryParams": {
+      "period": { "type": "string", "required": false, "bruValue": "monthly" },
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data", "summary"],
+    "reviewed": false
+  },
+  {
+    "slug": "finance-subsidy-fees",
+    "method": "GET",
+    "path": "/auth/finance/subsidy-fees",
+    "priority": "P2",
+    "description": "Subsidy & Fees chart — block subsidy and tx fee aggregation",
+    "queryParams": {
+      "period": { "type": "string", "required": false, "bruValue": "daily" },
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data"],
+    "reviewed": false
+  },
+  {
+    "slug": "finance-hash-revenue",
+    "method": "GET",
+    "path": "/auth/finance/hash-revenue",
+    "priority": "P1",
+    "description": "Hash Revenue & Cost — BTC/USD revenue per PH/s/day",
+    "queryParams": {
+      "period": { "type": "string", "required": false, "bruValue": "daily" },
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data"],
+    "reviewed": false
+  },
+  {
+    "slug": "market-bitcoin",
+    "method": "GET",
+    "path": "/auth/market/bitcoin",
+    "priority": "P1",
+    "description": "Bitcoin market data — price, block height, network hashrate, difficulty, hashprice",
+    "queryParams": {
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["price", "blockHeight", "networkHashrate"],
+    "reviewed": false
+  },
+  {
+    "slug": "market-bitcoin-price",
+    "method": "GET",
+    "path": "/auth/market/bitcoin/price",
+    "priority": "P1",
+    "description": "BTC price history — chart overlay for financial views",
+    "queryParams": {
+      "range": { "type": "string", "required": false, "bruValue": "30d" },
+      "interval": { "type": "string", "required": false, "bruValue": "1d" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data"],
+    "reviewed": false
+  },
+  {
+    "slug": "reports-operations",
+    "method": "GET",
+    "path": "/auth/reports/operations",
+    "priority": "P1",
+    "description": "Operations report — all operational metrics as parallel time-series",
+    "queryParams": {
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "interval": { "type": "string", "required": false, "bruValue": "auto" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["data"],
+    "reviewed": false
+  },
+  {
+    "slug": "pool-stats-aggregate",
+    "method": "GET",
+    "path": "/auth/pool-stats/aggregate",
+    "priority": "P2",
+    "description": "Pool Stats report — historical pool metrics aggregated by period",
+    "queryParams": {
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "range": { "type": "string", "required": false, "bruValue": "daily" },
+      "pool": { "type": "string", "required": false, "bruValue": "antpool" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["log", "summary"],
+    "reviewed": true
+  },
+  {
+    "slug": "pool-balance-history",
+    "method": "GET",
+    "path": "/auth/pools/:pool/balance-history",
+    "priority": "P2",
+    "description": "Pool Balance chart — balance, hashrate, revenue time-series",
+    "queryParams": {
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "range": { "type": "string", "required": false, "bruValue": "1D" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {
+      ":pool": "{{poolName}}"
+    },
+    "expectedResponseKeys": ["log"],
+    "reviewed": false
+  },
+  {
+    "slug": "alerts-history",
+    "method": "GET",
+    "path": "/auth/alerts/history",
+    "priority": "P0",
+    "description": "Historical Alerts — replaces 60 sequential 12-hour interval calls with one paginated call",
+    "queryParams": {
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
+      "logType": { "type": "string", "required": true, "bruValue": "alerts" },
+      "filter": { "type": "string", "required": false, "bruValue": "{}" },
+      "search": { "type": "string", "required": false, "bruValue": "" },
+      "sort": { "type": "string", "required": false, "bruValue": "{\"ts\":-1}" },
+      "offset": { "type": "integer", "required": false, "bruValue": "0" },
+      "limit": { "type": "integer", "required": false, "bruValue": "100" },
+      "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
+    },
+    "pathParams": {},
+    "expectedResponseKeys": ["alerts", "summary"],
+    "reviewed": false
+  }
+]
