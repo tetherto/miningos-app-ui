@@ -1,16 +1,10 @@
-import _find from 'lodash/find'
-import _head from 'lodash/head'
 import _isNumber from 'lodash/isNumber'
 import _last from 'lodash/last'
 import _map from 'lodash/map'
 import _reduce from 'lodash/reduce'
 import _toPairs from 'lodash/toPairs'
 
-import { WEBAPP_DISPLAY_NAME } from '../../../constants'
-
-import { getHashrateString, getHashrateUnit } from '@/app/utils/deviceUtils'
-import { formatEfficiency, formatUnit } from '@/app/utils/format'
-import { getTimeRange } from '@/app/utils/getTimeRange'
+import { getHashrateUnit } from '@/app/utils/deviceUtils'
 import { decimalToMegaNumber } from '@/app/utils/numberUtils'
 import { getFormattedPoolName } from '@/app/utils/reportingToolsUtils'
 import { CHART_COLORS } from '@/constants/colors'
@@ -24,61 +18,6 @@ interface TimeSeriesEntry {
   pool_hashrate_type_grp_sum_aggr?: Record<string, number>
   [key: string]: unknown
 }
-
-export const efficiencyAdapter = (data: TimeSeriesEntry[] | null | undefined) => {
-  if (!data) return { datasets: [] }
-  const actualData = _map(data, (entry: TimeSeriesEntry) => ({
-    x: entry.ts,
-    y: entry.efficiency_w_ths_avg_aggr ?? 0,
-  }))
-
-  const lastTs = _last(data)?.ts as number | undefined
-  const headTs = _head(data)?.ts as number | undefined
-  const timeRange = getTimeRange(lastTs, headTs)
-
-  return {
-    yTicksFormatter: (value: number) => formatUnit(formatEfficiency(value)),
-    timeRange,
-    datasets: [
-      {
-        type: 'line',
-        label: 'Efficiency',
-        data: actualData,
-        borderColor: CHART_COLORS.SKY_BLUE,
-        pointRadius: 1,
-      },
-    ],
-  }
-}
-
-export const hashrateAdapter = (data: TimeSeriesEntry[] | null | undefined) => {
-  if (!data) return { datasets: [] }
-  const actualData = _map(data, (entry: TimeSeriesEntry) => ({
-    x: entry.ts,
-    y: entry.hashrate_mhs_1m_sum_aggr ?? 0,
-  }))
-
-  const lastTs = _last(data)?.ts as number | undefined
-  const headTs = _head(data)?.ts as number | undefined
-  const timeRange = getTimeRange(lastTs, headTs)
-
-  return {
-    yTicksFormatter: (value: number) => getHashrateString(value),
-    timeRange,
-    datasets: [
-      {
-        type: 'line',
-        label: `${WEBAPP_DISPLAY_NAME} Hash Rate`,
-        data: actualData,
-        borderColor: CHART_COLORS.SKY_BLUE,
-        pointRadius: 1,
-      },
-    ],
-  }
-}
-
-const POOL_COLORS = [CHART_COLORS.METALLIC_BLUE, CHART_COLORS.purple, CHART_COLORS.red]
-
 interface PoolDataPoint {
   x: number
   y: number
@@ -88,6 +27,8 @@ interface PoolDataAcc {
   'Aggr Pool': PoolDataPoint[]
   [poolName: string]: PoolDataPoint[]
 }
+
+const POOL_COLORS = [CHART_COLORS.METALLIC_BLUE, CHART_COLORS.purple, CHART_COLORS.red]
 
 export const getMultiPoolSeperatedData = (
   data: TimeSeriesEntry[],
@@ -199,62 +140,5 @@ export const f2poolAdapter = (
 
   return {
     datasets: segregatedDatasets,
-  }
-}
-
-export const containerHashrateAdapter = (
-  data: TimeSeriesEntry[] | null | undefined,
-  container: string,
-) => {
-  if (!data) return { datasets: [] }
-  const actualData = _map(data, (entry: TimeSeriesEntry) => ({
-    x: entry.ts,
-    y: entry.hashrate_mhs_1m_group_sum_aggr?.[container] ?? 0,
-  }))
-
-  const lastTs = _last(data)?.ts as number | undefined
-  const headTs = _head(data)?.ts as number | undefined
-  const timeRange = getTimeRange(lastTs, headTs)
-
-  return {
-    yTicksFormatter: (value: number) => getHashrateString(value),
-    timeRange,
-    datasets: [
-      {
-        type: 'line',
-        label: `${WEBAPP_DISPLAY_NAME} Hash Rate`,
-        data: actualData,
-        borderColor: CHART_COLORS.SKY_BLUE,
-        pointRadius: 1,
-      },
-    ],
-  }
-}
-
-export const containerF2poolAdapter = (
-  data: TimeSeriesEntry[] | null | undefined,
-  container: string,
-) => {
-  if (!data) return { datasets: [] }
-  const actualData = _map(data, (entry: TimeSeriesEntry) => {
-    const worker = _find(entry.workers, ['container', container]) as
-      | { hashrate?: number }
-      | undefined
-    return {
-      x: entry.ts,
-      y: decimalToMegaNumber(worker?.hashrate ?? 0),
-    }
-  })
-
-  return {
-    datasets: [
-      {
-        type: 'line',
-        label: 'Pool Hash Rate Aggr.',
-        data: actualData,
-        borderColor: CHART_COLORS.METALLIC_BLUE,
-        pointRadius: 1,
-      },
-    ],
   }
 }
