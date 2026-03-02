@@ -1,0 +1,25 @@
+meta {
+  name: [08] Method Fuzzing — POST
+  type: http
+  seq: 8
+}
+
+post {
+  url: {{baseUrl}}/auth/site/status/live
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("POST returns 404 (GET-only endpoint)", function() {
+    expect(res.status).to.be.oneOf([404, 405]);
+  });
+}

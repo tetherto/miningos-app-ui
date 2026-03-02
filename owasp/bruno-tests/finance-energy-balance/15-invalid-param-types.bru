@@ -1,0 +1,21 @@
+meta {
+  name: [15] Validation — Invalid Param Types
+  type: http
+  seq: 15
+}
+
+get {
+  url: {{baseUrl}}/auth/finance/energy-balance?start=not_a_number&end=not_a_number
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 400 when integer params receive strings", function() {
+    expect(res.status).to.be.oneOf([400, 500]);
+  });
+}

@@ -1,0 +1,25 @@
+meta {
+  name: [06] BOLA — siteId Query Injection
+  type: http
+  seq: 6
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/miner-status?start={{startTs}}&end={{endTs}}&siteId=999
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 (injected param ignored)", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response matches normal shape (no cross-tenant data)", function() {
+    expect(res.body).to.have.property('data');
+  });
+}

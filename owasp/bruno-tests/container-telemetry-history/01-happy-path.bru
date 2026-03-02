@@ -1,0 +1,33 @@
+meta {
+  name: [01] Happy Path
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/auth/containers/{{containerId}}/telemetry/history?start={{startTs}}&end={{endTs}}&limit=10080
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("content-type is JSON", function() {
+    expect(res.headers['content-type']).to.include('application/json');
+  });
+
+  test("response has expected top-level keys", function() {
+    expect(res.body).to.have.property('data');
+  });
+
+  test("response time under 5s", function() {
+    expect(res.responseTime).to.be.below(5000);
+  });
+}

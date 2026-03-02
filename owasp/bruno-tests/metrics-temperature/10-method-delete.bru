@@ -1,0 +1,21 @@
+meta {
+  name: [10] Method Fuzzing — DELETE
+  type: http
+  seq: 10
+}
+
+delete {
+  url: {{baseUrl}}/auth/metrics/temperature?start={{startTs}}&end={{endTs}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("DELETE returns 404 (GET-only endpoint)", function() {
+    expect(res.status).to.be.oneOf([404, 405]);
+  });
+}

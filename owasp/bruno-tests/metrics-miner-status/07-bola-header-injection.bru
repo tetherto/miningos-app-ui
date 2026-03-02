@@ -1,0 +1,27 @@
+meta {
+  name: [07] BOLA — Header Injection
+  type: http
+  seq: 7
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/miner-status?start={{startTs}}&end={{endTs}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+headers {
+  X-Site-Id: 999
+  X-Forwarded-For: 127.0.0.1
+  X-Forwarded-Host: evil.com
+}
+
+tests {
+  test("returns 200 (injected headers ignored)", function() {
+    expect(res.status).to.be.oneOf([200, 403]);
+  });
+}

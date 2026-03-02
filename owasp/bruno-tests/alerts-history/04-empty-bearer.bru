@@ -1,0 +1,21 @@
+meta {
+  name: [04] Auth — Empty Bearer
+  type: http
+  seq: 4
+}
+
+get {
+  url: {{baseUrl}}/auth/alerts/history?start={{startTs}}&end={{endTs}}&logType=alerts
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: 
+}
+
+tests {
+  test("returns 401 with empty bearer", function() {
+    expect(res.status).to.equal(401);
+  });
+}

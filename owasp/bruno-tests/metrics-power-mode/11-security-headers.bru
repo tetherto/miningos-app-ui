@@ -1,0 +1,56 @@
+meta {
+  name: [11] Security Headers Audit
+  type: http
+  seq: 11
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/power-mode?start={{startTs}}&end={{endTs}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("Content-Type is application/json", function() {
+    expect(res.headers['content-type']).to.include('application/json');
+  });
+
+  test("has X-Content-Type-Options: nosniff", function() {
+    expect(res.headers['x-content-type-options']).to.equal('nosniff');
+  });
+
+  test("no X-Powered-By header leaked", function() {
+    expect(res.headers['x-powered-by']).to.not.exist;
+  });
+
+  test("has Cache-Control header", function() {
+    const cc = res.headers['cache-control'];
+    expect(cc).to.exist;
+  });
+
+  test("has Strict-Transport-Security (HSTS)", function() {
+    expect(res.headers['strict-transport-security']).to.exist;
+  });
+
+  test("no duplicate X-Frame-Options values", function() {
+    const xfo = res.headers['x-frame-options'];
+    if (xfo) {
+      expect(xfo.toLowerCase()).to.not.include(',');
+    }
+  });
+
+  test("no deprecated X-XSS-Protection header", function() {
+    expect(res.headers['x-xss-protection']).to.not.exist;
+  });
+
+  test("no Server header leaking version", function() {
+    const server = res.headers['server'];
+    if (server) {
+      expect(server).to.not.match(/\d+\.\d+/);
+    }
+  });
+}

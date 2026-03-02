@@ -1,0 +1,25 @@
+meta {
+  name: [02] Auth — No Token
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/auth/reports/operations?start={{startTs}}&end={{endTs}}
+  body: none
+  auth: none
+}
+
+tests {
+  test("returns 401 without token", function() {
+    expect(res.status).to.equal(401);
+  });
+
+  test("error message is generic (no info leak)", function() {
+    expect(res.body.message).to.equal('ERR_AUTH_FAIL');
+  });
+
+  test("no business data in error response", function() {
+    expect(res.body).to.not.have.property('data');
+  });
+}

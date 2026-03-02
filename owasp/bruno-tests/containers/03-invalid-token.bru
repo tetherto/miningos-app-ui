@@ -1,0 +1,25 @@
+meta {
+  name: [03] Auth — Invalid Token
+  type: http
+  seq: 3
+}
+
+get {
+  url: {{baseUrl}}/auth/containers
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: eyJhbGciOiJIUzI1NiJ9.aW52YWxpZA.invalid-signature
+}
+
+tests {
+  test("returns 401 with invalid token", function() {
+    expect(res.status).to.equal(401);
+  });
+
+  test("error message is generic", function() {
+    expect(res.body.message).to.equal('ERR_AUTH_FAIL');
+  });
+}

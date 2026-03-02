@@ -1,0 +1,39 @@
+meta {
+  name: [01] Happy Path
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/auth/site/status/live
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("content-type is JSON", function() {
+    expect(res.headers['content-type']).to.include('application/json');
+  });
+
+  test("response has expected top-level keys", function() {
+    expect(res.body).to.have.property('hashrate');
+    expect(res.body).to.have.property('power');
+    expect(res.body).to.have.property('efficiency');
+    expect(res.body).to.have.property('miners');
+    expect(res.body).to.have.property('alerts');
+    expect(res.body).to.have.property('pools');
+    expect(res.body).to.have.property('ts');
+  });
+
+  test("response time under 5s", function() {
+    expect(res.responseTime).to.be.below(5000);
+  });
+}

@@ -1,0 +1,28 @@
+meta {
+  name: [13] SSRF — Metadata URL Injection
+  type: http
+  seq: 13
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/miner-status?start={{startTs}}&end={{endTs}}&interval=http://169.254.169.254/latest/meta-data/
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 or 400 (URL not followed)", function() {
+    expect(res.status).to.be.oneOf([200, 400]);
+  });
+
+  test("response does not contain AWS metadata", function() {
+    const body = JSON.stringify(res.body);
+    expect(body).to.not.include('ami-id');
+    expect(body).to.not.include('instance-id');
+    expect(body).to.not.include('security-credentials');
+  });
+}

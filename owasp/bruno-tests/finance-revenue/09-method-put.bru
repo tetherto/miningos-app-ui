@@ -1,0 +1,25 @@
+meta {
+  name: [09] Method Fuzzing — PUT
+  type: http
+  seq: 9
+}
+
+put {
+  url: {{baseUrl}}/auth/finance/revenue?start={{startTs}}&end={{endTs}}
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+body:json {
+  {}
+}
+
+tests {
+  test("PUT returns 404 (GET-only endpoint)", function() {
+    expect(res.status).to.be.oneOf([404, 405]);
+  });
+}

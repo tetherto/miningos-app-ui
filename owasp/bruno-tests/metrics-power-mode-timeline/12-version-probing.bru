@@ -1,0 +1,21 @@
+meta {
+  name: [12] Inventory — Version Probing
+  type: http
+  seq: 12
+}
+
+get {
+  url: {{baseUrl}}/v1/auth/metrics/power-mode/timeline
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("/v1/ prefix returns 404", function() {
+    expect(res.status).to.equal(404);
+  });
+}

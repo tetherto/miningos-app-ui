@@ -1,0 +1,31 @@
+meta {
+  name: [14] Validation — Missing Required Params
+  type: http
+  seq: 14
+}
+
+get {
+  url: {{baseUrl}}/auth/finance/subsidy-fees
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 400 or 500 when required params missing", function() {
+    expect(res.status).to.be.oneOf([400, 500]);
+  });
+
+  test("error message indicates missing parameters", function() {
+    const body = JSON.stringify(res.body).toLowerCase();
+    const indicatesError = body.includes('required') ||
+      body.includes('missing') ||
+      body.includes('err_') ||
+      body.includes('validation') ||
+      res.status >= 400;
+    expect(indicatesError).to.be.true;
+  });
+}

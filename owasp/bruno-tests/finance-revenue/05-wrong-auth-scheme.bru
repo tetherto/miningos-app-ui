@@ -1,0 +1,22 @@
+meta {
+  name: [05] Auth — Wrong Scheme (Basic)
+  type: http
+  seq: 5
+}
+
+get {
+  url: {{baseUrl}}/auth/finance/revenue?start={{startTs}}&end={{endTs}}
+  body: none
+  auth: basic
+}
+
+auth:basic {
+  username: admin
+  password: admin
+}
+
+tests {
+  test("returns 401 with Basic auth scheme", function() {
+    expect(res.status).to.equal(401);
+  });
+}
