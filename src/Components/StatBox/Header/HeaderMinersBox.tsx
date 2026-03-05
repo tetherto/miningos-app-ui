@@ -1,8 +1,5 @@
 import Tooltip from 'antd/es/tooltip'
 
-import { useGetFeatureConfigQuery } from '../../../../../app/services/api'
-import { formatNumber } from '../../../../../app/utils/format'
-import { WEBAPP_SHORT_NAME } from '../../../../../constants'
 import { Miners } from '../Icons/Miners'
 import { statBoxWithLoading } from '../StatBoxWithLoading'
 
@@ -11,10 +8,14 @@ import {
   HeaderStatBoxTitle,
   HeaderStatBoxValue,
   HeaderStatsRow,
-  MinerBoxWrapper,
   HeaderStatsRowTitle,
   HeaderStatsRowValue,
+  MinerBoxWrapper,
 } from './HeaderStatBox.styles'
+
+import { useGetFeatureConfigQuery } from '@/app/services/api'
+import { formatNumber } from '@/app/utils/format'
+import { WEBAPP_SHORT_NAME } from '@/constants'
 
 const HeaderMinersBox = ({
   total = 0,

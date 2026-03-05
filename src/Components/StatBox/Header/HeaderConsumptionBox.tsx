@@ -1,10 +1,6 @@
 import Tooltip from 'antd/es/tooltip'
 import _isNil from 'lodash/isNil'
 
-import { formatNumber } from '../../../../../app/utils/format'
-import { COLOR } from '../../../../../constants/colors'
-import { ColIconContainer } from '../../../../Explorer/List/MinerCard/MinerCard.styles'
-import { Blinker, DangerGlow } from '../../../../Header/AlarmsHeader/AlarmsHeader.styles'
 import useConsumptionColor from '../hooks/useConsumptionColor'
 import Alert from '../Icons/Alert'
 import { Consumption } from '../Icons/Consumption'
@@ -19,6 +15,11 @@ import {
   HeaderStatBoxValueWrapper,
   HeaderStatBoxWrapper,
 } from './HeaderStatBox.styles'
+
+import { formatNumber } from '@/app/utils/format'
+import { ColIconContainer } from '@/Components/Explorer/List/MinerCard/MinerCard.styles'
+import { Blinker, DangerGlow } from '@/Components/Header/AlarmsHeader/AlarmsHeader.styles'
+import { COLOR } from '@/constants/colors'
 
 interface ConsumptionValue {
   value?: number

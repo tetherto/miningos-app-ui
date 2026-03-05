@@ -1,7 +1,3 @@
-import { useGetFeatureConfigQuery } from '../../../../../app/services/api'
-import { formatNumber } from '../../../../../app/utils/format'
-import { WEBAPP_SHORT_NAME } from '../../../../../constants'
-import { UNITS } from '../../../../../constants/units'
 import { Hashrate } from '../Icons/Hashrate'
 import { statBoxWithLoading } from '../StatBoxWithLoading'
 
@@ -17,6 +13,11 @@ import {
   HeaderStatsRow,
   HeaderStatsRowTitle,
 } from './HeaderStatBox.styles'
+
+import { useGetFeatureConfigQuery } from '@/app/services/api'
+import { formatNumber } from '@/app/utils/format'
+import { WEBAPP_SHORT_NAME } from '@/constants'
+import { UNITS } from '@/constants/units'
 
 const HashrateBox = ({
   hashrate = { unit: UNITS.HASHRATE_TH_S, value: 0 },

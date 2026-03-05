@@ -1,5 +1,5 @@
 import _isNumber from 'lodash/isNumber'
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 
 import { getHashrateUnit } from '../../../app/utils/deviceUtils'
 import { decimalToMegaNumber } from '../../../app/utils/numberUtils'
@@ -7,10 +7,6 @@ import type { ValueUnit } from '../../../app/utils/utils.types'
 import { DEFAULT_HEADER_PREFERENCES } from '../../../Components/Settings/HeaderControls/types'
 import { UNITS } from '../../../constants/units'
 import { useHeaderStats } from '../../../hooks/useHeaderStats'
-import HeaderConsumptionBox from '../../Farms/FarmCard/StatBox/Header/HeaderConsumptionBox'
-import HeaderEfficiencyBox from '../../Farms/FarmCard/StatBox/Header/HeaderEfficiencyBox'
-import HeaderHashrateBox from '../../Farms/FarmCard/StatBox/Header/HeaderHashrateBox'
-import HeaderMinersBox from '../../Farms/FarmCard/StatBox/Header/HeaderMinersBox'
 
 import { HeaderRightBorder } from './HeaderRightBorder'
 import { getEfficiencyStat } from './HeaderStats.helper'
@@ -20,6 +16,10 @@ import {
   HEADER_PREFERENCES_EVENTS,
   type HeaderPreferences,
 } from '@/Components/Settings/HeaderControls/types'
+import HeaderConsumptionBox from '@/Components/StatBox/Header/HeaderConsumptionBox'
+import HeaderEfficiencyBox from '@/Components/StatBox/Header/HeaderEfficiencyBox'
+import HeaderHashrateBox from '@/Components/StatBox/Header/HeaderHashrateBox'
+import HeaderMinersBox from '@/Components/StatBox/Header/HeaderMinersBox'
 
 const STORAGE_KEY = 'headerControlsPreferences'
 

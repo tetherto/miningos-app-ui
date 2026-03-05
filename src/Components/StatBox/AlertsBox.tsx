@@ -4,7 +4,7 @@ import _values from 'lodash/values'
 import { FC } from 'react'
 import { Link } from 'react-router-dom'
 
-import { SEVERITY } from '../../../../constants/alerts'
+import { SEVERITY } from '../../constants/alerts'
 
 import { AlertCountTextContainer } from './AlertsBox.styles'
 import { AlertsBoxContainer } from './StatBox.styles'

@@ -2,7 +2,7 @@ import Tooltip from 'antd/es/tooltip'
 import { formatDistanceStrict } from 'date-fns/formatDistanceStrict'
 import { type FC } from 'react'
 
-import Efficiency from '../../../Farms/FarmCard/StatBox/Icons/Efficiency'
+import Efficiency from '../../../StatBox/Icons/Efficiency'
 import IconRow from '../IconRow/IconRow'
 import { DeviceCardColText } from '../ListView.styles'
 import MinerStatusIndicator from '../MinerStatusIndicator/MinerStatusIndicator'

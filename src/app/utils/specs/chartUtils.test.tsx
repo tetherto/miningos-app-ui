@@ -2,7 +2,7 @@ import type { Chart, ChartDataset, LegendItem } from 'chart.js'
 import ChartDataLabels from 'chartjs-plugin-datalabels'
 import _isFunction from 'lodash/isFunction'
 
-import { Miners } from '../../../Components/Farms/FarmCard/StatBox/Icons/Miners'
+import { Miners } from '../../../Components/StatBox/Icons/Miners'
 import {
   generateChartLegendLabels,
   getChartBuilderData,

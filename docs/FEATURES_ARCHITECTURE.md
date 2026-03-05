@@ -330,9 +330,6 @@ src/Views/Alerts/
 │   └── HistoricalAlerts.js         # Historical alert analysis
 └── Alerts.styles.js                # Alert styling
 
-src/Components/Farms/FarmCard/StatBox/
-└── AlertsBox.js                    # Dashboard alert widget
-
 src/hooks/
 ├── useAlerts.js                    # Alert data management
 └── useAlertFiltering.js            # Alert filtering logic
@@ -499,18 +496,6 @@ src/Views/MinersOverview/
 ├── MinersOverview.js               # Miner fleet overview
 ├── MinersOverviewLayout.js         # Navigation wrapper
 └── MinersOverview.styles.js        # Miner styling
-
-src/Views/Farms/
-├── Farms.js                        # Farm management interface
-├── Thing.js                        # Individual device management
-├── Things.js                       # Device collections
-└── Farms.styles.js                 # Farm styling
-
-src/Components/Farms/
-├── FarmCard/                       # Farm status displays
-├── FarmSelector/                   # Farm selection UI
-├── MinerCard/                      # Individual miner widgets
-└── ProductionMetrics/              # Production analytics components
 
 src/hooks/
 ├── useMinerPerformance.js          # Miner performance management
@@ -748,7 +733,6 @@ src/
 │   ├── Dashboard/                  # Dashboard-specific components
 │   ├── Explorer/                   # Device explorer components
 │   ├── Container/                  # Container management components
-│   ├── Farms/                      # Farm and device components
 │   ├── Charts/                     # Chart and visualization components
 │   ├── Settings/                   # Settings and configuration components
 │   └── Shared/                     # Common shared components

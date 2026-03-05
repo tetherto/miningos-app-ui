@@ -1,6 +1,6 @@
-import { styled, css } from 'styled-components'
+import { css, styled } from 'styled-components'
 
-import { SEVERITY_COLORS } from '../../../../constants/alerts'
+import { SEVERITY_COLORS } from '../../constants/alerts'
 
 interface StyledProps {
   $severity?: keyof typeof SEVERITY_COLORS

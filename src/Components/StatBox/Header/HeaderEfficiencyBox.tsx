@@ -1,4 +1,3 @@
-import { formatNumber } from '../../../../../app/utils/format'
 import Efficiency from '../Icons/Efficiency'
 import { statBoxWithLoading } from '../StatBoxWithLoading'
 
@@ -11,6 +10,8 @@ import {
   HeaderStatBoxValueWrapper,
   HeaderStatBoxWrapper,
 } from './HeaderStatBox.styles'
+
+import { formatNumber } from '@/app/utils/format'
 
 interface EfficiencyValue {
   value?: number
