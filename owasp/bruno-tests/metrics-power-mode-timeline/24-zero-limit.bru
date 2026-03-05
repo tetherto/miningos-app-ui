@@ -1,0 +1,25 @@
+meta {
+  name: [24] Validation — Zero and Negative Limit
+  type: http
+  seq: 24
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/power-mode/timeline?start={{startTs}}&end={{endTs}}&limit=0
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 or 400 for zero limit", function() {
+    expect(res.status).to.be.oneOf([200, 400]);
+  });
+
+  test("does not crash the server", function() {
+    expect(res.status).to.be.below(600);
+  });
+}

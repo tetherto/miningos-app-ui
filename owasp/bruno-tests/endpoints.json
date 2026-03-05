@@ -122,14 +122,14 @@
     "priority": "P1",
     "description": "Pool list — per-pool breakdown with site-wide summary",
     "queryParams": {
-      "filter": { "type": "string", "required": false, "bruValue": "{}" },
+      "query": { "type": "string", "required": false, "bruValue": "{}" },
       "sort": { "type": "string", "required": false, "bruValue": "{}" },
       "fields": { "type": "string", "required": false, "bruValue": "" },
       "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
     },
     "pathParams": {},
     "expectedResponseKeys": ["pools", "summary"],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "slug": "metrics-hashrate",
@@ -235,7 +235,8 @@
     },
     "pathParams": {},
     "expectedResponseKeys": ["data"],
-    "reviewed": false
+    "reviewed": true,
+    "status": "IMPLEMENTED_NOT_DEPLOYED"
   },
   {
     "slug": "metrics-temperature",
@@ -318,8 +319,8 @@
       "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
     },
     "pathParams": {},
-    "expectedResponseKeys": ["data", "summary"],
-    "reviewed": false
+    "expectedResponseKeys": ["log", "summary"],
+    "reviewed": true
   },
   {
     "slug": "finance-energy-balance",
@@ -334,8 +335,8 @@
       "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
     },
     "pathParams": {},
-    "expectedResponseKeys": ["data", "summary"],
-    "reviewed": false
+    "expectedResponseKeys": ["log", "summary"],
+    "reviewed": true
   },
   {
     "slug": "finance-cost-summary",
@@ -350,8 +351,8 @@
       "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
     },
     "pathParams": {},
-    "expectedResponseKeys": ["data", "summary"],
-    "reviewed": false
+    "expectedResponseKeys": ["log", "summary"],
+    "reviewed": true
   },
   {
     "slug": "finance-subsidy-fees",

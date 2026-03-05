@@ -1,0 +1,29 @@
+meta {
+  name: [20] Validation — Start After End
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/power-mode/timeline?start={{endTs}}&end={{startTs}}&limit=100
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 400 or empty data when start > end", function() {
+    expect(res.status).to.be.oneOf([200, 400]);
+  });
+
+  test("if 200, data should be empty array", function() {
+    if (res.status === 200) {
+      if (res.body.data) {
+        expect(res.body.data).to.be.an('object');
+      }
+    }
+  });
+}

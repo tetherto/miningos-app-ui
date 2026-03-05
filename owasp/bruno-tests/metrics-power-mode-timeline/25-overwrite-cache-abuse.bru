@@ -1,0 +1,25 @@
+meta {
+  name: [25] Resource — overwriteCache Abuse
+  type: http
+  seq: 25
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/power-mode/timeline?start={{startTs}}&end={{endTs}}&overwriteCache=true&limit=10080
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 (overwriteCache accepted)", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response time under 15s (cache bypass should not cause excessive load)", function() {
+    expect(res.responseTime).to.be.below(15000);
+  });
+}

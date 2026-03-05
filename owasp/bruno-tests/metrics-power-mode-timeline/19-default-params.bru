@@ -1,0 +1,29 @@
+meta {
+  name: [19] Functional — Default Params (No start/end)
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/power-mode/timeline
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 with defaults (start/end optional per spec)", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response has expected shape", function() {
+    expect(res.body).to.have.property('data');
+  });
+
+  test("response time under 10s", function() {
+    expect(res.responseTime).to.be.below(10000);
+  });
+}

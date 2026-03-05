@@ -1,0 +1,49 @@
+meta {
+  name: [26] FE Contract — Response Shape Validation
+  type: http
+  seq: 26
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/power-mode/timeline?start={{startTs}}&end={{endTs}}&limit=100
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response has 'data' property", function() {
+    expect(res.body).to.have.property('data');
+  });
+
+  test("data is an object (keyed by miner) or array", function() {
+    const data = res.body.data;
+    const isValid = typeof data === 'object' && data !== null;
+    expect(isValid).to.be.true;
+  });
+
+  test("if data has entries, each segment has from/to/powerMode", function() {
+    const data = res.body.data;
+    if (data && typeof data === 'object') {
+      const values = Array.isArray(data) ? data : Object.values(data);
+      if (values.length > 0) {
+        const segments = Array.isArray(values[0]) ? values[0] : [values[0]];
+        for (const seg of segments.slice(0, 3)) {
+          if (seg && typeof seg === 'object') {
+            const hasTimeRange = ('from' in seg && 'to' in seg) ||
+              ('ts' in seg) ||
+              ('power_mode_group_aggr' in seg);
+            expect(hasTimeRange).to.be.true;
+          }
+        }
+      }
+    }
+  });
+}

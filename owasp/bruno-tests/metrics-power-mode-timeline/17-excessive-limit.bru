@@ -1,0 +1,25 @@
+meta {
+  name: [17] Resource — Excessive Limit
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/power-mode/timeline?start={{startTs}}&end={{endTs}}&limit=999999
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 or 400 (should cap or reject large limit)", function() {
+    expect(res.status).to.be.oneOf([200, 400]);
+  });
+
+  test("response time under 30s (no resource exhaustion)", function() {
+    expect(res.responseTime).to.be.below(30000);
+  });
+}

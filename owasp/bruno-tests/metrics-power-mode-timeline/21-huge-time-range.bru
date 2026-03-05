@@ -1,0 +1,25 @@
+meta {
+  name: [21] Resource — Huge Time Range (10 years)
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/power-mode/timeline?start=1451606400000&end=1767225600000&limit=100
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 or 400 for very large time range", function() {
+    expect(res.status).to.be.oneOf([200, 400]);
+  });
+
+  test("response time under 30s (no DoS)", function() {
+    expect(res.responseTime).to.be.below(30000);
+  });
+}
