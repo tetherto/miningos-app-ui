@@ -1,0 +1,41 @@
+meta {
+  name: [18] Functional — Container Filter
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/temperature?start={{startTs}}&end={{endTs}}&container=bitdeer-5a
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 with container filter", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response has log and summary", function() {
+    expect(res.body).to.have.property('log');
+    expect(res.body).to.have.property('summary');
+  });
+
+  test("filtered response only contains requested container", function() {
+    if (res.body.log && res.body.log.length > 0) {
+      for (const entry of res.body.log) {
+        const containers = Object.keys(entry.containers || {});
+        for (const name of containers) {
+          expect(name).to.equal('bitdeer-5a');
+        }
+      }
+    }
+  });
+
+  test("response time under 10s", function() {
+    expect(res.responseTime).to.be.below(10000);
+  });
+}

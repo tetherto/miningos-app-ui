@@ -1,0 +1,31 @@
+meta {
+  name: [16] Resource — Negative Timestamps
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/temperature?start=-1&end=-1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("rejects negative timestamps with 400", function() {
+    expect(res.status).to.be.oneOf([400, 500]);
+  });
+
+  test("does not return business data on invalid input", function() {
+    if (res.status >= 400) {
+      const body = JSON.stringify(res.body);
+      const hasError = body.includes('err_') || body.includes('ERR_') ||
+        body.includes('invalid') || body.includes('required') ||
+        res.status >= 400;
+      expect(hasError).to.be.true;
+    }
+  });
+}

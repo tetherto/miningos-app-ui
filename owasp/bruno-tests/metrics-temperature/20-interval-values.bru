@@ -1,0 +1,21 @@
+meta {
+  name: [20] Validation — Interval Enum Values
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/temperature?start={{startTs}}&end={{endTs}}&interval=5m
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("rejects invalid interval value", function() {
+    expect(res.status).to.be.oneOf([400, 500]);
+  });
+}

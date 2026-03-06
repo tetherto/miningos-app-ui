@@ -1,0 +1,56 @@
+meta {
+  name: [26] Data Sanity — Temperature Values
+  type: http
+  seq: 26
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/temperature?start={{startTs}}&end={{endTs}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("temperature values are numbers", function() {
+    if (res.body.log && res.body.log.length > 0) {
+      const entry = res.body.log[0];
+      expect(typeof entry.siteMaxC).to.equal('number');
+      expect(typeof entry.siteAvgC).to.equal('number');
+    }
+  });
+
+  test("siteMaxC >= siteAvgC (max should be >= avg)", function() {
+    if (res.body.log && res.body.log.length > 0) {
+      for (const entry of res.body.log.slice(0, 5)) {
+        if (entry.siteMaxC !== null && entry.siteAvgC !== null) {
+          expect(entry.siteMaxC).to.be.at.least(entry.siteAvgC);
+        }
+      }
+    }
+  });
+
+  test("no negative temperature values for maxC", function() {
+    if (res.body.log && res.body.log.length > 0) {
+      for (const entry of res.body.log.slice(0, 5)) {
+        for (const [name, data] of Object.entries(entry.containers || {})) {
+          expect(data.maxC).to.be.at.least(0);
+        }
+      }
+    }
+  });
+
+  test("peakTemp matches highest siteMaxC", function() {
+    if (res.body.log && res.body.log.length > 0 && res.body.summary.peakTemp !== null) {
+      const highestSiteMax = Math.max(...res.body.log.map(e => e.siteMaxC || 0));
+      expect(res.body.summary.peakTemp).to.equal(highestSiteMax);
+    }
+  });
+}

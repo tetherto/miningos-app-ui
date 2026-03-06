@@ -1,0 +1,27 @@
+meta {
+  name: [21] SSRF — Container Param Path Traversal
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/temperature?start={{startTs}}&end={{endTs}}&container=../../etc/passwd
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 or 400 (path traversal rejected)", function() {
+    expect(res.status).to.be.oneOf([200, 400]);
+  });
+
+  test("response does not contain filesystem data", function() {
+    const body = JSON.stringify(res.body);
+    expect(body).to.not.include('root:');
+    expect(body).to.not.include('/bin/bash');
+  });
+}

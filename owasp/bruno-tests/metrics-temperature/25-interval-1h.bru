@@ -1,0 +1,30 @@
+meta {
+  name: [25] Functional — Interval 1h (Short Range)
+  type: http
+  seq: 25
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/temperature?start={{startTs}}&end={{endTs}}&interval=1h
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 with 1h interval", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response has log array", function() {
+    expect(res.body).to.have.property('log');
+    expect(res.body.log).to.be.an('array');
+  });
+
+  test("response time under 15s", function() {
+    expect(res.responseTime).to.be.below(15000);
+  });
+}

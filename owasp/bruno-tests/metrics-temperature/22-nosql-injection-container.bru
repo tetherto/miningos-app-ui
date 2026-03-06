@@ -1,0 +1,30 @@
+meta {
+  name: [22] Injection — NoSQL via Container Param
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/temperature?start={{startTs}}&end={{endTs}}&container={"$gt":""}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 or 400 (NoSQL injection rejected)", function() {
+    expect(res.status).to.be.oneOf([200, 400]);
+  });
+
+  test("does not return all containers (injection ignored)", function() {
+    if (res.status === 200 && res.body.log) {
+      for (const entry of res.body.log) {
+        const containers = Object.keys(entry.containers || {});
+        expect(containers.length).to.be.below(50);
+      }
+    }
+  });
+}

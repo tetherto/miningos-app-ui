@@ -1,0 +1,59 @@
+meta {
+  name: [24] FE Contract — Response Shape Validation
+  type: http
+  seq: 24
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/temperature?start={{startTs}}&end={{endTs}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response has 'log' array", function() {
+    expect(res.body).to.have.property('log');
+    expect(res.body.log).to.be.an('array');
+  });
+
+  test("response has 'summary' object", function() {
+    expect(res.body).to.have.property('summary');
+    expect(res.body.summary).to.be.an('object');
+  });
+
+  test("summary has avgMaxTemp, avgAvgTemp, peakTemp", function() {
+    expect(res.body.summary).to.have.property('avgMaxTemp');
+    expect(res.body.summary).to.have.property('avgAvgTemp');
+    expect(res.body.summary).to.have.property('peakTemp');
+  });
+
+  test("log entries have ts, containers, siteMaxC, siteAvgC", function() {
+    if (res.body.log.length > 0) {
+      const entry = res.body.log[0];
+      expect(entry).to.have.property('ts');
+      expect(entry).to.have.property('containers');
+      expect(entry).to.have.property('siteMaxC');
+      expect(entry).to.have.property('siteAvgC');
+    }
+  });
+
+  test("container entries have maxC and avgC", function() {
+    if (res.body.log.length > 0) {
+      const entry = res.body.log[0];
+      const containerNames = Object.keys(entry.containers);
+      if (containerNames.length > 0) {
+        const first = entry.containers[containerNames[0]];
+        expect(first).to.have.property('maxC');
+        expect(first).to.have.property('avgC');
+      }
+    }
+  });
+}
