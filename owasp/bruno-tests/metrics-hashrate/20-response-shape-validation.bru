@@ -1,0 +1,46 @@
+meta {
+  name: [20] FE Contract — Response Shape Validation
+  type: http
+  seq: 20
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/hashrate?start={{startTs}}&end={{endTs}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response has 'log' array", function() {
+    expect(res.body).to.have.property('log');
+    expect(res.body.log).to.be.an('array');
+  });
+
+  test("response has 'summary' object", function() {
+    expect(res.body).to.have.property('summary');
+    expect(res.body.summary).to.be.an('object');
+  });
+
+  test("summary has avgHashrateMhs and totalHashrateMhs", function() {
+    expect(res.body.summary).to.have.property('avgHashrateMhs');
+    expect(res.body.summary).to.have.property('totalHashrateMhs');
+  });
+
+  test("log entries have ts and hashrateMhs", function() {
+    if (res.body.log.length > 0) {
+      const entry = res.body.log[0];
+      expect(entry).to.have.property('ts');
+      expect(entry).to.have.property('hashrateMhs');
+      expect(typeof entry.ts).to.equal('number');
+      expect(typeof entry.hashrateMhs).to.equal('number');
+    }
+  });
+}

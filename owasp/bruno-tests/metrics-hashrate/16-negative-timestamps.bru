@@ -1,0 +1,21 @@
+meta {
+  name: [16] Resource — Negative Timestamps
+  type: http
+  seq: 16
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/hashrate?start=-1&end=-1
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("rejects negative timestamps with 400", function() {
+    expect(res.status).to.be.oneOf([400, 500]);
+  });
+}

@@ -1,0 +1,25 @@
+meta {
+  name: [19] Resource — overwriteCache Abuse
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/hashrate?start={{startTs}}&end={{endTs}}&overwriteCache=true
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 (overwriteCache accepted)", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response time under 15s", function() {
+    expect(res.responseTime).to.be.below(15000);
+  });
+}

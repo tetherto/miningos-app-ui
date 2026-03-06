@@ -1,0 +1,54 @@
+meta {
+  name: [21] Data Sanity — Hashrate Values
+  type: http
+  seq: 21
+}
+
+get {
+  url: {{baseUrl}}/auth/metrics/hashrate?start={{startTs}}&end={{endTs}}
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("hashrate values are positive numbers", function() {
+    if (res.body.log && res.body.log.length > 0) {
+      for (const entry of res.body.log.slice(0, 5)) {
+        expect(entry.hashrateMhs).to.be.above(0);
+      }
+    }
+  });
+
+  test("totalHashrateMhs equals sum of log entries", function() {
+    if (res.body.log && res.body.log.length > 0) {
+      const total = res.body.log.reduce((sum, e) => sum + e.hashrateMhs, 0);
+      const diff = Math.abs(res.body.summary.totalHashrateMhs - total);
+      expect(diff).to.be.below(1);
+    }
+  });
+
+  test("avgHashrateMhs equals total / count", function() {
+    if (res.body.log && res.body.log.length > 0) {
+      const total = res.body.log.reduce((sum, e) => sum + e.hashrateMhs, 0);
+      const expectedAvg = total / res.body.log.length;
+      const diff = Math.abs(res.body.summary.avgHashrateMhs - expectedAvg);
+      expect(diff).to.be.below(0.01);
+    }
+  });
+
+  test("log entries are sorted by timestamp", function() {
+    if (res.body.log && res.body.log.length > 1) {
+      for (let i = 1; i < res.body.log.length; i++) {
+        expect(res.body.log[i].ts).to.be.above(res.body.log[i-1].ts);
+      }
+    }
+  });
+}
