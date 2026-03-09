@@ -1,0 +1,25 @@
+meta {
+  name: [22] Resource — Huge Time Range (10 years)
+  type: http
+  seq: 22
+}
+
+get {
+  url: {{baseUrl}}/auth/finance/subsidy-fees?start=1451606400000&end=1767225600000&period=monthly
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 or 400 for very large time range", function() {
+    expect(res.status).to.be.oneOf([200, 400]);
+  });
+
+  test("response time under 30s (no DoS)", function() {
+    expect(res.responseTime).to.be.below(30000);
+  });
+}

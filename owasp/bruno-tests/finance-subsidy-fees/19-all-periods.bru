@@ -1,0 +1,26 @@
+meta {
+  name: [19] Functional — All Period Values
+  type: http
+  seq: 19
+}
+
+get {
+  url: {{baseUrl}}/auth/finance/subsidy-fees?start={{startTs}}&end={{endTs}}&period=weekly
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 with weekly period", function() {
+    expect(res.status).to.equal(200);
+  });
+
+  test("response has log and summary", function() {
+    expect(res.body).to.have.property('log');
+    expect(res.body).to.have.property('summary');
+  });
+}

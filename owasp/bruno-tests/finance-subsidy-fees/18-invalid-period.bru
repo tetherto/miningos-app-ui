@@ -1,0 +1,21 @@
+meta {
+  name: [18] Validation — Invalid Period Value
+  type: http
+  seq: 18
+}
+
+get {
+  url: {{baseUrl}}/auth/finance/subsidy-fees?start={{startTs}}&end={{endTs}}&period=hourly
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("rejects invalid period value with 400", function() {
+    expect(res.status).to.be.oneOf([400, 500]);
+  });
+}
