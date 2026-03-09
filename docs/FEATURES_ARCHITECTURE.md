@@ -492,10 +492,6 @@ AUTH_PERMISSIONS: {
 **Implementation Files**:
 
 ```
-src/Views/MinersOverview/
-├── MinersOverview.js               # Miner fleet overview
-├── MinersOverviewLayout.js         # Navigation wrapper
-└── MinersOverview.styles.js        # Miner styling
 
 src/hooks/
 ├── useMinerPerformance.js          # Miner performance management
