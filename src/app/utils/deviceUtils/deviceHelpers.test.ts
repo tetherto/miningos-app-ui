@@ -26,6 +26,20 @@ import {
   getRootTempSensorTempValue,
   getRootTransformerTempSensorTempValue,
   getIds,
+  getReportMiningData,
+  getReportUteEnergy,
+  getEfficiencyStat,
+  getReportAggrRangeOf,
+  getReportWebappHashrateStat,
+  getPowerModeColor,
+  getMinerName,
+  getDeviceTemperature,
+  isDeviceTagPresent,
+  isDeviceSelected,
+  getLegendLabelText,
+  getTooltipText,
+  navigateToDevice,
+  getTemperatureSensorName,
 } from './deviceHelpers'
 
 import { HEATMAP } from '@/constants/colors'
@@ -390,6 +404,163 @@ describe('deviceHelpers', () => {
       } as never
       const result = getIds(device)
       expect(result).toBe('pm-1')
+    })
+  })
+
+  describe('getReportMiningData', () => {
+    it('returns empty object for non-array or empty', () => {
+      expect(getReportMiningData()).toEqual({})
+      expect(getReportMiningData([])).toEqual({})
+    })
+    it('returns aggregated mining data from first entry', () => {
+      const data = [[{ last: { snap: { stats: { balance: 100, revenue_24h: 50 } } } }]]
+      const result = getReportMiningData(data as never)
+      expect(result).toHaveProperty('balance')
+      expect(result).toHaveProperty('revenue')
+    })
+  })
+
+  describe('getReportUteEnergy', () => {
+    it('returns empty object for non-array', () => {
+      expect(getReportUteEnergy(null as never)).toEqual({})
+    })
+  })
+
+  describe('getEfficiencyStat', () => {
+    it('returns empty object when power or hashrate missing', () => {
+      expect(getEfficiencyStat({})).toEqual({})
+    })
+    it('returns efficiency when both present', () => {
+      const pmData = { last: { snap: { stats: { power_w: 1000 } } } }
+      const result = getEfficiencyStat(pmData as never, 100)
+      expect(result).toHaveProperty('efficiency')
+    })
+  })
+
+  describe('getReportAggrRangeOf', () => {
+    it('returns null for non-array', () => {
+      expect(getReportAggrRangeOf(null as never)).toBeNull()
+    })
+    it('returns value from aggr_range by type', () => {
+      const data = [{}, { aggr_range: { hashrate_mhs_1m_avg_over_time: [1, 2] } }]
+      expect(getReportAggrRangeOf(data as never, 'hashrate')).toEqual([1, 2])
+    })
+  })
+
+  describe('getReportWebappHashrateStat', () => {
+    it('returns empty object when no hashrate', () => {
+      expect(getReportWebappHashrateStat({})).toEqual({})
+    })
+    it('returns webappHashrate when hashrate_mhs_1m_sum_aggr present', () => {
+      const result = getReportWebappHashrateStat({ hashrate_mhs_1m_sum_aggr: 1000 })
+      expect(result).toHaveProperty('webappHashrate')
+    })
+  })
+
+  describe('getPowerModeColor', () => {
+    it('returns color for known power mode', () => {
+      expect(getPowerModeColor('normal')).toBeDefined()
+    })
+  })
+
+  describe('getMinerName', () => {
+    it('returns formatted name from type with three segments', () => {
+      const name = getMinerName('wm-m56-01')
+      expect(typeof name).toBe('string')
+      expect(name.length).toBeGreaterThan(0)
+    })
+  })
+
+  describe('getDeviceTemperature', () => {
+    it('returns default temperature when no hashrate', () => {
+      const result = getDeviceTemperature({})
+      expect(result).toEqual({ pcb: null, chip: null, inlet: null })
+    })
+    it('returns temperature when snap.stats has temperature_c', () => {
+      const data = {
+        snap: {
+          stats: {
+            hashrate_mhs: { t_5m: 100 },
+            temperature_c: { ambient: 40, pcb: [50], chips: [{ avg: 55 }] },
+          },
+        },
+      }
+      const result = getDeviceTemperature(data as never)
+      expect(result.inlet).toBe(40)
+      expect(result.pcb).toBeDefined()
+      expect(result.chip).toBeDefined()
+    })
+  })
+
+  describe('isDeviceTagPresent', () => {
+    it('returns true when container has id tag', () => {
+      const selected = { 'bitdeer-1': { 'id-miner1': true } }
+      const device = { id: 'miner1', info: { container: 'bitdeer-1' } } as never
+      expect(isDeviceTagPresent(selected, device)).toBe(true)
+    })
+    it('returns false when container not in selected', () => {
+      const device = { id: 'miner1', info: { container: 'bitdeer-1' } } as never
+      expect(isDeviceTagPresent({}, device)).toBe(false)
+    })
+  })
+
+  describe('isDeviceSelected', () => {
+    it('returns true when device tag present', () => {
+      const selected = { 'bitdeer-1': { 'id-miner1': true } }
+      const device = { id: 'miner1', type: 'miner-wm', info: { container: 'bitdeer-1' } } as never
+      expect(isDeviceSelected(selected, {}, device)).toBe(true)
+    })
+    it('returns false for miner without id and pos', () => {
+      const device = { type: 'miner-wm' } as never
+      expect(isDeviceSelected({}, {}, device)).toBe(false)
+    })
+  })
+
+  describe('getLegendLabelText', () => {
+    it('returns socket on/off for offline status', () => {
+      expect(getLegendLabelText('offline', true)).toContain('Socket on')
+      expect(getLegendLabelText('offline', false)).toContain('Socket off')
+    })
+    it('returns Mining with Error for errorMining', () => {
+      expect(getLegendLabelText('errorMining', true)).toBe('Mining with Error')
+    })
+  })
+
+  describe('getTooltipText', () => {
+    it('returns message for errorMining status', () => {
+      expect(getTooltipText('errorMining')).toContain('hash rate')
+    })
+    it('returns empty for other status', () => {
+      expect(getTooltipText('other')).toBe('')
+    })
+  })
+
+  describe('navigateToDevice', () => {
+    it('dispatches and navigates for miner', () => {
+      const dispatch = vi.fn()
+      const navigate = vi.fn()
+      const device = { id: 'm1', type: 'miner-wm' } as never
+      navigateToDevice(device, dispatch, navigate)
+      expect(dispatch).toHaveBeenCalled()
+      expect(navigate).toHaveBeenCalledWith(expect.stringContaining('explorer'))
+    })
+    it('navigates to cabinet for cabinet type', () => {
+      const dispatch = vi.fn()
+      const navigate = vi.fn()
+      const device = { id: 'cab-1', type: 'cabinet-lv1' } as never
+      navigateToDevice(device, dispatch, navigate)
+      expect(navigate).toHaveBeenCalledWith('/cabinets/cab-1')
+    })
+  })
+
+  describe('getTemperatureSensorName', () => {
+    it('returns Cabinet Temp Sensor when root equals devicePos', () => {
+      const name = getTemperatureSensorName('sensor-temp-1', 'lv1_lv1')
+      expect(name).toContain('Cabinet Temp Sensor')
+    })
+    it('returns Transformer Temp Sensor when devicePos starts with tr', () => {
+      const name = getTemperatureSensorName('sensor-temp-1', 'lv1_tr1')
+      expect(name).toContain('Transformer')
     })
   })
 })

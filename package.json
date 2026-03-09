@@ -63,9 +63,9 @@
     "preview:staging": "vite preview --mode staging",
     "build-with-sentry": "npm run build && npm run sentry:sourcemaps",
     "build-with-sentry:staging": "npm run build:staging && npm run sentry:sourcemaps",
-    "test": "vitest run --config vitest.config.js --maxConcurrency=5",
+    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest run --config vitest.config.js --maxConcurrency=5",
     "test:watch": "vitest --watch --config vitest.config.js",
-    "test:coverage": "vitest run --coverage --config vitest.config.js",
+    "test:coverage": "node scripts/cleanCoverageTmp.cjs && NODE_OPTIONS='--max-old-space-size=4096' vitest run --coverage --config vitest.config.js --maxConcurrency=5",
     "lint": "eslint --cache --cache-location .eslintcache --debug --max-warnings 0",
     "lint:fix": "eslint --fix --cache --cache-location .eslintcache --max-warnings 0",
     "prettier": "prettier ./src --check",
@@ -138,5 +138,6 @@
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vitest": "^3.0.8"
-  }
+  },
+  "packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017"
 }

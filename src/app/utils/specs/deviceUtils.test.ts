@@ -16,6 +16,7 @@ import {
   getDeviceData,
   getDeviceDataByType,
   getDeviceModel,
+  getDeviceTemperature,
   getEfficiencyStat,
   getHashrateString,
   getHashrateUnit,
@@ -70,6 +71,7 @@ import {
   getLvCabinetTransformerTempSensorColor,
   getTempSensorColor,
   getOnOffText,
+  navigateToDevice,
 } from '../deviceUtils'
 import type { Device, UnknownRecord } from '../deviceUtils/types'
 import { SOCKET_STATUSES } from '../statusUtils'
@@ -1235,5 +1237,42 @@ describe('getTemperatureSensorName', () => {
   it('returns transformer temp sensor when devicePos is transformer', () => {
     const name = getTemperatureSensorName('sensor-temp-1', 'lv1_tr1')
     expect(name).toContain('Transformer')
+  })
+})
+
+describe('getDeviceTemperature', () => {
+  it('returns default when no hashrate in snap.stats', () => {
+    const result = getDeviceTemperature({})
+    expect(result).toEqual({ pcb: null, chip: null, inlet: null })
+  })
+  it('returns temperature object when snap has hashrate and temperature_c', () => {
+    const data = {
+      snap: {
+        stats: {
+          hashrate_mhs: { t_5m: 100 },
+          temperature_c: { ambient: 35, pcb: [45], chips: [{ avg: 50 }] },
+        },
+      },
+    }
+    const result = getDeviceTemperature(data)
+    expect(result.inlet).toBe(35)
+    expect(typeof result.pcb).toBe('number')
+    expect(typeof result.chip).toBe('number')
+  })
+})
+
+describe('navigateToDevice', () => {
+  it('dispatches and calls navigate for miner type', () => {
+    const dispatch = vi.fn()
+    const navigate = vi.fn()
+    navigateToDevice({ id: 'm1', type: 'miner-wm' }, dispatch, navigate)
+    expect(dispatch).toHaveBeenCalled()
+    expect(navigate).toHaveBeenCalled()
+  })
+  it('navigates to cabinet path for cabinet type', () => {
+    const dispatch = vi.fn()
+    const navigate = vi.fn()
+    navigateToDevice({ id: 'cab-1', type: 'cabinet-lv1' }, dispatch, navigate)
+    expect(navigate).toHaveBeenCalledWith('/cabinets/cab-1')
   })
 })

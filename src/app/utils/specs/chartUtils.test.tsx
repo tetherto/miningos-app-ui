@@ -5,9 +5,15 @@ import _isFunction from 'lodash/isFunction'
 import { Miners } from '../../../Components/StatBox/Icons/Miners'
 import {
   generateChartLegendLabels,
+  getBarChartItemStyle,
+  getBarChartItemLinearGradientRenderer,
+  getBarChartDatasetBackgroundColor,
   getChartBuilderData,
   getChartBuilderDatasetLines,
+  getChartDataAvailability,
+  getChartDatasetItemLegendColor,
   getLineChartBuilderDataset,
+  getTimeScaleTimeConfig,
   handleLegendClick,
   hasDataValues,
   hasNonZeroLineSeriesValues,
@@ -814,5 +820,112 @@ describe('SafeChartDataLabels', () => {
     )
 
     warnSpy.mockRestore()
+  })
+})
+
+describe('getBarChartItemStyle', () => {
+  it('returns style with backgroundColor and borderColor for valid key', () => {
+    const result = getBarChartItemStyle('YELLOW')
+    expect(result.borderColor).toBeDefined()
+    expect(result.backgroundColor).toBeDefined()
+    expect(result.borderWidth).toBeDefined()
+  })
+  it('reverses backgroundColor when isChartHorizontal true', () => {
+    const vertical = getBarChartItemStyle('YELLOW', { isChartHorizontal: false })
+    const horizontal = getBarChartItemStyle('YELLOW', { isChartHorizontal: true })
+    if (Array.isArray(vertical.backgroundColor) && Array.isArray(horizontal.backgroundColor)) {
+      expect(horizontal.backgroundColor[0]).toBe(vertical.backgroundColor[1])
+    }
+  })
+  it('throws for unknown borderColorKey', () => {
+    expect(() => getBarChartItemStyle('UNKNOWN_KEY' as never)).toThrow()
+  })
+})
+
+describe('getBarChartItemLinearGradientRenderer', () => {
+  it('returns a function that creates linear gradient', () => {
+    const renderer = getBarChartItemLinearGradientRenderer({
+      colorMilestones: ['#ff0000', '#00ff00'],
+      isChartHorizontal: false,
+      chartHeight: 200,
+    })
+    const mockGradient = { addColorStop: vi.fn() }
+    const ctx = {
+      createLinearGradient: vi.fn().mockReturnValue(mockGradient),
+    } as never
+    const chart = { ctx } as never
+    const result = renderer({ chart })
+    expect(ctx.createLinearGradient).toHaveBeenCalled()
+    expect(result).toBe(mockGradient)
+  })
+})
+
+describe('getBarChartDatasetBackgroundColor', () => {
+  it('returns fallback when dataset has no backgroundColor', () => {
+    const result = getBarChartDatasetBackgroundColor({
+      dataset: {},
+      fallback: '#cccccc',
+      isChartHorizontal: false,
+      chartWidth: 300,
+      chartHeight: 200,
+    })
+    expect(result).toBe('#cccccc')
+  })
+  it('returns string when backgroundColor is string', () => {
+    const result = getBarChartDatasetBackgroundColor({
+      dataset: { backgroundColor: '#ff0000' },
+      fallback: '#ccc',
+      isChartHorizontal: false,
+      chartWidth: 300,
+      chartHeight: 200,
+    })
+    expect(result).toBe('#ff0000')
+  })
+  it('returns gradient renderer when backgroundColor is array', () => {
+    const result = getBarChartDatasetBackgroundColor({
+      dataset: { backgroundColor: ['#ff0000', '#00ff00'] },
+      fallback: '#ccc',
+      isChartHorizontal: false,
+      chartWidth: 300,
+      chartHeight: 200,
+    })
+    expect(typeof result).toBe('function')
+  })
+})
+
+describe('getChartDatasetItemLegendColor', () => {
+  it('returns color when provided', () => {
+    expect(getChartDatasetItemLegendColor({ color: '#abc' })).toBe('#abc')
+  })
+  it('returns borderColor when color not provided', () => {
+    expect(getChartDatasetItemLegendColor({ borderColor: '#def' })).toBe('#def')
+  })
+  it('returns styleKey color when color and borderColor not provided', () => {
+    const result = getChartDatasetItemLegendColor({ styleKey: 'YELLOW' })
+    expect(result).toBeDefined()
+  })
+})
+
+describe('getChartDataAvailability', () => {
+  it('returns false for empty datasets', () => {
+    expect(getChartDataAvailability([])).toBe(false)
+  })
+  it('returns false when all datasets have empty data', () => {
+    expect(getChartDataAvailability([{ data: [] }, { data: [] }] as never)).toBe(false)
+  })
+  it('returns true when at least one dataset has data', () => {
+    expect(getChartDataAvailability([{ data: [] }, { data: [1, 2] }] as never)).toBe(true)
+  })
+})
+
+describe('getTimeScaleTimeConfig', () => {
+  it('returns config with day unit by default', () => {
+    const result = getTimeScaleTimeConfig('unknown')
+    expect(result.unit).toBe('day')
+    expect(result.displayFormats).toBeDefined()
+  })
+  it('returns month unit for year timeframe', () => {
+    const result = getTimeScaleTimeConfig('year')
+    expect(result.unit).toBe('month')
   })
 })

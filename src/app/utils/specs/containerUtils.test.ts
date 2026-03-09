@@ -5,7 +5,12 @@ import {
   getBitdeerIndexes,
   getAntspaceHydroIndexes,
   getContainerName,
+  getContainerParamsSettingList,
+  getContainerPduData,
   getContainerSettingsModel,
+  getDeviceContainerPosText,
+  getDeviceName,
+  getDetailedDeviceName,
   getIndexes,
   getMicroBTIndexes,
   getMockedPduData,
@@ -13,6 +18,7 @@ import {
   getNumberSelected,
   getPduData,
   getSupportedContainerTypesFromMinerType,
+  getTotalContainerSockets,
   getTotalSockets,
   isA1346,
   isAvalonContainer,
@@ -27,6 +33,7 @@ import {
   isMicroBTKehua,
   isS19XP,
   isWhatsminerContainer,
+  getContainerMinersPosition,
   sortAlphanumeric,
 } from '../containerUtils'
 import type { UnknownRecord } from '../deviceUtils/types'
@@ -348,6 +355,132 @@ describe('containerUtils type guards and helpers', () => {
     })
     it('returns false for bitdeer', () => {
       expect(isContainerControlNotsupported('container-bd-d40-m56')).toBe(false)
+    })
+  })
+  describe('getDeviceContainerPosText', () => {
+    it('returns container name only when no pdu/socket or pos', () => {
+      expect(getDeviceContainerPosText({ containerInfo: { container: 'bitdeer-1' } })).toBe('Bitdeer 1')
+      expect(getDeviceContainerPosText({})).toBe('')
+    })
+    it('returns container name and destination when pdu/socket or pos provided', () => {
+      const result = getDeviceContainerPosText({
+        containerInfo: { container: 'bitdeer-1' },
+        pdu: '1',
+        socket: '2',
+      })
+      expect(result).toContain('Bitdeer 1')
+      expect(result).toContain('1_2')
+    })
+    it('uses pos when provided', () => {
+      const result = getDeviceContainerPosText({
+        containerInfo: { container: 'bitdeer-1' },
+        pos: 'pdu1_socketA',
+      })
+      expect(result).toContain('pdu1_socketA')
+    })
+  })
+  describe('getContainerPduData', () => {
+    it('returns undefined for unknown container type', () => {
+      expect(getContainerPduData('unknown', {})).toBeUndefined()
+    })
+    it('returns ANTSPACE_PDU_DATA for antspace hydro type', () => {
+      const result = getContainerPduData('container-as-hk3', {})
+      expect(result).toBeDefined()
+      expect(Array.isArray(result)).toBe(true)
+    })
+    it('returns ANTSPACE_IMMERSION_PDU_DATA for antspace immersion', () => {
+      const result = getContainerPduData('container-as-immersion', {})
+      expect(result).toBeDefined()
+    })
+    it('returns merged pdu data for bitdeer type when last has snap', () => {
+      const last = {
+        snap: {
+          stats: {
+            container_specific: {
+              pdu_data: [{ pdu: 'pdu1', sockets: [], power_w: 100 }],
+            },
+          },
+        },
+      }
+      const result = getContainerPduData(COMPLETE_CONTAINER_TYPE.BITDEER_M56, last)
+      expect(result).toBeDefined()
+      expect(Array.isArray(result)).toBe(true)
+    })
+  })
+  describe('getTotalContainerSockets', () => {
+    it('returns 0 when type unknown or no pdu data', () => {
+      expect(getTotalContainerSockets({})).toBe(0)
+      expect(getTotalContainerSockets({ type: 'unknown' })).toBe(0)
+    })
+    it('returns total sockets for antspace hydro', () => {
+      const result = getTotalContainerSockets({ type: 'container-as-hk3' })
+      expect(typeof result).toBe('number')
+    })
+  })
+  describe('getDeviceName', () => {
+    it('returns empty for undefined device', () => {
+      expect(getDeviceName(undefined)).toBe('')
+    })
+    it('returns id for temp sensor', () => {
+      expect(getDeviceName({ id: 'ts1', type: 'sensor-temp-1' })).toBe('ts1')
+    })
+    it('returns name with container and pos when type and info present', () => {
+      const name = getDeviceName({
+        id: 'm1',
+        type: 'miner-wm-m56',
+        info: { container: 'bitdeer-1', pos: '1_2' },
+      })
+      expect(name).toContain('Bitdeer 1')
+      expect(name).toContain('1_2')
+    })
+    it('respects includeMinerName false', () => {
+      const name = getDeviceName(
+        { type: 'miner-wm-m56', info: { container: 'bitdeer-1' } },
+        false,
+      )
+      expect(name).toBeDefined()
+    })
+  })
+  describe('getContainerMinersPosition', () => {
+    it('returns array of pdu_socket strings for bitdeer', () => {
+      const result = getContainerMinersPosition(COMPLETE_CONTAINER_TYPE.BITDEER_M56)
+      expect(Array.isArray(result)).toBe(true)
+      expect(result.length).toBeGreaterThan(0)
+    })
+    it('returns positions for antspace hydro', () => {
+      const result = getContainerMinersPosition('container-as-hk3')
+      expect(Array.isArray(result)).toBe(true)
+    })
+  })
+  describe('getDetailedDeviceName', () => {
+    it('returns Unknown device for unknown type', () => {
+      expect(getDetailedDeviceName('unknown-type', undefined)).toBe('Unknown device')
+    })
+    it('returns container name for container type', () => {
+      const name = getDetailedDeviceName('container-bd-d40-m56', undefined, {
+        info: { container: 'bitdeer-1' },
+      })
+      expect(name).toContain('Bitdeer')
+    })
+    it('returns temp sensor name for sensor-temp type', () => {
+      const name = getDetailedDeviceName('sensor-temp-1', 'lv1_lv2')
+      expect(name).toContain('Temp')
+    })
+  })
+  describe('getContainerParamsSettingList', () => {
+    it('returns list of setting objects from minByCharMap', () => {
+      const result = getContainerParamsSettingList({ Low: 0, Mid: 50, High: 100 })
+      expect(result).toHaveLength(3)
+      expect(result[0]).toHaveProperty('label', 'Low')
+      expect(result[0]).toHaveProperty('description')
+      expect(result[0]).toHaveProperty('highlightColor')
+    })
+    it('supports options with unit and getHighlightColor', () => {
+      const result = getContainerParamsSettingList(
+        { Temp: 20 },
+        { unit: '°C', getHighlightColor: (v) => (v > 25 ? 'red' : '') },
+      )
+      expect(result[0].description).toContain('°C')
     })
   })
 })

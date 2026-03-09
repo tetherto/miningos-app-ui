@@ -168,10 +168,9 @@ jobs:
           fi
 
       - name: Run tests with coverage
-        continue-on-error: true
         run: |
           echo "Running tests with coverage..."
-          npm run test:coverage --if-present || npm test --if-present || echo "::warning::Tests failed but continuing workflow"
+          npm run test:coverage --if-present || npm test --if-present
 
       - name: Run build (optional)
         continue-on-error: true

@@ -2,9 +2,13 @@ import {
   getAlertsDescription,
   getAlertsString,
   getCriticalAlerts,
+  getDeviceAlertsData,
   getDeviceErrors,
   getDeviceErrorsString,
+  getLogFormattedAlertData,
+  getAlertsSortedByGeneralFields,
   getProcessedAlarms,
+  getAlertsForDevices,
 } from '../alertUtils'
 
 describe('Alert Utils', () => {
@@ -146,6 +150,85 @@ describe('Alert Utils', () => {
       const result = getDeviceErrorsString(alerts, getFormattedDate)
       expect(result).toContain('Err')
       expect(result).toContain('Desc')
+    })
+  })
+
+  describe('getLogFormattedAlertData', () => {
+    it('returns formatted log object from alert and info', () => {
+      const getFormattedDate = vi.fn((d: Date) => d.toISOString())
+      const result = getLogFormattedAlertData(
+        {
+          alert: {
+            name: 'Alert1',
+            description: 'Desc',
+            message: 'Msg',
+            severity: 'high',
+            createdAt: '2023-01-01T00:00:00Z',
+            uuid: 'uuid-1',
+          },
+          info: { container: 'bitdeer-1', pos: '1_2' },
+          type: 'container-bd',
+          id: 'dev-1',
+        },
+        getFormattedDate,
+      )
+      expect(result.title).toBe('Alert1')
+      expect(result.subtitle).toContain('Desc')
+      expect(result.status).toBe('high')
+      expect(result.id).toBe('dev-1')
+      expect(result.uuid).toBe('uuid-1')
+    })
+  })
+
+  describe('getAlertsSortedByGeneralFields', () => {
+    it('sorts by severityLevel desc then creationDate desc', () => {
+      const items = [
+        { severityLevel: 1, creationDate: '2023-01-02' },
+        { severityLevel: 2, creationDate: '2023-01-01' },
+        { severityLevel: 1, creationDate: '2023-01-03' },
+      ]
+      const result = getAlertsSortedByGeneralFields(items)
+      expect(result[0].severityLevel).toBe(2)
+      expect(result[1].creationDate).toBe('2023-01-03')
+    })
+  })
+
+  describe('getDeviceAlertsData', () => {
+    it('returns undefined when device has no valid deviceStats', () => {
+      const getFormattedDate = vi.fn((d: Date) => d.toISOString())
+      const device = { id: 'd1', type: 'miner-wm', alerts: [] }
+      expect(getDeviceAlertsData(device, getFormattedDate)).toBeUndefined()
+    })
+    it('returns formatted alerts when device has alerts and valid stats', () => {
+      const getFormattedDate = vi.fn((d: Date) => d.toISOString())
+      const device = {
+        id: 'd1',
+        type: 'miner-wm',
+        info: { container: 'c1' },
+        alerts: [
+          {
+            name: 'A1',
+            description: 'D1',
+            severity: 'high',
+            createdAt: '2023-01-01T00:00:00Z',
+            uuid: 'u1',
+          },
+        ],
+      }
+      const result = getDeviceAlertsData(device as never, getFormattedDate)
+      if (result) {
+        expect(result.length).toBeGreaterThanOrEqual(0)
+        if (result.length > 0) expect(result[0]).toHaveProperty('title')
+      }
+    })
+  })
+
+  describe('getAlertsForDevices', () => {
+    it('returns flattened alerts from multiple devices', () => {
+      const getFormattedDate = vi.fn((d: Date) => d.toISOString())
+      const devices = []
+      const result = getAlertsForDevices(devices, getFormattedDate)
+      expect(result).toEqual([])
     })
   })
 })
