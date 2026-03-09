@@ -3,6 +3,8 @@ import { startOfDay } from 'date-fns/startOfDay'
 
 import {
   getLastDays,
+  getLastHours,
+  getLastMonth,
   getLastNDaysEndingYesterday,
   getTimeRange,
   getYesterdaysTimeRange,
@@ -120,5 +122,27 @@ describe('getLastNDaysEndingYesterday', () => {
     const rangeDuration = result.end - result.start
     expect(rangeDuration).toBeLessThanOrEqual(sevenDaysMs)
     expect(rangeDuration).toBeGreaterThan(6 * 24 * 60 * 60 * 1000) // At least 6 days
+  })
+})
+
+describe('getLastHours', () => {
+  it('returns range for given hours', () => {
+    const result = getLastHours(2)
+    expect(result).toHaveProperty('start')
+    expect(result).toHaveProperty('end')
+    expect(result.end - result.start).toBe(2 * 60 * 60 * 1000)
+  })
+  it('defaults to 1 hour', () => {
+    const result = getLastHours()
+    expect(result.end - result.start).toBe(60 * 60 * 1000)
+  })
+})
+
+describe('getLastMonth', () => {
+  it('returns range for last month', () => {
+    const result = getLastMonth()
+    expect(result).toHaveProperty('start')
+    expect(result).toHaveProperty('end')
+    expect(result.end).toBeGreaterThan(result.start)
   })
 })

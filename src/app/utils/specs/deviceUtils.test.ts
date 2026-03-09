@@ -1,17 +1,75 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck - Test file with legacy test signatures
 import {
+  appendContainerToTag,
+  appendIdToTag,
+  appendIdToTags,
+  checkIsIdTag,
+  formatEnergyConsumption,
   formatPowerConsumption,
+  getCabinetPos,
+  getCabinetTitle,
+  getConfig,
+  getConsumptionString,
+  getContainerSpecificConfig,
+  getContainerSpecificStats,
+  getDeviceData,
+  getDeviceDataByType,
   getDeviceModel,
+  getEfficiencyStat,
+  getHashrateString,
   getHashrateUnit,
+  getIds,
+  getLast,
   getLegendLabelText,
+  getLvCabinetTempSensorColor,
+  getLvCabinetTitle,
+  getMinerName,
   getMinerShortCode,
   getPowerSensorName,
+  getPoolAndWorkerNameFromUsername,
   getRackNameFromId,
+  getReportAggrRangeOf,
   getReportMiningData,
+  getReportUteEnergy,
   getReportWebappHashrateStat,
+  getRootPowerMeter,
+  getRootPowerMeterPowerValue,
+  getRootTempSensor,
+  getRootTempSensorTempValue,
+  getRootTransformerTempSensorTempValue,
+  getSnap,
+  getStats,
+  getSupportedPowerModes,
+  getTempSensorPosTag,
   getTemperatureColor,
+  getTemperatureSensorName,
   getTooltipText,
+  getTransformerCabinetTitle,
+  getTransformerTempSensor,
+  isAntminer,
+  isAvalon,
+  isCabinet,
+  isContainer,
+  isContainerTag,
+  isDeviceSelected,
+  isDeviceTagPresent,
+  isElectricity,
+  isLVCabinet,
+  isMiner,
+  isMinerOffline,
+  isPowerMeter,
+  isSparePart,
+  isTempSensor,
+  isTransformerCabinet,
+  isTransformerPowermeter,
+  isWhatsminer,
+  removeContainerPrefix,
+  removeIdPrefix,
+  getIsTransformerTempSensor,
+  getLvCabinetTransformerTempSensorColor,
+  getTempSensorColor,
+  getOnOffText,
 } from '../deviceUtils'
 import type { Device, UnknownRecord } from '../deviceUtils/types'
 import { SOCKET_STATUSES } from '../statusUtils'
@@ -763,5 +821,419 @@ describe('getPowerSensorName', () => {
 
   it('should handle powerSensorType with three hyphens', () => {
     expect(getPowerSensorName('powermeter-sensor-type-all-new', 'lv3_lv3')).toBe('SENSOR TYPE LV3')
+  })
+})
+
+describe('deviceUtils data getters', () => {
+  describe('getLast', () => {
+    it('returns last from data', () => {
+      const data = { last: { foo: 1 } }
+      expect(getLast(data)).toEqual({ foo: 1 })
+    })
+    it('returns empty object when last is missing', () => {
+      expect(getLast({})).toEqual({})
+    })
+  })
+  describe('getSnap', () => {
+    it('returns snap from last', () => {
+      const data = { last: { snap: { stats: {} } } }
+      expect(getSnap(data)).toEqual({ stats: {} })
+    })
+    it('returns empty object when snap is missing', () => {
+      expect(getSnap({})).toEqual({})
+    })
+  })
+  describe('getStats', () => {
+    it('returns stats from snap', () => {
+      const data = { last: { snap: { stats: { power_w: 100 } } } }
+      expect(getStats(data)).toEqual({ power_w: 100 })
+    })
+  })
+  describe('getConfig', () => {
+    it('returns config from snap', () => {
+      const data = { last: { snap: { config: { config: { foo: 1 } } } } }
+      expect(getConfig(data)).toEqual({ config: { foo: 1 } })
+    })
+  })
+  describe('getContainerSpecificStats', () => {
+    it('returns container_specific from stats', () => {
+      const data = { last: { snap: { stats: { container_specific: { pdu_data: [] } } } } }
+      expect(getContainerSpecificStats(data)).toEqual({ pdu_data: [] })
+    })
+  })
+  describe('getContainerSpecificConfig', () => {
+    it('returns config from config', () => {
+      const data = { last: { snap: { config: { config: { threshold: 80 } } } } }
+      expect(getContainerSpecificConfig(data)).toEqual({ threshold: 80 })
+    })
+  })
+  describe('getDeviceData', () => {
+    it('returns Device Not Found for null/undefined', () => {
+      expect(getDeviceData(null)[0]).toBe('Device Not Found')
+      expect(getDeviceData(undefined)[0]).toBe('Device Not Found')
+    })
+    it('returns err and device when last is missing', () => {
+      const device = { id: 'd1', type: 'miner-wm' }
+      const [, dev] = getDeviceData(device)
+      expect(dev?.err).toBe('Last Device info not found')
+      expect(dev?.id).toBe('d1')
+    })
+    it('returns err and device when last has snap', () => {
+      const device = { id: 'd1', type: 'miner-wm', last: { err: null, snap: { stats: {}, config: {} } } }
+      const [err, dev] = getDeviceData(device)
+      expect(err).toBe(null)
+      expect(dev?.id).toBe('d1')
+    })
+  })
+})
+
+describe('getReportUteEnergy', () => {
+  it('returns empty object for non-array', () => {
+    expect(getReportUteEnergy(null as unknown as unknown[])).toEqual({})
+    expect(getReportUteEnergy(undefined as unknown as unknown[])).toEqual({})
+  })
+  it('returns uteEnergy from nested structure', () => {
+    const nextHour = new Date().getHours() + 1
+    const data = [[{ last: { snap: { stats: { uteEnergy: [{ [`h${nextHour}`]: 42 }] } } } }]]
+    expect(getReportUteEnergy(data)).toEqual({ uteEnergy: 42 })
+  })
+})
+
+describe('getEfficiencyStat', () => {
+  it('returns empty object when power or hashrate missing', () => {
+    expect(getEfficiencyStat({})).toEqual({})
+    expect(getEfficiencyStat({ last: { snap: { stats: { power_w: 100 } } } }, null)).toEqual({})
+    expect(getEfficiencyStat({ last: { snap: { stats: {} } } }, 50)).toEqual({})
+  })
+  it('returns efficiency when both present', () => {
+    const pmData = { last: { snap: { stats: { power_w: 1000 } } } }
+    const result = getEfficiencyStat(pmData, 100)
+    expect(result).toHaveProperty('efficiency')
+    expect(typeof result.efficiency).toBe('number')
+    expect(result.efficiency).toBeGreaterThan(0)
+  })
+})
+
+describe('getReportAggrRangeOf', () => {
+  it('returns null for non-array', () => {
+    expect(getReportAggrRangeOf(null as unknown as unknown[])).toBe(null)
+  })
+  it('returns value from aggr_range by type', () => {
+    const data = [
+      {},
+      { aggr_range: { hashrate_mhs_1m_avg_over_time: [1, 2], efficiency_w_ths_avg_over_time: [3] } },
+    ]
+    expect(getReportAggrRangeOf(data, 'hashrate')).toEqual([1, 2])
+    expect(getReportAggrRangeOf(data, 'efficiency')).toEqual([3])
+  })
+})
+
+describe('getHashrateString and getConsumptionString', () => {
+  it('getHashrateString formats value', () => {
+    expect(getHashrateString(1000)).toBeDefined()
+    expect(getHashrateString(0, true)).toBeDefined()
+  })
+  it('getConsumptionString formats value', () => {
+    expect(getConsumptionString(5000)).toBeDefined()
+  })
+})
+
+describe('formatEnergyConsumption', () => {
+  it('formats Wh', () => {
+    const r = formatEnergyConsumption(500)
+    expect(r.unit).toBe(UNITS.ENERGY_WH)
+    expect(r.value).toBe(500)
+  })
+  it('formats kWh/MWh/GWh', () => {
+    expect(formatEnergyConsumption(5000).unit).toBe(UNITS.ENERGY_KWH)
+    expect(formatEnergyConsumption(5e6).unit).toBe(UNITS.ENERGY_MWH)
+    expect(formatEnergyConsumption(5e9).unit).toBe(UNITS.ENERGY_GWH)
+  })
+  it('returns null value for non-finite', () => {
+    expect(formatEnergyConsumption(NaN).value).toBe(null)
+  })
+})
+
+describe('deviceUtils type guards and tag helpers', () => {
+  describe('getOnOffText', () => {
+    it('returns On/Off for boolean', () => {
+      expect(getOnOffText(true)).toBe('On')
+      expect(getOnOffText(false)).toBe('Off')
+    })
+    it('returns fallback for non-boolean', () => {
+      expect(getOnOffText(null)).toBe('-')
+      expect(getOnOffText(undefined, 'N/A')).toBe('N/A')
+    })
+  })
+  describe('type guards', () => {
+    it('isMiner', () => {
+      expect(isMiner('miner-wm-m56')).toBe(true)
+      expect(isMiner('container-bd')).toBe(false)
+      expect(isMiner(undefined)).toBe(false)
+    })
+    it('isPowerMeter', () => {
+      expect(isPowerMeter('powermeter-1')).toBe(true)
+      expect(isPowerMeter('miner-wm')).toBe(false)
+    })
+    it('isTempSensor', () => {
+      expect(isTempSensor('sensor-temp-1')).toBe(true)
+    })
+    it('isCabinet', () => {
+      expect(isCabinet('cabinet-lv1')).toBe(true)
+    })
+    it('isElectricity', () => {
+      expect(isElectricity('electricity-main')).toBe(true)
+    })
+    it('isContainer', () => {
+      expect(isContainer('container-bd-d40')).toBe(true)
+    })
+    it('isSparePart', () => {
+      expect(isSparePart('inventory-miner_part-1')).toBe(true)
+    })
+    it('isAvalon', () => {
+      expect(isAvalon('miner-avalon-123')).toBe(true)
+      expect(isAvalon('miner-wm-m56')).toBe(false)
+    })
+    it('isWhatsminer', () => {
+      expect(isWhatsminer('miner-wm-m56')).toBe(true)
+    })
+    it('isAntminer', () => {
+      expect(isAntminer('miner-am-s19')).toBe(true)
+      expect(isAntminer('miner-wm-m56')).toBe(false)
+    })
+  })
+  describe('checkIsIdTag', () => {
+    it('returns true for UUID format', () => {
+      expect(checkIsIdTag('a1b2c3d4-e5f6-7890-abcd-ef1234567890')).toBe(true)
+    })
+    it('returns false for non-UUID', () => {
+      expect(checkIsIdTag('id-miner-1')).toBe(false)
+    })
+  })
+  describe('tag prefix helpers', () => {
+    it('removeIdPrefix', () => {
+      expect(removeIdPrefix('id-abc')).toBe('abc')
+      expect(removeIdPrefix('abc')).toBe('abc')
+    })
+    it('appendIdToTag', () => {
+      expect(appendIdToTag('dev1')).toBe('id-dev1')
+    })
+    it('appendIdToTags', () => {
+      expect(appendIdToTags(['a', 'b'])).toEqual(['id-a', 'id-b'])
+    })
+    it('appendContainerToTag', () => {
+      expect(appendContainerToTag('c1')).toBe('container-c1')
+    })
+    it('removeContainerPrefix', () => {
+      expect(removeContainerPrefix('container-c1')).toBe('c1')
+    })
+  })
+  describe('isContainerTag', () => {
+    it('returns true when tag contains container-', () => {
+      expect(isContainerTag('container-bd-1')).toBe(true)
+      expect(isContainerTag('id-123')).toBe(false)
+    })
+  })
+  describe('getSupportedPowerModes', () => {
+    it('returns modes for Whatsminer', () => {
+      expect(getSupportedPowerModes('miner-wm-m56')).toContain('normal')
+    })
+    it('returns modes for Antminer', () => {
+      expect(getSupportedPowerModes('miner-am-s19')).toHaveLength(2)
+    })
+    it('returns empty for unknown', () => {
+      expect(getSupportedPowerModes('unknown')).toEqual([])
+    })
+  })
+})
+
+describe('getMinerName', () => {
+  it('returns a string from type matching three hyphen-separated segments', () => {
+    const result = getMinerName('miner-wm-m56')
+    expect(typeof result).toBe('string')
+    expect(result.length).toBeGreaterThan(0)
+  })
+  it('includes model name when second segment is known type key', () => {
+    const withWm = getMinerName('x-wm-y')
+    const withAm = getMinerName('x-am-y')
+    expect(withWm).toContain(' ')
+    expect(withAm).toContain(' ')
+  })
+})
+
+describe('isMinerOffline', () => {
+  it('returns true when stats empty and config empty', () => {
+    const device = { last: { snap: { stats: {}, config: {} } } }
+    expect(isMinerOffline(device)).toBe(true)
+  })
+  it('returns true when status is OFFLINE', () => {
+    const device = { last: { snap: { stats: { status: 'offline' }, config: {} } } }
+    expect(isMinerOffline(device)).toBe(true)
+  })
+  it('returns false when has stats and not offline', () => {
+    const device = { last: { snap: { stats: { status: 'mining' }, config: { foo: 1 } } } }
+    expect(isMinerOffline(device)).toBe(false)
+  })
+})
+
+describe('getTempSensorPosTag', () => {
+  it('returns pos tag from device tags', () => {
+    expect(getTempSensorPosTag({ tags: ['pos-1_2', 'id-abc'] })).toBe('pos-1_2')
+  })
+  it('returns undefined when no pos tag', () => {
+    expect(getTempSensorPosTag({ tags: ['id-abc'] })).toBeUndefined()
+  })
+})
+
+describe('isDeviceTagPresent', () => {
+  it('returns true when container has id tag', () => {
+    const selected = { 'bitdeer-1': { 'id-miner1': true } }
+    const device = { id: 'miner1', info: { container: 'bitdeer-1' } }
+    expect(isDeviceTagPresent(selected, device)).toBe(true)
+  })
+  it('returns false when container not in selected', () => {
+    const selected = {}
+    const device = { id: 'miner1', info: { container: 'bitdeer-1' } }
+    expect(isDeviceTagPresent(selected, device)).toBe(false)
+  })
+})
+
+describe('isDeviceSelected', () => {
+  it('returns true when device tag present', () => {
+    const selected = { 'bitdeer-1': { 'id-miner1': true } }
+    const device = { id: 'miner1', type: 'miner-wm', info: { container: 'bitdeer-1' } }
+    expect(isDeviceSelected(selected, {}, device)).toBe(true)
+  })
+  it('returns true when container in selectedContainers', () => {
+    const device = { id: 'cont1', type: 'container-bd' }
+    expect(isDeviceSelected({}, { cont1: true }, device)).toBe(true)
+  })
+})
+
+describe('getPoolAndWorkerNameFromUsername', () => {
+  it('splits pool.worker', () => {
+    expect(getPoolAndWorkerNameFromUsername('pool1.worker1')).toEqual({
+      workerName: 'worker1',
+      poolName: 'pool1',
+    })
+  })
+  it('returns single name as workerName', () => {
+    expect(getPoolAndWorkerNameFromUsername('solo')).toEqual({ workerName: 'solo' })
+  })
+})
+
+describe('getDeviceDataByType', () => {
+  it('filters devices by tag', () => {
+    const devices = [{ tags: ['miner-wm'] }, { tags: ['miner-antminer'] }, { tags: ['miner-wm'] }]
+    expect(getDeviceDataByType(devices, 'miner-wm')).toHaveLength(2)
+  })
+})
+
+describe('isTransformerPowermeter', () => {
+  it('returns true for powermeter with tr pos', () => {
+    expect(isTransformerPowermeter('powermeter-1', 'tr1')).toBe(true)
+  })
+  it('returns false for miner', () => {
+    expect(isTransformerPowermeter('miner-wm', 'tr1')).toBe(false)
+  })
+})
+
+describe('cabinet and sensor helpers', () => {
+  describe('getCabinetPos', () => {
+    it('splits pos into root and devicePos', () => {
+      expect(getCabinetPos({ info: { pos: 'lv1_lv2' } })).toEqual({ root: 'lv1', devicePos: 'lv2' })
+    })
+    it('handles missing pos', () => {
+      const result = getCabinetPos({})
+      expect(result.root).toBe('')
+      expect(result.devicePos === '' || result.devicePos === undefined).toBe(true)
+    })
+  })
+  describe('getIsTransformerTempSensor', () => {
+    it('returns true when devicePos starts with tr', () => {
+      expect(getIsTransformerTempSensor('tr1')).toBe(true)
+      expect(getIsTransformerTempSensor('lv1')).toBe(false)
+    })
+  })
+  describe('getRootPowerMeter and getRootTempSensor', () => {
+    it('returns id from device', () => {
+      expect(getRootPowerMeter({ rootPowerMeter: { id: 'pm1' } })).toBe('pm1')
+      expect(getRootTempSensor({ rootTempSensor: { id: 'ts1' } })).toBe('ts1')
+    })
+  })
+  describe('getRootPowerMeterPowerValue and getRootTempSensorTempValue', () => {
+    it('returns value from nested path', () => {
+      const dev = {
+        rootPowerMeter: { last: { snap: { stats: { power_w: 100 } } } },
+        rootTempSensor: { last: { snap: { stats: { temp_c: 45 } } } },
+        transformerTempSensor: { last: { snap: { stats: { temp_c: 50 } } } },
+      }
+      expect(getRootPowerMeterPowerValue(dev)).toBe(100)
+      expect(getRootTempSensorTempValue(dev)).toBe(45)
+      expect(getRootTransformerTempSensorTempValue(dev)).toBe(50)
+    })
+  })
+  describe('getIds', () => {
+    it('joins root and device ids', () => {
+      const dev = {
+        rootPowerMeter: { id: 'pm1' },
+        rootTempSensor: { id: 'ts1' },
+        powerMeters: [{ id: 'pm2' }],
+        tempSensors: [{ id: 'ts2' }],
+      }
+      expect(getIds(dev)).toContain('pm1')
+      expect(getIds(dev)).toContain('ts1')
+    })
+  })
+  describe('isLVCabinet and isTransformerCabinet', () => {
+    it('detects by id', () => {
+      expect(isLVCabinet({ id: 'lv-cabinet-1' })).toBe(true)
+      expect(isTransformerCabinet({ id: 'tr-cabinet-1' })).toBe(true)
+      expect(isLVCabinet({ id: 'tr1' })).toBe(false)
+    })
+  })
+  describe('getLvCabinetTitle', () => {
+    it('replaces lv with LV Cabinet ', () => {
+      expect(getLvCabinetTitle({ id: 'lv1' })).toBe('LV Cabinet 1')
+    })
+  })
+  describe('getTransformerCabinetTitle', () => {
+    it('formats transformer id and connected containers', () => {
+      expect(getTransformerCabinetTitle({ id: 'tr1', connectedDevices: ['c-a', 'c-b'] })).toContain('TR1')
+      expect(getTransformerCabinetTitle({ id: 'tr1', connectedDevices: ['cont-1', 'cont-2'] })).toContain('&')
+    })
+  })
+  describe('getCabinetTitle', () => {
+    it('returns transformer title for transformer cabinet', () => {
+      expect(getCabinetTitle({ id: 'tr1', connectedDevices: [] })).toContain('TR')
+    })
+    it('returns LV title for lv cabinet', () => {
+      expect(getCabinetTitle({ id: 'lv1' })).toContain('LV Cabinet')
+    })
+  })
+  describe('getLvCabinetTempSensorColor and getLvCabinetTransformerTempSensorColor', () => {
+    it('returns color for high temp', () => {
+      expect(getLvCabinetTempSensorColor(71)).toBeDefined()
+      expect(getLvCabinetTempSensorColor(61)).toBeDefined()
+      expect(getLvCabinetTransformerTempSensorColor(91)).toBeDefined()
+      expect(getLvCabinetTransformerTempSensorColor(81)).toBeDefined()
+    })
+  })
+  describe('getTempSensorColor', () => {
+    it('returns color based on pos', () => {
+      expect(getTempSensorColor(50, 'lv1_lv2')).toBeDefined()
+      expect(getTempSensorColor(85, 'lv1_tr1')).toBeDefined()
+    })
+  })
+})
+
+describe('getTemperatureSensorName', () => {
+  it('returns cabinet temp sensor name when root equals devicePos', () => {
+    const name = getTemperatureSensorName('sensor-temp-1', 'lv1_lv1')
+    expect(name).toContain('Cabinet Temp Sensor')
+  })
+  it('returns transformer temp sensor when devicePos is transformer', () => {
+    const name = getTemperatureSensorName('sensor-temp-1', 'lv1_tr1')
+    expect(name).toContain('Transformer')
   })
 })

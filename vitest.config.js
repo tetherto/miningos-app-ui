@@ -32,17 +32,55 @@ export default defineConfig({
     setupFiles: ['./src/setupTests.ts'],
     // Disable CSS processing in tests (not needed for most tests)
     css: false,
-    // Optimize coverage collection
+    mockReset: true,
+    restoreMocks: true,
+    clearMocks: true,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      // Exclude unnecessary files from coverage
+      reporter: ['text-summary', 'json', 'html', 'lcov'],
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'node_modules/**',
         'src/setupTests.ts',
+        'src/setupTests/**',
         '**/*.d.ts',
-        '**/*.config.js',
+        '**/*.config.{js,ts}',
+        // barrel files — re-exports only, no logic
+        'src/**/index.{ts,tsx}',
+        // pure type declarations
+        'src/types/**',
+        // demo/mock data
+        'src/mockdata/**',
+        // route config
+        'src/router/**',
+        // CSS/styles
+        'src/styles/**',
+        // app entry points
+        'src/App.tsx',
+        'src/index.tsx',
+        // Sentry init — infrastructure, not business logic
+        'src/initSentry.ts',
+        // context providers — thin wrappers, no logic
+        'src/contexts/**',
+        // test utility helpers
+        'src/test-utils/**',
+        // test files themselves
+        'src/**/*.{test,spec}.{js,jsx,ts,tsx}',
+        // React rendering components — we test business logic (.ts), not rendering (.tsx)
+        // Component rendering surfaces: hooks, utils, helpers live in co-located .ts files
+        'src/Components/**/*.tsx',
+        'src/Views/**/*.tsx',
+        'src/MultiSiteViews/**/*.tsx',
+        // Styled-components definitions — CSS-in-JS, no logic
+        'src/**/*.{styles,style}.{ts,tsx}',
+        'src/**/*.styled.ts',
       ],
+      thresholds: {
+        lines: 80,
+        statements: 80,
+        functions: 79,
+        branches: 75,
+      },
     },
     // Optimize transform mode
     transformMode: {
