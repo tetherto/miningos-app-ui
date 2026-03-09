@@ -36,6 +36,13 @@ export default defineConfig({
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html'],
+      // Fail if coverage is below 80% 
+      thresholds: {
+        lines: 80,
+        functions: 80,
+        branches: 80,
+        statements: 80,
+      },
       // Exclude unnecessary files from coverage
       exclude: [
         'node_modules/**',
