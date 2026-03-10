@@ -71,17 +71,17 @@
   {
     "slug": "container-telemetry",
     "method": "GET",
-    "path": "/auth/containers/:id/telemetry",
+    "path": "/auth/metrics/containers/:id",
     "priority": "P1",
-    "description": "Container detail — PDU socket mapping, tank/pump data, temperature ranges",
+    "description": "Container detail — miners list, sensor telemetry snapshot",
     "queryParams": {
       "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
     },
     "pathParams": {
       ":id": "{{containerId}}"
     },
-    "expectedResponseKeys": ["telemetry"],
-    "reviewed": false
+    "expectedResponseKeys": ["id", "miners", "telemetry"],
+    "reviewed": true
   },
   {
     "slug": "cabinets",

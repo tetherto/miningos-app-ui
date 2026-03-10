@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/auth/containers/{{containerId}}/telemetry?siteId=999
+  url: {{baseUrl}}/auth/metrics/containers/{{containerId}}?siteId=999
   body: none
   auth: bearer
 }
@@ -20,6 +20,8 @@ tests {
   });
 
   test("response matches normal shape (no cross-tenant data)", function() {
+    expect(res.body).to.have.property('id');
+    expect(res.body).to.have.property('miners');
     expect(res.body).to.have.property('telemetry');
   });
 }
