@@ -15,7 +15,7 @@
   {
     "slug": "site-alerts",
     "method": "GET",
-    "path": "/auth/site/alerts",
+    "path": "/auth/alerts/site",
     "priority": "P0",
     "description": "Current alerts — devices with active alerts, severity-bucketed lists, summary",
     "queryParams": {
@@ -28,7 +28,7 @@
     },
     "pathParams": {},
     "expectedResponseKeys": ["alerts", "summary"],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "slug": "miners",
@@ -65,8 +65,8 @@
       "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
     },
     "pathParams": {},
-    "expectedResponseKeys": ["containers", "summary"],
-    "reviewed": false
+    "expectedResponseKeys": ["containers", "total"],
+    "reviewed": true
   },
   {
     "slug": "container-telemetry",

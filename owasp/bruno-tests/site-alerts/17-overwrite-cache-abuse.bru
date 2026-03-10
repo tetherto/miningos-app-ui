@@ -1,0 +1,25 @@
+meta {
+  name: [17] Resource — overwriteCache Abuse
+  type: http
+  seq: 17
+}
+
+get {
+  url: {{baseUrl}}/auth/alerts/site?filter={}&sort={}&offset=0&limit=100&overwriteCache=true
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}
+
+tests {
+  test("returns 200 (cache bypass accepted) or 400 (blocked)", function() {
+    expect(res.status).to.be.oneOf([200, 400]);
+  });
+
+  test("response time under 15s while bypassing cache", function() {
+    expect(res.responseTime).to.be.below(15000);
+  });
+}
