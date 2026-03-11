@@ -1,8 +1,6 @@
 import { renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
-import { PERIOD } from '@/constants/ranges'
-
 import {
   processTransactionData,
   processTailLogData,
@@ -21,6 +19,8 @@ import {
   useRevenueSummaryData,
 } from '../useRevenueSummaryData'
 
+import { PERIOD } from '@/constants/ranges'
+
 vi.mock('../documentationMocks', () => ({
   USE_DOCUMENTATION_MOCKS: false,
   mockBlockSizesDataFromDoc: undefined,
@@ -34,10 +34,10 @@ vi.mock('../documentationMocks', () => ({
 }))
 
 vi.mock('@/app/services/api', () => ({
-  useGetExtDataQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
-  useGetGlobalDataQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
-  useGetSiteQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
-  useGetTailLogRangeAggrQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
+  useGetExtDataQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
+  useGetGlobalDataQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
+  useGetSiteQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
+  useGetTailLogRangeAggrQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
 }))
 
 vi.mock('@/hooks/useTimezone', () => ({
@@ -124,7 +124,14 @@ describe('processHistoricalPrices', () => {
 
   it('groups prices by day and averages them', () => {
     const ts = day(1)
-    const res = { data: [[{ ts, priceUSD: 60000 }, { ts: ts + 3600000, priceUSD: 62000 }]] }
+    const res = {
+      data: [
+        [
+          { ts, priceUSD: 60000 },
+          { ts: ts + 3600000, priceUSD: 62000 },
+        ],
+      ],
+    }
     const result = processHistoricalPrices(res as never)
     expect(result.length).toBe(1)
     expect(result[0].priceUSD).toBeCloseTo(61000)
@@ -143,7 +150,10 @@ describe('getNumberOfPeriods', () => {
   })
 
   it('returns days in month for monthly period', () => {
-    const result = getNumberOfPeriods({ start: new Date('2025-06-01').getTime(), end: 0 }, PERIOD.MONTHLY)
+    const result = getNumberOfPeriods(
+      { start: new Date('2025-06-01').getTime(), end: 0 },
+      PERIOD.MONTHLY,
+    )
     expect(result).toBe(30)
   })
 
@@ -185,14 +195,24 @@ describe('calculateDailyRevenueRatios', () => {
 
 describe('calculateAvgRevenueMetrics', () => {
   it('returns zeros when dailyRatios is empty', () => {
-    const result = calculateAvgRevenueMetrics([], { start: day(1), end: day(7) }, PERIOD.WEEKLY, 60000)
+    const result = calculateAvgRevenueMetrics(
+      [],
+      { start: day(1), end: day(7) },
+      PERIOD.WEEKLY,
+      60000,
+    )
     expect(result.avgEnergyRevenue).toBe(0)
     expect(result.avgHashRevenue).toBe(0)
   })
 
   it('returns non-zero metrics with valid ratios', () => {
     const ratios = [{ dayTs: day(1), energyRatio: 1000, hashRatio: 0.001 }]
-    const result = calculateAvgRevenueMetrics(ratios, { start: day(1), end: day(7) }, PERIOD.WEEKLY, 60000)
+    const result = calculateAvgRevenueMetrics(
+      ratios,
+      { start: day(1), end: day(7) },
+      PERIOD.WEEKLY,
+      60000,
+    )
     expect(result.avgEnergyRevenue).toBeGreaterThan(0)
     expect(result.avgHashRevenue).toBeGreaterThan(0)
     expect(result.avgEnergyRevenueSats).toBeGreaterThan(0)
@@ -201,7 +221,12 @@ describe('calculateAvgRevenueMetrics', () => {
 
   it('returns zero sats when avgBTCPrice is 0', () => {
     const ratios = [{ dayTs: day(1), energyRatio: 1000, hashRatio: 0.001 }]
-    const result = calculateAvgRevenueMetrics(ratios, { start: day(1), end: day(7) }, PERIOD.WEEKLY, 0)
+    const result = calculateAvgRevenueMetrics(
+      ratios,
+      { start: day(1), end: day(7) },
+      PERIOD.WEEKLY,
+      0,
+    )
     expect(result.avgEnergyRevenueSats).toBe(0)
     expect(result.avgHashRevenueSats).toBe(0)
   })
@@ -261,7 +286,11 @@ describe('calculateAvgPowerConsumption', () => {
       [day(1)]: { ts: day(1), hashrateMHS: 0, sitePowerW: 1000 },
       [day(2)]: { ts: day(2), hashrateMHS: 0, sitePowerW: 3000 },
     }
-    const result = calculateAvgPowerConsumption(data, { start: day(1), end: day(7) + DAY_MS * 365 }, PERIOD.YEARLY)
+    const result = calculateAvgPowerConsumption(
+      data,
+      { start: day(1), end: day(7) + DAY_MS * 365 },
+      PERIOD.YEARLY,
+    )
     expect(result).toBeGreaterThanOrEqual(0)
   })
 
@@ -292,7 +321,11 @@ describe('calculateAvgHashrate', () => {
     const data = {
       [day(1)]: { ts: day(1), hashrateMHS: 1000, sitePowerW: 0 },
     }
-    const result = calculateAvgHashrate(data, { start: day(1), end: day(7) + DAY_MS * 365 }, PERIOD.YEARLY)
+    const result = calculateAvgHashrate(
+      data,
+      { start: day(1), end: day(7) + DAY_MS * 365 },
+      PERIOD.YEARLY,
+    )
     expect(result).toBeGreaterThanOrEqual(0)
   })
 
@@ -320,9 +353,7 @@ describe('processElectricityData', () => {
   })
 
   it('skips entries with missing ts or usedEnergy', () => {
-    const data = [
-      [{ ts: day(1), energy: {} }, { energy: { usedEnergy: 50 } }],
-    ] as never
+    const data = [[{ ts: day(1), energy: {} }, { energy: { usedEnergy: 50 } }]] as never
     const result = processElectricityData(data)
     expect(result.length).toBe(0)
   })
@@ -349,11 +380,7 @@ describe('extractAvgHashrateFromAggregatedResponse', () => {
 
   it('extracts and calculates average hashrate', () => {
     const res = {
-      data: [
-        [
-          { type: 'miner', data: { hashrate_mhs_5m_sum_aggr: 10000000, aggrIntervals: 10 } },
-        ],
-      ],
+      data: [[{ type: 'miner', data: { hashrate_mhs_5m_sum_aggr: 10000000, aggrIntervals: 10 } }]],
     }
     const result = extractAvgHashrateFromAggregatedResponse(res as never)
     expect(result).toBe(1000000)
@@ -361,11 +388,7 @@ describe('extractAvgHashrateFromAggregatedResponse', () => {
 
   it('returns 0 when aggrIntervals is 0', () => {
     const res = {
-      data: [
-        [
-          { type: 'miner', data: { hashrate_mhs_5m_sum_aggr: 10000000, aggrIntervals: 0 } },
-        ],
-      ],
+      data: [[{ type: 'miner', data: { hashrate_mhs_5m_sum_aggr: 10000000, aggrIntervals: 0 } }]],
     }
     expect(extractAvgHashrateFromAggregatedResponse(res as never)).toBe(0)
   })
@@ -378,11 +401,7 @@ describe('extractAvgPowerConsumptionFromAggregatedResponse', () => {
 
   it('extracts and calculates average power consumption', () => {
     const res = {
-      data: [
-        [
-          { type: 'powermeter', data: { site_power_w: 5000000, aggrIntervals: 10 } },
-        ],
-      ],
+      data: [[{ type: 'powermeter', data: { site_power_w: 5000000, aggrIntervals: 10 } }]],
     }
     const result = extractAvgPowerConsumptionFromAggregatedResponse(res as never)
     expect(result).toBe(500000)
@@ -390,11 +409,7 @@ describe('extractAvgPowerConsumptionFromAggregatedResponse', () => {
 
   it('returns 0 when aggrIntervals is 0', () => {
     const res = {
-      data: [
-        [
-          { type: 'powermeter', data: { site_power_w: 5000000, aggrIntervals: 0 } },
-        ],
-      ],
+      data: [[{ type: 'powermeter', data: { site_power_w: 5000000, aggrIntervals: 0 } }]],
     }
     expect(extractAvgPowerConsumptionFromAggregatedResponse(res as never)).toBe(0)
   })

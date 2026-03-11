@@ -48,7 +48,7 @@ const initialState: DevicesState = {
   selectedLvCabinets: {},
 }
 
-const mockState = (devices: DevicesState): RootState => ({ devices } as RootState)
+const mockState = (devices: DevicesState): RootState => ({ devices }) as RootState
 
 describe('devicesSlice', () => {
   describe('initial state', () => {
@@ -76,10 +76,7 @@ describe('devicesSlice', () => {
     })
 
     it('selectMultipleContainers adds several containers', () => {
-      const state = reducer(
-        initialState,
-        selectMultipleContainers([{ id: 'c1' }, { id: 'c2' }]),
-      )
+      const state = reducer(initialState, selectMultipleContainers([{ id: 'c1' }, { id: 'c2' }]))
       expect(state.selectedContainers['c1']).toBeDefined()
       expect(state.selectedContainers['c2']).toBeDefined()
     })
@@ -133,10 +130,7 @@ describe('devicesSlice', () => {
 
     it('setMultipleSelectedDevices adds only new devices', () => {
       const pre = reducer(initialState, setSelectDevice({ id: 'd1' }))
-      const state = reducer(
-        pre,
-        setMultipleSelectedDevices([{ id: 'd1' }, { id: 'd2' }]),
-      )
+      const state = reducer(pre, setMultipleSelectedDevices([{ id: 'd1' }, { id: 'd2' }]))
       expect(state.selectedDevices).toHaveLength(2)
       expect(state.selectedDevices.map((d) => d.id)).toContain('d2')
     })
@@ -148,10 +142,7 @@ describe('devicesSlice', () => {
     })
 
     it('removeSelectedDevice removes a device by id', () => {
-      const pre = reducer(
-        initialState,
-        setSelectedDevices([{ id: 'd1' }, { id: 'd2' }]),
-      )
+      const pre = reducer(initialState, setSelectedDevices([{ id: 'd1' }, { id: 'd2' }]))
       const state = reducer(pre, removeSelectedDevice('d1'))
       expect(state.selectedDevices.map((d) => d.id)).toEqual(['d2'])
     })
@@ -201,10 +192,7 @@ describe('devicesSlice', () => {
     }
 
     it('setSelectedSockets replaces all sockets', () => {
-      const state = reducer(
-        initialState,
-        setSelectedSockets({ c1: { sockets: [socket] } }),
-      )
+      const state = reducer(initialState, setSelectedSockets({ c1: { sockets: [socket] } }))
       expect(state.selectedSockets['c1'].sockets).toHaveLength(1)
     })
 
@@ -228,15 +216,15 @@ describe('devicesSlice', () => {
     })
 
     it('removeSelectedSocket does nothing when container not found', () => {
-      const state = reducer(initialState, removeSelectedSocket({ containerId: 'missing', minerId: 'm1' }))
+      const state = reducer(
+        initialState,
+        removeSelectedSocket({ containerId: 'missing', minerId: 'm1' }),
+      )
       expect(state.selectedSockets).toEqual({})
     })
 
     it('setMultipleSelectedSockets adds sockets, deduplicating by pduIndex+socketIndex', () => {
-      const state = reducer(
-        initialState,
-        setMultipleSelectedSockets([socket, socket]),
-      )
+      const state = reducer(initialState, setMultipleSelectedSockets([socket, socket]))
       expect(state.selectedSockets['c1'].sockets).toHaveLength(1)
     })
 
@@ -285,10 +273,7 @@ describe('devicesSlice', () => {
 
   describe('selectDeviceTag', () => {
     it('adds a tag without container to NO_CONTAINER_KEY', () => {
-      const state = reducer(
-        initialState,
-        selectDeviceTag({ id: 'miner-1', info: {} }),
-      )
+      const state = reducer(initialState, selectDeviceTag({ id: 'miner-1', info: {} }))
       expect(state.selectedDevicesTags[NO_CONTAINER_KEY]?.['id-miner-1']).toEqual({
         isPosTag: false,
         minerId: 'miner-1',
@@ -326,7 +311,10 @@ describe('devicesSlice', () => {
     })
 
     it('removes container-based tag and cleans up empty container', () => {
-      const pre = reducer(initialState, selectDeviceTag({ id: 'm1', info: { container: 'cont-1' } }))
+      const pre = reducer(
+        initialState,
+        selectDeviceTag({ id: 'm1', info: { container: 'cont-1' } }),
+      )
       const state = reducer(pre, removeDeviceTag({ id: 'm1', info: { container: 'cont-1' } }))
       expect(state.selectedDevicesTags['cont-1']).toBeUndefined()
     })
@@ -336,7 +324,10 @@ describe('devicesSlice', () => {
         initialState,
         selectDeviceTag({ id: 'm1', info: { container: 'cont-1', pos: 'B2' } }),
       )
-      const state = reducer(pre, removeDeviceTag({ id: 'm1', info: { container: 'cont-1', pos: 'B2' } }))
+      const state = reducer(
+        pre,
+        removeDeviceTag({ id: 'm1', info: { container: 'cont-1', pos: 'B2' } }),
+      )
       expect(state.selectedDevicesTags['cont-1']?.['pos-B2']).toBeUndefined()
     })
 

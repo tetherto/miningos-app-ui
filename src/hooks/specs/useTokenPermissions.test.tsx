@@ -1,17 +1,20 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { describe, expect, it, vi } from 'vitest'
 
-import { useTokenPermissions, useCheckPerm, useIsRevenueReportEnabled, useIsFeatureEditingEnabled } from '../usePermissions'
+import {
+  useTokenPermissions,
+  useCheckPerm,
+  useIsRevenueReportEnabled,
+  useIsFeatureEditingEnabled,
+} from '../usePermissions'
 
 import { authSlice } from '@/app/slices/authSlice'
 
 const mockUnwrap = vi.fn().mockResolvedValue({ permissions: {} })
 vi.mock('@/app/services/api', () => ({
-  useLazyGetUserPermissionsQuery: () => [
-    vi.fn().mockReturnValue({ unwrap: () => mockUnwrap() }),
-  ],
+  useLazyGetUserPermissionsQuery: () => [vi.fn().mockReturnValue({ unwrap: () => mockUnwrap() })],
 }))
 
 const createWrapper = () => {
@@ -34,7 +37,9 @@ describe('useTokenPermissions', () => {
 
 describe('useCheckPerm', () => {
   it('returns boolean', () => {
-    const { result } = renderHook(() => useCheckPerm({ perm: 'read' }), { wrapper: createWrapper() })
+    const { result } = renderHook(() => useCheckPerm({ perm: 'read' }), {
+      wrapper: createWrapper(),
+    })
     expect(typeof result.current).toBe('boolean')
   })
 })

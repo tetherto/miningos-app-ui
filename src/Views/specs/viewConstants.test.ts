@@ -1,15 +1,21 @@
 import { describe, it, expect, vi } from 'vitest'
 
-vi.mock('@/Components/Explorer/List/Container.table', () => ({ getContainerTableColumns: vi.fn(() => []) }))
-vi.mock('@/Components/Explorer/List/LvCabinet.table', () => ({ getLvCabinetTableColumns: vi.fn(() => []) }))
-vi.mock('@/Components/Explorer/List/Miners.table', () => ({ getMinersTableColumns: vi.fn(() => []) }))
+vi.mock('@/Components/Explorer/List/Container.table', () => ({
+  getContainerTableColumns: vi.fn(() => []),
+}))
+vi.mock('@/Components/Explorer/List/LvCabinet.table', () => ({
+  getLvCabinetTableColumns: vi.fn(() => []),
+}))
+vi.mock('@/Components/Explorer/List/Miners.table', () => ({
+  getMinersTableColumns: vi.fn(() => []),
+}))
 
+import { ALERTS_FILTER_OPTIONS } from '../Alerts/TagFilterBar/TagFilterBar.const'
+import { getPosHistory } from '../Container/Tabs/PduTab/PositionChangeDialog/PositionChangeDialog.utils'
 import { TAGS_LABEL } from '../ContainersChart/ContainerCharts.constants'
 import { getExplorerFilterTabs, SetPowerModeValues } from '../Explorer/Explorer.constants'
-import { ALERTS_FILTER_OPTIONS } from '../Alerts/TagFilterBar/TagFilterBar.const'
 import { DEVICE_PATHS } from '../LVCabinetWidgets/LVCabinetWidgets.constants'
 import { ENERGY_REPORT_TABS, MINER_MODES } from '../Reports/EnergyReport/EnergyReport.constants'
-import { getPosHistory } from '../Container/Tabs/PduTab/PositionChangeDialog/PositionChangeDialog.utils'
 
 describe('ContainerCharts.constants', () => {
   it('exports TAGS_LABEL with device type labels', () => {
@@ -61,7 +67,7 @@ describe('EnergyReport.constants', () => {
 
 describe('Explorer.constants', () => {
   it('getExplorerFilterTabs returns an array of tab configs', () => {
-    const formatDate = (d: Date) => d.toISOString()
+    const formatDate = (d: number | Date) => new Date(d).toISOString()
     const tabs = getExplorerFilterTabs(formatDate)
     expect(Array.isArray(tabs)).toBe(true)
     expect(tabs.length).toBeGreaterThan(0)

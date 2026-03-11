@@ -1,10 +1,11 @@
+import { ACTIONS_SIDEBAR_TYPES } from '../../Components/ActionsSidebar/ActionsSidebar.types'
+
 import {
   actionsSidebarSlice,
   selectIsActionsSidebarOpen,
   selectCurrentActionsData,
   selectIsActionsSidebarPinned,
 } from './actionsSidebarSlice'
-import { ACTIONS_SIDEBAR_TYPES } from '../../Components/ActionsSidebar/ActionsSidebar.types'
 
 import type { ActionsSidebarState, RootState } from '@/types/redux.d'
 
@@ -13,7 +14,7 @@ const { setIsActionsSidebarOpen, setCurrentActionsData, setIsActionsSidebarPinne
 const reducer = actionsSidebarSlice.reducer
 
 const mockState = (actionsSidebar: ActionsSidebarState): RootState =>
-  ({ actionsSidebar } as RootState)
+  ({ actionsSidebar }) as RootState
 
 describe('actionsSidebarSlice', () => {
   describe('initial state', () => {

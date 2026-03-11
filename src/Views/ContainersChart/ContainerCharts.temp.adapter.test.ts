@@ -117,7 +117,10 @@ describe('getOverviewChartTempAdapter', () => {
     it('sets timeRange from first and last entry timestamps', () => {
       const entries: ChartEntry[] = [
         makeEntry(BITDEER_DEVICE, { hot_temp_c_w_1_group: 50 }),
-        { ts: 1700003600, container_specific_stats_group_aggr: { [BITDEER_DEVICE]: { hot_temp_c_w_1_group: 52 } } },
+        {
+          ts: 1700003600,
+          container_specific_stats_group_aggr: { [BITDEER_DEVICE]: { hot_temp_c_w_1_group: 52 } },
+        },
       ]
       const result = getOverviewChartTempAdapter('hot')(entries)
       expect(result.timeRange).not.toBeNull()
@@ -134,7 +137,10 @@ describe('getOverviewChartTempAdapter', () => {
     it('accumulates data points across multiple entries for same device', () => {
       const entries: ChartEntry[] = [
         makeEntry(BITDEER_DEVICE, { hot_temp_c_w_1_group: 50 }),
-        { ts: 1700003600, container_specific_stats_group_aggr: { [BITDEER_DEVICE]: { hot_temp_c_w_1_group: 55 } } },
+        {
+          ts: 1700003600,
+          container_specific_stats_group_aggr: { [BITDEER_DEVICE]: { hot_temp_c_w_1_group: 55 } },
+        },
       ]
       const result = getOverviewChartTempAdapter('hot')(entries)
       const tank1Dataset = result.datasets.find((d) => d.label.includes('Tank-1'))

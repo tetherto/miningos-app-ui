@@ -1,6 +1,6 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { describe, expect, it, vi } from 'vitest'
 
 import { useSiteOperationsBase } from '../useSiteOperationsBase'
@@ -12,9 +12,10 @@ vi.mock('../useMultiSiteDateRange', () => ({
     timeframeType: 'daily',
   }),
 }))
+
 const mockUseMultiSiteMode = vi.fn(() => ({
-  site: null,
-  siteId: null,
+  site: null as unknown,
+  siteId: null as unknown,
   isLoading: false,
   siteSelectOptions: [],
 }))
@@ -22,12 +23,14 @@ const mockUseMultiSiteMode = vi.fn(() => ({
 vi.mock('../useMultiSiteMode', () => ({
   useMultiSiteMode: () => mockUseMultiSiteMode(),
 }))
+
 vi.mock('../useMultiSiteRTRequestParams', () => ({
   __esModule: true,
   default: () => ({
     buildRequestParams: (params: unknown) => params,
   }),
 }))
+
 vi.mock('../MultiSiteViews/SiteOperations/SiteOperations.helper', () => ({
   getSiteOperationConfigStart: () => 0,
   getSiteOperationConfigEnd: () => 1000,

@@ -30,7 +30,8 @@ describe('containerTypes', () => {
     it('isMicroBT', () => expect(isMicroBT('container-mbt-kehua')).toBe(true))
     it('isAntspaceHydro', () => expect(isAntspaceHydro('container-as-hk3')).toBe(true))
     it('isMicroBTKehua', () => expect(isMicroBTKehua('container-mbt-kehua')).toBe(true))
-    it('isAntspaceImmersion', () => expect(isAntspaceImmersion('container-as-immersion')).toBe(true))
+    it('isAntspaceImmersion', () =>
+      expect(isAntspaceImmersion('container-as-immersion')).toBe(true))
     it('isBitmainImmersion', () => expect(isBitmainImmersion('bitmain-immersion')).toBe(true))
   })
   describe('container type guards', () => {

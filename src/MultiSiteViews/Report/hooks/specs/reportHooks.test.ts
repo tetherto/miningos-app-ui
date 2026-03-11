@@ -16,16 +16,18 @@ const mockFns = vi.hoisted(() => ({
   })),
 }))
 
-const mockGetReportsQuery = vi.fn(() => ({
-  data: { regions: [] },
-  isLoading: false,
-  isFetching: false,
-  error: null,
-  refetch: vi.fn(),
+const { mockGetReportsQuery } = vi.hoisted(() => ({
+  mockGetReportsQuery: vi.fn(() => ({
+    data: { regions: [] } as unknown,
+    isLoading: false,
+    isFetching: false,
+    error: null,
+    refetch: vi.fn(),
+  })),
 }))
 
 vi.mock('@/app/services/api', () => ({
-  useGetReportsQuery: (...args: unknown[]) => mockGetReportsQuery(...args),
+  useGetReportsQuery: mockGetReportsQuery,
 }))
 
 const useGetReportsQuery = mockGetReportsQuery
@@ -186,7 +188,7 @@ describe('useReportData', () => {
 
   it('hasData is false when reportData is undefined', () => {
     useGetReportsQuery.mockReturnValueOnce({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: false,
       isFetching: false,
       error: null,

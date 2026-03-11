@@ -5,8 +5,8 @@ import { describe, expect, it, vi } from 'vitest'
 import { getCombinedHashpriceData, getMetrics, useHashCostData } from '../useHashCostData'
 
 vi.mock('@/app/services/api', () => ({
-  useGetRevenueQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
-  useGetBtcDataHashPriceQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
+  useGetRevenueQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
+  useGetBtcDataHashPriceQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
 }))
 vi.mock('../useMultiSiteRTRequestParams', () => ({
   default: () => ({ buildRequestParams: (p: unknown) => p, isLoading: false }),
@@ -120,7 +120,9 @@ describe('useHashCostData', () => {
     })
 
     it('handles null cost/revenue values with ?? null fallback', () => {
-      const revenueData = [{ ts: '2024-01-15', hashCostUSD_PHS_d: null, hashRevenueUSD_PHS_d: null }]
+      const revenueData = [
+        { ts: '2024-01-15', hashCostUSD_PHS_d: null, hashRevenueUSD_PHS_d: null },
+      ]
       const result = getCombinedHashpriceData(revenueData as never, [])
       expect(result).toHaveLength(1)
       expect(result[0].cost).toBeNull()
@@ -129,15 +131,15 @@ describe('useHashCostData', () => {
   })
 
   describe('useHashCostData', () => {
-    const createWrapper = (siteId = 'site-1') => {
-      return ({ children }: { children: React.ReactNode }) => (
+    const createWrapper =
+      (siteId = 'site-1') =>
+      ({ children }: { children: React.ReactNode }) => (
         <MemoryRouter initialEntries={[`/sites/${siteId}`]}>
           <Routes>
             <Route path="/sites/:siteId" element={children} />
           </Routes>
         </MemoryRouter>
       )
-    }
 
     it('returns isLoading, data, and metrics', () => {
       const { result } = renderHook(
@@ -150,10 +152,9 @@ describe('useHashCostData', () => {
     })
 
     it('skips queries when dateRange has no start or end', () => {
-      const { result } = renderHook(
-        () => useHashCostData({ dateRange: {} }),
-        { wrapper: createWrapper() },
-      )
+      const { result } = renderHook(() => useHashCostData({ dateRange: {} }), {
+        wrapper: createWrapper(),
+      })
       expect(result.current.isLoading).toBe(false)
     })
   })

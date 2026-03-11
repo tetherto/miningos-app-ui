@@ -14,6 +14,7 @@ import {
   getContainerMinersPosition,
   getContainerSettingsModel,
 } from '../containerPdu'
+
 import { COMPLETE_CONTAINER_TYPE } from '@/constants/containerConstants'
 
 describe('containerPdu', () => {
@@ -76,7 +77,9 @@ describe('containerPdu', () => {
       expect(getConnectedMinerForSocket(devices as never, 'pdu1', 's1')).toBeDefined()
     })
     it('returns device when microbt pos matches', () => {
-      const devices = [{ type: 'miner-wm', info: { container: 'container-mbt-kehua', pos: 'pdu1_s1' } }]
+      const devices = [
+        { type: 'miner-wm', info: { container: 'container-mbt-kehua', pos: 'pdu1_s1' } },
+      ]
       expect(getConnectedMinerForSocket(devices as never, 'pdu1', 's1')).toBeDefined()
     })
   })
@@ -84,7 +87,12 @@ describe('containerPdu', () => {
   describe('getNumberSelected', () => {
     it('counts containers and sockets', () => {
       const selected = {
-        c1: { sockets: [{ socket: 's1', enabled: true }, { socket: 's2', enabled: true }] },
+        c1: {
+          sockets: [
+            { socket: 's1', enabled: true },
+            { socket: 's2', enabled: true },
+          ],
+        },
         c2: { sockets: [{ socket: 's1', enabled: true }] },
       }
       const result = getNumberSelected(selected)
@@ -120,7 +128,13 @@ describe('containerPdu', () => {
   describe('getTotalSockets', () => {
     it('sums socket count across pdus', () => {
       const pduData = [
-        { pdu: 'p1', sockets: [{ socket: 'a', enabled: true }, { socket: 'b', enabled: true }] },
+        {
+          pdu: 'p1',
+          sockets: [
+            { socket: 'a', enabled: true },
+            { socket: 'b', enabled: true },
+          ],
+        },
         { pdu: 'p2', sockets: [{ socket: 'c', enabled: true }] },
       ]
       expect(getTotalSockets(pduData)).toBe(3)

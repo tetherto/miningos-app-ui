@@ -1,6 +1,6 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { describe, expect, it, vi } from 'vitest'
 
 import { useAverageBtcPrice } from '../useAverageBtcPrice'
@@ -8,15 +8,18 @@ import { useAverageBtcPrice } from '../useAverageBtcPrice'
 import { multiSiteSlice } from '@/app/slices/multiSiteSlice'
 
 vi.mock('@/app/services/api', () => ({
-  useGetBtcDataPriceQuery: () => ({ data: { summary: { avg: { priceUSD: 50000 } } }, isLoading: false }),
+  useGetBtcDataPriceQuery: () => ({
+    data: { summary: { avg: { priceUSD: 50000 } } },
+    isLoading: false,
+  }),
 }))
 vi.mock('../useMultiSiteRTRequestParams', () => ({
   default: () => ({ buildRequestParams: () => ({}), isLoading: false }),
 }))
 const mockFns = vi.hoisted(() => ({
   useMultiSiteMode: vi.fn(() => ({
-    siteId: undefined,
-    selectedSites: [],
+    siteId: undefined as string | undefined,
+    selectedSites: [] as string[],
     isMultiSiteModeEnabled: true,
   })),
 }))
@@ -28,7 +31,15 @@ vi.mock('../useMultiSiteMode', () => ({
 const createWrapper = () => {
   const store = configureStore({
     reducer: { multiSite: multiSiteSlice.reducer },
-    preloadedState: { multiSite: { siteList: [], selectedSites: [], dateRange: null, timeframeType: null, isManualSelection: false } },
+    preloadedState: {
+      multiSite: {
+        siteList: [],
+        selectedSites: [],
+        dateRange: null,
+        timeframeType: null,
+        isManualSelection: false,
+      },
+    },
   })
   return ({ children }: { children: React.ReactNode }) => (
     <Provider store={store}>{children}</Provider>

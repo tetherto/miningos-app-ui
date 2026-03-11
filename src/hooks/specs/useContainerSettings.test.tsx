@@ -130,7 +130,7 @@ describe('useContainerSettings', () => {
   describe('when container is null', () => {
     it('should skip the query and return null settings', () => {
       mockUseGetContainerSettingsQuery.mockReturnValue({
-        data: undefined,
+        data: undefined as unknown,
         isLoading: false,
         error: undefined,
         refetch: vi.fn(),
@@ -153,7 +153,7 @@ describe('useContainerSettings', () => {
   describe('when container is undefined', () => {
     it('should skip the query and return null settings', () => {
       mockUseGetContainerSettingsQuery.mockReturnValue({
-        data: undefined,
+        data: undefined as unknown,
         isLoading: false,
         error: undefined,
         refetch: vi.fn(),
@@ -181,7 +181,7 @@ describe('useContainerSettings', () => {
       }
 
       mockUseGetContainerSettingsQuery.mockReturnValue({
-        data: undefined,
+        data: undefined as unknown,
         isLoading: false,
         error: undefined,
         refetch: vi.fn(),
@@ -207,7 +207,7 @@ describe('useContainerSettings', () => {
       }
 
       mockUseGetContainerSettingsQuery.mockReturnValue({
-        data: undefined,
+        data: undefined as unknown,
         isLoading: true,
         error: undefined,
         refetch: vi.fn(),
@@ -230,7 +230,7 @@ describe('useContainerSettings', () => {
 
       const mockError = { message: 'Failed to fetch' }
       mockUseGetContainerSettingsQuery.mockReturnValue({
-        data: undefined,
+        data: undefined as unknown,
         isLoading: false,
         error: mockError,
         refetch: vi.fn(),
@@ -310,7 +310,7 @@ describe('useContainerSettings', () => {
       }
 
       mockUseGetContainerSettingsQuery.mockReturnValue({
-        data: undefined,
+        data: undefined as unknown,
         isLoading: false,
         error: undefined,
         refetch: vi.fn(),
@@ -390,7 +390,7 @@ describe('useAllContainerSettings', () => {
 
   it('should handle loading state', () => {
     mockUseGetContainerSettingsQuery.mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: true,
       error: undefined,
     } as unknown as ReturnType<typeof useGetContainerSettingsQuery>)
@@ -406,7 +406,7 @@ describe('useAllContainerSettings', () => {
   it('should handle error state', () => {
     const mockError = { message: 'Failed to fetch' }
     mockUseGetContainerSettingsQuery.mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: false,
       error: mockError,
     } as unknown as ReturnType<typeof useGetContainerSettingsQuery>)
@@ -434,7 +434,7 @@ describe('useAllContainerSettings', () => {
 
   it('should handle undefined data gracefully', () => {
     mockUseGetContainerSettingsQuery.mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: false,
       error: undefined,
     } as unknown as ReturnType<typeof useGetContainerSettingsQuery>)

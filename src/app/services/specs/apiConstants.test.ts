@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 
-import { API_TAG_TYPES, CACHE_CONFIG, QUEUE_CONFIG, API_PATHS } from '../api/constants'
 import { baseQuery } from '../api/baseQuery'
+import { API_TAG_TYPES, CACHE_CONFIG, QUEUE_CONFIG, API_PATHS } from '../api/constants'
 
 describe('api/constants', () => {
   it('exports API_TAG_TYPES array', () => {

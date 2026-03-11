@@ -35,7 +35,14 @@ describe('useMultiSiteDateRange', () => {
   it('uses stored date range when available', () => {
     const storedRange = { start: 1000, end: 2000, period: 'monthly' }
     const { result } = renderHook(() => useMultiSiteDateRange(), {
-      wrapper: createWrapper({ multiSite: { selectedSites: [], isManualSelection: false, dateRange: storedRange, timeframeType: null } }),
+      wrapper: createWrapper({
+        multiSite: {
+          selectedSites: [],
+          isManualSelection: false,
+          dateRange: storedRange,
+          timeframeType: null,
+        },
+      }),
     })
     expect(result.current.dateRange).toEqual(storedRange)
   })
@@ -67,7 +74,14 @@ describe('useMultiSiteDateRange', () => {
   it('onDateRangeReset resets to default range', () => {
     const storedRange = { start: 1000, end: 2000, period: 'weekly' }
     const { result } = renderHook(() => useMultiSiteDateRange(), {
-      wrapper: createWrapper({ multiSite: { selectedSites: [], isManualSelection: false, dateRange: storedRange, timeframeType: null } }),
+      wrapper: createWrapper({
+        multiSite: {
+          selectedSites: [],
+          isManualSelection: false,
+          dateRange: storedRange,
+          timeframeType: null,
+        },
+      }),
     })
     act(() => {
       result.current.onDateRangeReset()

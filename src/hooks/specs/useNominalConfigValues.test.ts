@@ -17,7 +17,7 @@ const mockQuery = useGetGlobalConfigQuery as ReturnType<typeof vi.fn>
 
 describe('useNominalConfigValues', () => {
   it('returns 0 values while loading', () => {
-    mockQuery.mockReturnValue({ data: undefined, isLoading: true })
+    mockQuery.mockReturnValue({ data: undefined as unknown, isLoading: true })
     const { result } = renderHook(() => useNominalConfigValues())
     expect(result.current.isLoading).toBe(true)
     expect(result.current.nominalHashrateMHS).toBe(0)

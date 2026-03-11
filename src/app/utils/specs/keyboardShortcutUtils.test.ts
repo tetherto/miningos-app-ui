@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
 import { getControlSectionsTooltips } from '../keyboardShortcutUtils'
+
 import { OsTypes } from '@/constants/platforms'
 
 describe('keyboardShortcutUtils', () => {

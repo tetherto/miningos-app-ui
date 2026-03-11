@@ -5,7 +5,19 @@ import { useMinersStatusChartData } from '../useMinersStatusChartData'
 
 vi.mock('@/app/services/api', () => ({
   useGetTailLogQuery: () => ({
-    data: [[{ ts: 1, online_or_minor_error_miners_amount_aggr: 10, error_miners_amount_aggr: 0, not_mining_miners_amount_aggr: 0, offline_cnt: {}, power_mode_sleep_cnt: {}, maintenance_type_cnt: {} }]],
+    data: [
+      [
+        {
+          ts: 1,
+          online_or_minor_error_miners_amount_aggr: 10,
+          error_miners_amount_aggr: 0,
+          not_mining_miners_amount_aggr: 0,
+          offline_cnt: {},
+          power_mode_sleep_cnt: {},
+          maintenance_type_cnt: {},
+        },
+      ],
+    ],
     isLoading: false,
     isFetching: false,
     error: undefined,

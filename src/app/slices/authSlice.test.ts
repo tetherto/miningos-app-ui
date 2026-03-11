@@ -67,8 +67,7 @@ describe('authSlice', () => {
   })
 
   describe('selectors', () => {
-    const mockState = (auth: AuthState): RootState =>
-      ({ auth } as RootState)
+    const mockState = (auth: AuthState): RootState => ({ auth }) as RootState
 
     describe('selectToken', () => {
       it('returns the current token', () => {

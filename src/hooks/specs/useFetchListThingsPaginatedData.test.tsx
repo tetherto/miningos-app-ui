@@ -6,6 +6,8 @@ import {
   updateThingsData,
 } from '../useFetchListThingsPaginatedData'
 
+import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
+
 const mockUnwrap = vi.fn()
 vi.mock('@/app/services/api', () => ({
   useLazyGetListThingsQuery: () => [
@@ -21,12 +23,11 @@ describe('useFetchListThingsPaginatedData', () => {
   })
 
   it('returns thingsData and isLoading', async () => {
-    const { result } = renderHook(
-      () =>
-        useFetchListThingsPaginatedData({
-          query: '{}',
-          thingsPerRequest: 20,
-        }),
+    const { result } = renderHook(() =>
+      useFetchListThingsPaginatedData({
+        query: '{}',
+        thingsPerRequest: 20,
+      }),
     )
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
@@ -38,13 +39,12 @@ describe('useFetchListThingsPaginatedData', () => {
 
   it('calls lazy query with expected params', async () => {
     mockUnwrap.mockResolvedValue([[{ id: '1', name: 'Thing1' }]])
-    const { result } = renderHook(
-      () =>
-        useFetchListThingsPaginatedData({
-          query: '{"a":1}',
-          fields: '{"id":1}',
-          thingsPerRequest: 10,
-        }),
+    const { result } = renderHook(() =>
+      useFetchListThingsPaginatedData({
+        query: '{"a":1}',
+        fields: '{"id":1}',
+        thingsPerRequest: 10,
+      }),
     )
     await waitFor(() => {
       expect(result.current.isLoading).toBe(false)
@@ -55,8 +55,11 @@ describe('useFetchListThingsPaginatedData', () => {
 
 describe('updateThingsData', () => {
   it('merges new things into previous by id', () => {
-    const prev = [{ id: '1', name: 'Old' }] as unknown[]
-    const things = [{ id: '1', name: 'Updated' }, { id: '2', name: 'New' }] as unknown[]
+    const prev = [{ id: '1', name: 'Old' }] as UnknownRecord[]
+    const things = [
+      { id: '1', name: 'Updated' },
+      { id: '2', name: 'New' },
+    ] as UnknownRecord[]
     const out = updateThingsData(things, prev)
     expect(out).toHaveLength(2)
     expect((out[0] as { id: string; name: string }).name).toBe('Updated')
@@ -64,7 +67,7 @@ describe('updateThingsData', () => {
   })
 
   it('returns copy of prev when things is empty', () => {
-    const prev = [{ id: '1' }] as unknown[]
+    const prev = [{ id: '1' }] as UnknownRecord[]
     const out = updateThingsData([], prev)
     expect(out).toEqual([{ id: '1' }])
   })

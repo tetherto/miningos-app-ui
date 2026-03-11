@@ -5,9 +5,10 @@ vi.mock('@/app/utils/NotificationService', () => ({
   notifySuccess: vi.fn(),
 }))
 
-import { useHeaderControls } from '../useHeaderControls'
-import { notifySuccess } from '@/app/utils/NotificationService'
 import { DEFAULT_HEADER_PREFERENCES } from '../types'
+import { useHeaderControls } from '../useHeaderControls'
+
+import { notifySuccess } from '@/app/utils/NotificationService'
 
 describe('useHeaderControls', () => {
   beforeEach(() => {
@@ -22,7 +23,14 @@ describe('useHeaderControls', () => {
   })
 
   it('loads preferences from localStorage on mount', () => {
-    const stored = { poolMiners: false, mosMiners: true, poolHashrate: true, mosHashrate: false, consumption: true, efficiency: false }
+    const stored = {
+      poolMiners: false,
+      mosMiners: true,
+      poolHashrate: true,
+      mosHashrate: false,
+      consumption: true,
+      efficiency: false,
+    }
     localStorage.setItem('headerControlsPreferences', JSON.stringify(stored))
     const { result } = renderHook(() => useHeaderControls())
     expect(result.current.preferences.poolMiners).toBe(false)

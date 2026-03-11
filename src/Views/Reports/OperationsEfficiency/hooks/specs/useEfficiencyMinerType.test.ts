@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 
 const mockFns = vi.hoisted(() => ({
-  tailLogQuery: vi.fn(() => ({ data: undefined, isLoading: false, isFetching: false })),
+  tailLogQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false, isFetching: false })),
 }))
 
 vi.mock('@/app/services/api', () => ({
@@ -45,13 +45,21 @@ describe('useEfficiencyMinerType', () => {
   })
 
   it('returns isLoading=true when query is loading', () => {
-    mockFns.tailLogQuery.mockReturnValueOnce({ data: undefined, isLoading: true, isFetching: false })
+    mockFns.tailLogQuery.mockReturnValueOnce({
+      data: undefined as unknown,
+      isLoading: true,
+      isFetching: false,
+    })
     const { result } = renderHook(() => useEfficiencyMinerType(defaultParams))
     expect(result.current.isLoading).toBe(true)
   })
 
   it('returns isLoading=true when query is fetching', () => {
-    mockFns.tailLogQuery.mockReturnValueOnce({ data: undefined, isLoading: false, isFetching: true })
+    mockFns.tailLogQuery.mockReturnValueOnce({
+      data: undefined as unknown,
+      isLoading: false,
+      isFetching: true,
+    })
     const { result } = renderHook(() => useEfficiencyMinerType(defaultParams))
     expect(result.current.isLoading).toBe(true)
   })
@@ -74,7 +82,11 @@ describe('useEfficiencyMinerType', () => {
     const { result } = renderHook(() => useEfficiencyMinerType(defaultParams))
     expect(result.current.data.labels).toContain('Antminer')
     expect(result.current.data.labels).toContain('Whatsminer')
-    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false, isFetching: false })
+    mockFns.tailLogQuery.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      isFetching: false,
+    })
   })
 
   it('falls back to raw category string when category not in MINER_TYPE_NAME_MAP', () => {
@@ -92,7 +104,11 @@ describe('useEfficiencyMinerType', () => {
     })
     const { result } = renderHook(() => useEfficiencyMinerType(defaultParams))
     expect(result.current.data.labels).toContain('miner-unknown-brand')
-    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false, isFetching: false })
+    mockFns.tailLogQuery.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      isFetching: false,
+    })
   })
 
   it('handles tailLog where key path does not exist (empty object fallback)', () => {
@@ -107,7 +123,11 @@ describe('useEfficiencyMinerType', () => {
     const { result } = renderHook(() => useEfficiencyMinerType(defaultParams))
     expect(result.current.data.labels).toEqual([])
     expect(result.current.data.dataSet1.data).toEqual([])
-    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false, isFetching: false })
+    mockFns.tailLogQuery.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      isFetching: false,
+    })
   })
 
   it('handles empty tailLogData array (head returns undefined, uses {})', () => {
@@ -118,6 +138,10 @@ describe('useEfficiencyMinerType', () => {
     })
     const { result } = renderHook(() => useEfficiencyMinerType(defaultParams))
     expect(result.current.data.labels).toEqual([])
-    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false, isFetching: false })
+    mockFns.tailLogQuery.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      isFetching: false,
+    })
   })
 })

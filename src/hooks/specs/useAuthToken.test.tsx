@@ -1,6 +1,6 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -8,11 +8,13 @@ import useAuthToken from '../useAuthToken'
 
 import { authSlice } from '@/app/slices/authSlice'
 
-const mockUseTokenPolling = vi.fn(() => ({ error: null }))
+const { mockUseTokenPolling } = vi.hoisted(() => ({
+  mockUseTokenPolling: vi.fn(() => ({ error: null as unknown })),
+}))
 
 vi.mock('../useTokenPolling', () => ({
   __esModule: true,
-  default: (...args: unknown[]) => mockUseTokenPolling(...args),
+  default: mockUseTokenPolling,
 }))
 vi.mock('../usePermissions', () => ({
   useTokenPermissions: () => ({}),
@@ -73,9 +75,7 @@ describe('useAuthToken', () => {
     })
     const wrapper = ({ children }: { children: React.ReactNode }) => (
       <Provider store={store}>
-        <MemoryRouter initialEntries={['/?authToken=new-token']}>
-          {children}
-        </MemoryRouter>
+        <MemoryRouter initialEntries={['/?authToken=new-token']}>{children}</MemoryRouter>
       </Provider>
     )
     renderHook(() => useAuthToken(), { wrapper })

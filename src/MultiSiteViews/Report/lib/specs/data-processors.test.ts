@@ -1,3 +1,4 @@
+import type { LogEntry } from '../../Report.types'
 import {
   processSortedLogs,
   groupLogsByPeriod,
@@ -10,15 +11,11 @@ import {
   findRegionBySite,
   extractNominalValues,
 } from '../data-processors'
-import type { LogEntry } from '../../Report.types'
 
 describe('data-processors', () => {
   describe('processSortedLogs', () => {
     it('flattens and sorts by ts', () => {
-      const logs = [
-        [{ ts: 200 }, { ts: 100 }],
-        [{ ts: 150 }],
-      ]
+      const logs = [[{ ts: 200 }, { ts: 100 }], [{ ts: 150 }]]
       const result = processSortedLogs(logs as LogEntry[][])
       expect(result).toHaveLength(3)
       expect(result[0].ts).toBe(100)
@@ -122,14 +119,7 @@ describe('data-processors', () => {
   describe('processAggregatedData', () => {
     it('returns slice when no start/end and fallbackLimit applied', () => {
       const byLabel = { '01-01': { producedBTC: 1 } }
-      const result = processAggregatedData(
-        byLabel,
-        ['01-01', '01-02'],
-        'daily',
-        null,
-        null,
-        5,
-      )
+      const result = processAggregatedData(byLabel, ['01-01', '01-02'], 'daily', null, null, 5)
       expect(result.length).toBe(2)
     })
   })
@@ -137,7 +127,7 @@ describe('data-processors', () => {
   describe('findRegionBySite', () => {
     it('returns null when siteCode or api missing', () => {
       expect(findRegionBySite(null, 'site1')).toBeNull()
-      expect(findRegionBySite({ regions: [] }, null)).toBeNull()
+      expect(findRegionBySite({ regions: [] } as never, null)).toBeNull()
     })
     it('returns region when match found', () => {
       const api = { regions: [{ region: 'site1', nominalHashrate: 100 }] }

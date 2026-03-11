@@ -1,3 +1,4 @@
+import { getByTagsWithAlertsQuery, getDeviceByAlertId } from '../../../app/utils/queryUtils'
 import {
   applyAlertsLocalFilters,
   getHistoricalAlertsData,
@@ -7,7 +8,6 @@ import {
   getCurrentAlerts,
 } from '../Alerts.util'
 import type { ParsedAlertEntry } from '../Alerts.util'
-import { getByTagsWithAlertsQuery, getDeviceByAlertId } from '../../../app/utils/queryUtils'
 
 vi.mock('../../../app/utils/queryUtils', () => ({
   getByTagsWithAlertsQuery: vi.fn().mockReturnValue({}),
@@ -75,7 +75,10 @@ describe('Alerts.util', () => {
       expect(result).toEqual([])
     })
     it('returns empty array when head of data is undefined', () => {
-      const result = getAlertsForDevices([undefined], {})
+      const result = getAlertsForDevices(
+        [undefined] as unknown as Parameters<typeof getAlertsForDevices>[0],
+        {},
+      )
       expect(result).toEqual([])
     })
   })

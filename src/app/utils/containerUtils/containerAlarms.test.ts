@@ -92,73 +92,152 @@ describe('containerAlarms', () => {
       expect(
         getAntspaceAlarms({ liquid_level_low: false }).find((a) => a.id === 'low-level')?.status,
       ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
-      expect(
-        getAntspaceAlarms({}).find((a) => a.id === 'low-level')?.status,
-      ).toBe(ANTSPACE_ALARM_STATUS.UNAVAILABLE)
+      expect(getAntspaceAlarms({}).find((a) => a.id === 'low-level')?.status).toBe(
+        ANTSPACE_ALARM_STATUS.UNAVAILABLE,
+      )
     })
 
     it('marks circulating_pump_fault correctly in all 3 states', () => {
       const id = 'circul-pump-overload'
-      expect(getAntspaceAlarms({ circulating_pump_fault: true }).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceAlarms({ circulating_pump_fault: false }).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
-      expect(getAntspaceAlarms({}).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.UNAVAILABLE)
+      expect(
+        getAntspaceAlarms({ circulating_pump_fault: true }).find((a) => a.id === id)?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceAlarms({ circulating_pump_fault: false }).find((a) => a.id === id)?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(getAntspaceAlarms({}).find((a) => a.id === id)?.status).toBe(
+        ANTSPACE_ALARM_STATUS.UNAVAILABLE,
+      )
     })
 
     it('marks fan2_fault correctly in all 3 states', () => {
       const id = 'fan2-overload'
-      expect(getAntspaceAlarms({ fan2_fault: true }).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceAlarms({ fan2_fault: false }).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
-      expect(getAntspaceAlarms({}).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.UNAVAILABLE)
+      expect(getAntspaceAlarms({ fan2_fault: true }).find((a) => a.id === id)?.status).toBe(
+        ANTSPACE_ALARM_STATUS.FAULT,
+      )
+      expect(getAntspaceAlarms({ fan2_fault: false }).find((a) => a.id === id)?.status).toBe(
+        ANTSPACE_ALARM_STATUS.NORMAL,
+      )
+      expect(getAntspaceAlarms({}).find((a) => a.id === id)?.status).toBe(
+        ANTSPACE_ALARM_STATUS.UNAVAILABLE,
+      )
     })
 
     it('marks fluid_infusion_pump_fault correctly in all 3 states', () => {
       const id = 'fluid-infusion-pump'
-      expect(getAntspaceAlarms({ fluid_infusion_pump_fault: true }).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceAlarms({ fluid_infusion_pump_fault: false }).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
-      expect(getAntspaceAlarms({}).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.UNAVAILABLE)
+      expect(
+        getAntspaceAlarms({ fluid_infusion_pump_fault: true }).find((a) => a.id === id)?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceAlarms({ fluid_infusion_pump_fault: false }).find((a) => a.id === id)?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(getAntspaceAlarms({}).find((a) => a.id === id)?.status).toBe(
+        ANTSPACE_ALARM_STATUS.UNAVAILABLE,
+      )
     })
 
     it('marks cooling_tower_fan faults correctly', () => {
-      expect(getAntspaceAlarms({ cooling_tower_fan1_fault: true }).find((a) => a.id === 'coolfan1-overload')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceAlarms({ cooling_tower_fan2_fault: false }).find((a) => a.id === 'coolfan2-overload')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
-      expect(getAntspaceAlarms({ cooling_tower_fan3_fault: true }).find((a) => a.id === 'coolfan3-overload')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceAlarms({}).find((a) => a.id === 'coolfan3-overload')?.status).toBe(ANTSPACE_ALARM_STATUS.UNAVAILABLE)
+      expect(
+        getAntspaceAlarms({ cooling_tower_fan1_fault: true }).find(
+          (a) => a.id === 'coolfan1-overload',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceAlarms({ cooling_tower_fan2_fault: false }).find(
+          (a) => a.id === 'coolfan2-overload',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceAlarms({ cooling_tower_fan3_fault: true }).find(
+          (a) => a.id === 'coolfan3-overload',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(getAntspaceAlarms({}).find((a) => a.id === 'coolfan3-overload')?.status).toBe(
+        ANTSPACE_ALARM_STATUS.UNAVAILABLE,
+      )
     })
 
     it('marks leakage_fault correctly in all 3 states', () => {
-      expect(getAntspaceAlarms({ leakage_fault: true }).find((a) => a.id === 'leakage1-alarm')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceAlarms({ leakage_fault: false }).find((a) => a.id === 'leakage1-alarm')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
-      expect(getAntspaceAlarms({}).find((a) => a.id === 'leakage1-alarm')?.status).toBe(ANTSPACE_ALARM_STATUS.UNAVAILABLE)
+      expect(
+        getAntspaceAlarms({ leakage_fault: true }).find((a) => a.id === 'leakage1-alarm')?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceAlarms({ leakage_fault: false }).find((a) => a.id === 'leakage1-alarm')?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(getAntspaceAlarms({}).find((a) => a.id === 'leakage1-alarm')?.status).toBe(
+        ANTSPACE_ALARM_STATUS.UNAVAILABLE,
+      )
     })
 
     it('marks supply_liquid_temp_high correctly', () => {
-      expect(getAntspaceAlarms({ supply_liquid_temp_high: true }).find((a) => a.id === 'temp-high')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceAlarms({ supply_liquid_temp_high: false }).find((a) => a.id === 'temp-high')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceAlarms({ supply_liquid_temp_high: true }).find((a) => a.id === 'temp-high')
+          ?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceAlarms({ supply_liquid_temp_high: false }).find((a) => a.id === 'temp-high')
+          ?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks supply_liquid_temp_too_high correctly', () => {
-      expect(getAntspaceAlarms({ supply_liquid_temp_too_high: true }).find((a) => a.id === 'supply')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceAlarms({ supply_liquid_temp_too_high: false }).find((a) => a.id === 'supply')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceAlarms({ supply_liquid_temp_too_high: true }).find((a) => a.id === 'supply')
+          ?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceAlarms({ supply_liquid_temp_too_high: false }).find((a) => a.id === 'supply')
+          ?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks supply_liquid_pressure_high correctly', () => {
-      expect(getAntspaceAlarms({ supply_liquid_pressure_high: true }).find((a) => a.id === 'pressure-high')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceAlarms({ supply_liquid_pressure_high: false }).find((a) => a.id === 'pressure-high')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceAlarms({ supply_liquid_pressure_high: true }).find(
+          (a) => a.id === 'pressure-high',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceAlarms({ supply_liquid_pressure_high: false }).find(
+          (a) => a.id === 'pressure-high',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks return_liquid_pressure_low correctly', () => {
-      expect(getAntspaceAlarms({ return_liquid_pressure_low: true }).find((a) => a.id === 'pressure-low')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceAlarms({ return_liquid_pressure_low: false }).find((a) => a.id === 'pressure-low')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceAlarms({ return_liquid_pressure_low: true }).find((a) => a.id === 'pressure-low')
+          ?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceAlarms({ return_liquid_pressure_low: false }).find(
+          (a) => a.id === 'pressure-low',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks supply_liquid_flow_low correctly', () => {
-      expect(getAntspaceAlarms({ supply_liquid_flow_low: true }).find((a) => a.id === 'flow-low')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceAlarms({ supply_liquid_flow_low: false }).find((a) => a.id === 'flow-low')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceAlarms({ supply_liquid_flow_low: true }).find((a) => a.id === 'flow-low')
+          ?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceAlarms({ supply_liquid_flow_low: false }).find((a) => a.id === 'flow-low')
+          ?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks cooling_tower_liquid_level_low correctly', () => {
-      expect(getAntspaceAlarms({ cooling_tower_liquid_level_low: true }).find((a) => a.id === 'coolbox-low')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceAlarms({ cooling_tower_liquid_level_low: false }).find((a) => a.id === 'coolbox-low')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceAlarms({ cooling_tower_liquid_level_low: true }).find(
+          (a) => a.id === 'coolbox-low',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceAlarms({ cooling_tower_liquid_level_low: false }).find(
+          (a) => a.id === 'coolbox-low',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('handles null containerSpecificStats — all alarms unavailable and null optional chain path covered', () => {
@@ -205,66 +284,164 @@ describe('containerAlarms', () => {
 
     it('marks dry_cooler_power_fre_fault in all 3 states', () => {
       const id = 'dry_cooler_power_fre_fault'
-      expect(getAntspaceImmersionAlarms({ dry_cooler_power_fre_fault: true }).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ dry_cooler_power_fre_fault: false }).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
-      expect(getAntspaceImmersionAlarms({}).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.UNAVAILABLE)
+      expect(
+        getAntspaceImmersionAlarms({ dry_cooler_power_fre_fault: true }).find((a) => a.id === id)
+          ?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ dry_cooler_power_fre_fault: false }).find((a) => a.id === id)
+          ?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(getAntspaceImmersionAlarms({}).find((a) => a.id === id)?.status).toBe(
+        ANTSPACE_ALARM_STATUS.UNAVAILABLE,
+      )
     })
 
     it('marks dry_cooler_fre_conv in all 3 states', () => {
       const id = 'dry_cooler_fre_conv'
-      expect(getAntspaceImmersionAlarms({ dry_cooler_fre_conv: true }).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ dry_cooler_fre_conv: false }).find((a) => a.id === id)?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceImmersionAlarms({ dry_cooler_fre_conv: true }).find((a) => a.id === id)?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ dry_cooler_fre_conv: false }).find((a) => a.id === id)?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks second_pump1_fault and second_pump2_fault in all 3 states', () => {
-      expect(getAntspaceImmersionAlarms({ second_pump1_fault: true }).find((a) => a.id === 'second_pump1_fault')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ second_pump1_fault: false }).find((a) => a.id === 'second_pump1_fault')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
-      expect(getAntspaceImmersionAlarms({ second_pump2_fault: true }).find((a) => a.id === 'second_pump2_fault')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ second_pump2_fault: false }).find((a) => a.id === 'second_pump2_fault')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceImmersionAlarms({ second_pump1_fault: true }).find(
+          (a) => a.id === 'second_pump1_fault',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ second_pump1_fault: false }).find(
+          (a) => a.id === 'second_pump1_fault',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceImmersionAlarms({ second_pump2_fault: true }).find(
+          (a) => a.id === 'second_pump2_fault',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ second_pump2_fault: false }).find(
+          (a) => a.id === 'second_pump2_fault',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks fan_fault correctly', () => {
-      expect(getAntspaceImmersionAlarms({ fan_fault: true }).find((a) => a.id === 'fan_fault')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ fan_fault: false }).find((a) => a.id === 'fan_fault')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceImmersionAlarms({ fan_fault: true }).find((a) => a.id === 'fan_fault')?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ fan_fault: false }).find((a) => a.id === 'fan_fault')?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks phasefailure correctly', () => {
-      expect(getAntspaceImmersionAlarms({ phasefailure: true }).find((a) => a.id === 'phasefailure')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ phasefailure: false }).find((a) => a.id === 'phasefailure')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceImmersionAlarms({ phasefailure: true }).find((a) => a.id === 'phasefailure')
+          ?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ phasefailure: false }).find((a) => a.id === 'phasefailure')
+          ?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks supply_liquid_temp_fault and return_liquid_temp_fault correctly', () => {
-      expect(getAntspaceImmersionAlarms({ supply_liquid_temp_fault: true }).find((a) => a.id === 'supply_liquid_temp_fault')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ supply_liquid_temp_fault: false }).find((a) => a.id === 'supply_liquid_temp_fault')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
-      expect(getAntspaceImmersionAlarms({ return_liquid_temp_fault: true }).find((a) => a.id === 'return_liquid_temp_fault')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ supply_liquid_temp_fault: true }).find(
+          (a) => a.id === 'supply_liquid_temp_fault',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ supply_liquid_temp_fault: false }).find(
+          (a) => a.id === 'supply_liquid_temp_fault',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceImmersionAlarms({ return_liquid_temp_fault: true }).find(
+          (a) => a.id === 'return_liquid_temp_fault',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
     })
 
     it('marks power_distribution_Fault correctly', () => {
-      expect(getAntspaceImmersionAlarms({ power_distribution_Fault: true }).find((a) => a.id === 'power_distribution_Fault')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ power_distribution_Fault: false }).find((a) => a.id === 'power_distribution_Fault')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceImmersionAlarms({ power_distribution_Fault: true }).find(
+          (a) => a.id === 'power_distribution_Fault',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ power_distribution_Fault: false }).find(
+          (a) => a.id === 'power_distribution_Fault',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks lever_sensor_fault and smoke_sensor_fault correctly', () => {
-      expect(getAntspaceImmersionAlarms({ lever_sensor_fault: true }).find((a) => a.id === 'lever_sensor_fault')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ lever_sensor_fault: false }).find((a) => a.id === 'lever_sensor_fault')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
-      expect(getAntspaceImmersionAlarms({ smoke_sensor_fault: true }).find((a) => a.id === 'smoke_sensor_fault')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ lever_sensor_fault: true }).find(
+          (a) => a.id === 'lever_sensor_fault',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ lever_sensor_fault: false }).find(
+          (a) => a.id === 'lever_sensor_fault',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceImmersionAlarms({ smoke_sensor_fault: true }).find(
+          (a) => a.id === 'smoke_sensor_fault',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
     })
 
     it('marks supply/return liquid temp alarms correctly', () => {
-      expect(getAntspaceImmersionAlarms({ supply_liquid_temp_high: true }).find((a) => a.id === 'supply_liquid_temp_high')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ supply_liquid_temp_too_high: true }).find((a) => a.id === 'supply_liquid_temp_too_high')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ return_liquid_temp_high: true }).find((a) => a.id === 'return_liquid_temp_high')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ return_liquid_temp_too_high: false }).find((a) => a.id === 'return_liquid_temp_too_high')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceImmersionAlarms({ supply_liquid_temp_high: true }).find(
+          (a) => a.id === 'supply_liquid_temp_high',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ supply_liquid_temp_too_high: true }).find(
+          (a) => a.id === 'supply_liquid_temp_too_high',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ return_liquid_temp_high: true }).find(
+          (a) => a.id === 'return_liquid_temp_high',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ return_liquid_temp_too_high: false }).find(
+          (a) => a.id === 'return_liquid_temp_too_high',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks power_distribution_temp_high correctly', () => {
-      expect(getAntspaceImmersionAlarms({ power_distribution_temp_high: true }).find((a) => a.id === 'power_distribution_temp_high')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ power_distribution_temp_high: false }).find((a) => a.id === 'power_distribution_temp_high')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceImmersionAlarms({ power_distribution_temp_high: true }).find(
+          (a) => a.id === 'power_distribution_temp_high',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ power_distribution_temp_high: false }).find(
+          (a) => a.id === 'power_distribution_temp_high',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks lever_low correctly', () => {
-      expect(getAntspaceImmersionAlarms({ lever_low: true }).find((a) => a.id === 'lever_low')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getAntspaceImmersionAlarms({ lever_low: false }).find((a) => a.id === 'lever_low')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getAntspaceImmersionAlarms({ lever_low: true }).find((a) => a.id === 'lever_low')?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getAntspaceImmersionAlarms({ lever_low: false }).find((a) => a.id === 'lever_low')?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('handles null containerSpecificStats — all alarms unavailable and null optional chain path covered', () => {
@@ -314,19 +491,45 @@ describe('containerAlarms', () => {
     })
 
     it('marks indoor_temperature_humidity_sensor_fault in all 3 states', () => {
-      expect(getMicroBTAlarms({ cdu: { indoor_temperature_humidity_sensor_fault: true } }).find((a) => a.id === 'low-level')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getMicroBTAlarms({ cdu: { indoor_temperature_humidity_sensor_fault: false } }).find((a) => a.id === 'low-level')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
-      expect(getMicroBTAlarms({}).find((a) => a.id === 'low-level')?.status).toBe(ANTSPACE_ALARM_STATUS.UNAVAILABLE)
+      expect(
+        getMicroBTAlarms({ cdu: { indoor_temperature_humidity_sensor_fault: true } }).find(
+          (a) => a.id === 'low-level',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getMicroBTAlarms({ cdu: { indoor_temperature_humidity_sensor_fault: false } }).find(
+          (a) => a.id === 'low-level',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(getMicroBTAlarms({}).find((a) => a.id === 'low-level')?.status).toBe(
+        ANTSPACE_ALARM_STATUS.UNAVAILABLE,
+      )
     })
 
     it('marks makeup_water_pump_fault correctly', () => {
-      expect(getMicroBTAlarms({ cdu: { makeup_water_pump_fault: true } }).find((a) => a.id === 'circul-pump-overload')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getMicroBTAlarms({ cdu: { makeup_water_pump_fault: false } }).find((a) => a.id === 'circul-pump-overload')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getMicroBTAlarms({ cdu: { makeup_water_pump_fault: true } }).find(
+          (a) => a.id === 'circul-pump-overload',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getMicroBTAlarms({ cdu: { makeup_water_pump_fault: false } }).find(
+          (a) => a.id === 'circul-pump-overload',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
 
     it('marks power_supply_fault correctly', () => {
-      expect(getMicroBTAlarms({ cdu: { power_supply_fault: true } }).find((a) => a.id === 'fan1-overload')?.status).toBe(ANTSPACE_ALARM_STATUS.FAULT)
-      expect(getMicroBTAlarms({ cdu: { power_supply_fault: false } }).find((a) => a.id === 'fan1-overload')?.status).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
+      expect(
+        getMicroBTAlarms({ cdu: { power_supply_fault: true } }).find(
+          (a) => a.id === 'fan1-overload',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.FAULT)
+      expect(
+        getMicroBTAlarms({ cdu: { power_supply_fault: false } }).find(
+          (a) => a.id === 'fan1-overload',
+        )?.status,
+      ).toBe(ANTSPACE_ALARM_STATUS.NORMAL)
     })
   })
 })

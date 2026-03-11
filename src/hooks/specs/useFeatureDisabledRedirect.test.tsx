@@ -9,19 +9,18 @@ vi.mock('@/app/services/api', () => ({
   useGetFeatureConfigQuery: () => ({ data: {}, isSuccess: true }),
 }))
 
-const createWrapper = () => {
-  return ({ children }: { children: React.ReactNode }) => (
+const createWrapper =
+  () =>
+  ({ children }: { children: React.ReactNode }) => (
     <MemoryRouter initialEntries={['/']}>{children}</MemoryRouter>
   )
-}
 
 describe('useFeatureDisabledRedirect', () => {
   it('does not throw', () => {
     expect(() =>
-      renderHook(
-        () => useFeatureDisabledRedirect('someFeature', false, '/', false),
-        { wrapper: createWrapper() },
-      ),
+      renderHook(() => useFeatureDisabledRedirect('someFeature', false, '/', false), {
+        wrapper: createWrapper(),
+      }),
     ).not.toThrow()
   })
 })

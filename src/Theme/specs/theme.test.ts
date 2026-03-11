@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 
-import { DarkTheme } from '../DarkTheme'
 import { getConfig } from '../AntdConfig'
+import { DarkTheme } from '../DarkTheme'
 import { GlobalStyle } from '../GlobalStyle'
 
 describe('DarkTheme', () => {

@@ -1,6 +1,6 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook, waitFor } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 import { usePendingActions } from '../usePendingActions'
@@ -8,13 +8,13 @@ import { usePendingActions } from '../usePendingActions'
 import { authSlice } from '@/app/slices/authSlice'
 
 const mockFns = vi.hoisted(() => ({
-  actionsQuery: vi.fn(() => ({ data: null, isLoading: false, refetch: vi.fn() })),
-  batchActionsQuery: vi.fn(() => ({ data: null })),
+  actionsQuery: vi.fn(() => ({ data: null as unknown, isLoading: false, refetch: vi.fn() })),
+  batchActionsQuery: vi.fn(() => ({ data: null as unknown })),
   userinfoQuery: vi.fn(() => ({ data: { metadata: { email: 'user@test.com' } } })),
-  partitionActions: vi.fn(() => [[], []]),
+  partitionActions: vi.fn(() => [[], []] as unknown[][]),
   notifyInfo: vi.fn(),
   notifyError: vi.fn(),
-  extractActionErrors: vi.fn(() => []),
+  extractActionErrors: vi.fn(() => [] as string[]),
 }))
 
 vi.mock('@/app/services/api', () => ({

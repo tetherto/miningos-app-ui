@@ -428,7 +428,7 @@ describe('deviceHelpers', () => {
 
   describe('getEfficiencyStat', () => {
     it('returns empty object when power or hashrate missing', () => {
-      expect(getEfficiencyStat({})).toEqual({})
+      expect(getEfficiencyStat({}, 0)).toEqual({})
     })
     it('returns efficiency when both present', () => {
       const pmData = { last: { snap: { stats: { power_w: 1000 } } } }

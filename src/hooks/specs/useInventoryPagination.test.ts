@@ -11,9 +11,7 @@ describe('useInventoryPagination', () => {
   })
 
   it('returns pagination state and handlePaginationChange', () => {
-    const { result } = renderHook(() =>
-      useInventoryPagination({ storageKey, defaultPageSize: 10 }),
-    )
+    const { result } = renderHook(() => useInventoryPagination({ storageKey, defaultPageSize: 10 }))
     expect(result.current).toHaveProperty('pagination')
     expect(result.current).toHaveProperty('handlePaginationChange')
     expect(result.current.pagination).toMatchObject({

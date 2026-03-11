@@ -87,45 +87,37 @@ describe('queryUtils', () => {
   })
 
   describe('getByThingsAttributeQuery', () => {
+    type R = { $and: Array<Record<string, unknown>> }
+    const query = (...args: Parameters<typeof getByThingsAttributeQuery>) =>
+      getByThingsAttributeQuery(...args) as R
+
     it('returns empty object when filterAttributes is empty', () => {
       expect(getByThingsAttributeQuery([], [])).toEqual({})
     })
 
     it('builds $and query for generic attribute', () => {
-      const result = getByThingsAttributeQuery(
-        [{ attribute: 'info.site', values: ['site-1'] }],
-        [],
-      )
+      const result = query([{ attribute: 'info.site', values: ['site-1'] }], [])
       expect(result.$and).toBeDefined()
       expect(result.$and).toHaveLength(1)
     })
 
     it('handles last.alerts with truthy value', () => {
-      const result = getByThingsAttributeQuery(
-        [{ attribute: 'last.alerts', values: [true] }],
-        [],
-      )
+      const result = query([{ attribute: 'last.alerts', values: [true] }], [])
       expect(result.$and[0]).toEqual({ 'last.alerts.0': { $exists: true } })
     })
 
     it('handles last.alerts with false value', () => {
-      const result = getByThingsAttributeQuery(
-        [{ attribute: 'last.alerts', values: [false] }],
-        [],
-      )
+      const result = query([{ attribute: 'last.alerts', values: [false] }], [])
       expect(result.$and[0]).toEqual({ 'last.alerts.0': { $exists: false } })
     })
 
     it('handles last.alerts with empty value', () => {
-      const result = getByThingsAttributeQuery(
-        [{ attribute: 'last.alerts', values: [] }],
-        [],
-      )
+      const result = query([{ attribute: 'last.alerts', values: [] }], [])
       expect(result.$and[0]).toEqual({})
     })
 
     it('handles info.container with NO_MAINTENANCE_CONTAINER', () => {
-      const result = getByThingsAttributeQuery(
+      const result = query(
         [{ attribute: 'info.container', values: [NO_MAINTENANCE_CONTAINER] }],
         [],
       )
@@ -133,28 +125,21 @@ describe('queryUtils', () => {
     })
 
     it('handles info.container with multiple values (returns {})', () => {
-      const result = getByThingsAttributeQuery(
-        [{ attribute: 'info.container', values: ['c1', 'c2'] }],
-        [],
-      )
+      const result = query([{ attribute: 'info.container', values: ['c1', 'c2'] }], [])
       expect(result.$and[0]).toEqual({})
     })
 
     it('handles info.macAddress with case-insensitive regex', () => {
-      const result = getByThingsAttributeQuery(
-        [{ attribute: 'info.macAddress', values: ['AA:BB:CC:DD:EE:FF'] }],
-        [],
-      )
-      expect(result.$and[0].$or).toBeDefined()
-      expect(result.$and[0].$or[0]['info.macAddress'].$options).toBe('i')
+      const result = query([{ attribute: 'info.macAddress', values: ['AA:BB:CC:DD:EE:FF'] }], [])
+      type MacResult = { $or: Array<Record<string, { $options: string }>> }
+      const entry = result.$and[0] as MacResult
+      expect(entry.$or).toBeDefined()
+      expect(entry.$or[0]['info.macAddress'].$options).toBe('i')
     })
 
     it('handles tags attribute with miner type', () => {
-      const result = getByThingsAttributeQuery(
-        [{ attribute: 'tags', values: ['search-term'] }],
-        ['t-miner'],
-      )
-      expect(result.$and[0].$or).toBeDefined()
+      const result = query([{ attribute: 'tags', values: ['search-term'] }], ['t-miner'])
+      expect((result.$and[0] as Record<string, unknown>).$or).toBeDefined()
     })
 
     it('returns empty object with allowEmptyArray and empty array', () => {

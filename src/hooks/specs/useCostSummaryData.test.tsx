@@ -1,6 +1,6 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { describe, expect, it, vi } from 'vitest'
 
 import { useCostSummaryData } from '../useCostSummaryData'
@@ -8,19 +8,22 @@ import { useCostSummaryData } from '../useCostSummaryData'
 import { multiSiteSlice } from '@/app/slices/multiSiteSlice'
 
 const mockFns = vi.hoisted(() => ({
-  extDataQuery: vi.fn(() => ({ data: undefined, isLoading: false, isFetching: false })),
+  extDataQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false, isFetching: false })),
   globalDataQuery: vi.fn(() => ({ data: [], isLoading: false, isFetching: false })),
   tailLogRangeAggrQuery: vi.fn(() => ({ data: null, isLoading: false, isFetching: false })),
   siteQuery: vi.fn(() => ({ data: { site: 'test-site' }, isLoading: false })),
   useMultiSiteMode: vi.fn(() => ({
-    siteId: undefined,
-    site: null,
-    selectedSites: [],
-    siteList: [],
+    siteId: undefined as string | undefined,
+    site: null as unknown,
+    selectedSites: [] as string[],
+    siteList: [] as string[],
     isMultiSiteModeEnabled: true,
   })),
   useMultiSiteDateRange: vi.fn(() => ({
-    dateRange: { start: Date.now() - 86400000 * 7, end: Date.now() },
+    dateRange: { start: Date.now() - 86400000 * 7, end: Date.now() } as {
+      start: number
+      end: number
+    } | null,
     onTableDateRangeChange: vi.fn(),
     onDateRangeReset: vi.fn(),
   })),
@@ -34,11 +37,11 @@ vi.mock('@/app/services/api', () => ({
 }))
 
 vi.mock('../useMultiSiteDateRange', () => ({
-  useMultiSiteDateRange: (...args: unknown[]) => mockFns.useMultiSiteDateRange(...args),
+  useMultiSiteDateRange: mockFns.useMultiSiteDateRange,
 }))
 
 vi.mock('../useMultiSiteMode', () => ({
-  useMultiSiteMode: (...args: unknown[]) => mockFns.useMultiSiteMode(...args),
+  useMultiSiteMode: mockFns.useMultiSiteMode,
 }))
 
 vi.mock('@/MultiSiteViews/RevenueAndCost/Cost/hooks/useAvgAllInPowerCostData', () => ({
@@ -67,9 +70,10 @@ const createWrapper = (timeframeType = 'week') => {
     reducer: { multiSite: multiSiteSlice.reducer },
     preloadedState: {
       multiSite: {
-        timeframeType,
+        timeframeType: timeframeType as 'year' | 'month' | 'week',
         dateRange: null,
-        selectedSites: [],
+        selectedSites: [] as string[],
+        isManualSelection: false,
       },
     },
   })
@@ -163,7 +167,11 @@ describe('useCostSummaryData', () => {
       siteList: [],
       isMultiSiteModeEnabled: true,
     })
-    mockFns.extDataQuery.mockReturnValue({ data: undefined, isLoading: false, isFetching: false })
+    mockFns.extDataQuery.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      isFetching: false,
+    })
     mockFns.useMultiSiteDateRange.mockReturnValue({
       dateRange: { start: Date.now() - 86400000 * 7, end: Date.now() },
       onTableDateRangeChange: vi.fn(),
@@ -209,7 +217,11 @@ describe('useCostSummaryData', () => {
       siteList: [],
       isMultiSiteModeEnabled: true,
     })
-    mockFns.extDataQuery.mockReturnValue({ data: undefined, isLoading: false, isFetching: false })
+    mockFns.extDataQuery.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      isFetching: false,
+    })
     mockFns.useMultiSiteDateRange.mockReturnValue({
       dateRange: { start: Date.now() - 86400000 * 7, end: Date.now() },
       onTableDateRangeChange: vi.fn(),

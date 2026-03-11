@@ -3,17 +3,17 @@ import { describe, expect, it, vi } from 'vitest'
 
 import useFetchTransactions from '../useFetchTransactions'
 
-const mockGetExtDataQuery = vi.fn(() => ({ data: [] }))
+const { mockGetExtDataQuery } = vi.hoisted(() => ({
+  mockGetExtDataQuery: vi.fn(() => ({ data: [] as unknown })),
+}))
 
 vi.mock('@/app/services/api', () => ({
-  useGetExtDataQuery: (...args: unknown[]) => mockGetExtDataQuery(...args),
+  useGetExtDataQuery: mockGetExtDataQuery,
 }))
 
 describe('useFetchTransactions', () => {
   it('returns data and totBtcProduced', () => {
-    const { result } = renderHook(() =>
-      useFetchTransactions({ year: 2025, month: 0 }),
-    )
+    const { result } = renderHook(() => useFetchTransactions({ year: 2025, month: 0 }))
     expect(result.current).toHaveProperty('data')
     expect(result.current).toHaveProperty('totBtcProduced')
     expect(Array.isArray(result.current.data)).toBe(true)
@@ -38,9 +38,7 @@ describe('useFetchTransactions', () => {
       },
     ]
     mockGetExtDataQuery.mockReturnValueOnce({ data: txData })
-    const { result } = renderHook(() =>
-      useFetchTransactions({ year: 2025, month: 0 }),
-    )
+    const { result } = renderHook(() => useFetchTransactions({ year: 2025, month: 0 }))
     // After effect runs, totBtcProduced should be computed
     expect(result.current).toHaveProperty('totBtcProduced')
   })

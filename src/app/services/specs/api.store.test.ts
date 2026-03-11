@@ -43,13 +43,14 @@ import { api } from '../api'
 const createTestStore = () =>
   configureStore({
     reducer: { [api.reducerPath]: api.reducer },
-    middleware: (getDefaultMiddleware) =>
-      getDefaultMiddleware().concat(api.middleware),
+    middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
   })
 
 const dispatch = async (endpoint: string, params: unknown = {}) => {
   const store = createTestStore()
-  const endpointDef = (api.endpoints as Record<string, { initiate: (p: unknown) => unknown }>)[endpoint]
+  const endpointDef = (api.endpoints as Record<string, { initiate: (p: unknown) => unknown }>)[
+    endpoint
+  ]
   if (!endpointDef) return null
   const action = endpointDef.initiate(params)
   return store.dispatch(action as Parameters<typeof store.dispatch>[0])
@@ -125,11 +126,14 @@ describe('api.ts endpoint query() coverage', () => {
   it('getFeatureConfig', () => dispatch('getFeatureConfig', undefined))
   it('getFeatureConfig with version', () => dispatch('getFeatureConfig', { version: 1 }))
   it('getFeatures', () => dispatch('getFeatures', {}))
-  it('getReports', () => dispatch('getReports', { regions: ['R1'], startDate: '2024-01', endDate: '2024-12' }))
+  it('getReports', () =>
+    dispatch('getReports', { regions: ['R1'], startDate: '2024-01', endDate: '2024-12' }))
 
   it('getUserinfo transformResponse handles geo header', async () => {
     const store = createTestStore()
-    const endpointFn = (api.endpoints as Record<string, { initiate: (p: unknown) => unknown }>)['getUserinfo']
+    const endpointFn = (api.endpoints as Record<string, { initiate: (p: unknown) => unknown }>)[
+      'getUserinfo'
+    ]
     const action = endpointFn.initiate(undefined)
     const result = await store.dispatch(action as Parameters<typeof store.dispatch>[0])
     expect(result).toBeDefined()

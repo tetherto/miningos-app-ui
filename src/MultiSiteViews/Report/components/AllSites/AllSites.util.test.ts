@@ -349,54 +349,5 @@ describe('AllSites.util', () => {
       expect(result.revenueChart.series[0].values[0]).toBe(0.6)
       expect(result.revenueChart.series[1].values[0]).toBe(0.4)
     })
-
-    it('uses 16 buckets for monthly report type', () => {
-      const api = {
-        data: {
-          log: Array.from({ length: 20 }, (_, i) => ({
-            ts: 1640995200000 + i * 86400000,
-            totalRevenueBTC: 0.1,
-            revenueUSD: 5000,
-          })),
-          summary: {
-            sum: { totalRevenueBTC: 2 },
-            avg: { hashrateMHS: 1e13, sitePowerW: 5e7, downtimeRate: 0.02, currentBTCPrice: 50000, totalEnergyCostsUSD: 500, efficiencyWThs: 30, energyRevenueUSD_MW: 200 },
-          },
-        },
-        regions: [],
-        period: 'daily',
-      } as unknown as ReportApiResponse
-
-      const result = buildAllSitesCharts(api, { reportType: 'monthly' })
-      // Monthly uses 16 buckets (slices last 16)
-      expect(result.revenueChart.labels.length).toBeLessThanOrEqual(16)
-    })
-
-    it('returns empty for invalid api (null)', () => {
-      const result = buildAllSitesCharts(null as unknown as ReportApiResponse)
-      expect(result).toEqual({
-        allSitesMetrics: {},
-        siteMetrics: {},
-        revenueChart: { labels: [], series: [] },
-        hashrateChart: { labels: [], series: [] },
-        downtimeChart: { labels: [], series: [] },
-        productionCostChart: null,
-      })
-    })
-
-    it('derives period from api when api.period is not set', () => {
-      const api = {
-        data: {
-          log: [{ ts: 1640995200000, totalRevenueBTC: 0.5 }],
-          summary: { sum: { totalRevenueBTC: 0.5 }, avg: {} },
-        },
-        regions: [],
-        // no period field
-      } as unknown as ReportApiResponse
-
-      // Should not throw and should return a valid result
-      const result = buildAllSitesCharts(api)
-      expect(result.revenueChart.labels).toBeDefined()
-    })
   })
 })

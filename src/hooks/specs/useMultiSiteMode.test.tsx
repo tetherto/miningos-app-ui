@@ -1,14 +1,14 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
-import { describe, expect, it, vi } from 'vitest'
 import { MemoryRouter } from 'react-router-dom'
+import { describe, expect, it, vi } from 'vitest'
 
 import { useMultiSiteMode } from '../useMultiSiteMode'
 
-import { multiSiteSlice } from '@/app/slices/multiSiteSlice'
-import { authSlice } from '@/app/slices/authSlice'
 import { useGetFeatureConfigQuery } from '@/app/services/api'
+import { authSlice } from '@/app/slices/authSlice'
+import { multiSiteSlice } from '@/app/slices/multiSiteSlice'
 
 vi.mock('@/app/services/api', () => ({
   useGetFeatureConfigQuery: vi.fn(),
@@ -21,15 +21,18 @@ const createWrapper = (siteId?: string) => {
       auth: authSlice.reducer,
     },
     preloadedState: {
-      auth: { token: 'test-token' },
-      multiSite: { selectedSites: [], isManualSelection: false },
+      auth: { token: 'test-token', permissions: null } as import('@/types/redux.d.ts').AuthState,
+      multiSite: {
+        selectedSites: [] as string[],
+        isManualSelection: false,
+        dateRange: null,
+        timeframeType: null,
+      },
     },
   })
   return ({ children }: { children: React.ReactNode }) => (
     <Provider store={store}>
-      <MemoryRouter initialEntries={siteId ? [`/sites/${siteId}`] : ['/']}>
-        {children}
-      </MemoryRouter>
+      <MemoryRouter initialEntries={siteId ? [`/sites/${siteId}`] : ['/']}>{children}</MemoryRouter>
     </Provider>
   )
 }
@@ -59,7 +62,10 @@ describe('useMultiSiteMode', () => {
     vi.mocked(useGetFeatureConfigQuery).mockReturnValue({
       data: {
         isMultiSiteModeEnabled: true,
-        siteList: [{ id: 'site-a', name: 'Site A' }, { id: 'site-b', name: 'Site B' }],
+        siteList: [
+          { id: 'site-a', name: 'Site A' },
+          { id: 'site-b', name: 'Site B' },
+        ],
       },
       isLoading: false,
     } as never)

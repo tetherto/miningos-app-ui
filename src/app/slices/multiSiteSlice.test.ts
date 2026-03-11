@@ -17,7 +17,7 @@ import type { MultiSiteState, RootState } from '@/types/redux.d'
 
 const reducer = multiSiteSlice.reducer
 
-const mockState = (multiSite: MultiSiteState): RootState => ({ multiSite } as RootState)
+const mockState = (multiSite: MultiSiteState): RootState => ({ multiSite }) as RootState
 
 const emptyMultiSite: MultiSiteState = {
   selectedSites: [],
@@ -157,7 +157,9 @@ describe('multiSiteSlice', () => {
 
     describe('getIsManualSelection', () => {
       it('returns true for manual selection', () => {
-        expect(getIsManualSelection(mockState({ ...emptyMultiSite, isManualSelection: true }))).toBe(true)
+        expect(
+          getIsManualSelection(mockState({ ...emptyMultiSite, isManualSelection: true })),
+        ).toBe(true)
       })
 
       it('returns false for automatic selection', () => {
@@ -168,7 +170,9 @@ describe('multiSiteSlice', () => {
     describe('getMultiSiteDateRange', () => {
       it('returns the date range', () => {
         const range = { start: 500, end: 1000, period: 'week' }
-        expect(getMultiSiteDateRange(mockState({ ...emptyMultiSite, dateRange: range }))).toEqual(range)
+        expect(getMultiSiteDateRange(mockState({ ...emptyMultiSite, dateRange: range }))).toEqual(
+          range,
+        )
       })
 
       it('returns null when not set', () => {
@@ -178,7 +182,9 @@ describe('multiSiteSlice', () => {
 
     describe('getTimeframeType', () => {
       it('returns the timeframe type', () => {
-        expect(getTimeframeType(mockState({ ...emptyMultiSite, timeframeType: 'year' }))).toBe('year')
+        expect(getTimeframeType(mockState({ ...emptyMultiSite, timeframeType: 'year' }))).toBe(
+          'year',
+        )
       })
 
       it('returns null when not set', () => {

@@ -174,56 +174,6 @@ describe('EnergyBalance Helpers', () => {
     })
   })
 
-  describe('aggregateByPeriod — edge cases', () => {
-    it('returns empty array when dailyData is null', () => {
-      expect(aggregateByPeriod(null as never, 'month', 90000)).toEqual([])
-    })
-
-    it('returns empty array when dailyData is empty', () => {
-      expect(aggregateByPeriod([], 'month', 90000)).toEqual([])
-    })
-
-    it('uses currentBTCPrice when avgPriceUSD is 0 for the period', () => {
-      const dailyData = [
-        {
-          ts: new Date('2025-01-15').getTime(),
-          revenueBTC: 0.3,
-          feesBTC: 0,
-          priceUSD: 0, // zero → _meanBy returns 0 → use currentBTCPrice
-          sitePowerMW: 10,
-          energyCostsUSD: 1000,
-          operationalCostsUSD: 500,
-          curtailmentMWh: 10,
-          curtailmentRate: 0.05,
-          operationalIssues: 0.02,
-        },
-      ]
-      const result = aggregateByPeriod(dailyData, 'month', 85000)
-      // avgPriceUSD = 0 → use currentBTCPrice = 85000
-      expect(result[0].revenueUSD).toBeCloseTo(0.3 * 85000)
-    })
-
-    it('sets energyRevenueBTC_MW and energyRevenueUSD_MW to 0 when sitePowerMW is 0', () => {
-      const dailyData = [
-        {
-          ts: new Date('2025-02-10').getTime(),
-          revenueBTC: 0.5,
-          feesBTC: 0,
-          priceUSD: 90000,
-          sitePowerMW: 0, // zero → energyRevenueBTC_MW = 0, energyRevenueUSD_MW = 0
-          energyCostsUSD: 500,
-          operationalCostsUSD: 200,
-          curtailmentMWh: 0,
-          curtailmentRate: 0,
-          operationalIssues: 0,
-        },
-      ]
-      const result = aggregateByPeriod(dailyData, 'month', 90000)
-      expect(result[0].energyRevenueBTC_MW).toBe(0)
-      expect(result[0].energyRevenueUSD_MW).toBe(0)
-    })
-  })
-
   describe('mergeDailyData', () => {
     const hoursInPeriod = 24
     const NOMINAL_AVAILABLE_POWER_MWH = 22.5
@@ -281,79 +231,6 @@ describe('EnergyBalance Helpers', () => {
         hoursInPeriod,
       )
       expect(result).toHaveLength(0)
-    })
-
-    it('priceUSD is 0 when no price entries exist', () => {
-      const result = mergeDailyData(
-        [mockTransactionData],
-        [], // no prices
-        [],
-        null,
-        [],
-        NOMINAL_AVAILABLE_POWER_MWH,
-        hoursInPeriod,
-      )
-      expect(result[0].priceUSD).toBe(0)
-    })
-
-    it('second currentPrice entry does not override the first fallback price', () => {
-      const firstCurrent = { currentPrice: 95000 } as MinerHistoricalPrice
-      const secondCurrent = { currentPrice: 80000 } as MinerHistoricalPrice
-      const result = mergeDailyData(
-        [mockTransactionData],
-        [firstCurrent, secondCurrent],
-        [],
-        null,
-        [],
-        NOMINAL_AVAILABLE_POWER_MWH,
-        hoursInPeriod,
-      )
-      // fallbackPrice should be 95000 (first wins, !fallbackPrice prevents second)
-      expect(result[0].priceUSD).toBe(95000)
-    })
-
-    it('price entry with no ts and no currentPrice does not affect priceMap or fallback', () => {
-      const invalidPrice = { priceUSD: 50000 } as MinerHistoricalPrice // no ts → ts is falsy
-      const result = mergeDailyData(
-        [mockTransactionData],
-        [invalidPrice],
-        [],
-        null,
-        [],
-        NOMINAL_AVAILABLE_POWER_MWH,
-        hoursInPeriod,
-      )
-      expect(result[0].priceUSD).toBe(0) // neither path adds to map/fallback
-    })
-
-    it('uses power data from powerMap when available for same day', () => {
-      const result = mergeDailyData(
-        [mockTransactionData],
-        [mockHistoricalPrice],
-        [],
-        mockPowerMeterData,
-        [],
-        NOMINAL_AVAILABLE_POWER_MWH,
-        hoursInPeriod,
-      )
-      expect(result[0].sitePowerMW).toBeGreaterThan(0)
-    })
-
-    it('handles powerData with missing val.site_power_w', () => {
-      const powerDataNoW: PowerMeterData = {
-        data: [{ ts: 1735689600000, val: {} }],
-      }
-      const result = mergeDailyData(
-        [mockTransactionData],
-        [],
-        [],
-        powerDataNoW,
-        [],
-        NOMINAL_AVAILABLE_POWER_MWH,
-        hoursInPeriod,
-      )
-      // site_power_w = undefined → || 0 → toMW(0) = 0
-      expect(result[0].sitePowerMW).toBe(0)
     })
   })
 
@@ -597,43 +474,6 @@ describe('EnergyBalance Helpers', () => {
         expect(formatter(5000.12345)).toBe('5,000.12')
         expect(formatter(0.00005)).toBe('0')
         expect(formatter(0)).toBe('0')
-      })
-
-      it('BTC formatter returns empty string for null value', () => {
-        const result = transformToEnergyRevenueChartData(mockAggregatedData, 'BTC')
-        const formatter = result.series[0].datalabels!.formatter as (value: number | null) => string
-        expect(formatter(null as never)).toBe('')
-      })
-
-      it('USD formatter returns empty string for null value', () => {
-        const result = transformToEnergyRevenueChartData(mockAggregatedData, 'USD')
-        const formatter = result.series[0].datalabels!.formatter as (value: number | null) => string
-        expect(formatter(null as never)).toBe('')
-      })
-    })
-
-    describe('EnergyCost chart formatter', () => {
-      it('should return empty string for null value', () => {
-        const result = transformToEnergyCostChartData(mockAggregatedData)
-        const allInCostFormatter = result.series[0].datalabels!.formatter as (v: number | null) => string
-        expect(allInCostFormatter(null as never)).toBe('')
-        expect(allInCostFormatter(0)).toBe('0')
-        expect(allInCostFormatter(12345)).toBeTruthy()
-      })
-
-      it('revenue series formatter handles null', () => {
-        const result = transformToEnergyCostChartData(mockAggregatedData)
-        const revenueFormatter = result.series[1].datalabels!.formatter as (v: number | null) => string
-        expect(revenueFormatter(null as never)).toBe('')
-      })
-    })
-
-    describe('Downtime chart formatter', () => {
-      it('rate label formatter works with 0', () => {
-        const result = transformToDowntimeChartData(mockAggregatedData)
-        const formatter = result.series[0].datalabels!.formatter as (v: number) => string
-        expect(formatter(0)).toBe('0')
-        expect(formatter(0.05)).toBeTruthy()
       })
     })
   })

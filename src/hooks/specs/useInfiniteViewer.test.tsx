@@ -228,8 +228,7 @@ describe('useInfiniteViewer', () => {
       getScrollTop: vi.fn(() => 0),
       getZoom: vi.fn(() => 1),
       getViewport: vi.fn(() => ({
-        getBoundingClientRect: () =>
-          ({ width: 100, height: 100, top: 0, left: 0 }) as DOMRect,
+        getBoundingClientRect: () => ({ width: 100, height: 100, top: 0, left: 0 }) as DOMRect,
         scrollWidth: 600,
         scrollHeight: 400,
       })),

@@ -1,6 +1,6 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { describe, expect, it, vi } from 'vitest'
 
 import { useNotification } from '../useNotification'
@@ -55,9 +55,7 @@ describe('useNotification', () => {
   it('notifyError with dontClose=true sets duration to 0', () => {
     const { result } = renderHook(() => useNotification(), { wrapper: createWrapper() })
     result.current.notifyError('Err', 'Details', true)
-    expect(mockNotification.error).toHaveBeenCalledWith(
-      expect.objectContaining({ duration: 0 }),
-    )
+    expect(mockNotification.error).toHaveBeenCalledWith(expect.objectContaining({ duration: 0 }))
   })
 
   it('notifyInfo calls notification.info', () => {

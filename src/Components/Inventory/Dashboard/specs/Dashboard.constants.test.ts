@@ -37,7 +37,7 @@ describe('Dashboard.constants', () => {
   it('minersDistributionColumns sorter functions work', () => {
     const sortableCols = minersDistributionColumns.filter((c) => 'sorter' in c && c.sorter)
     for (const col of sortableCols) {
-      const sorter = col.sorter as ((a: unknown, b: unknown) => number) | undefined
+      const sorter = (col as { sorter?: (a: unknown, b: unknown) => number }).sorter
       if (sorter) {
         const result = sorter(
           { totalPositions: 10, freePositions: 5 },

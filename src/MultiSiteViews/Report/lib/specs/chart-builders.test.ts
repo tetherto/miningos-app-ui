@@ -38,7 +38,10 @@ describe('chart-builders', () => {
     it('returns line series with points', () => {
       const result = buildLineSeries(
         'Line',
-        [{ ts: 1704067200000, value: 10 }, { ts: 1704153600000, value: 20 }],
+        [
+          { ts: 1704067200000, value: 10 },
+          { ts: 1704153600000, value: 20 },
+        ],
         '#000',
       )
       expect(result.label).toBe('Line')
@@ -56,10 +59,7 @@ describe('chart-builders', () => {
 
   describe('buildBarChart', () => {
     it('returns bar chart with labels and series', () => {
-      const result = buildBarChart(
-        ['Jan', 'Feb'],
-        [{ label: 'S1', values: [1, 2], color: '#0f0' }],
-      )
+      const result = buildBarChart(['Jan', 'Feb'], [{ label: 'S1', values: [1, 2], color: '#0f0' }])
       expect(result.labels).toEqual(['Jan', 'Feb'])
       expect(result.series).toHaveLength(1)
       expect(result.series[0].values).toEqual([1, 2])
@@ -97,10 +97,11 @@ describe('chart-builders', () => {
 
   describe('buildRevenueChart', () => {
     it('returns bar chart with revenue series', () => {
-      const result = buildRevenueChart(
-        ['Jan', 'Feb'],
-        { allInCost: [1, 2], hashRevenue: [3, 4], networkHashprice: [5, 6] },
-      )
+      const result = buildRevenueChart(['Jan', 'Feb'], {
+        allInCost: [1, 2],
+        hashRevenue: [3, 4],
+        networkHashprice: [5, 6],
+      })
       expect(result.labels).toEqual(['Jan', 'Feb'])
       expect(result.series).toHaveLength(3)
     })

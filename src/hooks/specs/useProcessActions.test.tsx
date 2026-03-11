@@ -30,9 +30,7 @@ describe('useProcessActions', () => {
   })
 
   it('processActions can be called with actionIDs', async () => {
-    const { result } = renderHook(() =>
-      useProcessActions({ actionIDs: ['action-1'] }),
-    )
+    const { result } = renderHook(() => useProcessActions({ actionIDs: ['action-1'] }))
     await result.current.processActions(true)
     expect(result.current.processActions).toBeDefined()
   })

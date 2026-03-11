@@ -1,10 +1,11 @@
-import { renderHook, act } from '@testing-library/react'
-import { Provider } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit'
-import { describe, expect, it, vi, beforeEach } from 'vitest'
+import { renderHook, act } from '@testing-library/react'
 import React from 'react'
+import { Provider } from 'react-redux'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 
 import { useFinancialDateRange } from './useFinancialDateRange'
+
 import { multiSiteSlice } from '@/app/slices/multiSiteSlice'
 import { timezoneSlice } from '@/app/slices/timezoneSlice'
 import { PERIOD } from '@/constants/ranges'
@@ -33,7 +34,7 @@ const createWrapper = () => {
   })
   return {
     wrapper: ({ children }: { children: React.ReactNode }) =>
-      React.createElement(Provider, { store }, children),
+      React.createElement(Provider as React.ElementType, { store }, children),
     store,
   }
 }
@@ -167,7 +168,7 @@ describe('useFinancialDateRange — demo mode', () => {
       },
     })
     const wrapper = ({ children }: { children: React.ReactNode }) =>
-      React.createElement(Provider, { store }, children)
+      React.createElement(Provider as React.ElementType, { store }, children)
 
     const { result } = renderHook(() => useDemoHook(), { wrapper })
 

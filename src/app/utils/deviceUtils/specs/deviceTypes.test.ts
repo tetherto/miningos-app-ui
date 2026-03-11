@@ -49,11 +49,11 @@ describe('deviceTypes', () => {
   describe('isMinerOffline', () => {
     it('returns true when stats and config empty', () => {
       const device = { last: { snap: { stats: {}, config: {} } } }
-      expect(isMinerOffline(device)).toBe(true)
+      expect(isMinerOffline(device as never)).toBe(true)
     })
     it('returns true when status offline', () => {
       const device = { last: { snap: { stats: { status: 'offline' }, config: {} } } }
-      expect(isMinerOffline(device)).toBe(true)
+      expect(isMinerOffline(device as never)).toBe(true)
     })
   })
   describe('isTransformerPowermeter', () => {
@@ -63,8 +63,8 @@ describe('deviceTypes', () => {
   })
   describe('isLVCabinet and isTransformerCabinet', () => {
     it('detects by device id', () => {
-      expect(isLVCabinet({ id: 'lv-cabinet-1' })).toBe(true)
-      expect(isTransformerCabinet({ id: 'tr-cabinet-1' })).toBe(true)
+      expect(isLVCabinet({ id: 'lv-cabinet-1' } as never)).toBe(true)
+      expect(isTransformerCabinet({ id: 'tr-cabinet-1' } as never)).toBe(true)
     })
   })
   describe('getIsTransformerTempSensor', () => {
@@ -74,10 +74,10 @@ describe('deviceTypes', () => {
   })
   describe('getDeviceModel', () => {
     it('returns container-bd-d40 for bd-d40 container type', () => {
-      expect(getDeviceModel({ type: 'container-bd-d40-m56' })).toBe('container-bd-d40')
+      expect(getDeviceModel({ type: 'container-bd-d40-m56' } as never)).toBe('container-bd-d40')
     })
     it('returns type for non-container', () => {
-      expect(getDeviceModel({ type: 'miner-wm-m56' })).toBe('miner-wm-m56')
+      expect(getDeviceModel({ type: 'miner-wm-m56' } as never)).toBe('miner-wm-m56')
     })
   })
 })

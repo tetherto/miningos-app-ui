@@ -5,7 +5,7 @@ import type { RootState, UserInfoState } from '@/types/redux.d'
 const { setUserInfo } = userInfoSlice.actions
 const reducer = userInfoSlice.reducer
 
-const mockState = (userInfo: UserInfoState): RootState => ({ userInfo } as RootState)
+const mockState = (userInfo: UserInfoState): RootState => ({ userInfo }) as RootState
 
 describe('userInfoSlice', () => {
   describe('initial state', () => {
@@ -41,8 +41,26 @@ describe('userInfoSlice', () => {
     })
 
     it('overwrites existing user info', () => {
-      const first: UserInfoState = { email: 'old@test.com', id: 1, roles: '', password: null, created: 0, ips: [], metadata: null, token: '' }
-      const second: UserInfoState = { email: 'new@test.com', id: 2, roles: 'user', password: null, created: 0, ips: [], metadata: null, token: '' }
+      const first: UserInfoState = {
+        email: 'old@test.com',
+        id: 1,
+        roles: '',
+        password: null,
+        created: 0,
+        ips: [],
+        metadata: null,
+        token: '',
+      }
+      const second: UserInfoState = {
+        email: 'new@test.com',
+        id: 2,
+        roles: 'user',
+        password: null,
+        created: 0,
+        ips: [],
+        metadata: null,
+        token: '',
+      }
       let state = reducer(undefined, setUserInfo(first))
       state = reducer(state, setUserInfo(second))
       expect(state.email).toBe('new@test.com')
@@ -67,7 +85,16 @@ describe('userInfoSlice', () => {
 
   describe('immutability', () => {
     it('does not mutate original state', () => {
-      const initial: UserInfoState = { email: 'a@b.com', id: 1, roles: '', password: null, created: 0, ips: [], metadata: null, token: '' }
+      const initial: UserInfoState = {
+        email: 'a@b.com',
+        id: 1,
+        roles: '',
+        password: null,
+        created: 0,
+        ips: [],
+        metadata: null,
+        token: '',
+      }
       const copy = { ...initial }
       reducer(initial, setUserInfo({ ...initial, email: 'changed@b.com' }))
       expect(initial).toEqual(copy)
@@ -104,7 +131,16 @@ describe('userInfoSlice', () => {
 
   describe('selectUserInfo', () => {
     it('returns the full userInfo state', () => {
-      const info: UserInfoState = { email: 'a@b.com', id: 5, roles: 'user', password: null, created: 0, ips: [], metadata: null, token: '' }
+      const info: UserInfoState = {
+        email: 'a@b.com',
+        id: 5,
+        roles: 'user',
+        password: null,
+        created: 0,
+        ips: [],
+        metadata: null,
+        token: '',
+      }
       expect(selectUserInfo(mockState(info))).toEqual(info)
     })
   })

@@ -6,10 +6,10 @@ import {
 } from './containerSettingsUtils'
 
 // Container type strings that trigger each branch
-const BITDEER_TYPE = 'container-bd-d40-m30'    // isBitdeer → true
-const MICROBT_TYPE = 'container-mbt-wonderint'  // isMicroBT → true
-const HYDRO_TYPE = 'container-as-hk3'           // isAntspaceHydro → true
-const IMMERSION_TYPE = 'container-as-immersion'  // isAntspaceImmersion → true
+const BITDEER_TYPE = 'container-bd-d40-m30' // isBitdeer → true
+const MICROBT_TYPE = 'container-mbt-wonderint' // isMicroBT → true
+const HYDRO_TYPE = 'container-as-hk3' // isAntspaceHydro → true
+const IMMERSION_TYPE = 'container-as-immersion' // isAntspaceImmersion → true
 const UNKNOWN_TYPE = 'container-unknown'
 
 describe('containerSettingsUtils', () => {
@@ -86,7 +86,13 @@ describe('containerSettingsUtils', () => {
     it('transforms Bitdeer thresholds (oilTemperature + tankPressure)', () => {
       const thresholds = {
         oilTemperature: { criticalLow: 33, alert: 39, normal: 42, alarm: 46, criticalHigh: 48 },
-        tankPressure: { criticalLow: 2, alarmLow: 2.3, normal: 2.3, alarmHigh: 3.5, criticalHigh: 4 },
+        tankPressure: {
+          criticalLow: 2,
+          alarmLow: 2.3,
+          normal: 2.3,
+          alarmHigh: 3.5,
+          criticalHigh: 4,
+        },
       }
       const result = transformContainerThresholds({ type: BITDEER_TYPE }, thresholds)
       expect(result.oilTemperature?.criticalLow).toBe(33)
@@ -95,7 +101,13 @@ describe('containerSettingsUtils', () => {
 
     it('transforms MicroBT thresholds (waterTemperature only)', () => {
       const thresholds = {
-        waterTemperature: { criticalLow: 25, alarmLow: 33, normal: 33, alarmHigh: 37, criticalHigh: 39 },
+        waterTemperature: {
+          criticalLow: 25,
+          alarmLow: 33,
+          normal: 33,
+          alarmHigh: 37,
+          criticalHigh: 39,
+        },
       }
       const result = transformContainerThresholds({ type: MICROBT_TYPE }, thresholds)
       expect(result.waterTemperature?.criticalHigh).toBe(39)
@@ -104,8 +116,21 @@ describe('containerSettingsUtils', () => {
 
     it('transforms AntspaceHydro thresholds (waterTemperature + supplyLiquidPressure)', () => {
       const thresholds = {
-        waterTemperature: { criticalLow: 21, alarmLow: 25, alert: 25, normal: 30, alarmHigh: 37, criticalHigh: 40 },
-        supplyLiquidPressure: { criticalLow: 2, alarmLow: 2.3, normal: 2.3, alarmHigh: 3.5, criticalHigh: 4 },
+        waterTemperature: {
+          criticalLow: 21,
+          alarmLow: 25,
+          alert: 25,
+          normal: 30,
+          alarmHigh: 37,
+          criticalHigh: 40,
+        },
+        supplyLiquidPressure: {
+          criticalLow: 2,
+          alarmLow: 2.3,
+          normal: 2.3,
+          alarmHigh: 3.5,
+          criticalHigh: 4,
+        },
       }
       const result = transformContainerThresholds({ type: HYDRO_TYPE }, thresholds)
       expect(result.waterTemperature?.alert).toBe(25)
@@ -126,13 +151,19 @@ describe('containerSettingsUtils', () => {
     })
 
     it('returns thresholds with undefined fields when Bitdeer oilTemperature is absent', () => {
-      const result = transformContainerThresholds({ type: BITDEER_TYPE }, { tankPressure: { criticalLow: 2 } })
+      const result = transformContainerThresholds(
+        { type: BITDEER_TYPE },
+        { tankPressure: { criticalLow: 2 } },
+      )
       expect(result.oilTemperature?.criticalLow).toBeUndefined()
       expect(result.tankPressure?.criticalLow).toBe(2)
     })
 
     it('returns thresholds with undefined fields when Bitdeer tankPressure is absent', () => {
-      const result = transformContainerThresholds({ type: BITDEER_TYPE }, { oilTemperature: { criticalHigh: 48 } })
+      const result = transformContainerThresholds(
+        { type: BITDEER_TYPE },
+        { oilTemperature: { criticalHigh: 48 } },
+      )
       expect(result.tankPressure?.criticalLow).toBeUndefined()
     })
 
@@ -166,7 +197,11 @@ describe('containerSettingsUtils', () => {
 
     it('assembles payload for MicroBT type', () => {
       const data = { type: MICROBT_TYPE }
-      const parameters = { runningSpeed: { value: 1200 }, startTemp: { value: 30 }, stopTemp: { value: 25 } }
+      const parameters = {
+        runningSpeed: { value: 1200 },
+        startTemp: { value: 30 },
+        stopTemp: { value: 25 },
+      }
       const thresholds = { waterTemperature: { criticalHigh: 39 } }
       const result = prepareContainerSettingsPayload(data, parameters, thresholds)
       expect(result.data.model).toBe(MICROBT_TYPE)
@@ -175,7 +210,10 @@ describe('containerSettingsUtils', () => {
 
     it('assembles payload for AntspaceHydro type', () => {
       const data = { type: HYDRO_TYPE }
-      const thresholds = { waterTemperature: { criticalLow: 21 }, supplyLiquidPressure: { normal: 2.3 } }
+      const thresholds = {
+        waterTemperature: { criticalLow: 21 },
+        supplyLiquidPressure: { normal: 2.3 },
+      }
       const result = prepareContainerSettingsPayload(data, {}, thresholds)
       expect(result.data.model).toBe(HYDRO_TYPE)
       expect(result.data.thresholds.waterTemperature?.criticalLow).toBe(21)

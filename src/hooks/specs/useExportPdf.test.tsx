@@ -75,9 +75,7 @@ describe('useExportPdf', () => {
   })
 
   it('exports PDF successfully with a single page', async () => {
-    const { result } = renderHook(() =>
-      useExportPdf({ fileName: 'test.pdf', pageWidthPx: 800 }),
-    )
+    const { result } = renderHook(() => useExportPdf({ fileName: 'test.pdf', pageWidthPx: 800 }))
     const containerRef = result.current[0]
 
     const container = document.createElement('div')

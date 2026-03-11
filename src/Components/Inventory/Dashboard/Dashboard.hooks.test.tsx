@@ -11,7 +11,13 @@ vi.mock('@/app/services/api', () => ({
 }))
 vi.mock('../../../hooks/useHeaderStats', () => ({
   useHeaderStats: () => ({
-    minersAmount: { total: 0, totalContainerCapacity: 0, onlineOrMinorErrors: 0, offlineOrSleep: 0, majorErrors: 0 },
+    minersAmount: {
+      total: 0,
+      totalContainerCapacity: 0,
+      onlineOrMinorErrors: 0,
+      offlineOrSleep: 0,
+      majorErrors: 0,
+    },
     isLoading: false,
   }),
 }))

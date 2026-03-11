@@ -28,7 +28,9 @@ describe('actionsEndpoints', () => {
     const endpoints = actionsEndpoints(builder as never)
 
     // getActions — empty payload → no querystring
-    const getActionsEmpty = (endpoints.getActions as Record<string, unknown>).query as (p: unknown) => string
+    const getActionsEmpty = (endpoints.getActions as unknown as Record<string, unknown>).query as (
+      p: unknown,
+    ) => string
     expect(getActionsEmpty({})).toBe('actions')
 
     // getActions — with payload → has querystring
@@ -36,11 +38,15 @@ describe('actionsEndpoints', () => {
     expect(getActionsWithPayload).toContain('actions')
 
     // getBatchActions
-    const getBatch = (endpoints.getBatchActions as Record<string, unknown>).query as (p: unknown) => string
+    const getBatch = (endpoints.getBatchActions as unknown as Record<string, unknown>).query as (
+      p: unknown,
+    ) => string
     expect(getBatch({})).toBe('actions/batch')
 
     // getAction
-    const getAction = (endpoints.getAction as Record<string, unknown>).query as (p: unknown) => string
+    const getAction = (endpoints.getAction as unknown as Record<string, unknown>).query as (
+      p: unknown,
+    ) => string
     expect(getAction({ type: 'miner', id: 42 })).toBe('actions/miner/42')
   })
 
@@ -49,13 +55,20 @@ describe('actionsEndpoints', () => {
     const builder = createMockBuilder()
     const endpoints = actionsEndpoints(builder as never)
 
-    const addAction = (endpoints.addNewAction as Record<string, unknown>).query as (p: unknown) => unknown
+    const addAction = (endpoints.addNewAction as unknown as Record<string, unknown>).query as (
+      p: unknown,
+    ) => unknown
     const result = addAction({ type: 'firmware', firmwareId: 1 }) as Record<string, unknown>
     expect(result.url).toBe('actions/firmware')
     expect(result.method).toBe('POST')
 
-    const cancelActions = (endpoints.cancelActions as Record<string, unknown>).query as (p: unknown) => unknown
-    const cancelResult = cancelActions({ type: 'firmware', ids: ['1', '2'] }) as Record<string, unknown>
+    const cancelActions = (endpoints.cancelActions as unknown as Record<string, unknown>).query as (
+      p: unknown,
+    ) => unknown
+    const cancelResult = cancelActions({ type: 'firmware', ids: ['1', '2'] }) as Record<
+      string,
+      unknown
+    >
     expect(cancelResult.url).toContain('cancel')
   })
 })
@@ -66,10 +79,13 @@ describe('authEndpoints', () => {
     const builder = createMockBuilder()
     const endpoints = authEndpoints(builder as never)
 
-    const getUserinfo = (endpoints.getUserinfo as Record<string, unknown>).query as () => string
+    const getUserinfo = (endpoints.getUserinfo as unknown as Record<string, unknown>)
+      .query as () => string
     expect(getUserinfo()).toBe('userinfo')
 
-    const postToken = (endpoints.postToken as Record<string, unknown>).query as (p: unknown) => unknown
+    const postToken = (endpoints.postToken as unknown as Record<string, unknown>).query as (
+      p: unknown,
+    ) => unknown
     const tokenResult = postToken({ username: 'u' }) as Record<string, unknown>
     expect(tokenResult.url).toBe('token')
   })
@@ -81,10 +97,13 @@ describe('btcDataEndpoints', () => {
     const builder = createMockBuilder()
     const endpoints = btcDataEndpoints(builder as never)
 
-    const getCurrent = (endpoints.getBtcDataCurrent as Record<string, unknown>).query as (p: unknown) => string
+    const getCurrent = (endpoints.getBtcDataCurrent as unknown as Record<string, unknown>)
+      .query as (p: unknown) => string
     expect(getCurrent({})).toContain('btcData/current')
 
-    const getPrice = (endpoints.getBtcDataPrice as Record<string, unknown>).query as (p: unknown) => string
+    const getPrice = (endpoints.getBtcDataPrice as unknown as Record<string, unknown>).query as (
+      p: unknown,
+    ) => string
     expect(getPrice({ currency: 'usd' })).toContain('btcData/price')
   })
 })
@@ -95,10 +114,14 @@ describe('logsEndpoints', () => {
     const builder = createMockBuilder()
     const endpoints = logsEndpoints(builder as never)
 
-    const getMulti = (endpoints.getMultiTailLog as Record<string, unknown>).query as (p: unknown) => string
+    const getMulti = (endpoints.getMultiTailLog as unknown as Record<string, unknown>).query as (
+      p: unknown,
+    ) => string
     expect(getMulti({})).toContain('tail-log/multi')
 
-    const getTailLog = (endpoints.getTailLog as Record<string, unknown>).query as (p: unknown) => string
+    const getTailLog = (endpoints.getTailLog as unknown as Record<string, unknown>).query as (
+      p: unknown,
+    ) => string
     expect(getTailLog({ device: 'x' })).toContain('tail-log')
   })
 })
@@ -112,7 +135,10 @@ describe('downtimeEndpoints', () => {
     // Call at least one inner query function
     const keys = Object.keys(endpoints as Record<string, unknown>)
     if (keys.length > 0) {
-      const firstEndpoint = (endpoints as Record<string, unknown>)[keys[0]] as Record<string, unknown>
+      const firstEndpoint = (endpoints as Record<string, unknown>)[keys[0]] as Record<
+        string,
+        unknown
+      >
       if (typeof firstEndpoint?.query === 'function') {
         const result = firstEndpoint.query({})
         expect(result).toBeDefined()
@@ -141,7 +167,10 @@ describe('globalEndpoints', () => {
   it('builds global query URLs for all endpoints', async () => {
     const { globalEndpoints } = await import('../api/endpoints/global')
     const builder = createMockBuilder()
-    const endpoints = globalEndpoints(builder as never) as Record<string, Record<string, unknown>>
+    const endpoints = globalEndpoints(builder as never) as unknown as Record<
+      string,
+      Record<string, unknown>
+    >
     expect(endpoints).toBeDefined()
 
     // Test each endpoint's query function
@@ -152,13 +181,21 @@ describe('globalEndpoints', () => {
     expect(getGlobalData({ type: 'test' })).toContain('global/data')
 
     const postProductionData = endpoints.postProductionData?.query as (p: unknown) => unknown
-    expect((postProductionData({}) as Record<string, unknown>).url).toBe('global/data?type=productionCosts')
+    expect((postProductionData({}) as Record<string, unknown>).url).toBe(
+      'global/data?type=productionCosts',
+    )
 
-    const setSiteEnergyGlobalData = endpoints.setSiteEnergyGlobalData?.query as (p: unknown) => unknown
-    expect((setSiteEnergyGlobalData({}) as Record<string, unknown>).url).toBe('global/data?type=siteEnergy')
+    const setSiteEnergyGlobalData = endpoints.setSiteEnergyGlobalData?.query as (
+      p: unknown,
+    ) => unknown
+    expect((setSiteEnergyGlobalData({}) as Record<string, unknown>).url).toBe(
+      'global/data?type=siteEnergy',
+    )
 
     const setContainerSettings = endpoints.setContainerSettings?.query as (p: unknown) => unknown
-    expect((setContainerSettings({}) as Record<string, unknown>).url).toBe('global/data?type=containerSettings')
+    expect((setContainerSettings({}) as Record<string, unknown>).url).toBe(
+      'global/data?type=containerSettings',
+    )
 
     // getContainerSettings - no model/overwriteCache
     const getContainerSettings = endpoints.getContainerSettings?.query as (p: unknown) => string
@@ -197,7 +234,10 @@ describe('globalEndpoints', () => {
   it('getFeatures.transformResponse merges URL and localStorage features', async () => {
     const { globalEndpoints } = await import('../api/endpoints/global')
     const builder = createMockBuilder()
-    const endpoints = globalEndpoints(builder as never) as Record<string, Record<string, unknown>>
+    const endpoints = globalEndpoints(builder as never) as unknown as Record<
+      string,
+      Record<string, unknown>
+    >
 
     const transformResponse = endpoints.getFeatures?.transformResponse as (r: unknown) => unknown
     if (transformResponse) {
@@ -211,7 +251,10 @@ describe('globalEndpoints', () => {
     localStorage.setItem('features', JSON.stringify({ isDevelopment: true }))
     const { globalEndpoints } = await import('../api/endpoints/global')
     const builder = createMockBuilder()
-    const endpoints = globalEndpoints(builder as never) as Record<string, Record<string, unknown>>
+    const endpoints = globalEndpoints(builder as never) as unknown as Record<
+      string,
+      Record<string, unknown>
+    >
 
     const transformResponse = endpoints.getFeatures?.transformResponse as (r: unknown) => unknown
     if (transformResponse) {
@@ -225,7 +268,10 @@ describe('globalEndpoints', () => {
     localStorage.setItem('features', 'invalid-json')
     const { globalEndpoints } = await import('../api/endpoints/global')
     const builder = createMockBuilder()
-    const endpoints = globalEndpoints(builder as never) as Record<string, Record<string, unknown>>
+    const endpoints = globalEndpoints(builder as never) as unknown as Record<
+      string,
+      Record<string, unknown>
+    >
 
     const transformResponse = endpoints.getFeatures?.transformResponse as (r: unknown) => unknown
     if (transformResponse) {
@@ -246,7 +292,11 @@ describe('minersEndpoints', () => {
     keys.slice(0, 3).forEach((key) => {
       const endpoint = (endpoints as Record<string, unknown>)[key] as Record<string, unknown>
       if (typeof endpoint?.query === 'function') {
-        try { expect(endpoint.query({})).toBeDefined() } catch { /* ok */ }
+        try {
+          expect(endpoint.query({})).toBeDefined()
+        } catch {
+          /* ok */
+        }
       }
     })
   })
@@ -262,7 +312,11 @@ describe('operationsEndpoints', () => {
     keys.slice(0, 3).forEach((key) => {
       const endpoint = (endpoints as Record<string, unknown>)[key] as Record<string, unknown>
       if (typeof endpoint?.query === 'function') {
-        try { expect(endpoint.query({})).toBeDefined() } catch { /* ok */ }
+        try {
+          expect(endpoint.query({})).toBeDefined()
+        } catch {
+          /* ok */
+        }
       }
     })
   })
@@ -278,7 +332,11 @@ describe('reportsEndpoints', () => {
     keys.slice(0, 3).forEach((key) => {
       const endpoint = (endpoints as Record<string, unknown>)[key] as Record<string, unknown>
       if (typeof endpoint?.query === 'function') {
-        try { expect(endpoint.query({})).toBeDefined() } catch { /* ok */ }
+        try {
+          expect(endpoint.query({})).toBeDefined()
+        } catch {
+          /* ok */
+        }
       }
     })
   })
@@ -294,7 +352,11 @@ describe('thingsEndpoints', () => {
     keys.slice(0, 3).forEach((key) => {
       const endpoint = (endpoints as Record<string, unknown>)[key] as Record<string, unknown>
       if (typeof endpoint?.query === 'function') {
-        try { expect(endpoint.query({})).toBeDefined() } catch { /* ok */ }
+        try {
+          expect(endpoint.query({})).toBeDefined()
+        } catch {
+          /* ok */
+        }
       }
     })
   })
@@ -310,7 +372,11 @@ describe('usersEndpoints', () => {
     keys.slice(0, 3).forEach((key) => {
       const endpoint = (endpoints as Record<string, unknown>)[key] as Record<string, unknown>
       if (typeof endpoint?.query === 'function') {
-        try { expect(endpoint.query({})).toBeDefined() } catch { /* ok */ }
+        try {
+          expect(endpoint.query({})).toBeDefined()
+        } catch {
+          /* ok */
+        }
       }
     })
   })

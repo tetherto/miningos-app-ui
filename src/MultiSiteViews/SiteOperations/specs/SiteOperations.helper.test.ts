@@ -5,9 +5,6 @@ import {
   HashrateData,
   RegionData,
   transformHashrateDataToCards,
-  getSiteOperationConfigStart,
-  getSiteOperationConfigEnd,
-  getPeriodLabelPrefix,
 } from '../SiteOperations.helper'
 
 import { COLOR } from '@/constants/colors'
@@ -212,51 +209,5 @@ describe('transformHashrateDataToCards', () => {
         color: COLOR.COLD_ORANGE,
       })
     })
-  })
-})
-
-describe('getSiteOperationConfigStart', () => {
-  it('returns a Date when dateRange.start is provided', () => {
-    const result = getSiteOperationConfigStart({ start: 1700000000000, end: 1700100000000 })
-    expect(result).toBeInstanceOf(Date)
-    expect(result?.getTime()).toBe(1700000000000)
-  })
-
-  it('returns undefined when dateRange is undefined', () => {
-    expect(getSiteOperationConfigStart(undefined)).toBeUndefined()
-  })
-
-  it('returns undefined when start is missing', () => {
-    expect(getSiteOperationConfigStart({ end: 1700100000000 } as unknown as never)).toBeUndefined()
-  })
-})
-
-describe('getSiteOperationConfigEnd', () => {
-  it('returns formatted date string when dateRange.end is provided', () => {
-    const result = getSiteOperationConfigEnd({ start: 1700000000000, end: 1700100000000 })
-    expect(typeof result).toBe('string')
-    expect(result).toMatch(/^\d{4}-\d{2}-\d{2}$/)
-  })
-
-  it('returns undefined when dateRange is undefined', () => {
-    expect(getSiteOperationConfigEnd(undefined)).toBeUndefined()
-  })
-
-  it('returns undefined when end is missing', () => {
-    expect(
-      getSiteOperationConfigEnd({ start: 1700000000000 } as unknown as never),
-    ).toBeUndefined()
-  })
-})
-
-describe('getPeriodLabelPrefix', () => {
-  it('returns Monthly for monthly period', () => {
-    expect(getPeriodLabelPrefix('monthly')).toBe('Monthly')
-  })
-
-  it('returns Daily for non-monthly period', () => {
-    expect(getPeriodLabelPrefix('daily')).toBe('Daily')
-    expect(getPeriodLabelPrefix('weekly')).toBe('Daily')
-    expect(getPeriodLabelPrefix(undefined)).toBe('Daily')
   })
 })

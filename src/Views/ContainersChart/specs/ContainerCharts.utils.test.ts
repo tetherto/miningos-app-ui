@@ -1,11 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  addChartLine,
-  addDataPoint,
-  getEmptySet,
-  getLineColor,
-} from '../ContainerCharts.utils'
+import { addChartLine, addDataPoint, getEmptySet, getLineColor } from '../ContainerCharts.utils'
+import type { ChartDataset } from '../ContainersChart.types'
 
 describe('ContainerCharts.utils', () => {
   describe('getEmptySet', () => {
@@ -23,7 +19,7 @@ describe('ContainerCharts.utils', () => {
 
   describe('addChartLine', () => {
     it('adds new line to target when prop does not exist', () => {
-      const target: Record<string, { type: string; label: string; data: unknown[]; borderColor: string; pointRadius: number }> = {}
+      const target: Record<string, ChartDataset> = {}
       addChartLine(target, 'temp', '#00ff00')
       expect(target.temp).toBeDefined()
       expect(target.temp.label).toBe('temp')
@@ -32,7 +28,7 @@ describe('ContainerCharts.utils', () => {
     })
 
     it('does not overwrite existing prop', () => {
-      const target: Record<string, { type: string; label: string; data: unknown[]; borderColor: string; pointRadius: number }> = {
+      const target: Record<string, ChartDataset> = {
         temp: getEmptySet('Existing', '#000'),
       }
       addChartLine(target, 'temp', '#fff')

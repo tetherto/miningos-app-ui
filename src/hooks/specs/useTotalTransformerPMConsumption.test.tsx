@@ -5,7 +5,7 @@ import { useTotalTransformerPMConsumption } from '../useTotalTransformerPMConsum
 
 const mockFns = vi.hoisted(() => ({
   getListThings: vi.fn(() => ({
-    data: [[{ type: 't-powermeter', last: { snap: { stats: { power_w: 100 } } } }]],
+    data: [[{ type: 't-powermeter', last: { snap: { stats: { power_w: 100 } } } }]] as unknown,
     isLoading: false,
   })),
 }))
@@ -29,10 +29,20 @@ describe('useTotalTransformerPMConsumption', () => {
 
   it('sums power for valid transformer powermeters (type: powermeter-1, pos: tr1)', () => {
     mockFns.getListThings.mockReturnValueOnce({
-      data: [[
-        { type: 'powermeter-1', info: { pos: 'tr1' }, last: { snap: { stats: { power_w: 500 } } } },
-        { type: 'powermeter-1', info: { pos: 'tr2' }, last: { snap: { stats: { power_w: 300 } } } },
-      ]],
+      data: [
+        [
+          {
+            type: 'powermeter-1',
+            info: { pos: 'tr1' },
+            last: { snap: { stats: { power_w: 500 } } },
+          },
+          {
+            type: 'powermeter-1',
+            info: { pos: 'tr2' },
+            last: { snap: { stats: { power_w: 300 } } },
+          },
+        ],
+      ],
       isLoading: false,
     })
     const { result } = renderHook(() => useTotalTransformerPMConsumption({ skip: false }))
@@ -41,9 +51,7 @@ describe('useTotalTransformerPMConsumption', () => {
 
   it('skips device with no power_w value', () => {
     mockFns.getListThings.mockReturnValueOnce({
-      data: [[
-        { type: 'powermeter-1', info: { pos: 'tr1' }, last: { snap: { stats: {} } } },
-      ]],
+      data: [[{ type: 'powermeter-1', info: { pos: 'tr1' }, last: { snap: { stats: {} } } }]],
       isLoading: false,
     })
     const { result } = renderHook(() => useTotalTransformerPMConsumption({ skip: false }))
@@ -52,9 +60,15 @@ describe('useTotalTransformerPMConsumption', () => {
 
   it('skips device with non-number power_w', () => {
     mockFns.getListThings.mockReturnValueOnce({
-      data: [[
-        { type: 'powermeter-1', info: { pos: 'tr1' }, last: { snap: { stats: { power_w: 'not-a-number' } } } },
-      ]],
+      data: [
+        [
+          {
+            type: 'powermeter-1',
+            info: { pos: 'tr1' },
+            last: { snap: { stats: { power_w: 'not-a-number' } } },
+          },
+        ],
+      ],
       isLoading: false,
     })
     const { result } = renderHook(() => useTotalTransformerPMConsumption({ skip: false }))
@@ -63,9 +77,15 @@ describe('useTotalTransformerPMConsumption', () => {
 
   it('returns 0 when no devices match transformer type', () => {
     mockFns.getListThings.mockReturnValueOnce({
-      data: [[
-        { type: 'other-device', info: { pos: 'shelf-1' }, last: { snap: { stats: { power_w: 100 } } } },
-      ]],
+      data: [
+        [
+          {
+            type: 'other-device',
+            info: { pos: 'shelf-1' },
+            last: { snap: { stats: { power_w: 100 } } },
+          },
+        ],
+      ],
       isLoading: false,
     })
     const { result } = renderHook(() => useTotalTransformerPMConsumption({ skip: false }))

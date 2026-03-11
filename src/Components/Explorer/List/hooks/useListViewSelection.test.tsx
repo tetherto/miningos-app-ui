@@ -1,6 +1,6 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook, act } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { describe, expect, it, vi } from 'vitest'
 
 import { useListViewSelection } from './useListViewSelection'
@@ -43,7 +43,7 @@ describe('useListViewSelection', () => {
       () =>
         useListViewSelection({
           selectedType: 'miner',
-          groupedDevices: { minerDevices: [], containerDevices: [], cabinetDevices: [] },
+          groupedDevices: { minerDevices: [], containerDevices: [] },
         }),
       { wrapper: createWrapper() },
     )
@@ -111,9 +111,7 @@ describe('useListViewSelection', () => {
       { wrapper: createWrapper() },
     )
 
-    expect(() =>
-      act(() => result.current.onMinerSelectionToggle(true, {} as never)),
-    ).not.toThrow()
+    expect(() => act(() => result.current.onMinerSelectionToggle(true, {} as never))).not.toThrow()
   })
 
   it('onMinerSelectionToggle selects device when isChecked=true and device.device exists', () => {
@@ -149,9 +147,7 @@ describe('useListViewSelection', () => {
       { wrapper: createWrapper() },
     )
 
-    expect(() =>
-      act(() => result.current.onDeviceSelectionToggle(true, {} as never)),
-    ).not.toThrow()
+    expect(() => act(() => result.current.onDeviceSelectionToggle(true, {} as never))).not.toThrow()
   })
 
   it('onDeviceSelectionToggle handles cabinet tab with isChecked=true', () => {

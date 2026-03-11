@@ -43,7 +43,7 @@ export const useBeepSound = ({
         return
       }
 
-      if (instance && typeof instance.playing === 'function' && instance.playing()) {
+      if (instance.playing()) {
         instance.pause()
         instance.stop()
       }
@@ -77,7 +77,7 @@ export const useBeepSound = ({
           return
         }
 
-        if (instance && typeof instance.playing === 'function' && instance.playing()) {
+        if (instance.playing()) {
           instance.pause()
           instance.stop()
         }

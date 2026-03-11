@@ -1,9 +1,4 @@
-import {
-  themeSlice,
-  getHasSidebar,
-  getIsAlertEnabled,
-  TOGGLE_SIDEBAR,
-} from './themeSlice'
+import { themeSlice, getHasSidebar, getIsAlertEnabled, TOGGLE_SIDEBAR } from './themeSlice'
 
 import type { RootState, ThemeState } from '@/types/redux.d'
 
@@ -28,12 +23,18 @@ describe('themeSlice', () => {
 
   describe('setDarkTheme', () => {
     it('sets theme to dark', () => {
-      const state = reducer({ value: 'light', sidebar: false, isAlertEnabled: true }, setDarkTheme())
+      const state = reducer(
+        { value: 'light', sidebar: false, isAlertEnabled: true },
+        setDarkTheme(),
+      )
       expect(state.value).toBe('dark')
     })
 
     it('does not change other fields', () => {
-      const state = reducer({ value: 'light', sidebar: true, isAlertEnabled: false }, setDarkTheme())
+      const state = reducer(
+        { value: 'light', sidebar: true, isAlertEnabled: false },
+        setDarkTheme(),
+      )
       expect(state.sidebar).toBe(true)
       expect(state.isAlertEnabled).toBe(false)
     })
@@ -53,29 +54,44 @@ describe('themeSlice', () => {
 
   describe('toggleSidebar', () => {
     it('toggles sidebar from false to true when no payload', () => {
-      const state = reducer({ value: 'dark', sidebar: false, isAlertEnabled: true }, toggleSidebar(undefined))
+      const state = reducer(
+        { value: 'dark', sidebar: false, isAlertEnabled: true },
+        toggleSidebar(undefined),
+      )
       expect(state.sidebar).toBe(true)
     })
 
     it('toggles sidebar from true to false when no payload', () => {
-      const state = reducer({ value: 'dark', sidebar: true, isAlertEnabled: true }, toggleSidebar(undefined))
+      const state = reducer(
+        { value: 'dark', sidebar: true, isAlertEnabled: true },
+        toggleSidebar(undefined),
+      )
       expect(state.sidebar).toBe(false)
     })
 
     it('sets sidebar to explicit true', () => {
-      const state = reducer({ value: 'dark', sidebar: false, isAlertEnabled: true }, toggleSidebar(true))
+      const state = reducer(
+        { value: 'dark', sidebar: false, isAlertEnabled: true },
+        toggleSidebar(true),
+      )
       expect(state.sidebar).toBe(true)
     })
 
     it('sets sidebar to explicit false', () => {
-      const state = reducer({ value: 'dark', sidebar: true, isAlertEnabled: true }, toggleSidebar(false))
+      const state = reducer(
+        { value: 'dark', sidebar: true, isAlertEnabled: true },
+        toggleSidebar(false),
+      )
       expect(state.sidebar).toBe(false)
     })
   })
 
   describe('setIsAlertEnabled', () => {
     it('enables alerts', () => {
-      const state = reducer({ value: 'dark', sidebar: false, isAlertEnabled: false }, setIsAlertEnabled(true))
+      const state = reducer(
+        { value: 'dark', sidebar: false, isAlertEnabled: false },
+        setIsAlertEnabled(true),
+      )
       expect(state.isAlertEnabled).toBe(true)
     })
 
@@ -95,25 +111,33 @@ describe('themeSlice', () => {
   })
 
   describe('selectors', () => {
-    const mockState = (theme: ThemeState): RootState => ({ theme } as RootState)
+    const mockState = (theme: ThemeState): RootState => ({ theme }) as RootState
 
     describe('getHasSidebar', () => {
       it('returns true when sidebar is open', () => {
-        expect(getHasSidebar(mockState({ value: 'dark', sidebar: true, isAlertEnabled: true }))).toBe(true)
+        expect(
+          getHasSidebar(mockState({ value: 'dark', sidebar: true, isAlertEnabled: true })),
+        ).toBe(true)
       })
 
       it('returns false when sidebar is closed', () => {
-        expect(getHasSidebar(mockState({ value: 'dark', sidebar: false, isAlertEnabled: true }))).toBe(false)
+        expect(
+          getHasSidebar(mockState({ value: 'dark', sidebar: false, isAlertEnabled: true })),
+        ).toBe(false)
       })
     })
 
     describe('getIsAlertEnabled', () => {
       it('returns true when alerts are enabled', () => {
-        expect(getIsAlertEnabled(mockState({ value: 'dark', sidebar: false, isAlertEnabled: true }))).toBe(true)
+        expect(
+          getIsAlertEnabled(mockState({ value: 'dark', sidebar: false, isAlertEnabled: true })),
+        ).toBe(true)
       })
 
       it('returns false when alerts are disabled', () => {
-        expect(getIsAlertEnabled(mockState({ value: 'dark', sidebar: false, isAlertEnabled: false }))).toBe(false)
+        expect(
+          getIsAlertEnabled(mockState({ value: 'dark', sidebar: false, isAlertEnabled: false })),
+        ).toBe(false)
       })
     })
   })

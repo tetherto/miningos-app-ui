@@ -6,6 +6,7 @@ vi.mock('@/app/services/logger', () => ({
 
 describe('environment', () => {
   beforeEach(async () => {
+    vi.clearAllMocks()
     vi.resetModules()
   })
 
@@ -117,11 +118,7 @@ describe('environment', () => {
       vi.stubEnv('VITE_APP_ENV', 'development')
       const { logEnvironmentInfo } = await import('../environment')
       logEnvironmentInfo()
-      expect(Logger.info).toHaveBeenCalledWith(
-        '🌍 Environment Info',
-        expect.any(Object),
-        true,
-      )
+      expect(Logger.info).toHaveBeenCalledWith('🌍 Environment Info', expect.any(Object), true)
     })
 
     it('calls Logger.info when in staging', async () => {

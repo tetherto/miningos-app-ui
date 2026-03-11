@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import {
-  ENERGY_REPORT_MINER_VIEW_SLICES,
-  sliceConfig,
-} from '../EnergyReportMinerView.utils'
+import { ENERGY_REPORT_MINER_VIEW_SLICES, sliceConfig } from '../EnergyReportMinerView.utils'
 
 describe('EnergyReportMinerView.utils', () => {
   describe('ENERGY_REPORT_MINER_VIEW_SLICES', () => {
@@ -36,9 +33,7 @@ describe('EnergyReportMinerView.utils', () => {
 
     it('MINER_UNIT getLabelName returns container name when container has type', () => {
       const config = sliceConfig[ENERGY_REPORT_MINER_VIEW_SLICES.MINER_UNIT]
-      const containers = [
-        { info: { container: 'bitdeer-1' }, type: 'container-bd-d40-m56' },
-      ]
+      const containers = [{ info: { container: 'bitdeer-1' }, type: 'container-bd-d40-m56' }]
       const label = config.getLabelName('bitdeer-1', containers)
       expect(label).toBeDefined()
       expect(typeof label).toBe('string')

@@ -1,6 +1,6 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook, act } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { describe, expect, it, vi } from 'vitest'
 
 import { useHeaderStats } from '../useHeaderStats'
@@ -8,22 +8,25 @@ import { useHeaderStats } from '../useHeaderStats'
 import { timezoneSlice } from '@/app/slices/timezoneSlice'
 
 const mockFns = vi.hoisted(() => ({
-  extDataQuery: vi.fn(() => ({ data: [[]], isLoading: false })),
-  globalConfigQuery: vi.fn(() => ({ data: [{}], isLoading: false })),
-  listThingsQuery: vi.fn(() => ({ data: [[]], isLoading: false })),
-  multiTailLogQuery: vi.fn(() => ({ data: [[[],[],[]]], isLoading: false })),
-  tailLogQuery: vi.fn(() => ({ data: [[]], isLoading: false })),
-  featureConfigQuery: vi.fn(() => ({ data: {} })),
-  totalTransformerPM: vi.fn(() => ({ isPowerConsumptionLoading: false, totalPowerConsumptionW: 0 })),
+  extDataQuery: vi.fn(() => ({ data: [[]] as unknown, isLoading: false })),
+  globalConfigQuery: vi.fn(() => ({ data: [{}] as unknown, isLoading: false })),
+  listThingsQuery: vi.fn(() => ({ data: [[]] as unknown, isLoading: false })),
+  multiTailLogQuery: vi.fn(() => ({ data: [[[], [], []]] as unknown, isLoading: false })),
+  tailLogQuery: vi.fn(() => ({ data: [[]] as unknown, isLoading: false })),
+  featureConfigQuery: vi.fn(() => ({ data: {} as unknown })),
+  totalTransformerPM: vi.fn(() => ({
+    isPowerConsumptionLoading: false,
+    totalPowerConsumptionW: 0,
+  })),
 }))
 
 vi.mock('@/app/services/api', () => ({
-  useGetExtDataQuery: (...args: unknown[]) => mockFns.extDataQuery(...args),
-  useGetGlobalConfigQuery: (...args: unknown[]) => mockFns.globalConfigQuery(...args),
-  useGetListThingsQuery: (...args: unknown[]) => mockFns.listThingsQuery(...args),
-  useGetMultiTailLogQuery: (...args: unknown[]) => mockFns.multiTailLogQuery(...args),
-  useGetTailLogQuery: (...args: unknown[]) => mockFns.tailLogQuery(...args),
-  useGetFeatureConfigQuery: (...args: unknown[]) => mockFns.featureConfigQuery(...args),
+  useGetExtDataQuery: mockFns.extDataQuery,
+  useGetGlobalConfigQuery: mockFns.globalConfigQuery,
+  useGetListThingsQuery: mockFns.listThingsQuery,
+  useGetMultiTailLogQuery: mockFns.multiTailLogQuery,
+  useGetTailLogQuery: mockFns.tailLogQuery,
+  useGetFeatureConfigQuery: mockFns.featureConfigQuery,
 }))
 vi.mock('../useSmartPolling', () => ({ useSmartPolling: () => 5000 }))
 vi.mock('../useSubtractedTime', () => ({ default: () => Date.now() }))
@@ -32,7 +35,7 @@ vi.mock('../useTimezone', () => {
   return { default: () => ({ getFormattedDate }) }
 })
 vi.mock('../useTotalTransformerPMConsumption', () => ({
-  useTotalTransformerPMConsumption: (...args: unknown[]) => mockFns.totalTransformerPM(...args),
+  useTotalTransformerPMConsumption: mockFns.totalTransformerPM,
 }))
 
 const createWrapper = () => {
@@ -81,7 +84,9 @@ describe('useHeaderStats', () => {
     await act(async () => {})
     expect(result.current.minersAmount.total).toBe(100)
     expect(result.current.minersAmount.onlineOrMinorErrors).toBe(80)
-    mockFns.multiTailLogQuery.mockReset().mockReturnValue({ data: [[[],[],[]]], isLoading: false })
+    mockFns.multiTailLogQuery
+      .mockReset()
+      .mockReturnValue({ data: [[[], [], []]], isLoading: false })
   })
 
   it('uses totalSystemConsumptionHeader when feature flag enabled', async () => {
@@ -110,11 +115,13 @@ describe('useHeaderStats', () => {
     await act(async () => {})
     expect(result.current.consumption.rawConsumptionW).toBe(500000)
     mockFns.featureConfigQuery.mockReset().mockReturnValue({ data: {} })
-    mockFns.totalTransformerPM.mockReset().mockReturnValue({ isPowerConsumptionLoading: false, totalPowerConsumptionW: 0 })
+    mockFns.totalTransformerPM
+      .mockReset()
+      .mockReturnValue({ isPowerConsumptionLoading: false, totalPowerConsumptionW: 0 })
   })
 
   it('returns null nominalValues when isLoadingNominalValues is true', () => {
-    mockFns.globalConfigQuery.mockReturnValue({ data: undefined, isLoading: true })
+    mockFns.globalConfigQuery.mockReturnValue({ data: undefined as unknown, isLoading: true })
     const { result } = renderHook(() => useHeaderStats(), {
       wrapper: createWrapper(),
     })
@@ -125,12 +132,16 @@ describe('useHeaderStats', () => {
 
   it('extracts pool stats from minerpool ext data', () => {
     mockFns.extDataQuery.mockReturnValue({
-      data: [[{
-        stats: [
-          { active_workers_count: 10, worker_count: 15, hashrate: 1000 },
-          { active_workers_count: 5, worker_count: 8, hashrate: 500 },
+      data: [
+        [
+          {
+            stats: [
+              { active_workers_count: 10, worker_count: 15, hashrate: 1000 },
+              { active_workers_count: 5, worker_count: 8, hashrate: 500 },
+            ],
+          },
         ],
-      }]],
+      ],
       isLoading: false,
     })
     const { result } = renderHook(() => useHeaderStats(), {
@@ -144,10 +155,14 @@ describe('useHeaderStats', () => {
 
   it('uses power meter data when devices have t-powermeter tag', () => {
     mockFns.listThingsQuery.mockReturnValue({
-      data: [[{
-        tags: ['t-powermeter'],
-        last: { snap: { stats: { power_w: 800000 } }, alerts: [] },
-      }]],
+      data: [
+        [
+          {
+            tags: ['t-powermeter'],
+            last: { snap: { stats: { power_w: 800000 } }, alerts: [] },
+          },
+        ],
+      ],
       isLoading: false,
     })
     const { result } = renderHook(() => useHeaderStats(), {

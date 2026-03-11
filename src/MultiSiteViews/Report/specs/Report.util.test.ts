@@ -81,9 +81,7 @@ describe('Report.util', () => {
     })
 
     it('returns period from regions[0].log[0] when api.period missing', () => {
-      expect(
-        getPeriod({ regions: [{ log: [{ period: 'monthly' }] }] } as never),
-      ).toBe('monthly')
+      expect(getPeriod({ regions: [{ log: [{ period: 'monthly' }] }] } as never)).toBe('monthly')
     })
 
     it('returns period from data.log[0] when regions path missing', () => {
@@ -92,7 +90,7 @@ describe('Report.util', () => {
 
     it('returns "daily" when no period found', () => {
       expect(getPeriod(undefined)).toBe('daily')
-      expect(getPeriod({})).toBe('daily')
+      expect(getPeriod({} as never)).toBe('daily')
     })
   })
 

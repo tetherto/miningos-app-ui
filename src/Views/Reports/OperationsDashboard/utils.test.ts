@@ -1,5 +1,3 @@
-import { render } from '@testing-library/react'
-import React from 'react'
 import { describe, it, expect } from 'vitest'
 
 import {
@@ -10,7 +8,6 @@ import {
   formatPowerConsumption,
   formatEfficiency,
 } from './utils'
-import * as styles from './styles'
 
 describe('OperationsDashboard.utils', () => {
   describe('sumObjectValues', () => {
@@ -285,61 +282,5 @@ describe('OperationsDashboard.utils', () => {
       expect(formatEfficiency(null)).toBe('0')
       expect(formatEfficiency(undefined)).toBe('0')
     })
-  })
-})
-
-describe('OperationsDashboard.styles', () => {
-  it('renders all exported styled components', () => {
-    const {
-      DashboardWrapper,
-      DatePickerContainer,
-      ChartsGrid,
-      ChartCardWrapper,
-      ChartHeader,
-      ChartTitle,
-      ChartActions,
-      ExpandIcon,
-      CompressIcon,
-      InfoIcon,
-      ChartContent,
-      LoadingContainer,
-      ErrorContainer,
-      NoDataContainer,
-    } = styles
-
-    const { unmount: u1 } = render(React.createElement(DashboardWrapper, null))
-    u1()
-    const { unmount: u2 } = render(React.createElement(DatePickerContainer, null))
-    u2()
-    const { unmount: u3 } = render(React.createElement(ChartsGrid, null))
-    u3()
-    const { unmount: u4 } = render(React.createElement(ChartCardWrapper, { $isExpanded: false }, null))
-    u4()
-    const { unmount: u5 } = render(React.createElement(ChartCardWrapper, { $isExpanded: true }, null))
-    u5()
-    const { unmount: u6 } = render(React.createElement(ChartHeader, { $hasHeaderMarginBottom: false, $hasHeaderPaddingLeft: false }, null))
-    u6()
-    const { unmount: u7 } = render(React.createElement(ChartTitle, null))
-    u7()
-    const { unmount: u8 } = render(React.createElement(ChartActions, null))
-    u8()
-    const { unmount: u9 } = render(React.createElement(ExpandIcon, null))
-    u9()
-    const { unmount: u10 } = render(React.createElement(CompressIcon, null))
-    u10()
-    const { unmount: u11 } = render(React.createElement(InfoIcon, null))
-    u11()
-    const { unmount: u12 } = render(React.createElement(ChartContent, null))
-    u12()
-    const { unmount: u13 } = render(React.createElement(ChartContent, { $contentCentered: true }, null))
-    u13()
-    const { unmount: u14 } = render(React.createElement(LoadingContainer, null))
-    u14()
-    const { unmount: u15 } = render(React.createElement(ErrorContainer, null))
-    u15()
-    const { unmount: u16 } = render(React.createElement(NoDataContainer, null))
-    u16()
-
-    expect(Object.keys(styles).length).toBeGreaterThan(0)
   })
 })

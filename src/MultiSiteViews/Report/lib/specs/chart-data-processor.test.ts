@@ -11,11 +11,15 @@ describe('chart-data-processor', () => {
   describe('processChartDataWithMissingMonths', () => {
     it('returns [] for empty or invalid data', () => {
       expect(processChartDataWithMissingMonths([], undefined, undefined)).toEqual([])
-      expect(processChartDataWithMissingMonths(undefined as never, undefined, undefined)).toEqual([])
+      expect(processChartDataWithMissingMonths(undefined as never, undefined, undefined)).toEqual(
+        [],
+      )
     })
     it('returns data as-is for non-monthly period', () => {
       const data = [{ label: 'a', value: 1 }] as never[]
-      expect(processChartDataWithMissingMonths(data, '2025-01-01', '2025-01-31', 'daily')).toEqual(data)
+      expect(processChartDataWithMissingMonths(data, '2025-01-01', '2025-01-31', 'daily')).toEqual(
+        data,
+      )
     })
     it('returns data as-is when startDate or endDate missing', () => {
       const data = [{ label: 'a', value: 1 }] as never[]
@@ -40,7 +44,9 @@ describe('chart-data-processor', () => {
     })
     it('returns series as-is for non-monthly period', () => {
       const series = [{ labels: ['a'], values: [1] }] as never[]
-      expect(processSeriesDataWithMissingMonths(series, '2025-01-01', '2025-01-31', 'daily')).toEqual(series)
+      expect(
+        processSeriesDataWithMissingMonths(series, '2025-01-01', '2025-01-31', 'daily'),
+      ).toEqual(series)
     })
   })
 

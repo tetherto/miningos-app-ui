@@ -42,7 +42,7 @@ describe('pduSlice', () => {
   })
 
   describe('selectors', () => {
-    const mockState = (pdu: PduState): RootState => ({ pdu } as RootState)
+    const mockState = (pdu: PduState): RootState => ({ pdu }) as RootState
 
     describe('getCurrentLayout', () => {
       it('returns true when PDU layout is active', () => {

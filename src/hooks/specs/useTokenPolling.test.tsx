@@ -1,6 +1,6 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { MemoryRouter } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -9,7 +9,7 @@ import useTokenPolling from '../useTokenPolling'
 import { authSlice } from '@/app/slices/authSlice'
 
 const mockFns = vi.hoisted(() => ({
-  postTokenQuery: vi.fn(() => ({ data: { token: null }, error: null })),
+  postTokenQuery: vi.fn(() => ({ data: { token: null as string | null }, error: null as unknown })),
 }))
 
 vi.mock('@/app/services/api', () => ({
@@ -63,7 +63,7 @@ describe('useTokenPolling', () => {
 
   it('handles 401 UNAUTHORIZED error from query', () => {
     mockFns.postTokenQuery.mockReturnValueOnce({
-      data: {},
+      data: { token: null },
       error: { status: 401 },
     })
     const { result } = renderHook(() => useTokenPolling('token'), {
@@ -74,7 +74,7 @@ describe('useTokenPolling', () => {
 
   it('handles 500 SERVER_ERROR from query', () => {
     mockFns.postTokenQuery.mockReturnValueOnce({
-      data: {},
+      data: { token: null },
       error: { status: 500 },
     })
     const { result } = renderHook(() => useTokenPolling('token'), {

@@ -31,7 +31,7 @@ describe('colorUtils', () => {
       const gen = createCategoricalColorGen()
       const colors: string[] = []
       for (let i = 0; i < 10; i++) {
-        colors.push(gen.next().value)
+        colors.push(gen.next().value as string)
       }
       expect(colors.length).toBe(10)
       expect(colors.every((c) => typeof c === 'string' && c.startsWith('#'))).toBe(true)

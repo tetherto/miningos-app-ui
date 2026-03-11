@@ -1,12 +1,14 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { useStaticMinerIpAssignment } from '../useStaticMinerIpAssignment'
 
-const stableData = { data: undefined as { isStaticIpAssignment?: boolean } | undefined }
-const mockUseGetFeatureConfigQuery = vi.fn(() => ({ data: stableData.data }))
+const stableData = { data: undefined as unknown as { isStaticIpAssignment?: boolean } | undefined }
+const mockUseGetFeatureConfigQuery = vi.fn((_arg?: unknown, _opts?: { skip?: boolean }) => ({
+  data: stableData.data,
+}))
 
 vi.mock('@/app/services/api', () => ({
   useGetFeatureConfigQuery: (arg: unknown, opts: { skip?: boolean }) =>
@@ -30,7 +32,8 @@ describe('useStaticMinerIpAssignment', () => {
     stableData.data = { isStaticIpAssignment: false }
     mockUseGetFeatureConfigQuery.mockImplementation(() => ({ data: stableData.data }))
     const { result } = renderHook(
-      () => useStaticMinerIpAssignment({ containerInfo: { container: '1-2' }, socket: '1_2', pdu: 3 }),
+      () =>
+        useStaticMinerIpAssignment({ containerInfo: { container: '1-2' }, socket: '1_2', pdu: 3 }),
       { wrapper: createWrapper() },
     )
     expect(result.current.minerIp).toBe('')

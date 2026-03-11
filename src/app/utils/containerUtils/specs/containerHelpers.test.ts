@@ -1,4 +1,8 @@
-import { getContainerParamsSettingList, naturalSorting, sortAlphanumeric } from '../containerHelpers'
+import {
+  getContainerParamsSettingList,
+  naturalSorting,
+  sortAlphanumeric,
+} from '../containerHelpers'
 
 describe('containerHelpers', () => {
   describe('naturalSorting', () => {
@@ -18,7 +22,7 @@ describe('containerHelpers', () => {
   })
   describe('getContainerParamsSettingList', () => {
     it('returns list of settings from minByCharMap', () => {
-      const minByCharMap = { 'Low': 0, 'Mid': 50, 'High': 100 }
+      const minByCharMap = { Low: 0, Mid: 50, High: 100 }
       const result = getContainerParamsSettingList(minByCharMap)
       expect(result).toHaveLength(3)
       expect(result[0]).toHaveProperty('label')
@@ -26,7 +30,7 @@ describe('containerHelpers', () => {
       expect(result[0].label).toBe('Low')
     })
     it('supports options with unit', () => {
-      const minByCharMap = { 'Temp': 20 }
+      const minByCharMap = { Temp: 20 }
       const result = getContainerParamsSettingList(minByCharMap, { unit: '°C' })
       expect(result[0].description).toContain('°C')
     })

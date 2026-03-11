@@ -7,7 +7,7 @@ const { storeMinersData, toggleExpandMiner, toggleTableColumn, setSelectedMiners
 
 const reducer = minersSlice.reducer
 
-const mockState = (miners: MinersState): RootState => ({ miners } as RootState)
+const mockState = (miners: MinersState): RootState => ({ miners }) as RootState
 
 describe('minersSlice', () => {
   describe('initial state', () => {
@@ -58,10 +58,7 @@ describe('minersSlice', () => {
     })
 
     it('replaces all entities on second call', () => {
-      const pre = reducer(
-        undefined,
-        storeMinersData({ miners: [{ mac: 'aa:bb' }] }),
-      )
+      const pre = reducer(undefined, storeMinersData({ miners: [{ mac: 'aa:bb' }] }))
       const state = reducer(pre, storeMinersData({ miners: [{ mac: 'cc:dd' }] }))
       expect(state.entities['aa:bb']).toBeUndefined()
       expect(state.entities['cc:dd']).toBeDefined()
@@ -89,10 +86,7 @@ describe('minersSlice', () => {
     })
 
     it('collapses all when all:true and collapse:true', () => {
-      const pre = reducer(
-        undefined,
-        storeMinersData({ miners: [{ mac: 'a1' }, { mac: 'a2' }] }),
-      )
+      const pre = reducer(undefined, storeMinersData({ miners: [{ mac: 'a1' }, { mac: 'a2' }] }))
       let state = reducer(pre, toggleExpandMiner({ mac: 'a1' })) // expand a1
       state = reducer(state, toggleExpandMiner({ all: true, collapse: true }))
       expect(state.entities['a1'].collapsed).toBe(true)
@@ -100,10 +94,7 @@ describe('minersSlice', () => {
     })
 
     it('expands all when all:true and collapse:false', () => {
-      const pre = reducer(
-        undefined,
-        storeMinersData({ miners: [{ mac: 'b1' }, { mac: 'b2' }] }),
-      )
+      const pre = reducer(undefined, storeMinersData({ miners: [{ mac: 'b1' }, { mac: 'b2' }] }))
       const state = reducer(pre, toggleExpandMiner({ all: true, collapse: false }))
       expect(state.entities['b1'].collapsed).toBe(false)
       expect(state.entities['b2'].collapsed).toBe(false)
@@ -146,7 +137,11 @@ describe('minersSlice', () => {
       // turn off all children
       let state = reducer(
         pre,
-        toggleTableColumn({ columns: ['powerMode.performance', 'powerMode.ths', 'powerMode.efficiency'], status: false, parent }),
+        toggleTableColumn({
+          columns: ['powerMode.performance', 'powerMode.ths', 'powerMode.efficiency'],
+          status: false,
+          parent,
+        }),
       )
       expect(state.visibleColumns['powerMode']).toBe(false)
     })
@@ -154,10 +149,7 @@ describe('minersSlice', () => {
     it('keeps parent on when some children remain checked', () => {
       const parent = {
         key: 'powerMode',
-        children: [
-          { key: 'powerMode.performance' },
-          { key: 'powerMode.ths' },
-        ],
+        children: [{ key: 'powerMode.performance' }, { key: 'powerMode.ths' }],
       }
       const pre = reducer(undefined, { type: '@@init' })
       // only turn off one child
@@ -172,10 +164,7 @@ describe('minersSlice', () => {
 
   describe('setSelectedMiners', () => {
     it('marks specified miners as selected', () => {
-      const pre = reducer(
-        undefined,
-        storeMinersData({ miners: [{ mac: 'm1' }, { mac: 'm2' }] }),
-      )
+      const pre = reducer(undefined, storeMinersData({ miners: [{ mac: 'm1' }, { mac: 'm2' }] }))
       const state = reducer(pre, setSelectedMiners(['m1']))
       expect(state.entities['m1'].selected).toBe(true)
       expect(state.entities['m2'].selected).toBe(false)
@@ -201,8 +190,8 @@ describe('minersSlice', () => {
     describe('getAllMiners', () => {
       it('returns miners as an array', () => {
         const entities = {
-          'm1': { mac: 'm1', selected: false, collapsed: true },
-          'm2': { mac: 'm2', selected: true, collapsed: false },
+          m1: { mac: 'm1', selected: false, collapsed: true },
+          m2: { mac: 'm2', selected: true, collapsed: false },
         }
         const state = mockState({ entities, visibleColumns: {} })
         const miners = getAllMiners(state)

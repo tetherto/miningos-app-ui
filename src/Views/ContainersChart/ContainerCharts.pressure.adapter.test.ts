@@ -120,7 +120,10 @@ describe('getOverviewChartPressureAdapter', () => {
     it('sets timeRange from first and last entry timestamps', () => {
       const entries: ChartEntry[] = [
         makeEntry(BITDEER_DEVICE, { tank1_bar_group: 2.5 }),
-        { ts: 1700003600, container_specific_stats_group_aggr: { [BITDEER_DEVICE]: { tank1_bar_group: 2.6 } } },
+        {
+          ts: 1700003600,
+          container_specific_stats_group_aggr: { [BITDEER_DEVICE]: { tank1_bar_group: 2.6 } },
+        },
       ]
       const result = getOverviewChartPressureAdapter(entries)
       expect(result.timeRange).not.toBeNull()
@@ -137,7 +140,10 @@ describe('getOverviewChartPressureAdapter', () => {
     it('accumulates data points across multiple entries', () => {
       const entries: ChartEntry[] = [
         makeEntry(BITDEER_DEVICE, { tank1_bar_group: 2.5 }),
-        { ts: 1700003600, container_specific_stats_group_aggr: { [BITDEER_DEVICE]: { tank1_bar_group: 2.6 } } },
+        {
+          ts: 1700003600,
+          container_specific_stats_group_aggr: { [BITDEER_DEVICE]: { tank1_bar_group: 2.6 } },
+        },
       ]
       const result = getOverviewChartPressureAdapter(entries)
       const tank1 = result.datasets.find((d) => d.label.includes('Tank-1'))

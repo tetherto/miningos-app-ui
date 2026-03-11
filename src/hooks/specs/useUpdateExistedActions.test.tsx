@@ -1,6 +1,6 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook, act } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { describe, expect, it, vi } from 'vitest'
 
 import { useUpdateExistedActions } from '../useUpdateExistedActions'
@@ -11,11 +11,9 @@ vi.mock('@/app/utils/actionUtils', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@/app/utils/actionUtils')>()
   return {
     ...actual,
-    getExistedActions: vi.fn((actionType: string, pendingSubmissions: unknown[]) => {
-      return pendingSubmissions.filter(
-        (ps: unknown) => (ps as { action: string }).action === actionType,
-      )
-    }),
+    getExistedActions: vi.fn((actionType: string, pendingSubmissions: unknown[]) =>
+      pendingSubmissions.filter((ps: unknown) => (ps as { action: string }).action === actionType),
+    ),
     getSelectedDevicesTags: vi.fn((devices: unknown[]) =>
       devices.map((d: unknown) => (d as { tag: string }).tag).filter(Boolean),
     ),

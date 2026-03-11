@@ -1,19 +1,23 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { describe, expect, it, vi } from 'vitest'
 
 import { useUserRole, useAppUserRoles } from '../useUserRole'
 
 import { authSlice } from '@/app/slices/authSlice'
 
-const mockFeatureConfigQuery = vi.fn(() => ({ data: {}, isLoading: false }))
-const mockGetRoles = vi.fn(() => [])
+const { mockFeatureConfigQuery, mockGetRoles } = vi.hoisted(() => ({
+  mockFeatureConfigQuery: vi.fn(() => ({ data: {} as unknown, isLoading: false })),
+  mockGetRoles: vi.fn(() => [] as string[]),
+}))
 
 vi.mock('@/app/services/api', () => ({
-  useGetFeatureConfigQuery: (...args: unknown[]) => mockFeatureConfigQuery(...args),
+  useGetFeatureConfigQuery: mockFeatureConfigQuery,
 }))
-vi.mock('@/app/utils/tokenUtils', () => ({ getRolesFromAuthToken: (...args: unknown[]) => mockGetRoles(...args) }))
+vi.mock('@/app/utils/tokenUtils', () => ({
+  getRolesFromAuthToken: mockGetRoles,
+}))
 
 const createWrapper = (token: string | null = 't') => {
   const store = configureStore({
@@ -57,7 +61,7 @@ describe('useUserRole', () => {
   })
 
   it('returns empty roles when isLoading is true', () => {
-    mockFeatureConfigQuery.mockReturnValueOnce({ data: undefined, isLoading: true })
+    mockFeatureConfigQuery.mockReturnValueOnce({ data: undefined as unknown, isLoading: true })
     const { result } = renderHook(() => useAppUserRoles(), { wrapper: createWrapper() })
     expect(result.current.isLoading).toBe(true)
     expect(result.current.userRoles).toHaveLength(0)

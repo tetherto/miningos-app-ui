@@ -8,7 +8,6 @@ import { vi } from 'vitest'
 // Import modular mocks
 import './setupTests/mocks/antd.ts'
 import './setupTests/mocks/dom.ts'
-import './setupTests/mocks/howler.ts'
 import './setupTests/mocks/react.ts'
 
 // Make vi available globally

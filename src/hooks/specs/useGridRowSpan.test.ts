@@ -61,7 +61,14 @@ describe('useGridRowSpan', () => {
     act(() => {
       vi.spyOn(el, 'getBoundingClientRect').mockReturnValue({
         height: 165,
-        width: 0, top: 0, left: 0, bottom: 0, right: 0, x: 0, y: 0, toJSON: () => {},
+        width: 0,
+        top: 0,
+        left: 0,
+        bottom: 0,
+        right: 0,
+        x: 0,
+        y: 0,
+        toJSON: () => {},
       })
       if (resizeObserverCallback) {
         resizeObserverCallback([], {} as ResizeObserver)

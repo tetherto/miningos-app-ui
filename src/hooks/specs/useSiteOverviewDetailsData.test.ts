@@ -168,7 +168,7 @@ describe('useSiteOverviewDetailsData', () => {
 
   it('should return loading state correctly', () => {
     vi.mocked(api.useGetTailLogQuery).mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: true,
       isFetching: false,
       error: undefined,

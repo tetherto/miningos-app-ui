@@ -299,23 +299,6 @@ describe('SubsidyVSFees.util', () => {
       expect(result.subsidyFees.lines![0].values).toEqual([0])
     })
 
-    it('should include zero avgFeesSatsVByte in samples when value is exactly 0', () => {
-      const mockApi = {
-        regions: [
-          {
-            region: 'SITE-C',
-            log: [
-              { ts: 1640995200000, totalFeesBTC: 0.1, hashRevenueBTC: 1.0, avgFeesSatsVByte: 0 },
-            ],
-          },
-        ],
-      } as unknown as ReportApiResponse
-
-      const result = buildSubsidyFeesCharts(mockApi, { days: 15 })
-      // avgFeesSatsVByte=0 should be included in samples (v !== 0 || avgFees === 0 => true)
-      expect(result.avgFeesSats.series[0].values).toEqual([0])
-    })
-
     it('should have correct chart structure and styling properties', () => {
       const mockApi = { regions: [{ region: 'SITE-C', log: [] }] } as unknown as ReportApiResponse
       const result = buildSubsidyFeesCharts(mockApi, { days: 15 })

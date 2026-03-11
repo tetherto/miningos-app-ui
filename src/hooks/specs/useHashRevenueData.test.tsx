@@ -5,9 +5,15 @@ import { describe, expect, it, vi } from 'vitest'
 import { useHashRevenueData } from '../useHashRevenueData'
 
 const mockFns = vi.hoisted(() => ({
-  revenueQuery: vi.fn(() => ({ isLoading: false, data: { summary: { avg: { hashRevenueUSD_PHS_d: 1 } }, log: [{ ts: 1, hash: 1 }] } })),
-  hashrateQuery: vi.fn(() => ({ isLoading: false, data: { log: [{ ts: 1, val: 1 }] } })),
-  hashPriceQuery: vi.fn(() => ({ isLoading: false, data: { summary: { avg: { hashprice: 2 } }, log: [] } })),
+  revenueQuery: vi.fn(() => ({
+    isLoading: false,
+    data: { summary: { avg: { hashRevenueUSD_PHS_d: 1 } }, log: [{ ts: 1, hash: 1 }] } as unknown,
+  })),
+  hashrateQuery: vi.fn(() => ({ isLoading: false, data: { log: [{ ts: 1, val: 1 }] } as unknown })),
+  hashPriceQuery: vi.fn(() => ({
+    isLoading: false,
+    data: { summary: { avg: { hashprice: 2 } }, log: [] } as unknown,
+  })),
   paramBuilderIsLoading: false,
 }))
 
@@ -24,15 +30,15 @@ vi.mock('../useMultiSiteRTRequestParams', () => ({
   }),
 }))
 
-const createWrapper = (siteId = 'site-1') => {
-  return ({ children }: { children: React.ReactNode }) => (
+const createWrapper =
+  (siteId = 'site-1') =>
+  ({ children }: { children: React.ReactNode }) => (
     <MemoryRouter initialEntries={[`/sites/${siteId}`]}>
       <Routes>
         <Route path="/sites/:siteId" element={children} />
       </Routes>
     </MemoryRouter>
   )
-}
 
 describe('useHashRevenueData', () => {
   it('returns isLoading, metrics and data logs', () => {
@@ -55,10 +61,9 @@ describe('useHashRevenueData', () => {
   })
 
   it('skips queries when dateRange has no start or end', () => {
-    const { result } = renderHook(
-      () => useHashRevenueData({ dateRange: {}, currency: 'USD' }),
-      { wrapper: createWrapper() },
-    )
+    const { result } = renderHook(() => useHashRevenueData({ dateRange: {}, currency: 'USD' }), {
+      wrapper: createWrapper(),
+    })
     expect(result.current.isLoading).toBe(false)
   })
 
@@ -83,7 +88,7 @@ describe('useHashRevenueData', () => {
   })
 
   it('shows isLoading=true when btcData query is loading', () => {
-    mockFns.revenueQuery.mockReturnValueOnce({ isLoading: true, data: undefined })
+    mockFns.revenueQuery.mockReturnValueOnce({ isLoading: true, data: undefined as unknown })
     const { result } = renderHook(
       () => useHashRevenueData({ dateRange: { start: 0, end: 1 }, currency: 'USD' }),
       { wrapper: createWrapper() },
@@ -92,7 +97,7 @@ describe('useHashRevenueData', () => {
   })
 
   it('shows isLoading=true when hashrate query is loading', () => {
-    mockFns.hashrateQuery.mockReturnValueOnce({ isLoading: true, data: undefined })
+    mockFns.hashrateQuery.mockReturnValueOnce({ isLoading: true, data: undefined as unknown })
     const { result } = renderHook(
       () => useHashRevenueData({ dateRange: { start: 0, end: 1 }, currency: 'USD' }),
       { wrapper: createWrapper() },
@@ -102,7 +107,11 @@ describe('useHashRevenueData', () => {
 
   it('handles null dateRange (triggers dateRange ?? {} null-coalescing)', () => {
     const { result } = renderHook(
-      () => useHashRevenueData({ dateRange: null as unknown as Record<string, unknown>, currency: 'USD' }),
+      () =>
+        useHashRevenueData({
+          dateRange: null as unknown as Record<string, unknown>,
+          currency: 'USD',
+        }),
       { wrapper: createWrapper() },
     )
     expect(result.current.isLoading).toBe(false)
@@ -111,7 +120,11 @@ describe('useHashRevenueData', () => {
 
   it('handles undefined dateRange (triggers dateRange ?? {})', () => {
     const { result } = renderHook(
-      () => useHashRevenueData({ dateRange: undefined as unknown as Record<string, unknown>, currency: 'USD' }),
+      () =>
+        useHashRevenueData({
+          dateRange: undefined as unknown as Record<string, unknown>,
+          currency: 'USD',
+        }),
       { wrapper: createWrapper() },
     )
     expect(result.current.isLoading).toBe(false)
@@ -120,19 +133,17 @@ describe('useHashRevenueData', () => {
   it('skips queries and shows loading when isParamBuilderLoading is true', () => {
     // Override paramBuilderIsLoading via the mock module
     const origIsLoading = mockFns.paramBuilderIsLoading
-    // @ts-expect-error mutating mock field for test
     mockFns.paramBuilderIsLoading = true
     const { result } = renderHook(
       () => useHashRevenueData({ dateRange: { start: 0, end: 1 }, currency: 'USD' }),
       { wrapper: createWrapper() },
     )
     expect(result.current.isLoading).toBe(true)
-    // @ts-expect-error restore
     mockFns.paramBuilderIsLoading = origIsLoading
   })
 
   it('shows isLoading=true when only hashPriceData query is loading', () => {
-    mockFns.hashPriceQuery.mockReturnValueOnce({ isLoading: true, data: undefined })
+    mockFns.hashPriceQuery.mockReturnValueOnce({ isLoading: true, data: undefined as unknown })
     const { result } = renderHook(
       () => useHashRevenueData({ dateRange: { start: 0, end: 1 }, currency: 'USD' }),
       { wrapper: createWrapper() },

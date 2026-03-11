@@ -11,8 +11,6 @@ vi.mock('@/Views/ContainerWidgets/Icons/PressureAlarm', () => ({ PressureAlarm: 
 vi.mock('@/Views/ContainerWidgets/Icons/TemperatureAlarm', () => ({ TemperatureAlarm: () => null }))
 
 import { DOUGHNUT_CHART_DEFAULT_MIN_HEIGHT } from '../DoughnutChartCard/DoughnutChartCard.const'
-import { exportSettingsToFile } from '../Settings/ImportExport/exportUtils'
-import { WIDGET_ALARMS } from '../Widgets/WidgetTopRow.const'
 import { formatValue as formatEnergyValue } from '../Electricity/ConsumedVsAvailableEnergy.utils'
 import {
   MINERS_ACTIVITY_ITEMS,
@@ -21,24 +19,29 @@ import {
   SKELETON_MIN_HEIGHT_DEFAULT,
   SKELETON_MIN_HEIGHT_LARGE,
 } from '../Explorer/DetailsView/MinersActivityChart/MinersActivityChart.const'
-import { MOVEMENTS_ACTIONS, SEARCHABLE_MOVEMENT_ATTRIBUTES } from '../Inventory/Movements/Movements.constants'
+import {
+  MOVEMENTS_ACTIONS,
+  SEARCHABLE_MOVEMENT_ATTRIBUTES,
+} from '../Inventory/Movements/Movements.constants'
 import {
   INITIAL_SKELETON_COUNT,
   INITIAL_SKELETON_MIN_MAX_AVG_COUNT,
   INITIAL_SKELETON_TIMELINE_COUNT,
 } from '../LineChartSkeleton/LineChartSkeleton.const'
-import { getRoleBadgeColors } from '../Settings/RBACControl/roleColors'
 import {
   DEFAULT_HEADER_PREFERENCES,
   HEADER_ITEMS,
   HEADER_PREFERENCES_EVENTS,
 } from '../Settings/HeaderControls/types'
+import { exportSettingsToFile } from '../Settings/ImportExport/exportUtils'
 import { validateSettingsJson } from '../Settings/ImportExport/importUtils'
+import { getRoleBadgeColors } from '../Settings/RBACControl/roleColors'
 import {
   EXPORT_DROPDOWN_OVERLAY_CLASS_NAME,
   EXPORT_ITEM_KEYS,
   EXPORT_ITEMS,
 } from '../StatsExport/StatsExport.const'
+import { WIDGET_ALARMS } from '../Widgets/WidgetTopRow.const'
 
 describe('DoughnutChartCard.const', () => {
   it('exports DOUGHNUT_CHART_DEFAULT_MIN_HEIGHT', () => {

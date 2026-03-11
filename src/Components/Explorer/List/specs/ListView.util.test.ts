@@ -6,6 +6,7 @@ import {
   paginateDevices,
   formatCabinets,
 } from '../ListView.util'
+
 import { CROSS_THING_TYPES } from '@/constants/devices'
 
 describe('ListView.util', () => {
@@ -13,7 +14,9 @@ describe('ListView.util', () => {
     it('returns options that include the given tab', () => {
       const result = getFilterOptionsByTab(CROSS_THING_TYPES.MINER)
       expect(Array.isArray(result)).toBe(true)
-      expect(result.some((opt) => opt.tab?.includes(CROSS_THING_TYPES.MINER))).toBe(true)
+      expect(
+        result.some((opt) => (opt.tab as string[] | undefined)?.includes(CROSS_THING_TYPES.MINER)),
+      ).toBe(true)
     })
     it('returns empty array for unknown tab', () => {
       const result = getFilterOptionsByTab('unknown-tab-xyz')
@@ -62,8 +65,14 @@ describe('ListView.util', () => {
 
   describe('mergeAndSortDevices', () => {
     it('merges and deduplicates by id', () => {
-      const initial = [{ id: 'd1', type: 'miner' }, { id: 'd2', type: 'miner' }] as never[]
-      const newDevices = [{ id: 'd2', type: 'miner' }, { id: 'd3', type: 'miner' }] as never[]
+      const initial = [
+        { id: 'd1', type: 'miner' },
+        { id: 'd2', type: 'miner' },
+      ] as never[]
+      const newDevices = [
+        { id: 'd2', type: 'miner' },
+        { id: 'd3', type: 'miner' },
+      ] as never[]
       const result = mergeAndSortDevices(initial, newDevices)
       expect(result).toHaveLength(3)
       const ids = result.map((d) => d.id).sort()

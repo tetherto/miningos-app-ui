@@ -43,7 +43,10 @@ describe('getOverviewChartOilAdapter', () => {
     })
 
     it('skips a tank dataset when its prop is null', () => {
-      const entry = makeEntry(BITDEER_DEVICE, { cold_temp_c_1_group: 45, cold_temp_c_2_group: null })
+      const entry = makeEntry(BITDEER_DEVICE, {
+        cold_temp_c_1_group: 45,
+        cold_temp_c_2_group: null,
+      })
       const result = getOverviewChartOilAdapter([entry])
       expect(result.datasets).toHaveLength(1)
       expect(result.datasets[0].label).toBe(`${BITDEER_DEVICE}-Oil-Tank-1`)
@@ -125,7 +128,10 @@ describe('getOverviewChartOilAdapter', () => {
     it('sets timeRange from first and last entry timestamps', () => {
       const entries: ChartEntry[] = [
         makeEntry(BITDEER_DEVICE, { cold_temp_c_1_group: 45 }),
-        { ts: 1700003600, container_specific_stats_group_aggr: { [BITDEER_DEVICE]: { cold_temp_c_1_group: 46 } } },
+        {
+          ts: 1700003600,
+          container_specific_stats_group_aggr: { [BITDEER_DEVICE]: { cold_temp_c_1_group: 46 } },
+        },
       ]
       const result = getOverviewChartOilAdapter(entries)
       expect(result.timeRange).not.toBeNull()
@@ -142,7 +148,10 @@ describe('getOverviewChartOilAdapter', () => {
     it('accumulates data points across multiple entries for same device', () => {
       const entries: ChartEntry[] = [
         makeEntry(BITDEER_DEVICE, { cold_temp_c_1_group: 45 }),
-        { ts: 1700003600, container_specific_stats_group_aggr: { [BITDEER_DEVICE]: { cold_temp_c_1_group: 46 } } },
+        {
+          ts: 1700003600,
+          container_specific_stats_group_aggr: { [BITDEER_DEVICE]: { cold_temp_c_1_group: 46 } },
+        },
       ]
       const result = getOverviewChartOilAdapter(entries)
       const tank1 = result.datasets.find((d) => d.label.includes('Tank-1'))

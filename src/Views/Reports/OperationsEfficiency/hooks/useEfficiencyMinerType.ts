@@ -10,7 +10,6 @@ import { useGetTailLogQuery } from '@/app/services/api'
 import { MINER_TYPE_NAME_MAP } from '@/constants/deviceConstants'
 
 export const useEfficiencyMinerType = ({ start, end }: { start: Date; end: Date }) => {
-  /* c8 ignore start */
   const {
     data: tailLogData,
     isLoading: isMinerTailLogLoading,
@@ -23,7 +22,6 @@ export const useEfficiencyMinerType = ({ start, end }: { start: Date; end: Date 
     start: start.valueOf(),
     end: end.valueOf(),
   })
-  /* c8 ignore stop */
 
   const tailLog = _head(tailLogData) ?? {}
 

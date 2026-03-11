@@ -1,17 +1,18 @@
 import { describe, it, expect } from 'vitest'
 
+import {
+  BAR_WIDTH,
+  BAR_PERCENTAGE,
+  CATEGORY_PERCENTAGE,
+} from '../Report/components/SiteDetails/SiteDetails.const'
+import { PERIOD_CONFIG, getPeriodConfig } from '../Report/hooks/useReportConfig'
 import { DEFAULT_TIMEZONE, DEFAULT_SHOW_LOGO, DEFAULT_IS_COVER } from '../Report/Report.constants'
-import { BAR_WIDTH, BAR_PERCENTAGE, CATEGORY_PERCENTAGE } from '../Report/components/SiteDetails/SiteDetails.const'
 import {
   REPORT_DURATIONS,
   REPORT_DURATION_NAMES,
   REPORTS_GENERATION_CONFIG,
   reportDurationOptions,
 } from '../Reports/Reports.constants'
-import {
-  PERIOD_CONFIG,
-  getPeriodConfig,
-} from '../Report/hooks/useReportConfig'
 
 describe('Report.constants', () => {
   it('exports DEFAULT_TIMEZONE', () => {

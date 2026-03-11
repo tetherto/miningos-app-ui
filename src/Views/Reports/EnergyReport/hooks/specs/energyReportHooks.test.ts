@@ -2,10 +2,15 @@ import { renderHook, act } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 
 const mockFns = vi.hoisted(() => ({
-  tailLogRangeAggr: vi.fn(() => ({ data: undefined, isLoading: false, isFetching: false, error: null })),
-  globalConfig: vi.fn(() => ({ data: undefined, isLoading: false })),
-  listThings: vi.fn(() => ({ data: undefined, isLoading: false, refetch: vi.fn() })),
-  tailLog: vi.fn(() => ({ data: undefined, isLoading: false, refetch: vi.fn() })),
+  tailLogRangeAggr: vi.fn(() => ({
+    data: undefined as unknown,
+    isLoading: false,
+    isFetching: false,
+    error: null,
+  })),
+  globalConfig: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
+  listThings: vi.fn(() => ({ data: undefined as unknown, isLoading: false, refetch: vi.fn() })),
+  tailLog: vi.fn(() => ({ data: undefined as unknown, isLoading: false, refetch: vi.fn() })),
 }))
 
 vi.mock('@/app/services/api', () => ({
@@ -16,7 +21,10 @@ vi.mock('@/app/services/api', () => ({
 }))
 
 import { useEnergyReportData } from '../useEnergyReportData'
-import { useEnergyReportSiteView, getMinersTypePowerModeChartData } from '../useEnergyReportSiteView'
+import {
+  useEnergyReportSiteView,
+  getMinersTypePowerModeChartData,
+} from '../useEnergyReportSiteView'
 
 const defaultDateRange = { start: Date.now() - 86400000, end: Date.now() }
 
@@ -29,7 +37,7 @@ describe('useEnergyReportData', () => {
   })
 
   it('returns null nominalValue when isLoadingNominalValues=true', () => {
-    mockFns.globalConfig.mockReturnValueOnce({ data: undefined, isLoading: true })
+    mockFns.globalConfig.mockReturnValueOnce({ data: undefined as unknown, isLoading: true })
     const { result } = renderHook(() => useEnergyReportData(defaultDateRange))
     expect(result.current.nominalValue).toBeNull()
   })
@@ -89,7 +97,10 @@ describe('useEnergyReportData', () => {
 
   it('shows isLoading=true when tailLog is fetching', () => {
     mockFns.tailLogRangeAggr.mockReturnValueOnce({
-      data: undefined, isLoading: false, isFetching: true, error: null,
+      data: undefined as unknown,
+      isLoading: false,
+      isFetching: true,
+      error: null,
     })
     const { result } = renderHook(() => useEnergyReportData(defaultDateRange))
     expect(result.current.isLoading).toBe(true)
@@ -142,17 +153,25 @@ describe('useEnergyReportSiteView', () => {
 
   it('handles list things data with miners', () => {
     mockFns.listThings.mockReturnValue({
-      data: [[{ type: 'miner-s19', info: { container: 'container-1' }, last: {}, containerId: 'c1' }]],
+      data: [
+        [{ type: 'miner-s19', info: { container: 'container-1' }, last: {}, containerId: 'c1' }],
+      ],
       isLoading: false,
       refetch: vi.fn(),
     })
     const { result } = renderHook(() => useEnergyReportSiteView(defaultDateRange))
     expect(result.current.containers.length).toBeGreaterThan(0)
-    mockFns.listThings.mockReset().mockReturnValue({ data: undefined, isLoading: false, refetch: vi.fn() })
+    mockFns.listThings
+      .mockReset()
+      .mockReturnValue({ data: undefined as unknown, isLoading: false, refetch: vi.fn() })
   })
 
   it('provides tailLogData as empty array when undefined', () => {
-    mockFns.tailLog.mockReturnValue({ data: undefined, isLoading: false, refetch: vi.fn() })
+    mockFns.tailLog.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      refetch: vi.fn(),
+    })
     const { result } = renderHook(() => useEnergyReportSiteView(defaultDateRange))
     expect(result.current.tailLogData).toEqual([])
   })
@@ -176,27 +195,49 @@ describe('useEnergyReportSiteView', () => {
     const { result } = renderHook(() => useEnergyReportSiteView(defaultDateRange))
     expect(result.current.powerModeData).toBeDefined()
     expect(result.current.containers[0].minersCount).toBe(3)
-    mockFns.tailLog.mockReset().mockReturnValue({ data: undefined, isLoading: false, refetch: vi.fn() })
-    mockFns.listThings.mockReset().mockReturnValue({ data: undefined, isLoading: false, refetch: vi.fn() })
+    mockFns.tailLog
+      .mockReset()
+      .mockReturnValue({ data: undefined as unknown, isLoading: false, refetch: vi.fn() })
+    mockFns.listThings
+      .mockReset()
+      .mockReturnValue({ data: undefined as unknown, isLoading: false, refetch: vi.fn() })
   })
 
   it('refetchSnapshotData calls both refetch functions', () => {
     const refetchTailLog = vi.fn()
     const refetchContainers = vi.fn()
-    mockFns.tailLog.mockReturnValue({ data: undefined, isLoading: false, refetch: refetchTailLog })
-    mockFns.listThings.mockReturnValue({ data: undefined, isLoading: false, refetch: refetchContainers })
+    mockFns.tailLog.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      refetch: refetchTailLog,
+    })
+    mockFns.listThings.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      refetch: refetchContainers,
+    })
     const { result } = renderHook(() => useEnergyReportSiteView(defaultDateRange))
     act(() => result.current.refetchSnapshotData())
     expect(refetchTailLog).toHaveBeenCalled()
     expect(refetchContainers).toHaveBeenCalled()
-    mockFns.tailLog.mockReset().mockReturnValue({ data: undefined, isLoading: false, refetch: vi.fn() })
-    mockFns.listThings.mockReset().mockReturnValue({ data: undefined, isLoading: false, refetch: vi.fn() })
+    mockFns.tailLog
+      .mockReset()
+      .mockReturnValue({ data: undefined as unknown, isLoading: false, refetch: vi.fn() })
+    mockFns.listThings
+      .mockReset()
+      .mockReturnValue({ data: undefined as unknown, isLoading: false, refetch: vi.fn() })
   })
 
   it('shows isLoading true when miner tail log is loading', () => {
-    mockFns.tailLog.mockReturnValue({ data: undefined, isLoading: true, refetch: vi.fn() })
+    mockFns.tailLog.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: true,
+      refetch: vi.fn(),
+    })
     const { result } = renderHook(() => useEnergyReportSiteView(defaultDateRange))
     expect(result.current.isLoading).toBe(true)
-    mockFns.tailLog.mockReset().mockReturnValue({ data: undefined, isLoading: false, refetch: vi.fn() })
+    mockFns.tailLog
+      .mockReset()
+      .mockReturnValue({ data: undefined as unknown, isLoading: false, refetch: vi.fn() })
   })
 })

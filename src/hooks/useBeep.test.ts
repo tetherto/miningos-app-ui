@@ -1,8 +1,8 @@
-import { renderHook } from '@testing-library/react'
-import { Provider } from 'react-redux'
 import { configureStore } from '@reduxjs/toolkit'
-import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
+import { renderHook } from '@testing-library/react'
 import React from 'react'
+import { Provider } from 'react-redux'
+import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest'
 
 // Define hoisted mock implementations so they can be referenced inside vi.mock factories
 const mockFns = vi.hoisted(() => ({
@@ -19,22 +19,23 @@ vi.mock('howler', () => ({
 }))
 
 import { useBeepSound } from './useBeep'
+
 import { themeSlice } from '@/app/slices/themeSlice'
 
 const createWrapper = (isAlertEnabled: boolean) => {
   const store = configureStore({
     reducer: { theme: themeSlice.reducer },
-    preloadedState: { theme: { value: 'dark', sidebar: false, isAlertEnabled } },
+    preloadedState: { theme: { value: 'dark' as const, sidebar: false, isAlertEnabled } },
   })
   return ({ children }: { children: React.ReactNode }) =>
-    React.createElement(Provider, { store }, children)
+    React.createElement(Provider as React.ElementType, { store }, children)
 }
 
 describe('useBeepSound', () => {
   beforeEach(() => {
+    vi.clearAllMocks()
     vi.useFakeTimers()
     mockFns.playing.mockReturnValue(false)
-    // Re-apply implementation after each auto-reset (vitest mockReset: true)
     mockFns.Howl.mockImplementation(() => ({
       play: mockFns.play,
       pause: mockFns.pause,

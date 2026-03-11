@@ -6,6 +6,7 @@ import {
   getDeviceName,
   getDetailedDeviceName,
 } from '../containerFormatters'
+
 import { COMPLETE_CONTAINER_TYPE } from '@/constants/containerConstants'
 
 describe('containerFormatters', () => {
@@ -59,7 +60,9 @@ describe('containerFormatters', () => {
 
   describe('getDeviceContainerPosText', () => {
     it('returns only container name when no pdu/socket or pos', () => {
-      expect(getDeviceContainerPosText({ containerInfo: { container: 'bitdeer-1' } })).toContain('Bitdeer')
+      expect(getDeviceContainerPosText({ containerInfo: { container: 'bitdeer-1' } })).toContain(
+        'Bitdeer',
+      )
     })
     it('returns container and destination when pos provided', () => {
       const result = getDeviceContainerPosText({

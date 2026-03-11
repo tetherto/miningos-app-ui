@@ -1,7 +1,10 @@
 import { describe, it, expect } from 'vitest'
 
 import { AUTH_CAPS } from '../authCaps.constants'
-import { INVENTORY_DEFAULT_PAGE_SIZE, INVENTORY_PAGINATION_STORAGE_KEYS } from '../inventoryPagination'
+import {
+  INVENTORY_DEFAULT_PAGE_SIZE,
+  INVENTORY_PAGINATION_STORAGE_KEYS,
+} from '../inventoryPagination'
 import { CONSUMPTION_NOMINAL_VALUE_W } from '../nominalValues'
 
 describe('authCaps.constants', () => {

@@ -5,11 +5,15 @@ import { renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 vi.mock('@/app/services/api', () => ({
-  useGetExtDataQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
-  useGetTailLogRangeAggrQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
-  useGetGlobalConfigQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
-  useGetListThingsQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
-  useGetTailLogQuery: vi.fn(() => ({ data: undefined, isLoading: false, refetch: vi.fn() })),
+  useGetExtDataQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
+  useGetTailLogRangeAggrQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
+  useGetGlobalConfigQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
+  useGetListThingsQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
+  useGetTailLogQuery: vi.fn(() => ({
+    data: undefined as unknown,
+    isLoading: false,
+    refetch: vi.fn(),
+  })),
 }))
 
 vi.mock('@/hooks/useTimezone', () => ({
@@ -102,9 +106,9 @@ vi.mock('@/hooks/useNominalConfigValues', () => ({
   })),
 }))
 
+import { useCurrentBTCPrice, buildCurrentBtcParams } from '../Financial/common/useCurrentBTCPrice'
 import useEBITDA from '../Financial/EBITDA/useEBITDA.hook'
 import useEnergyBalance from '../Financial/EnergyBalance/useEnergyBalance.hook'
-import { useCurrentBTCPrice, buildCurrentBtcParams } from '../Financial/common/useCurrentBTCPrice'
 import { useEnergyReportData } from '../Reports/EnergyReport/hooks/useEnergyReportData'
 import { useEnergyReportSiteView } from '../Reports/EnergyReport/hooks/useEnergyReportSiteView'
 

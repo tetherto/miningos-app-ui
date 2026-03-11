@@ -3,6 +3,8 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { useListViewFilters } from '../useListViewFilters'
 
+import type { FilterSelectionTuple } from '@/Components/Explorer/List/ListViewFilter/ListViewFilter.types'
+
 vi.mock('../useGetAvailableDevices', () => ({
   useGetAvailableDevices: () => ({
     devices: [{ type: 'miner.antminer', count: 10 }],
@@ -46,7 +48,9 @@ describe('useListViewFilters', () => {
     )
 
     act(() => {
-      result.current.onFiltersChange([['status', 'online', undefined]])
+      result.current.onFiltersChange([
+        ['status', 'online', undefined] as unknown as FilterSelectionTuple,
+      ])
     })
 
     expect(result.current.filters).toEqual({ status: ['online'] })
@@ -71,8 +75,8 @@ describe('useListViewFilters', () => {
 
     act(() => {
       result.current.onFiltersChange([
-        ['last.alerts', 'alert1', undefined],
-        ['last.alerts', 'alert2', undefined],
+        ['last.alerts', 'alert1', undefined] as unknown as FilterSelectionTuple,
+        ['last.alerts', 'alert2', undefined] as unknown as FilterSelectionTuple,
       ])
     })
 
@@ -85,7 +89,9 @@ describe('useListViewFilters', () => {
     )
 
     act(() => {
-      result.current.onFiltersChange([['last.alerts', 'alert1', undefined]])
+      result.current.onFiltersChange([
+        ['last.alerts', 'alert1', undefined] as unknown as FilterSelectionTuple,
+      ])
     })
 
     expect(result.current.filters?.['last.alerts']).toEqual(['alert1'])
@@ -98,7 +104,9 @@ describe('useListViewFilters', () => {
     )
 
     act(() => {
-      result.current.onFiltersChange([['status', 'online', undefined]])
+      result.current.onFiltersChange([
+        ['status', 'online', undefined] as unknown as FilterSelectionTuple,
+      ])
     })
     expect(result.current.filters).toBeDefined()
 

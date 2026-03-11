@@ -8,7 +8,11 @@ import {
 } from '../useHashrateData'
 
 import { DATE_RANGE } from '@/constants'
-import { STAT_3_HOURS, STAT_5_MINUTES, STAT_KEY_THRESHOLD_DAYS } from '@/constants/tailLogStatKeys.constants'
+import {
+  STAT_3_HOURS,
+  STAT_5_MINUTES,
+  STAT_KEY_THRESHOLD_DAYS,
+} from '@/constants/tailLogStatKeys.constants'
 
 const mockTailLogQuery = vi.fn()
 
@@ -46,7 +50,9 @@ describe('useHashrateData', () => {
 
     it('returns STAT_3_HOURS for range > threshold days', () => {
       const start = new Date('2025-01-01')
-      const end = new Date(new Date('2025-01-01').getTime() + (STAT_KEY_THRESHOLD_DAYS + 2) * 86400000)
+      const end = new Date(
+        new Date('2025-01-01').getTime() + (STAT_KEY_THRESHOLD_DAYS + 2) * 86400000,
+      )
       expect(getStatKeyFromDateRange(start, end)).toBe(STAT_3_HOURS)
     })
   })
@@ -102,7 +108,7 @@ describe('useHashrateData', () => {
 
     it('uses default date range when no dateRange param provided', () => {
       mockTailLogQuery.mockReturnValue({
-        data: undefined,
+        data: undefined as unknown,
         isLoading: false,
         isFetching: false,
         error: null,
@@ -115,7 +121,7 @@ describe('useHashrateData', () => {
 
     it('sets isLoading true when isFetching is true', () => {
       mockTailLogQuery.mockReturnValue({
-        data: undefined,
+        data: undefined as unknown,
         isLoading: false,
         isFetching: true,
         error: null,
@@ -129,7 +135,7 @@ describe('useHashrateData', () => {
 
     it('passes skip=true to query when skip param is true', () => {
       mockTailLogQuery.mockReturnValue({
-        data: undefined,
+        data: undefined as unknown,
         isLoading: false,
         isFetching: false,
         error: null,

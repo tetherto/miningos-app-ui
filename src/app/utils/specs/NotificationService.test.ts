@@ -46,9 +46,7 @@ describe('NotificationService', () => {
     })
     it('calls notification.error with duration 0 when dontClose true', () => {
       notifyError('Error', 'Persistent', true)
-      expect(notification.error).toHaveBeenCalledWith(
-        expect.objectContaining({ duration: 0 }),
-      )
+      expect(notification.error).toHaveBeenCalledWith(expect.objectContaining({ duration: 0 }))
     })
   })
 

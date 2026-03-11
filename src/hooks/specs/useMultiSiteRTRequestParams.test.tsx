@@ -1,6 +1,6 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { describe, expect, it, vi } from 'vitest'
 
 import useMultiSiteRTRequestParams from '../useMultiSiteRTRequestParams'
@@ -19,7 +19,15 @@ vi.mock('../useMultiSiteMode', () => ({
 const createWrapper = () => {
   const store = configureStore({
     reducer: { multiSite: multiSiteSlice.reducer },
-    preloadedState: { multiSite: { siteList: [], selectedSites: [], dateRange: null, timeframeType: null, isManualSelection: false } },
+    preloadedState: {
+      multiSite: {
+        siteList: [],
+        selectedSites: [],
+        dateRange: null,
+        timeframeType: null,
+        isManualSelection: false,
+      },
+    },
   })
   return ({ children }: { children: React.ReactNode }) => (
     <Provider store={store}>{children}</Provider>

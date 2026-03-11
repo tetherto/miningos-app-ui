@@ -75,12 +75,21 @@ describe('mining-utils', () => {
 
   describe('validateApiData', () => {
     it('returns invalid for null/undefined', () => {
-      expect(validateApiData(null)).toEqual({ isValid: false, error: 'API data is null or undefined' })
-      expect(validateApiData(undefined)).toEqual({ isValid: false, error: 'API data is null or undefined' })
+      expect(validateApiData(null)).toEqual({
+        isValid: false,
+        error: 'API data is null or undefined',
+      })
+      expect(validateApiData(undefined)).toEqual({
+        isValid: false,
+        error: 'API data is null or undefined',
+      })
     })
     it('returns invalid when regions missing', () => {
       expect(validateApiData({})).toEqual({ isValid: false, error: 'No valid regions data' })
-      expect(validateApiData({ regions: 'not-array' })).toEqual({ isValid: false, error: 'No valid regions data' })
+      expect(validateApiData({ regions: 'not-array' })).toEqual({
+        isValid: false,
+        error: 'No valid regions data',
+      })
     })
     it('returns valid when regions is array', () => {
       expect(validateApiData({ regions: [] })).toEqual({ isValid: true })

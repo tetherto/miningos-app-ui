@@ -13,6 +13,7 @@ describe('localStorageUtils', () => {
   const removeItemMock = vi.fn()
 
   beforeEach(() => {
+    vi.clearAllMocks()
     vi.stubGlobal('localStorage', {
       getItem: getItemMock,
       setItem: setItemMock,

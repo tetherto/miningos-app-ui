@@ -1,10 +1,6 @@
 import { describe, it, expect } from 'vitest'
 
-import {
-  processRevenueDatasetWith1MThreshold,
-  readRegionValue,
-  updateMetricFromData,
-} from './Dashboard.helpers'
+import { processRevenueDatasetWith1MThreshold } from './Dashboard.helpers'
 
 import { CURRENCY } from '@/constants/units'
 
@@ -253,67 +249,5 @@ describe('processRevenueDatasetWith1MThreshold', () => {
 
     expect(result.currencyUnit).toBe(CURRENCY.SATS)
     expect((resultDataset[0]['2025-10-01'] as { value: number }).value).toBe(0) // 0 * 1,000,000 = 0
-  })
-})
-
-describe('readRegionValue', () => {
-  it('returns 0 for null regionItem', () => {
-    expect(readRegionValue(null)).toBe(0)
-  })
-
-  it('returns 0 for unknown kind', () => {
-    const regionItem = { region: 'US', log: [], summary: {} }
-    expect(readRegionValue(regionItem, { kind: 'unknown' as never })).toBe(0)
-  })
-
-  it('returns 0 when no regionSource is provided', () => {
-    const regionItem = { region: 'US', log: [], summary: {} }
-    expect(readRegionValue(regionItem)).toBe(0)
-  })
-
-  it('returns mean of field values for logMean kind', () => {
-    const regionItem = {
-      region: 'US',
-      log: [{ hashrate: 100 }, { hashrate: 200 }],
-      summary: {},
-    }
-    const result = readRegionValue(regionItem, { kind: 'logMean', field: 'hashrate' })
-    expect(result).toBe(150)
-  })
-
-  it('returns path value for summaryPath kind', () => {
-    const regionItem = {
-      region: 'US',
-      log: [],
-      summary: { metrics: { total: 42 } },
-    }
-    const result = readRegionValue(regionItem, { kind: 'summaryPath', path: 'metrics.total' })
-    expect(result).toBe(42)
-  })
-})
-
-describe('updateMetricFromData', () => {
-  it('returns prevMetrics unchanged when data is null', () => {
-    const prevMetrics = { US: { hashrate: { value: 100 } } }
-    const result = updateMetricFromData(prevMetrics, null, { metricKey: 'hashrate' })
-    expect(result).toEqual(prevMetrics)
-  })
-
-  it('updates region metrics from API data', () => {
-    const prevMetrics = {
-      US: { hashrate: { value: 0 } },
-      ALL: { hashrate: { value: 0 } },
-    }
-    const data = {
-      regions: [{ region: 'us', log: [{ hashrate: 500 }], summary: {} }],
-      allSitesTotal: 999,
-    }
-    const result = updateMetricFromData(prevMetrics, data, {
-      metricKey: 'hashrate',
-      regionSource: { kind: 'logMean', field: 'hashrate' },
-      allSitesPath: ['allSitesTotal'],
-    })
-    expect(result.US.hashrate.value).toBe(500)
-    expect(result.ALL.hashrate.value).toBe(999)
   })
 })

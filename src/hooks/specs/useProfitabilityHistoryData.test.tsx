@@ -1,6 +1,6 @@
+import { configureStore } from '@reduxjs/toolkit'
 import { renderHook } from '@testing-library/react'
 import { Provider } from 'react-redux'
-import { configureStore } from '@reduxjs/toolkit'
 import { describe, expect, it, vi } from 'vitest'
 
 import { useProfitabilityHistoryData } from '../useProfitabilityHistoryData'
@@ -8,8 +8,8 @@ import { useProfitabilityHistoryData } from '../useProfitabilityHistoryData'
 import { timezoneSlice } from '@/app/slices/timezoneSlice'
 
 const mockFns = vi.hoisted(() => ({
-  tailLogQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
-  extDataQuery: vi.fn(() => ({ data: undefined, isLoading: false })),
+  tailLogQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
+  extDataQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
 }))
 
 vi.mock('@/app/services/api', () => ({
@@ -80,7 +80,7 @@ describe('useProfitabilityHistoryData', () => {
       ],
       isLoading: false,
     })
-    mockFns.extDataQuery.mockReturnValue({ data: undefined, isLoading: false })
+    mockFns.extDataQuery.mockReturnValue({ data: undefined as unknown, isLoading: false })
 
     const { result } = renderHook(
       () =>
@@ -92,11 +92,11 @@ describe('useProfitabilityHistoryData', () => {
 
     expect(result.current.data.datasets[0].data.length).toBeGreaterThan(0)
     expect(result.current.data.timeRange.start).toBe(TS1)
-    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false })
+    mockFns.tailLogQuery.mockReturnValue({ data: undefined as unknown, isLoading: false })
   })
 
   it('processes hourly_estimates from electricity data', () => {
-    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false })
+    mockFns.tailLogQuery.mockReturnValue({ data: undefined as unknown, isLoading: false })
     mockFns.extDataQuery.mockReturnValue({
       data: [
         {
@@ -118,7 +118,7 @@ describe('useProfitabilityHistoryData', () => {
     )
 
     expect(result.current.data.datasets[1].data.length).toBeGreaterThan(0)
-    mockFns.extDataQuery.mockReturnValue({ data: undefined, isLoading: false })
+    mockFns.extDataQuery.mockReturnValue({ data: undefined as unknown, isLoading: false })
   })
 
   it('handles non-finite revenue values with getFloatValue fallback', () => {
@@ -126,7 +126,7 @@ describe('useProfitabilityHistoryData', () => {
       data: [{ hourlyRevenues: [{ ts: TS1, revenue: NaN }] }],
       isLoading: false,
     })
-    mockFns.extDataQuery.mockReturnValue({ data: undefined, isLoading: false })
+    mockFns.extDataQuery.mockReturnValue({ data: undefined as unknown, isLoading: false })
 
     const { result } = renderHook(
       () =>
@@ -138,12 +138,12 @@ describe('useProfitabilityHistoryData', () => {
 
     const forecastedDataset = result.current.data.datasets[0]
     expect(forecastedDataset.data[0].y).toBe(0)
-    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false })
+    mockFns.tailLogQuery.mockReturnValue({ data: undefined as unknown, isLoading: false })
   })
 
   it('handles loading states', () => {
-    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: true })
-    mockFns.extDataQuery.mockReturnValue({ data: undefined, isLoading: false })
+    mockFns.tailLogQuery.mockReturnValue({ data: undefined as unknown, isLoading: true })
+    mockFns.extDataQuery.mockReturnValue({ data: undefined as unknown, isLoading: false })
 
     const { result } = renderHook(
       () =>
@@ -154,7 +154,7 @@ describe('useProfitabilityHistoryData', () => {
     )
 
     expect(result.current.isLoading).toBe(true)
-    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false })
+    mockFns.tailLogQuery.mockReturnValue({ data: undefined as unknown, isLoading: false })
   })
 
   it('handles missing hourlyRevenues (null/undefined)', () => {
@@ -162,7 +162,7 @@ describe('useProfitabilityHistoryData', () => {
       data: [{ someOtherField: 'value' }],
       isLoading: false,
     })
-    mockFns.extDataQuery.mockReturnValue({ data: undefined, isLoading: false })
+    mockFns.extDataQuery.mockReturnValue({ data: undefined as unknown, isLoading: false })
 
     const { result } = renderHook(
       () =>
@@ -173,6 +173,6 @@ describe('useProfitabilityHistoryData', () => {
     )
 
     expect(result.current.data.datasets[0].data).toHaveLength(0)
-    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false })
+    mockFns.tailLogQuery.mockReturnValue({ data: undefined as unknown, isLoading: false })
   })
 })

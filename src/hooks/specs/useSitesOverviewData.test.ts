@@ -176,7 +176,7 @@ describe('useSitesOverviewData', () => {
 
   it('should return loading state correctly when units are loading', () => {
     vi.mocked(api.useGetListThingsQuery).mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: true,
       isFetching: false,
       error: undefined,
@@ -190,7 +190,7 @@ describe('useSitesOverviewData', () => {
 
   it('should return loading state correctly when tail log is loading', () => {
     vi.mocked(api.useGetTailLogQuery).mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: true,
       isFetching: false,
       error: undefined,

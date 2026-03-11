@@ -55,7 +55,7 @@
     "start:demo-capture": "cross-env VITE_SAVE_MOCKDATA=true vite",
     "build": "vite build",
     "build:demo": "VITE_USE_MOCKDATA=true vite build",
-    "fullcheck": "npm run prettier:fix && npm run lint && npm run typecheck && npm run test:coverage",
+    "fullcheck": "npm run prettier:fix && npm run lint && npm run typecheck && npm run test:coverage && git push",
     "preview": "vite preview",
     "preview:demo": "VITE_USE_MOCKDATA=true vite preview",
     "typecheck": "NODE_OPTIONS='--max-old-space-size=4096' tsc --noEmit",
@@ -63,9 +63,9 @@
     "preview:staging": "vite preview --mode staging",
     "build-with-sentry": "npm run build && npm run sentry:sourcemaps",
     "build-with-sentry:staging": "npm run build:staging && npm run sentry:sourcemaps",
-    "test": "NODE_OPTIONS='--max-old-space-size=4096' vitest run --config vitest.config.js --maxConcurrency=5",
+    "test": "vitest run --config vitest.config.js --maxConcurrency=5",
     "test:watch": "vitest --watch --config vitest.config.js",
-    "test:coverage": "node scripts/cleanCoverageTmp.cjs && NODE_OPTIONS='--max-old-space-size=4096' vitest run --coverage --config vitest.config.js --maxConcurrency=5",
+    "test:coverage": "vitest run --coverage --config vitest.config.js",
     "lint": "eslint --cache --cache-location .eslintcache --debug --max-warnings 0",
     "lint:fix": "eslint --fix --cache --cache-location .eslintcache --max-warnings 0",
     "prettier": "prettier ./src --check",
@@ -138,6 +138,5 @@
     "typescript": "^5.9.3",
     "vite": "^7.3.1",
     "vitest": "^3.0.8"
-  },
-  "packageManager": "pnpm@10.30.3+sha512.c961d1e0a2d8e354ecaa5166b822516668b7f44cb5bd95122d590dd81922f606f5473b6d23ec4a5be05e7fcd18e8488d47d978bbe981872f1145d06e9a740017"
+  }
 }

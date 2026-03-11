@@ -2,7 +2,7 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 
 const mockFns = vi.hoisted(() => ({
-  listThingsQuery: vi.fn(() => ({ data: undefined, isFetching: false })),
+  listThingsQuery: vi.fn(() => ({ data: undefined as unknown, isFetching: false })),
   smartPolling: vi.fn(() => 10000),
 }))
 
@@ -37,10 +37,11 @@ vi.mock('../../ListView.util', () => ({
   paginateDevices: vi.fn((devices: unknown[], _pageSize: number, _page: number) => devices),
 }))
 
+import { useListViewData } from '../useListViewData'
+
 import { isContainerOffline } from '@/app/utils/containerUtils'
 import { isContainer, isMiner } from '@/app/utils/deviceUtils'
 import { CROSS_THING_TYPES } from '@/constants/devices'
-import { useListViewData } from '../useListViewData'
 
 const defaultProps = {
   selectedType: CROSS_THING_TYPES.MINER,
@@ -119,7 +120,7 @@ describe('useListViewData', () => {
 
   it('handles isFetching=true with empty devices as isLoading=true', () => {
     mockFns.listThingsQuery.mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isFetching: true,
     })
 
@@ -128,7 +129,7 @@ describe('useListViewData', () => {
     expect(result.current.isLoading).toBe(true)
 
     // Restore default
-    mockFns.listThingsQuery.mockReturnValue({ data: undefined, isFetching: false })
+    mockFns.listThingsQuery.mockReturnValue({ data: undefined as unknown, isFetching: false })
   })
 
   it('processes container-type devices', async () => {
@@ -166,12 +167,16 @@ describe('useListViewData', () => {
   })
 
   it('groups container as containerOffline when isContainerOffline returns true', async () => {
-    vi.mocked(isContainer).mockImplementation((type: string) => type === 'container.pod')
-    vi.mocked(isMiner).mockImplementation((type: string) => false)
+    vi.mocked(isContainer).mockImplementation(
+      (type: string | undefined) => type === 'container.pod',
+    )
+    vi.mocked(isMiner).mockImplementation((_type: string | undefined) => false)
     vi.mocked(isContainerOffline).mockReturnValue(true)
     // getDeviceData mock returns [{}, { snap: { stats: {} } }] to trigger isContainerOffline branch
     const { getDeviceData } = await import('@/app/utils/deviceUtils')
-    vi.mocked(getDeviceData).mockReturnValue([{}, { snap: { stats: {} } }] as ReturnType<typeof getDeviceData>)
+    vi.mocked(getDeviceData).mockReturnValue([{}, { snap: { stats: {} } }] as ReturnType<
+      typeof getDeviceData
+    >)
 
     const mockContainer = { id: 'c1', type: 'container.pod' }
     mockFns.listThingsQuery.mockReturnValue({
@@ -192,19 +197,25 @@ describe('useListViewData', () => {
     })
 
     // restore
-    vi.mocked(isContainer).mockImplementation((type: string) => type?.startsWith('container'))
-    vi.mocked(isMiner).mockImplementation((type: string) => type?.startsWith('miner'))
+    vi.mocked(isContainer).mockImplementation(
+      (type: string | undefined) => !!type?.startsWith('container'),
+    )
+    vi.mocked(isMiner).mockImplementation((type: string | undefined) => !!type?.startsWith('miner'))
     vi.mocked(isContainerOffline).mockReturnValue(false)
     vi.mocked(getDeviceData).mockReturnValue([{}, {}] as ReturnType<typeof getDeviceData>)
-    mockFns.listThingsQuery.mockReturnValue({ data: undefined, isFetching: false })
+    mockFns.listThingsQuery.mockReturnValue({ data: undefined as unknown, isFetching: false })
   })
 
   it('groups container as containerDevices when isContainerOffline returns false', async () => {
-    vi.mocked(isContainer).mockImplementation((type: string) => type === 'container.pod')
-    vi.mocked(isMiner).mockImplementation((type: string) => false)
+    vi.mocked(isContainer).mockImplementation(
+      (type: string | undefined) => type === 'container.pod',
+    )
+    vi.mocked(isMiner).mockImplementation((_type: string | undefined) => false)
     vi.mocked(isContainerOffline).mockReturnValue(false)
     const { getDeviceData } = await import('@/app/utils/deviceUtils')
-    vi.mocked(getDeviceData).mockReturnValue([{}, { snap: { stats: {} } }] as ReturnType<typeof getDeviceData>)
+    vi.mocked(getDeviceData).mockReturnValue([{}, { snap: { stats: {} } }] as ReturnType<
+      typeof getDeviceData
+    >)
 
     mockFns.listThingsQuery.mockReturnValue({
       data: [[{ id: 'c2', type: 'container.pod' }]],
@@ -220,10 +231,12 @@ describe('useListViewData', () => {
     })
 
     // restore
-    vi.mocked(isContainer).mockImplementation((type: string) => type?.startsWith('container'))
-    vi.mocked(isMiner).mockImplementation((type: string) => type?.startsWith('miner'))
+    vi.mocked(isContainer).mockImplementation(
+      (type: string | undefined) => !!type?.startsWith('container'),
+    )
+    vi.mocked(isMiner).mockImplementation((type: string | undefined) => !!type?.startsWith('miner'))
     vi.mocked(getDeviceData).mockReturnValue([{}, {}] as ReturnType<typeof getDeviceData>)
-    mockFns.listThingsQuery.mockReturnValue({ data: undefined, isFetching: false })
+    mockFns.listThingsQuery.mockReturnValue({ data: undefined as unknown, isFetching: false })
   })
 
   it('minerTabDevices maps isRaw=true devices with getTableDeviceData', async () => {
@@ -255,7 +268,7 @@ describe('useListViewData', () => {
 
     // restore
     vi.mocked(getTableDeviceData).mockReturnValue({} as ReturnType<typeof getTableDeviceData>)
-    mockFns.listThingsQuery.mockReturnValue({ data: undefined, isFetching: false })
+    mockFns.listThingsQuery.mockReturnValue({ data: undefined as unknown, isFetching: false })
   })
 
   it('minerTabDevices maps isRaw=false devices without getTableDeviceData', async () => {
@@ -277,6 +290,6 @@ describe('useListViewData', () => {
       expect(Array.isArray(result.current.minerTabDevices)).toBe(true)
     })
 
-    mockFns.listThingsQuery.mockReturnValue({ data: undefined, isFetching: false })
+    mockFns.listThingsQuery.mockReturnValue({ data: undefined as unknown, isFetching: false })
   })
 })

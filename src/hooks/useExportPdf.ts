@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useRef, useState, type RefObject } from 'react'
 
 import { loadJsPDF, loadHtmlToImage } from '@/app/utils/lazyPdfExport'
 import { COLOR } from '@/constants/colors'
@@ -83,5 +83,9 @@ export const useExportPdf = ({
     }
   }
 
-  return [containerRef, exportAsPdf, isExporting]
+  return [containerRef, exportAsPdf, isExporting] as [
+    RefObject<HTMLElement | null>,
+    () => Promise<void>,
+    boolean,
+  ]
 }

@@ -3,16 +3,19 @@ import { describe, expect, it, vi } from 'vitest'
 
 const mockFns = vi.hoisted(() => ({
   financialDateRange: vi.fn(() => ({
-    dateRange: { start: 1704067200000, end: 1706745600000 },
+    dateRange: { start: 1704067200000, end: 1706745600000 } as {
+      start: number
+      end: number
+    } | null,
     handleRangeChange: vi.fn(),
   })),
   minerpoolTransactions: vi.fn(() => ({
-    data: undefined,
+    data: undefined as unknown,
     isLoading: false,
-    error: null,
+    error: null as unknown,
   })),
   historicalBTCPrices: vi.fn(() => ({
-    data: undefined,
+    data: undefined as unknown,
     isLoading: false,
     error: null,
   })),
@@ -20,20 +23,20 @@ const mockFns = vi.hoisted(() => ({
     currentBTCPrice: 0,
     isLoading: false,
     error: null,
-    data: undefined,
+    data: undefined as unknown,
   })),
   productionCosts: vi.fn(() => ({
-    data: undefined,
+    data: undefined as unknown,
     isLoading: false,
     error: null,
   })),
   powerConsumption: vi.fn(() => ({
-    data: undefined,
+    data: undefined as unknown,
     isLoading: false,
     error: null,
   })),
   electricityCurtailment: vi.fn(() => ({
-    data: undefined,
+    data: undefined as unknown,
     isLoading: false,
     error: null,
   })),
@@ -135,14 +138,14 @@ describe('useEnergyBalance', () => {
 
   it('isLoading is true when a response is loading', () => {
     mockFns.minerpoolTransactions.mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: true,
       error: null,
     })
     const { result } = renderHook(() => useEnergyBalance())
     expect(result.current.isLoading).toBe(true)
     mockFns.minerpoolTransactions.mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: false,
       error: null,
     })
@@ -163,14 +166,14 @@ describe('useEnergyBalance', () => {
 
   it('errors array populated when response has error', () => {
     mockFns.minerpoolTransactions.mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: false,
       error: new Error('API error'),
     })
     const { result } = renderHook(() => useEnergyBalance())
     expect(result.current.errors.length).toBeGreaterThan(0)
     mockFns.minerpoolTransactions.mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: false,
       error: null,
     })
@@ -217,13 +220,33 @@ describe('useEnergyBalance', () => {
       currentBTCPrice: 0,
       isLoading: false,
       error: null,
-      data: undefined,
+      data: undefined as unknown,
     })
-    mockFns.minerpoolTransactions.mockReturnValue({ data: undefined, isLoading: false, error: null })
-    mockFns.historicalBTCPrices.mockReturnValue({ data: undefined, isLoading: false, error: null })
-    mockFns.productionCosts.mockReturnValue({ data: undefined, isLoading: false, error: null })
-    mockFns.powerConsumption.mockReturnValue({ data: undefined, isLoading: false, error: null })
-    mockFns.electricityCurtailment.mockReturnValue({ data: undefined, isLoading: false, error: null })
+    mockFns.minerpoolTransactions.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
+    mockFns.historicalBTCPrices.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
+    mockFns.productionCosts.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
+    mockFns.powerConsumption.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
+    mockFns.electricityCurtailment.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
   })
 
   it('processData handles powerData with nested array containing powermeter item', () => {
@@ -247,12 +270,37 @@ describe('useEnergyBalance', () => {
     expect(result.current.aggregatedData).toBeDefined()
 
     // restore
-    mockFns.currentBTCPrice.mockReturnValue({ currentBTCPrice: 0, isLoading: false, error: null, data: undefined })
-    mockFns.minerpoolTransactions.mockReturnValue({ data: undefined, isLoading: false, error: null })
-    mockFns.historicalBTCPrices.mockReturnValue({ data: undefined, isLoading: false, error: null })
-    mockFns.productionCosts.mockReturnValue({ data: undefined, isLoading: false, error: null })
-    mockFns.powerConsumption.mockReturnValue({ data: undefined, isLoading: false, error: null })
-    mockFns.electricityCurtailment.mockReturnValue({ data: undefined, isLoading: false, error: null })
+    mockFns.currentBTCPrice.mockReturnValue({
+      currentBTCPrice: 0,
+      isLoading: false,
+      error: null,
+      data: undefined as unknown,
+    })
+    mockFns.minerpoolTransactions.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
+    mockFns.historicalBTCPrices.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
+    mockFns.productionCosts.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
+    mockFns.powerConsumption.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
+    mockFns.electricityCurtailment.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
   })
 
   it('processData handles powerData with flat array item of type powermeter', () => {
@@ -276,11 +324,36 @@ describe('useEnergyBalance', () => {
     expect(result.current.aggregatedData).toBeDefined()
 
     // restore
-    mockFns.currentBTCPrice.mockReturnValue({ currentBTCPrice: 0, isLoading: false, error: null, data: undefined })
-    mockFns.minerpoolTransactions.mockReturnValue({ data: undefined, isLoading: false, error: null })
-    mockFns.historicalBTCPrices.mockReturnValue({ data: undefined, isLoading: false, error: null })
-    mockFns.productionCosts.mockReturnValue({ data: undefined, isLoading: false, error: null })
-    mockFns.powerConsumption.mockReturnValue({ data: undefined, isLoading: false, error: null })
-    mockFns.electricityCurtailment.mockReturnValue({ data: undefined, isLoading: false, error: null })
+    mockFns.currentBTCPrice.mockReturnValue({
+      currentBTCPrice: 0,
+      isLoading: false,
+      error: null,
+      data: undefined as unknown,
+    })
+    mockFns.minerpoolTransactions.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
+    mockFns.historicalBTCPrices.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
+    mockFns.productionCosts.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
+    mockFns.powerConsumption.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
+    mockFns.electricityCurtailment.mockReturnValue({
+      data: undefined as unknown,
+      isLoading: false,
+      error: null,
+    })
   })
 })

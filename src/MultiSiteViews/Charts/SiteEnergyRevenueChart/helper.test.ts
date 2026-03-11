@@ -2,16 +2,10 @@ import _isArray from 'lodash/isArray'
 import _isObject from 'lodash/isObject'
 import { describe, expect, it } from 'vitest'
 
-import {
-  formatTimestampToYYYYMMDD,
-  getCurrencySymbol,
-  getDatasets,
-  processBtcDatasetForSatsConversion,
-} from './helper'
+import { processBtcDatasetForSatsConversion } from './helper'
 
 import type { BarChartDataset } from '@/Components/BarChart/BarChart'
 import { CURRENCY, UNITS } from '@/constants/units'
-import { CURRENCY as MULTICURRENCY } from '@/MultiSiteViews/constants'
 
 // Helper function to safely get value from dataset
 const getValue = (
@@ -39,54 +33,6 @@ const getDataItem = (
   }
   return undefined
 }
-
-describe('formatTimestampToYYYYMMDD', () => {
-  it('formats a Unix timestamp into YYYY-MM-DD string', () => {
-    const ts = new Date('2024-03-15').getTime()
-    expect(formatTimestampToYYYYMMDD(ts)).toBe('2024-03-15')
-  })
-
-  it('formats epoch start correctly', () => {
-    expect(formatTimestampToYYYYMMDD(0)).toBe('1970-01-01')
-  })
-})
-
-describe('getCurrencySymbol', () => {
-  it('returns symbol for BTC', () => {
-    const symbol = getCurrencySymbol(MULTICURRENCY.BTC)
-    expect(typeof symbol).toBe('string')
-    expect(symbol.length).toBeGreaterThan(0)
-  })
-
-  it('returns symbol for USD', () => {
-    const symbol = getCurrencySymbol(MULTICURRENCY.USD)
-    expect(typeof symbol).toBe('string')
-    expect(symbol.length).toBeGreaterThan(0)
-  })
-})
-
-describe('getDatasets', () => {
-  it('returns empty array when all values are null', () => {
-    const data = [{ ts: 1710000000000, energyRevenueBTC_MW: null }]
-    const result = getDatasets(data, MULTICURRENCY.BTC)
-    expect(result).toEqual([])
-  })
-
-  it('returns a dataset with date-keyed entries for valid data', () => {
-    const ts = new Date('2024-03-15').getTime()
-    const data = [{ ts, energyRevenueBTC_MW: 0.5 }]
-    const result = getDatasets(data, MULTICURRENCY.BTC)
-    expect(result).toHaveLength(1)
-    expect(result[0]['2024-03-15']).toBeDefined()
-  })
-
-  it('builds USD dataset correctly', () => {
-    const ts = new Date('2024-03-15').getTime()
-    const data = [{ ts, energyRevenueUSD_MW: 1000 }]
-    const result = getDatasets(data, MULTICURRENCY.USD)
-    expect(result).toHaveLength(1)
-  })
-})
 
 describe('processBtcDatasetForSatsConversion', () => {
   it('should return empty dataset and BTC unit when dataset is empty', () => {

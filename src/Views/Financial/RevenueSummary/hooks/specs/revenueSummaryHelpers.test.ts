@@ -1,13 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { PERIOD } from '@/constants/ranges'
+import { getStartOfDay, getPeriodKey, getPeriodEndDate, safeDiv } from '../revenueSummaryHelpers'
 
-import {
-  getStartOfDay,
-  getPeriodKey,
-  getPeriodEndDate,
-  safeDiv,
-} from '../revenueSummaryHelpers'
+import { PERIOD } from '@/constants/ranges'
 
 describe('revenueSummaryHelpers', () => {
   describe('getStartOfDay', () => {

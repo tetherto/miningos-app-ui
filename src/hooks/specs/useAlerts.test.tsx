@@ -3,9 +3,7 @@ import { describe, expect, it, vi } from 'vitest'
 
 import useAlerts from '../useAlerts'
 
-const mockListThings = vi.hoisted(() =>
-  vi.fn(() => ({ data: null, isLoading: false })),
-)
+const mockListThings = vi.hoisted(() => vi.fn(() => ({ data: null as unknown, isLoading: false })))
 
 vi.mock('@/app/services/api', () => ({
   useGetListThingsQuery: mockListThings,
@@ -60,22 +58,27 @@ describe('useAlerts', () => {
 
   it('processes device with critical alerts on second render', async () => {
     const mockAlert = { uuid: 'alert-1', type: 'critical' }
-    mockListThings
-      .mockReturnValueOnce({
-        data: [{ last: { alerts: [mockAlert] }, info: {}, type: 'miner' }],
-        isLoading: false,
-      })
+    mockListThings.mockReturnValueOnce({
+      data: [{ last: { alerts: [mockAlert] }, info: {}, type: 'miner' }],
+      isLoading: false,
+    })
     const { result, rerender } = renderHook(() => useAlerts())
 
     // First render processes data as "first API call" - no new alerts set
-    await waitFor(() => { expect(result.current.data).toBeDefined() })
+    await waitFor(() => {
+      expect(result.current.data).toBeDefined()
+    })
 
     // Simulate second API response (new alert should be detected)
     mockListThings.mockReturnValueOnce({
-      data: [{ last: { alerts: [{ uuid: 'alert-2', type: 'critical' }] }, info: {}, type: 'miner' }],
+      data: [
+        { last: { alerts: [{ uuid: 'alert-2', type: 'critical' }] }, info: {}, type: 'miner' },
+      ],
       isLoading: false,
     })
     rerender()
-    await waitFor(() => { expect(result.current.data).toBeDefined() })
+    await waitFor(() => {
+      expect(result.current.data).toBeDefined()
+    })
   })
 })

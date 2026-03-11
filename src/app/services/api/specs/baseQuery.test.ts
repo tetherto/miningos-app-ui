@@ -4,13 +4,11 @@ vi.mock('@reduxjs/toolkit/query/react', () => ({
   fetchBaseQuery: vi.fn(() => vi.fn(async () => ({ data: 'mock-response' }))),
 }))
 
-vi.mock('p-queue', () => {
-  return {
-    default: vi.fn().mockImplementation(() => ({
-      add: vi.fn((fn) => fn()),
-    })),
-  }
-})
+vi.mock('p-queue', () => ({
+  default: vi.fn().mockImplementation(() => ({
+    add: vi.fn((fn) => fn()),
+  })),
+}))
 
 vi.mock('@/app/slices/authSlice', () => ({
   selectToken: vi.fn(() => 'mock-token'),

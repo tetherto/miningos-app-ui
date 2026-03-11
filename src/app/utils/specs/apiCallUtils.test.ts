@@ -9,13 +9,7 @@ describe('apiCallUtils', () => {
       const getListThings: GetListThingsFunction<{ id: number }> = vi.fn().mockResolvedValue({
         data: [[{ id: 1 }, { id: 2 }]],
       })
-      const result = await recursiveListThingsApiCall(
-        getListThings,
-        10,
-        0,
-        [],
-        {},
-      )
+      const result = await recursiveListThingsApiCall(getListThings, 10, 0, [], {})
       expect(result).toEqual([{ id: 1 }, { id: 2 }])
       expect(getListThings).toHaveBeenCalledTimes(1)
       expect(getListThings).toHaveBeenCalledWith({ limit: 10, offset: 0 })
@@ -26,20 +20,8 @@ describe('apiCallUtils', () => {
         .fn()
         .mockResolvedValueOnce({ data: [[{ id: 1 }, { id: 2 }, { id: 3 }]] })
         .mockResolvedValueOnce({ data: [[{ id: 4 }, { id: 5 }]] })
-      const result = await recursiveListThingsApiCall(
-        getListThings,
-        3,
-        0,
-        [],
-        {},
-      )
-      expect(result).toEqual([
-        { id: 1 },
-        { id: 2 },
-        { id: 3 },
-        { id: 4 },
-        { id: 5 },
-      ])
+      const result = await recursiveListThingsApiCall(getListThings, 3, 0, [], {})
+      expect(result).toEqual([{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }])
       expect(getListThings).toHaveBeenCalledTimes(2)
       expect(getListThings).toHaveBeenNthCalledWith(1, { limit: 3, offset: 0 })
       expect(getListThings).toHaveBeenNthCalledWith(2, { limit: 3, offset: 3 })
