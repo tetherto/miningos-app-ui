@@ -194,12 +194,11 @@
     "queryParams": {
       "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
       "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
-      "interval": { "type": "string", "required": false, "bruValue": "auto" },
       "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
     },
     "pathParams": {},
-    "expectedResponseKeys": ["data"],
-    "reviewed": false
+    "expectedResponseKeys": ["log", "summary"],
+    "reviewed": true
   },
   {
     "slug": "metrics-power-mode",

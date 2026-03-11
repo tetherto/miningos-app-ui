@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/auth/metrics/miner-status?start={{startTs}}&end={{endTs}}&interval=auto
+  url: {{baseUrl}}/auth/metrics/miner-status?start={{startTs}}&end={{endTs}}
   body: none
   auth: bearer
 }
@@ -24,7 +24,8 @@ tests {
   });
 
   test("response has expected top-level keys", function() {
-    expect(res.body).to.have.property('data');
+    expect(res.body).to.have.property('log');
+    expect(res.body).to.have.property('summary');
   });
 
   test("response time under 5s", function() {

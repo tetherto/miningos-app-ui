@@ -20,6 +20,7 @@ tests {
   });
 
   test("response matches normal shape (no cross-tenant data)", function() {
-    expect(res.body).to.have.property('data');
+    expect(res.body).to.have.property('log');
+    expect(res.body).to.have.property('summary');
   });
 }
