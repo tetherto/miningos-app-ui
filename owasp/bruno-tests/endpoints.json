@@ -46,8 +46,9 @@
       "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
     },
     "pathParams": {},
-    "expectedResponseKeys": ["miners", "summary"],
-    "reviewed": false
+    "expectedResponseKeys": ["miners", "total"],
+    "reviewed": true,
+    "status": "NOT_IMPLEMENTED"
   },
   {
     "slug": "containers",
