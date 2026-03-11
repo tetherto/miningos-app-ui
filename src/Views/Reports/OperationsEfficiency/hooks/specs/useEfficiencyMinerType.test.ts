@@ -56,19 +56,68 @@ describe('useEfficiencyMinerType', () => {
     expect(result.current.isLoading).toBe(true)
   })
 
-  it('processes tail log data with miner type categories', () => {
+  it('processes tail log data with known miner type categories (uses MINER_TYPE_NAME_MAP)', () => {
+    // lodash _get with 'val.minerType' traverses nested objects: { val: { minerType: {...} } }
     const tailLogWithMiners = {
-      'val.minerType': {
-        'miner-antminer': 85,
-        'miner-whatsminer': 78,
+      val: {
+        minerType: {
+          'miner-antminer': 85,
+          'miner-whatsminer': 78,
+        },
       },
     }
-    mockFns.tailLogQuery.mockReturnValueOnce({
+    mockFns.tailLogQuery.mockReturnValue({
       data: [tailLogWithMiners],
       isLoading: false,
       isFetching: false,
     })
     const { result } = renderHook(() => useEfficiencyMinerType(defaultParams))
-    expect(result.current.data.labels).toBeDefined()
+    expect(result.current.data.labels).toContain('Antminer')
+    expect(result.current.data.labels).toContain('Whatsminer')
+    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false, isFetching: false })
+  })
+
+  it('falls back to raw category string when category not in MINER_TYPE_NAME_MAP', () => {
+    const tailLogWithUnknownType = {
+      val: {
+        minerType: {
+          'miner-unknown-brand': 90,
+        },
+      },
+    }
+    mockFns.tailLogQuery.mockReturnValue({
+      data: [tailLogWithUnknownType],
+      isLoading: false,
+      isFetching: false,
+    })
+    const { result } = renderHook(() => useEfficiencyMinerType(defaultParams))
+    expect(result.current.data.labels).toContain('miner-unknown-brand')
+    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false, isFetching: false })
+  })
+
+  it('handles tailLog where key path does not exist (empty object fallback)', () => {
+    const tailLogWithoutMinerType = {
+      someOtherKey: { value: 10 },
+    }
+    mockFns.tailLogQuery.mockReturnValue({
+      data: [tailLogWithoutMinerType],
+      isLoading: false,
+      isFetching: false,
+    })
+    const { result } = renderHook(() => useEfficiencyMinerType(defaultParams))
+    expect(result.current.data.labels).toEqual([])
+    expect(result.current.data.dataSet1.data).toEqual([])
+    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false, isFetching: false })
+  })
+
+  it('handles empty tailLogData array (head returns undefined, uses {})', () => {
+    mockFns.tailLogQuery.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+    })
+    const { result } = renderHook(() => useEfficiencyMinerType(defaultParams))
+    expect(result.current.data.labels).toEqual([])
+    mockFns.tailLogQuery.mockReturnValue({ data: undefined, isLoading: false, isFetching: false })
   })
 })

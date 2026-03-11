@@ -76,4 +76,100 @@ describe('useFetchLineChartData', () => {
     const { result } = renderHook(() => useFetchLineChartData({ type: 'miner', limit: 5 }))
     expect(result.current).toHaveProperty('tailLogData')
   })
+
+  it('uses pollingInterval when skipPolling is false and pollingInterval is set', () => {
+    const { result } = renderHook(() =>
+      useFetchLineChartData({
+        dateRange: { start: 0, end: 1000 },
+        skipPolling: false,
+        pollingInterval: 10000,
+      }),
+    )
+    expect(result.current).toHaveProperty('tailLogDataUpdates')
+  })
+
+  it('handles dateRange provided but end is undefined (endRange undefined)', () => {
+    const { result } = renderHook(() =>
+      useFetchLineChartData({
+        dateRange: { start: 0 },
+      }),
+    )
+    expect(result.current).toHaveProperty('tailLogData')
+  })
+
+  it('handles end=0 (falsy) without dateRange', () => {
+    const { result } = renderHook(() =>
+      useFetchLineChartData({ end: 0, timeline: '5m', limit: 10 }),
+    )
+    expect(result.current).toHaveProperty('tailLogData')
+  })
+
+  it('handles fields=undefined (falsy) and aggrFields=undefined', () => {
+    const { result } = renderHook(() =>
+      useFetchLineChartData({
+        dateRange: { start: 0, end: 1000 },
+        fields: undefined,
+        aggrFields: undefined,
+      }),
+    )
+    expect(result.current).toHaveProperty('tailLogData')
+  })
+
+  it('uses limit when explicitly passed (limit truthy branch)', () => {
+    const { result } = renderHook(() =>
+      useFetchLineChartData({
+        dateRange: { start: 0, end: 1000 },
+        limit: 5,
+      }),
+    )
+    expect(result.current).toHaveProperty('tailLogData')
+  })
+
+  it('uses pollingInterval when explicitly provided (pollingInterval truthy branch)', () => {
+    const { result } = renderHook(() =>
+      useFetchLineChartData({
+        dateRange: { start: 0, end: 1000 },
+        skipPolling: false,
+        pollingInterval: 10000,
+        skipUpdates: false,
+      }),
+    )
+    expect(result.current).toHaveProperty('tailLogDataUpdates')
+  })
+
+  it('start calculation when dateRange is falsy, end is provided, timeline is undefined', () => {
+    const { result } = renderHook(() =>
+      useFetchLineChartData({
+        end: 1000,
+        timeline: undefined,
+        limit: 10,
+      }),
+    )
+    expect(result.current).toHaveProperty('tailLogData')
+  })
+
+  it('handles isFieldsCompulsory with fields as empty object', () => {
+    const { result } = renderHook(() =>
+      useFetchLineChartData({
+        isFieldsCompulsory: true,
+        fields: {},
+        dateRange: { start: 0, end: 1000 },
+      }),
+    )
+    expect(result.current.tailLogData).toBeUndefined()
+  })
+
+  it('handles skip=true with all other options set', () => {
+    const { result } = renderHook(() =>
+      useFetchLineChartData({
+        skip: true,
+        dateRange: { start: 0, end: 1000 },
+        skipPolling: false,
+        pollingInterval: 5000,
+        skipUpdates: false,
+        fields: { hashrate: 1 },
+      }),
+    )
+    expect(result.current.tailLogData).toBeUndefined()
+  })
 })

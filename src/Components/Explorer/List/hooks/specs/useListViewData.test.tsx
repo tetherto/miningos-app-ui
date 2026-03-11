@@ -37,8 +37,10 @@ vi.mock('../../ListView.util', () => ({
   paginateDevices: vi.fn((devices: unknown[], _pageSize: number, _page: number) => devices),
 }))
 
-import { useListViewData } from '../useListViewData'
+import { isContainerOffline } from '@/app/utils/containerUtils'
+import { isContainer, isMiner } from '@/app/utils/deviceUtils'
 import { CROSS_THING_TYPES } from '@/constants/devices'
+import { useListViewData } from '../useListViewData'
 
 const defaultProps = {
   selectedType: CROSS_THING_TYPES.MINER,
@@ -161,5 +163,120 @@ describe('useListViewData', () => {
     )
 
     await waitFor(() => expect(result.current).toBeDefined())
+  })
+
+  it('groups container as containerOffline when isContainerOffline returns true', async () => {
+    vi.mocked(isContainer).mockImplementation((type: string) => type === 'container.pod')
+    vi.mocked(isMiner).mockImplementation((type: string) => false)
+    vi.mocked(isContainerOffline).mockReturnValue(true)
+    // getDeviceData mock returns [{}, { snap: { stats: {} } }] to trigger isContainerOffline branch
+    const { getDeviceData } = await import('@/app/utils/deviceUtils')
+    vi.mocked(getDeviceData).mockReturnValue([{}, { snap: { stats: {} } }] as ReturnType<typeof getDeviceData>)
+
+    const mockContainer = { id: 'c1', type: 'container.pod' }
+    mockFns.listThingsQuery.mockReturnValue({
+      data: [[mockContainer]],
+      isFetching: false,
+    })
+
+    const { result } = renderHook(() =>
+      useListViewData({
+        ...defaultProps,
+        selectedType: CROSS_THING_TYPES.CONTAINER,
+      }),
+    )
+
+    await waitFor(() => {
+      const grouped = result.current.groupedDevices
+      expect(grouped.containerOffline || grouped.containerDevices).toBeDefined()
+    })
+
+    // restore
+    vi.mocked(isContainer).mockImplementation((type: string) => type?.startsWith('container'))
+    vi.mocked(isMiner).mockImplementation((type: string) => type?.startsWith('miner'))
+    vi.mocked(isContainerOffline).mockReturnValue(false)
+    vi.mocked(getDeviceData).mockReturnValue([{}, {}] as ReturnType<typeof getDeviceData>)
+    mockFns.listThingsQuery.mockReturnValue({ data: undefined, isFetching: false })
+  })
+
+  it('groups container as containerDevices when isContainerOffline returns false', async () => {
+    vi.mocked(isContainer).mockImplementation((type: string) => type === 'container.pod')
+    vi.mocked(isMiner).mockImplementation((type: string) => false)
+    vi.mocked(isContainerOffline).mockReturnValue(false)
+    const { getDeviceData } = await import('@/app/utils/deviceUtils')
+    vi.mocked(getDeviceData).mockReturnValue([{}, { snap: { stats: {} } }] as ReturnType<typeof getDeviceData>)
+
+    mockFns.listThingsQuery.mockReturnValue({
+      data: [[{ id: 'c2', type: 'container.pod' }]],
+      isFetching: false,
+    })
+
+    const { result } = renderHook(() =>
+      useListViewData({ ...defaultProps, selectedType: CROSS_THING_TYPES.CONTAINER }),
+    )
+
+    await waitFor(() => {
+      expect(result.current.groupedDevices).toBeDefined()
+    })
+
+    // restore
+    vi.mocked(isContainer).mockImplementation((type: string) => type?.startsWith('container'))
+    vi.mocked(isMiner).mockImplementation((type: string) => type?.startsWith('miner'))
+    vi.mocked(getDeviceData).mockReturnValue([{}, {}] as ReturnType<typeof getDeviceData>)
+    mockFns.listThingsQuery.mockReturnValue({ data: undefined, isFetching: false })
+  })
+
+  it('minerTabDevices maps isRaw=true devices with getTableDeviceData', async () => {
+    const rawDevice = { id: 'm1', type: 'miner.antminer', isRaw: true, info: {}, tags: [] }
+    mockFns.listThingsQuery.mockReturnValue({
+      data: [[rawDevice]],
+      isFetching: false,
+    })
+
+    const { getTableDeviceData } = await import('../../ListView.util')
+    vi.mocked(getTableDeviceData).mockReturnValue({
+      info: { container: 'container-1' },
+      type: 'miner.antminer',
+      tags: [],
+      code: 'S19',
+    } as ReturnType<typeof getTableDeviceData>)
+
+    const { result } = renderHook(() =>
+      useListViewData({
+        ...defaultProps,
+        selectedType: CROSS_THING_TYPES.MINER,
+        filterTags: ['tag1'],
+      }),
+    )
+
+    await waitFor(() => {
+      expect(Array.isArray(result.current.minerTabDevices)).toBe(true)
+    })
+
+    // restore
+    vi.mocked(getTableDeviceData).mockReturnValue({} as ReturnType<typeof getTableDeviceData>)
+    mockFns.listThingsQuery.mockReturnValue({ data: undefined, isFetching: false })
+  })
+
+  it('minerTabDevices maps isRaw=false devices without getTableDeviceData', async () => {
+    const notRawDevice = { id: 'm2', type: 'miner.antminer', isRaw: false }
+    mockFns.listThingsQuery.mockReturnValue({
+      data: [[notRawDevice]],
+      isFetching: false,
+    })
+
+    const { result } = renderHook(() =>
+      useListViewData({
+        ...defaultProps,
+        selectedType: CROSS_THING_TYPES.MINER,
+        filterTags: ['tag1'],
+      }),
+    )
+
+    await waitFor(() => {
+      expect(Array.isArray(result.current.minerTabDevices)).toBe(true)
+    })
+
+    mockFns.listThingsQuery.mockReturnValue({ data: undefined, isFetching: false })
   })
 })

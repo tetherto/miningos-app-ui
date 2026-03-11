@@ -99,4 +99,44 @@ describe('useHashRevenueData', () => {
     )
     expect(result.current.isLoading).toBe(true)
   })
+
+  it('handles null dateRange (triggers dateRange ?? {} null-coalescing)', () => {
+    const { result } = renderHook(
+      () => useHashRevenueData({ dateRange: null as unknown as Record<string, unknown>, currency: 'USD' }),
+      { wrapper: createWrapper() },
+    )
+    expect(result.current.isLoading).toBe(false)
+    expect(result.current.metrics).toBeDefined()
+  })
+
+  it('handles undefined dateRange (triggers dateRange ?? {})', () => {
+    const { result } = renderHook(
+      () => useHashRevenueData({ dateRange: undefined as unknown as Record<string, unknown>, currency: 'USD' }),
+      { wrapper: createWrapper() },
+    )
+    expect(result.current.isLoading).toBe(false)
+  })
+
+  it('skips queries and shows loading when isParamBuilderLoading is true', () => {
+    // Override paramBuilderIsLoading via the mock module
+    const origIsLoading = mockFns.paramBuilderIsLoading
+    // @ts-expect-error mutating mock field for test
+    mockFns.paramBuilderIsLoading = true
+    const { result } = renderHook(
+      () => useHashRevenueData({ dateRange: { start: 0, end: 1 }, currency: 'USD' }),
+      { wrapper: createWrapper() },
+    )
+    expect(result.current.isLoading).toBe(true)
+    // @ts-expect-error restore
+    mockFns.paramBuilderIsLoading = origIsLoading
+  })
+
+  it('shows isLoading=true when only hashPriceData query is loading', () => {
+    mockFns.hashPriceQuery.mockReturnValueOnce({ isLoading: true, data: undefined })
+    const { result } = renderHook(
+      () => useHashRevenueData({ dateRange: { start: 0, end: 1 }, currency: 'USD' }),
+      { wrapper: createWrapper() },
+    )
+    expect(result.current.isLoading).toBe(true)
+  })
 })

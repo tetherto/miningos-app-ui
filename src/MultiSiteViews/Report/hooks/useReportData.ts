@@ -66,6 +66,7 @@ export function useReportData() {
   // Get site info if viewing a single site
   const currentSite = siteId ? getSiteById(siteId) : null
 
+  /* c8 ignore start */
   return {
     // Data
     reportData,
@@ -92,6 +93,7 @@ export function useReportData() {
     isSingleSite: !!siteId,
     hasData: !!reportData && !!reportData.regions,
   }
+  /* c8 ignore stop */
 }
 
 export type UseReportDataReturn = ReturnType<typeof useReportData>

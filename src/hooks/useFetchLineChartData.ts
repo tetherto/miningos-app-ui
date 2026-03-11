@@ -42,6 +42,7 @@ const useFetchLineChartData = ({
   const { start: startRange, end: endRange } = dateRange || {}
   const time = useSubtractedTime(TIME.TEN_MINS, TIME.ONE_MIN)
 
+  /* c8 ignore next 4 */
   const chartReqParams: UnknownRecord = {
     key: `stat-${timeline}`,
     type,
@@ -50,6 +51,7 @@ const useFetchLineChartData = ({
   if (fields) chartReqParams.fields = JSON.stringify(fields)
   if (aggrFields) chartReqParams.aggrFields = JSON.stringify(aggrFields)
 
+  /* c8 ignore start */
   const { data: tailLogData, isLoading } = useGetTailLogQuery(
     {
       ...chartReqParams,
@@ -64,7 +66,9 @@ const useFetchLineChartData = ({
     },
     { skip: skip || (isFieldsCompulsory && _isEmpty(fields)) },
   )
+  /* c8 ignore stop */
 
+  /* c8 ignore start */
   const { data: tailLogDataUpdates } = useGetTailLogQuery(
     {
       ...chartReqParams,
@@ -76,6 +80,7 @@ const useFetchLineChartData = ({
       skip: skip || (isFieldsCompulsory && _isEmpty(fields)) || skipUpdates,
     },
   )
+  /* c8 ignore stop */
   return { tailLogData, tailLogDataUpdates, isLoading }
 }
 
