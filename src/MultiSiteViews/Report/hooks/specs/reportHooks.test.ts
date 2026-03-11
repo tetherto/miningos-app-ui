@@ -1,5 +1,8 @@
 import { renderHook } from '@testing-library/react'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { describe, expect, it, vi } from 'vitest'
+
+import { useReportData } from '../useReportData'
 
 const mockFns = vi.hoisted(() => ({
   useMultiSiteMode: vi.fn(() => ({
@@ -36,9 +39,6 @@ vi.mock('react-router-dom', () => ({
   useSearchParams: vi.fn(() => [new URLSearchParams(), vi.fn()]),
 }))
 
-import { useParams, useSearchParams } from 'react-router-dom'
-import { useReportData } from '../useReportData'
-
 describe('useReportData', () => {
   it('returns expected shape', () => {
     const { result } = renderHook(() => useReportData())
@@ -54,7 +54,10 @@ describe('useReportData', () => {
   it('returns regions from siteList when no siteId and no selectedSites', () => {
     mockFns.useMultiSiteMode.mockReturnValue({
       selectedSites: [],
-      siteList: [{ id: 'site-a', name: 'Site A' }, { id: 'site-b', name: 'Site B' }],
+      siteList: [
+        { id: 'site-a', name: 'Site A' },
+        { id: 'site-b', name: 'Site B' },
+      ],
       getSiteById: vi.fn(),
       isMultiSiteMode: false,
     })
@@ -63,7 +66,10 @@ describe('useReportData', () => {
     expect(result.current.regions).toContain('SITE-B')
     mockFns.useMultiSiteMode.mockReturnValue({
       selectedSites: ['site-a', 'site-b'],
-      siteList: [{ id: 'site-a', name: 'Site A' }, { id: 'site-b', name: 'Site B' }],
+      siteList: [
+        { id: 'site-a', name: 'Site A' },
+        { id: 'site-b', name: 'Site B' },
+      ],
       getSiteById: vi.fn(),
       isMultiSiteMode: false,
     })
@@ -95,7 +101,10 @@ describe('useReportData', () => {
     expect(result.current.regions).toContain('SITE-C')
     mockFns.useMultiSiteMode.mockReturnValue({
       selectedSites: ['site-a', 'site-b'],
-      siteList: [{ id: 'site-a', name: 'Site A' }, { id: 'site-b', name: 'Site B' }],
+      siteList: [
+        { id: 'site-a', name: 'Site A' },
+        { id: 'site-b', name: 'Site B' },
+      ],
       getSiteById: vi.fn(),
       isMultiSiteMode: false,
     })
@@ -103,7 +112,11 @@ describe('useReportData', () => {
 
   it('uses reportType from searchParams when provided', () => {
     vi.mocked(useSearchParams).mockReturnValue([
-      new URLSearchParams({ reportType: 'quarterly', dateRange: '2025-01:2025-03', location: 'HQ' }),
+      new URLSearchParams({
+        reportType: 'quarterly',
+        dateRange: '2025-01:2025-03',
+        location: 'HQ',
+      }),
       vi.fn(),
     ])
     const { result } = renderHook(() => useReportData())
@@ -133,7 +146,10 @@ describe('useReportData', () => {
     vi.mocked(useParams).mockReturnValue({})
     mockFns.useMultiSiteMode.mockReturnValue({
       selectedSites: ['site-a', 'site-b'],
-      siteList: [{ id: 'site-a', name: 'Site A' }, { id: 'site-b', name: 'Site B' }],
+      siteList: [
+        { id: 'site-a', name: 'Site A' },
+        { id: 'site-b', name: 'Site B' },
+      ],
       getSiteById: vi.fn(),
       isMultiSiteMode: false,
     })
