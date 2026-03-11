@@ -98,6 +98,47 @@ describe('reportingToolsUtils', () => {
       })
     })
 
+    test('returns default empty result when pool is a single undefined snap', () => {
+      const pool = [undefined]
+      const result = aggregateF2PoolStats(pool as never, 123)
+      expect(result).toMatchObject({ balance: 0, ts: 0, raw_errors: [] })
+    })
+
+    test('merges yearly balances from multiple pools correctly', () => {
+      const pool = [
+        {
+          stats: {
+            balance: 50,
+            yearlyBalances: [
+              { month: '2025-01', balance: 100 },
+              { month: '2025-02', balance: 200 },
+            ],
+          },
+          raw_errors: [],
+        },
+        {
+          stats: {
+            balance: 30,
+            yearlyBalances: [
+              { month: '2025-01', balance: 50 }, // overlapping month
+              { month: '2025-03', balance: 150 }, // new month
+            ],
+          },
+          raw_errors: [],
+        },
+      ]
+
+      const result = aggregateF2PoolStats(pool, 123456789)
+
+      const jan = result.yearlyBalances?.find((b) => b.month === '2025-01')
+      const feb = result.yearlyBalances?.find((b) => b.month === '2025-02')
+      const mar = result.yearlyBalances?.find((b) => b.month === '2025-03')
+
+      expect(jan?.balance).toBe(150) // 100 + 50
+      expect(feb?.balance).toBe(200) // only in first pool
+      expect(mar?.balance).toBe(150) // only in second pool
+    })
+
     test('aggregates with empty values if stats is not present', () => {
       const pool = [{}]
 
@@ -419,6 +460,35 @@ describe('reportingToolsUtils', () => {
 
       expect(result).toEqual([])
     })
+
+    test('returns entry with just ts and key when pool_snap is missing', () => {
+      const log = [{ ts: 1706853600000 }]
+      const result = aggregateF2PoolSnapLog(log as never, 'D1')
+      expect(result).toEqual([{ ts: 1706853600000, key: 1706853600000 }])
+    })
+
+    test('uses explicit multiplier when provided', () => {
+      const log = [
+        {
+          ts: 1706853600000,
+          pool_snap: [{ stats: { balance: 100 }, raw_errors: [] }],
+        },
+      ]
+      const result = aggregateF2PoolSnapLog(log as never, 'D1', 2)
+      expect(result[0]).toMatchObject({ balance: 200 })
+    })
+
+    test('uses REVENUE_MULTIPLIER from timeline when no explicit multiplier given', () => {
+      const log = [
+        {
+          ts: 1706853600000,
+          pool_snap: [{ stats: { balance: 1 }, raw_errors: [] }],
+        },
+      ]
+      // DATE_RANGE.D1 has multiplier=24 in REVENUE_MULTIPLIER
+      const result = aggregateF2PoolSnapLog(log as never, DATE_RANGE.D1)
+      expect(result[0]).toMatchObject({ balance: 24 })
+    })
   })
 
   describe('convertRevenue', () => {
@@ -495,6 +565,16 @@ describe('reportingToolsUtils', () => {
       const result = aggregateMiningExtra(transactions, 'pps')
       expect(result).toBe(0)
     })
+
+    it('should return 0 if mining_extra is completely absent', () => {
+      const transactions = [{}]
+      const result = aggregateMiningExtra(transactions, 'pps')
+      expect(result).toBe(0)
+    })
+
+    it('should return 0 for empty transactions array', () => {
+      expect(aggregateMiningExtra([], 'pps')).toBe(0)
+    })
   })
 
   describe('aggregateData', () => {
@@ -539,6 +619,49 @@ describe('reportingToolsUtils', () => {
     it('should return data as-is if range is M15 or H1', () => {
       const data = [{ ts: 1727740800000, balance: 100 }]
       expect(aggregateData(data, DATE_RANGE.M15)).toEqual(data)
+      expect(aggregateData(data, DATE_RANGE.H1)).toEqual(data)
+    })
+
+    it('should aggregate data based on W1 (week) range', () => {
+      const data = [
+        { ts: 1727740800000, balance: 100, hashrate: 200 }, // 2024-10-01
+        { ts: 1727827200000, balance: 50, hashrate: 100 },  // 2024-10-02 (same week)
+      ]
+      const result = aggregateData(data, DATE_RANGE.W1)
+      expect(Array.isArray(result)).toBe(true)
+      expect(result.length).toBeGreaterThan(0)
+    })
+
+    it('should aggregate data based on MONTH1 range', () => {
+      const data = [
+        { ts: 1727740800000, balance: 100, hashrate: 200 }, // Oct 2024
+        { ts: 1727827200000, balance: 150, hashrate: 300 }, // Oct 2024 (same month)
+        { ts: 1730419200000, balance: 80, hashrate: 150 },  // Nov 2024 (different month)
+      ]
+      const result = aggregateData(data, DATE_RANGE.MONTH1)
+      expect(Array.isArray(result)).toBe(true)
+      expect(result.length).toBe(2) // Oct and Nov
+    })
+
+    it('should skip items with unknown range (default case)', () => {
+      const data = [{ ts: 1727740800000, balance: 100 }]
+      const result = aggregateData(data, 'UNKNOWN_RANGE')
+      expect(result).toEqual([])
+    })
+
+    it('should handle items with undefined optional fields using nullish coalescing', () => {
+      const data = [{ ts: 1727740800000 }] // no balance, hashrate, etc.
+      const result = aggregateData(data, DATE_RANGE.D1)
+      expect(result[0]).toMatchObject({ balance: 0, hashrate: 0, worker_count: 0 })
+    })
+
+    it('should aggregate two items in the same day bucket', () => {
+      const data = [
+        { ts: 1727740800000, balance: 100, worker_count: 5 },
+        { ts: 1727744400000, balance: 200, worker_count: 10 },
+      ]
+      const result = aggregateData(data, DATE_RANGE.D1)
+      expect(result[0]).toMatchObject({ balance: 300, worker_count: 15, count: 2 })
     })
   })
 
@@ -569,6 +692,28 @@ describe('reportingToolsUtils', () => {
 
       // The closest object should have the smallest difference from the next hour
       expect(closestDifference).toBe(minDifference)
+      vi.restoreAllMocks()
+    })
+
+    it('should return the only element when there is exactly one item', () => {
+      const mockCurrentTime = 1728646684998
+      vi.spyOn(Date, 'now').mockImplementation(() => mockCurrentTime)
+      const tailLogData = [{ ts: mockCurrentTime + 300000 }]
+      const result = findClosestObjectToNextHour(tailLogData)
+      expect(result).toEqual(tailLogData[0])
+      vi.restoreAllMocks()
+    })
+
+    it('picks the second item when it is closer to the next hour', () => {
+      const mockCurrentTime = 1728646684998
+      vi.spyOn(Date, 'now').mockImplementation(() => mockCurrentTime)
+      const nextHour = mockCurrentTime + 60 * 60 * 1000
+      const tailLogData = [
+        { ts: nextHour - 20 * 60 * 1000 }, // 20 mins before next hour
+        { ts: nextHour + 2 * 60 * 1000 },  // 2 mins after next hour (closer)
+      ]
+      const result = findClosestObjectToNextHour(tailLogData)
+      expect(result).toBe(tailLogData[1])
       vi.restoreAllMocks()
     })
   })

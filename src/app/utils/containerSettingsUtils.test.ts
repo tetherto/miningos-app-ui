@@ -53,6 +53,25 @@ describe('containerSettingsUtils', () => {
     it('returns {} for unknown container type', () => {
       expect(transformContainerParameters({ type: UNKNOWN_TYPE }, {})).toEqual({})
     })
+
+    it('returns {} for AntspaceHydro type (no parameter mapping)', () => {
+      expect(transformContainerParameters({ type: HYDRO_TYPE }, {})).toEqual({})
+    })
+
+    it('returns {} for AntspaceImmersion type (no parameter mapping)', () => {
+      expect(transformContainerParameters({ type: IMMERSION_TYPE }, {})).toEqual({})
+    })
+
+    it('returns undefined values when Bitdeer params are absent', () => {
+      const result = transformContainerParameters({ type: BITDEER_TYPE }, {})
+      expect(result.coolOilAlarmTemp).toBeUndefined()
+      expect(result.alarmPressure).toBeUndefined()
+    })
+
+    it('returns undefined values when MicroBT params are absent', () => {
+      const result = transformContainerParameters({ type: MICROBT_TYPE }, {})
+      expect(result.runningSpeed).toBeUndefined()
+    })
   })
 
   describe('transformContainerThresholds', () => {
@@ -105,6 +124,33 @@ describe('containerSettingsUtils', () => {
     it('returns {} for unknown container type', () => {
       expect(transformContainerThresholds({ type: UNKNOWN_TYPE }, {})).toEqual({})
     })
+
+    it('returns thresholds with undefined fields when Bitdeer oilTemperature is absent', () => {
+      const result = transformContainerThresholds({ type: BITDEER_TYPE }, { tankPressure: { criticalLow: 2 } })
+      expect(result.oilTemperature?.criticalLow).toBeUndefined()
+      expect(result.tankPressure?.criticalLow).toBe(2)
+    })
+
+    it('returns thresholds with undefined fields when Bitdeer tankPressure is absent', () => {
+      const result = transformContainerThresholds({ type: BITDEER_TYPE }, { oilTemperature: { criticalHigh: 48 } })
+      expect(result.tankPressure?.criticalLow).toBeUndefined()
+    })
+
+    it('returns thresholds with undefined fields when MicroBT waterTemperature is absent', () => {
+      const result = transformContainerThresholds({ type: MICROBT_TYPE }, {})
+      expect(result.waterTemperature?.criticalLow).toBeUndefined()
+    })
+
+    it('returns thresholds with undefined fields when Hydro sub-objects are absent', () => {
+      const result = transformContainerThresholds({ type: HYDRO_TYPE }, {})
+      expect(result.waterTemperature?.criticalLow).toBeUndefined()
+      expect(result.supplyLiquidPressure?.alarmLow).toBeUndefined()
+    })
+
+    it('returns thresholds with undefined fields when Immersion oilTemperature is absent', () => {
+      const result = transformContainerThresholds({ type: IMMERSION_TYPE }, {})
+      expect(result.oilTemperature?.criticalLow).toBeUndefined()
+    })
   })
 
   describe('prepareContainerSettingsPayload', () => {
@@ -116,6 +162,31 @@ describe('containerSettingsUtils', () => {
       expect(result.data.model).toBe(BITDEER_TYPE)
       expect(result.data.parameters.coolOilAlarmTemp).toBe(45)
       expect(result.data.thresholds.oilTemperature?.criticalHigh).toBe(48)
+    })
+
+    it('assembles payload for MicroBT type', () => {
+      const data = { type: MICROBT_TYPE }
+      const parameters = { runningSpeed: { value: 1200 }, startTemp: { value: 30 }, stopTemp: { value: 25 } }
+      const thresholds = { waterTemperature: { criticalHigh: 39 } }
+      const result = prepareContainerSettingsPayload(data, parameters, thresholds)
+      expect(result.data.model).toBe(MICROBT_TYPE)
+      expect(result.data.parameters.runningSpeed).toBe(1200)
+    })
+
+    it('assembles payload for AntspaceHydro type', () => {
+      const data = { type: HYDRO_TYPE }
+      const thresholds = { waterTemperature: { criticalLow: 21 }, supplyLiquidPressure: { normal: 2.3 } }
+      const result = prepareContainerSettingsPayload(data, {}, thresholds)
+      expect(result.data.model).toBe(HYDRO_TYPE)
+      expect(result.data.thresholds.waterTemperature?.criticalLow).toBe(21)
+    })
+
+    it('assembles payload for AntspaceImmersion type', () => {
+      const data = { type: IMMERSION_TYPE }
+      const thresholds = { oilTemperature: { alarm: 46 } }
+      const result = prepareContainerSettingsPayload(data, {}, thresholds)
+      expect(result.data.model).toBe(IMMERSION_TYPE)
+      expect(result.data.thresholds.oilTemperature?.alarm).toBe(46)
     })
   })
 

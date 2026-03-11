@@ -264,4 +264,140 @@ describe('useOperationsDashboardData', () => {
 
     expect(result.current.isAnyLoading).toBe(true)
   })
+
+  it('returns null nominalValue when global config is loading', () => {
+    mockedUseGetGlobalConfigQuery.mockReturnValue({ data: null, isLoading: true })
+    mockedUseGetTailLogRangeAggrQuery.mockReturnValue({
+      data: null,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    })
+    mockedUseGetTailLogQuery.mockReturnValue({
+      data: null,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    })
+
+    const { result } = renderHook(() => useOperationsDashboardData(mockDateRange))
+
+    expect(result.current.hashrate.nominalValue).toBeNull()
+    expect(result.current.efficiency.nominalValue).toBeNull()
+    expect(result.current.consumption.nominalValue).toBeNull()
+  })
+
+  it('returns 0 nominalValue for consumption when nominalPowerAvailability_MW is missing', () => {
+    mockedUseGetGlobalConfigQuery.mockReturnValue({
+      data: [{ nominalSiteHashrate_MHS: 100 }], // no nominalPowerAvailability_MW
+      isLoading: false,
+    })
+    mockedUseGetTailLogRangeAggrQuery.mockReturnValue({
+      data: null,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    })
+    mockedUseGetTailLogQuery.mockReturnValue({
+      data: null,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    })
+
+    const { result } = renderHook(() => useOperationsDashboardData(mockDateRange))
+
+    expect(result.current.consumption.nominalValue).toBe(0)
+  })
+
+  it('returns true for isAnyLoading when isFetching is true', () => {
+    mockedUseGetGlobalConfigQuery.mockReturnValue({ data: [], isLoading: false })
+    mockedUseGetTailLogRangeAggrQuery.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: true,
+      error: null,
+    })
+    mockedUseGetTailLogQuery.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    })
+
+    const { result } = renderHook(() => useOperationsDashboardData(mockDateRange))
+
+    expect(result.current.isAnyLoading).toBe(true)
+  })
+
+  it('returns empty data when hashrateResponse is a non-nested array (non-array inner)', () => {
+    // When hashrateResponse is [{ type: 'miner', ...}] (not nested), _head gives an object, not array → empty result
+    const nonNestedData = [{ type: 'miner', data: [{ ts: 1, val: { hashrate_mhs_5m_sum_aggr: 100 } }] }]
+    mockedUseGetGlobalConfigQuery.mockReturnValue({ data: mockGlobalConfig, isLoading: false })
+    mockedUseGetTailLogRangeAggrQuery
+      .mockReturnValueOnce({ data: nonNestedData, isLoading: false, isFetching: false, error: null })
+      .mockReturnValueOnce({ data: [], isLoading: false, isFetching: false, error: null })
+      .mockReturnValueOnce({ data: [], isLoading: false, isFetching: false, error: null })
+    mockedUseGetTailLogQuery.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    })
+
+    const { result } = renderHook(() => useOperationsDashboardData(mockDateRange))
+
+    // _head of [{ type: 'miner', ...}] = { type: 'miner', ... } (not an array) → falls into else branch → []
+    expect(result.current.hashrate.data).toEqual([])
+  })
+
+  it('handles miners data when rawMinersData is a nested array', () => {
+    const nestedMinersData = [[
+      {
+        ts: 1,
+        online_or_minor_error_miners_amount_aggr: 20,
+        not_mining_miners_amount_aggr: 0,
+        offline_cnt: {},
+        maintenance_type_cnt: {},
+      },
+    ]]
+    mockedUseGetGlobalConfigQuery.mockReturnValue({ data: mockGlobalConfig, isLoading: false })
+    mockedUseGetTailLogRangeAggrQuery.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    })
+    mockedUseGetTailLogQuery.mockReturnValue({
+      data: nestedMinersData,
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    })
+
+    const { result } = renderHook(() => useOperationsDashboardData(mockDateRange))
+    expect(result.current.miners.data).not.toBeNull()
+  })
+
+  it('skips chart data when response has empty inner array', () => {
+    mockedUseGetGlobalConfigQuery.mockReturnValue({ data: mockGlobalConfig, isLoading: false })
+    mockedUseGetTailLogRangeAggrQuery.mockReturnValue({
+      data: [[]], // outer array with empty inner
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    })
+    mockedUseGetTailLogQuery.mockReturnValue({
+      data: [],
+      isLoading: false,
+      isFetching: false,
+      error: null,
+    })
+
+    const { result } = renderHook(() => useOperationsDashboardData(mockDateRange))
+
+    expect(result.current.hashrate.data).toEqual([])
+    expect(result.current.efficiency.data).toEqual([])
+    expect(result.current.consumption.data).toEqual([])
+  })
 })
