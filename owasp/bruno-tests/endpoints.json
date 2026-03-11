@@ -97,8 +97,8 @@
       "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
     },
     "pathParams": {},
-    "expectedResponseKeys": ["cabinets", "summary"],
-    "reviewed": false
+    "expectedResponseKeys": ["cabinets", "total"],
+    "reviewed": true
   },
   {
     "slug": "cabinet-detail",
@@ -113,7 +113,7 @@
       ":id": "{{cabinetId}}"
     },
     "expectedResponseKeys": ["cabinet"],
-    "reviewed": false
+    "reviewed": true
   },
   {
     "slug": "pools",
@@ -158,17 +158,13 @@
     "priority": "P1",
     "description": "Power consumption time-series — dashboard, energy report",
     "queryParams": {
-      "range": { "type": "string", "required": false, "bruValue": "24h" },
-      "interval": { "type": "string", "required": false, "bruValue": "auto" },
-      "start": { "type": "integer", "required": false, "bruValue": "{{startTs}}" },
-      "end": { "type": "integer", "required": false, "bruValue": "{{endTs}}" },
-      "container": { "type": "string", "required": false, "bruValue": "" },
-      "groupBy": { "type": "string", "required": false, "bruValue": "" },
+      "start": { "type": "integer", "required": true, "bruValue": "{{startTs}}" },
+      "end": { "type": "integer", "required": true, "bruValue": "{{endTs}}" },
       "overwriteCache": { "type": "boolean", "required": false, "bruValue": "false" }
     },
     "pathParams": {},
-    "expectedResponseKeys": ["data"],
-    "reviewed": false
+    "expectedResponseKeys": ["log", "summary"],
+    "reviewed": true
   },
   {
     "slug": "metrics-efficiency",

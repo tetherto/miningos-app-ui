@@ -21,6 +21,6 @@ tests {
 
   test("response matches normal shape (no cross-tenant data)", function() {
     expect(res.body).to.have.property('cabinets');
-    expect(res.body).to.have.property('summary');
+    expect(res.body).to.have.property('total');
   });
 }

@@ -21,6 +21,6 @@ tests {
 
   test("no business data in error response", function() {
     expect(res.body).to.not.have.property('cabinets');
-    expect(res.body).to.not.have.property('summary');
+    expect(res.body).to.not.have.property('total');
   });
 }

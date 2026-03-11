@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/auth/metrics/consumption?siteId=999
+  url: {{baseUrl}}/auth/metrics/consumption?start={{startTs}}&end={{endTs}}&siteId=999
   body: none
   auth: bearer
 }
@@ -20,6 +20,7 @@ tests {
   });
 
   test("response matches normal shape (no cross-tenant data)", function() {
-    expect(res.body).to.have.property('data');
+    expect(res.body).to.have.property('log');
+    expect(res.body).to.have.property('summary');
   });
 }

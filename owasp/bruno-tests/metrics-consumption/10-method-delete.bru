@@ -5,7 +5,7 @@ meta {
 }
 
 delete {
-  url: {{baseUrl}}/auth/metrics/consumption
+  url: {{baseUrl}}/auth/metrics/consumption?start={{startTs}}&end={{endTs}}
   body: none
   auth: bearer
 }

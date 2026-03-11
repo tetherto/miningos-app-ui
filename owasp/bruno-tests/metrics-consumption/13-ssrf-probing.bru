@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/auth/metrics/consumption?range=http://169.254.169.254/latest/meta-data/
+  url: {{baseUrl}}/auth/metrics/consumption?start={{startTs}}&end={{endTs}}&url=http://169.254.169.254/latest/meta-data/
   body: none
   auth: bearer
 }

@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/auth/metrics/consumption?range=24h&interval=auto&start={{startTs}}&end={{endTs}}
+  url: {{baseUrl}}/auth/metrics/consumption?start={{startTs}}&end={{endTs}}
   body: none
   auth: bearer
 }
@@ -24,7 +24,8 @@ tests {
   });
 
   test("response has expected top-level keys", function() {
-    expect(res.body).to.have.property('data');
+    expect(res.body).to.have.property('log');
+    expect(res.body).to.have.property('summary');
   });
 
   test("response time under 5s", function() {

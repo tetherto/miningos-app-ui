@@ -5,7 +5,7 @@ meta {
 }
 
 get {
-  url: {{baseUrl}}/auth/metrics/consumption
+  url: {{baseUrl}}/auth/metrics/consumption?start={{startTs}}&end={{endTs}}
   body: none
   auth: none
 }
@@ -20,6 +20,7 @@ tests {
   });
 
   test("no business data in error response", function() {
-    expect(res.body).to.not.have.property('data');
+    expect(res.body).to.not.have.property('log');
+    expect(res.body).to.not.have.property('summary');
   });
 }
