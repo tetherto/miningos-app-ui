@@ -1,10 +1,26 @@
-import { renderHook } from '@testing-library/react'
+import { renderHook, act } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { useListViewFilters } from '../useListViewFilters'
 
 vi.mock('../useGetAvailableDevices', () => ({
-  useGetAvailableDevices: () => ({ devices: [], isLoading: false }),
+  useGetAvailableDevices: () => ({
+    devices: [{ type: 'miner.antminer', count: 10 }],
+    isLoading: false,
+  }),
+}))
+
+vi.mock('@/app/utils/actionUtils', () => ({
+  getTypeFiltersForSite: vi.fn(() => [
+    { value: 'miner', children: [{ value: 'antminer', label: 'Antminer' }] },
+  ]),
+}))
+
+vi.mock('@/Components/Explorer/List/ListView.util', () => ({
+  getFilterOptionsByTab: vi.fn(() => [
+    { value: 'type', label: 'Type', order: 1 },
+    { value: 'status', label: 'Status', order: 2, children: [] },
+  ]),
 }))
 
 describe('useListViewFilters', () => {
@@ -22,5 +38,72 @@ describe('useListViewFilters', () => {
   it('returns empty filter options when site is undefined', () => {
     const { result } = renderHook(() => useListViewFilters({}))
     expect(result.current.listViewFilterOptions).toEqual([])
+  })
+
+  it('onFiltersChange groups selections by key', () => {
+    const { result } = renderHook(() =>
+      useListViewFilters({ site: 'site-1', selectedType: 'miner' }),
+    )
+
+    act(() => {
+      result.current.onFiltersChange([['status', 'online', undefined]])
+    })
+
+    expect(result.current.filters).toEqual({ status: ['online'] })
+  })
+
+  it('onFiltersChange handles childValue when present', () => {
+    const { result } = renderHook(() =>
+      useListViewFilters({ site: 'site-1', selectedType: 'miner' }),
+    )
+
+    act(() => {
+      result.current.onFiltersChange([['type', 'miner', 'antminer']])
+    })
+
+    expect(result.current.filters).toEqual({ type: ['antminer'] })
+  })
+
+  it('onFiltersChange removes last.alerts when more than one alert selected', () => {
+    const { result } = renderHook(() =>
+      useListViewFilters({ site: 'site-1', selectedType: 'miner' }),
+    )
+
+    act(() => {
+      result.current.onFiltersChange([
+        ['last.alerts', 'alert1', undefined],
+        ['last.alerts', 'alert2', undefined],
+      ])
+    })
+
+    expect(result.current.filters?.['last.alerts']).toBeUndefined()
+  })
+
+  it('onFiltersChange keeps last.alerts when exactly one alert selected', () => {
+    const { result } = renderHook(() =>
+      useListViewFilters({ site: 'site-1', selectedType: 'miner' }),
+    )
+
+    act(() => {
+      result.current.onFiltersChange([['last.alerts', 'alert1', undefined]])
+    })
+
+    expect(result.current.filters?.['last.alerts']).toEqual(['alert1'])
+  })
+
+  it('resets filters when selectedType changes', () => {
+    const { result, rerender } = renderHook(
+      ({ selectedType }) => useListViewFilters({ site: 'site-1', selectedType }),
+      { initialProps: { selectedType: 'miner' } },
+    )
+
+    act(() => {
+      result.current.onFiltersChange([['status', 'online', undefined]])
+    })
+    expect(result.current.filters).toBeDefined()
+
+    rerender({ selectedType: 'container' })
+
+    expect(result.current.filters).toBeUndefined()
   })
 })

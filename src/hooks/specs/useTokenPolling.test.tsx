@@ -8,8 +8,12 @@ import useTokenPolling from '../useTokenPolling'
 
 import { authSlice } from '@/app/slices/authSlice'
 
+const mockFns = vi.hoisted(() => ({
+  postTokenQuery: vi.fn(() => ({ data: { token: null }, error: null })),
+}))
+
 vi.mock('@/app/services/api', () => ({
-  usePostTokenQuery: () => ({ data: { token: null }, error: null }),
+  usePostTokenQuery: mockFns.postTokenQuery,
 }))
 vi.mock('../usePermissions', () => ({
   useTokenPermissions: () => ({ fetchPermissions: vi.fn() }),
@@ -47,5 +51,35 @@ describe('useTokenPolling', () => {
       wrapper: createWrapper(),
     })
     expect(result.current).toBeDefined()
+  })
+
+  it('returns token when query provides a valid token', () => {
+    mockFns.postTokenQuery.mockReturnValueOnce({ data: { token: 'new-token-123' }, error: null })
+    const { result } = renderHook(() => useTokenPolling('existing-token'), {
+      wrapper: createWrapper(),
+    })
+    expect(result.current.token).toBe('new-token-123')
+  })
+
+  it('handles 401 UNAUTHORIZED error from query', () => {
+    mockFns.postTokenQuery.mockReturnValueOnce({
+      data: {},
+      error: { status: 401 },
+    })
+    const { result } = renderHook(() => useTokenPolling('token'), {
+      wrapper: createWrapper(),
+    })
+    expect(result.current.error).toEqual({ status: 401 })
+  })
+
+  it('handles 500 SERVER_ERROR from query', () => {
+    mockFns.postTokenQuery.mockReturnValueOnce({
+      data: {},
+      error: { status: 500 },
+    })
+    const { result } = renderHook(() => useTokenPolling('token'), {
+      wrapper: createWrapper(),
+    })
+    expect(result.current.error).toEqual({ status: 500 })
   })
 })

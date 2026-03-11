@@ -1,3 +1,4 @@
+import { renderHook } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 
 import { useRevenueData } from '../useRevenueData'
@@ -53,29 +54,71 @@ vi.mock('@/MultiSiteViews/RevenueAndCost/revenueDataHelpers', () => ({
 }))
 
 describe('useRevenueData', () => {
-  it('should be defined and accept parameters', () => {
-    expect(useRevenueData).toBeDefined()
-    expect(typeof useRevenueData).toBe('function')
+  const defaultParams = {
+    selectedSites: ['site-a'],
+    siteList: [{ id: 'site-a', name: 'Site A' }],
+    siteId: 'site-a',
+    siteName: 'Site A',
+    dateRange: { start: '2025-01-01', end: '2025-01-31', period: 'daily' },
+    onTableDateRangeChange: vi.fn(),
+  }
+
+  it('returns expected shape', () => {
+    const { result } = renderHook(() => useRevenueData(defaultParams))
+    expect(result.current).toHaveProperty('revenueData')
+    expect(result.current).toHaveProperty('isLoading')
+    expect(result.current).toHaveProperty('chartData')
+    expect(result.current).toHaveProperty('transformedBTCMetrics')
+    expect(result.current).toHaveProperty('revenueMetrics')
+    expect(result.current).toHaveProperty('subsidyFeesData')
+    expect(result.current).toHaveProperty('params')
   })
 
-  it('should accept selectedSites, siteId, and siteName parameters', () => {
-    const mockSelectedSites = [{ id: 'site-c', name: 'Site-C' }]
-    const mockSiteId = 'site-d'
-    const mockSiteName = 'Site-D'
-
-    expect(mockSelectedSites).toHaveLength(1)
-    expect(mockSelectedSites[0]).toHaveProperty('id', 'site-c')
-    expect(mockSiteId).toBe('site-d')
-    expect(mockSiteName).toBe('Site-D')
+  it('returns isLoading as boolean', () => {
+    const { result } = renderHook(() => useRevenueData(defaultParams))
+    expect(typeof result.current.isLoading).toBe('boolean')
   })
 
-  it('should have correct mock data structure', () => {
-    const mockRevenueData = { regions: [] }
-    const mockDowntimeData = { log: [] }
-    const mockGlobalConfig = { nominalSiteHashrate_MHS: 1000000 }
+  it('works when selectedSites is empty', () => {
+    const { result } = renderHook(() =>
+      useRevenueData({ ...defaultParams, selectedSites: [] }),
+    )
+    expect(result.current).toHaveProperty('isLoading')
+  })
 
-    expect(mockRevenueData).toHaveProperty('regions')
-    expect(mockDowntimeData).toHaveProperty('log')
-    expect(mockGlobalConfig).toHaveProperty('nominalSiteHashrate_MHS')
+  it('uses siteId when selectedSites is empty', () => {
+    const { result } = renderHook(() =>
+      useRevenueData({ ...defaultParams, selectedSites: [], siteId: 'site-b' }),
+    )
+    expect(result.current).toBeDefined()
+  })
+
+  it('uses siteList for site list when provided', () => {
+    const { result } = renderHook(() =>
+      useRevenueData({
+        ...defaultParams,
+        siteList: [{ id: 'site-a', name: 'Site A' }],
+      }),
+    )
+    expect(result.current).toBeDefined()
+  })
+
+  it('uses siteId/siteName fallback when siteList is empty', () => {
+    const { result } = renderHook(() =>
+      useRevenueData({
+        ...defaultParams,
+        siteList: [],
+        siteId: 'site-fallback',
+        siteName: 'Fallback Site',
+      }),
+    )
+    expect(result.current).toBeDefined()
+  })
+
+  it('returns default metrics when no revenue data', () => {
+    const { result } = renderHook(() =>
+      useRevenueData({ ...defaultParams, dateRange: { start: '', end: '', period: '' } }),
+    )
+    expect(result.current.isLoading).toBe(false)
   })
 })

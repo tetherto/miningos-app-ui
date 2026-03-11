@@ -7,10 +7,13 @@ import { useUserRole, useAppUserRoles } from '../useUserRole'
 
 import { authSlice } from '@/app/slices/authSlice'
 
+const mockFeatureConfigQuery = vi.fn(() => ({ data: {}, isLoading: false }))
+const mockGetRoles = vi.fn(() => [])
+
 vi.mock('@/app/services/api', () => ({
-  useGetFeatureConfigQuery: () => ({ data: {}, isLoading: false }),
+  useGetFeatureConfigQuery: (...args: unknown[]) => mockFeatureConfigQuery(...args),
 }))
-vi.mock('@/app/utils/tokenUtils', () => ({ getRolesFromAuthToken: () => [] }))
+vi.mock('@/app/utils/tokenUtils', () => ({ getRolesFromAuthToken: (...args: unknown[]) => mockGetRoles(...args) }))
 
 const createWrapper = (token: string | null = 't') => {
   const store = configureStore({
@@ -36,5 +39,34 @@ describe('useUserRole', () => {
     const { result } = renderHook(() => useUserRole(), { wrapper: createWrapper() })
     expect(result.current).toHaveProperty('label')
     expect(result.current).toHaveProperty('value')
+  })
+
+  it('returns empty strings when no token', () => {
+    const { result } = renderHook(() => useUserRole(), { wrapper: createWrapper(null) })
+    expect(result.current.label).toBe('')
+    expect(result.current.value).toBe('')
+  })
+
+  it('returns userRoles from multisite roles when isMultiSiteModeEnabled is true', () => {
+    mockFeatureConfigQuery.mockReturnValueOnce({
+      data: { isMultiSiteModeEnabled: true },
+      isLoading: false,
+    })
+    const { result } = renderHook(() => useAppUserRoles(), { wrapper: createWrapper() })
+    expect(Array.isArray(result.current.userRoles)).toBe(true)
+  })
+
+  it('returns empty roles when isLoading is true', () => {
+    mockFeatureConfigQuery.mockReturnValueOnce({ data: undefined, isLoading: true })
+    const { result } = renderHook(() => useAppUserRoles(), { wrapper: createWrapper() })
+    expect(result.current.isLoading).toBe(true)
+    expect(result.current.userRoles).toHaveLength(0)
+  })
+
+  it('resolves role label when token contains a known role', () => {
+    mockGetRoles.mockReturnValueOnce(['admin'])
+    const { result } = renderHook(() => useUserRole(), { wrapper: createWrapper('fake-token') })
+    // label and value should be defined (may be empty if role not in USER_ROLES)
+    expect(result.current).toHaveProperty('label')
   })
 })

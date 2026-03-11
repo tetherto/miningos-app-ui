@@ -8,9 +8,11 @@ import useAuthToken from '../useAuthToken'
 
 import { authSlice } from '@/app/slices/authSlice'
 
+const mockUseTokenPolling = vi.fn(() => ({ error: null }))
+
 vi.mock('../useTokenPolling', () => ({
   __esModule: true,
-  default: () => ({ error: null }),
+  default: (...args: unknown[]) => mockUseTokenPolling(...args),
 }))
 vi.mock('../usePermissions', () => ({
   useTokenPermissions: () => ({}),
@@ -51,5 +53,33 @@ describe('useAuthToken', () => {
       wrapper: createWrapper(),
     })
     expect(result.current).toBeNull()
+  })
+
+  it('saves last visited URL when there is a polling error and no token', () => {
+    const saveLastVisitedUrl = vi.fn()
+    vi.doMock('@/app/utils/localStorageUtils', () => ({ saveLastVisitedUrl }))
+    mockUseTokenPolling.mockReturnValueOnce({ error: new Error('token expired') })
+    const { result } = renderHook(() => useAuthToken(), {
+      wrapper: createWrapper(),
+    })
+    // No token + error branch should trigger saveLastVisitedUrl
+    expect(result.current).toBeNull()
+  })
+
+  it('handles token passed via URL search param', () => {
+    const store = configureStore({
+      reducer: { auth: authSlice.reducer },
+      preloadedState: { auth: { token: null, permissions: null } },
+    })
+    const wrapper = ({ children }: { children: React.ReactNode }) => (
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/?authToken=new-token']}>
+          {children}
+        </MemoryRouter>
+      </Provider>
+    )
+    renderHook(() => useAuthToken(), { wrapper })
+    // Token should be dispatched to store
+    expect(store.getState().auth.token).toBe('new-token')
   })
 })

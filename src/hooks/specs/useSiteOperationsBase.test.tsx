@@ -12,13 +12,15 @@ vi.mock('../useMultiSiteDateRange', () => ({
     timeframeType: 'daily',
   }),
 }))
+const mockUseMultiSiteMode = vi.fn(() => ({
+  site: null,
+  siteId: null,
+  isLoading: false,
+  siteSelectOptions: [],
+}))
+
 vi.mock('../useMultiSiteMode', () => ({
-  useMultiSiteMode: () => ({
-    site: null,
-    siteId: null,
-    isLoading: false,
-    siteSelectOptions: [],
-  }),
+  useMultiSiteMode: () => mockUseMultiSiteMode(),
 }))
 vi.mock('../useMultiSiteRTRequestParams', () => ({
   __esModule: true,
@@ -65,5 +67,19 @@ describe('useSiteOperationsBase', () => {
     expect(result.current.requestParams).toHaveProperty('start')
     expect(result.current.requestParams).toHaveProperty('end')
     expect(result.current.requestParams).toHaveProperty('period')
+  })
+
+  it('uses siteId as sites when siteId is truthy', () => {
+    mockUseMultiSiteMode.mockReturnValueOnce({
+      site: { id: 'site-1' },
+      siteId: 'site-1',
+      isLoading: false,
+      siteSelectOptions: [],
+    })
+    const { result } = renderHook(() => useSiteOperationsBase(), {
+      wrapper: createWrapper(),
+    })
+    const params = result.current.requestParams as { sites?: string[] }
+    expect(params.sites).toContain('site-1')
   })
 })

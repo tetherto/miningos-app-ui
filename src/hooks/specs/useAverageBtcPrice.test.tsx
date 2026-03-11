@@ -13,12 +13,16 @@ vi.mock('@/app/services/api', () => ({
 vi.mock('../useMultiSiteRTRequestParams', () => ({
   default: () => ({ buildRequestParams: () => ({}), isLoading: false }),
 }))
-vi.mock('../useMultiSiteMode', () => ({
-  useMultiSiteMode: () => ({
+const mockFns = vi.hoisted(() => ({
+  useMultiSiteMode: vi.fn(() => ({
     siteId: undefined,
     selectedSites: [],
     isMultiSiteModeEnabled: true,
-  }),
+  })),
+}))
+
+vi.mock('../useMultiSiteMode', () => ({
+  useMultiSiteMode: mockFns.useMultiSiteMode,
 }))
 
 const createWrapper = () => {
@@ -39,5 +43,53 @@ describe('useAverageBtcPrice', () => {
     )
     expect(result.current).toHaveProperty('averageBtcPrice')
     expect(result.current).toHaveProperty('isLoading')
+  })
+
+  it('skips API call when isMultiSiteModeEnabled is false', () => {
+    mockFns.useMultiSiteMode.mockReturnValueOnce({
+      siteId: undefined,
+      selectedSites: [],
+      isMultiSiteModeEnabled: false,
+    })
+    const { result } = renderHook(
+      () => useAverageBtcPrice({ start: Date.now(), end: Date.now() } as never),
+      { wrapper: createWrapper() },
+    )
+    expect(result.current).toHaveProperty('averageBtcPrice')
+    expect(result.current.isLoading).toBe(false)
+  })
+
+  it('uses siteId as sites when siteId is present', () => {
+    mockFns.useMultiSiteMode.mockReturnValueOnce({
+      siteId: 'specific-site',
+      selectedSites: ['other-site'],
+      isMultiSiteModeEnabled: true,
+    })
+    const { result } = renderHook(
+      () => useAverageBtcPrice({ start: Date.now(), end: Date.now() } as never),
+      { wrapper: createWrapper() },
+    )
+    expect(result.current).toHaveProperty('averageBtcPrice')
+  })
+
+  it('uses selectedSites when no siteId but selectedSites exist', () => {
+    mockFns.useMultiSiteMode.mockReturnValueOnce({
+      siteId: undefined,
+      selectedSites: ['site-a', 'site-b'],
+      isMultiSiteModeEnabled: true,
+    })
+    const { result } = renderHook(
+      () => useAverageBtcPrice({ start: Date.now(), end: Date.now() } as never),
+      { wrapper: createWrapper() },
+    )
+    expect(result.current).toHaveProperty('averageBtcPrice')
+  })
+
+  it('skips when dateRange has no start', () => {
+    const { result } = renderHook(
+      () => useAverageBtcPrice({ start: undefined, end: Date.now() } as never),
+      { wrapper: createWrapper() },
+    )
+    expect(result.current.isLoading).toBe(false)
   })
 })

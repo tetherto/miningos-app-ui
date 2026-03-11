@@ -2,10 +2,11 @@ import { getLocationColors, getStatusColors } from '../minerUtils'
 
 describe('minerUtils', () => {
   describe('getLocationColors', () => {
-    it('returns backgroundColor and borderColor for known location', () => {
-      const result = getLocationColors('shelf')
+    it('returns backgroundColor and borderColor for known location (site.warehouse)', () => {
+      const result = getLocationColors('site.warehouse')
       expect(result).toHaveProperty('$backgroundColor')
       expect(result).toHaveProperty('$borderColor')
+      expect(result.$backgroundColor).not.toBe('none')
     })
     it('returns object with both colors for any location', () => {
       const result = getLocationColors('unknown-key-xyz')
@@ -16,10 +17,11 @@ describe('minerUtils', () => {
     })
   })
   describe('getStatusColors', () => {
-    it('returns backgroundColor and borderColor for known status', () => {
-      const result = getStatusColors('online')
+    it('returns backgroundColor and borderColor for known status (ok_brand_new)', () => {
+      const result = getStatusColors('ok_brand_new')
       expect(result).toHaveProperty('$backgroundColor')
       expect(result).toHaveProperty('$borderColor')
+      expect(result.$backgroundColor).not.toBe('none')
     })
     it('returns object with both colors for any status', () => {
       const result = getStatusColors('unknown-status-xyz')

@@ -8,6 +8,7 @@ import {
   formatPowerConsumption,
   formatEfficiency,
 } from './utils'
+import * as styles from './styles'
 
 describe('OperationsDashboard.utils', () => {
   describe('sumObjectValues', () => {
@@ -282,5 +283,12 @@ describe('OperationsDashboard.utils', () => {
       expect(formatEfficiency(null)).toBe('0')
       expect(formatEfficiency(undefined)).toBe('0')
     })
+  })
+})
+
+describe('OperationsDashboard.styles', () => {
+  it('exports styled components', () => {
+    expect(styles).toBeDefined()
+    expect(Object.keys(styles).length).toBeGreaterThan(0)
   })
 })

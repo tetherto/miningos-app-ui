@@ -48,7 +48,31 @@ describe('useNotification', () => {
     const { result } = renderHook(() => useNotification(), { wrapper: createWrapper() })
     result.current.notifyError('Err', 'Details')
     expect(mockNotification.error).toHaveBeenCalledWith(
-      expect.objectContaining({ message: 'Err', description: 'Details' }),
+      expect.objectContaining({ message: 'Err', description: 'Details', duration: 3 }),
+    )
+  })
+
+  it('notifyError with dontClose=true sets duration to 0', () => {
+    const { result } = renderHook(() => useNotification(), { wrapper: createWrapper() })
+    result.current.notifyError('Err', 'Details', true)
+    expect(mockNotification.error).toHaveBeenCalledWith(
+      expect.objectContaining({ duration: 0 }),
+    )
+  })
+
+  it('notifyInfo calls notification.info', () => {
+    const { result } = renderHook(() => useNotification(), { wrapper: createWrapper() })
+    result.current.notifyInfo('Info', 'Details')
+    expect(mockNotification.info).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Info', description: 'Details' }),
+    )
+  })
+
+  it('notifyWarning calls notification.warning', () => {
+    const { result } = renderHook(() => useNotification(), { wrapper: createWrapper() })
+    result.current.notifyWarning('Warn', 'Details')
+    expect(mockNotification.warning).toHaveBeenCalledWith(
+      expect.objectContaining({ message: 'Warn', description: 'Details' }),
     )
   })
 })
