@@ -1,16 +1,20 @@
 import { renderHook } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import {
   buildElectricityParams,
   useElectricityCurtailmentData,
 } from '../useElectricityCurtailmentData'
 
-const mockQuery = vi.fn(() => ({ data: undefined, isLoading: false }))
+const mockQuery = vi.fn().mockReturnValue({ data: undefined, isLoading: false })
 
 vi.mock('@/app/services/api', () => ({
-  useGetExtDataQuery: (...args: unknown[]) => mockQuery(...args),
+  useGetExtDataQuery: (arg0: unknown, arg1: unknown) => mockQuery(arg0 as never, arg1 as never),
 }))
+
+beforeEach(() => {
+  mockQuery.mockReturnValue({ data: undefined, isLoading: false })
+})
 
 const MS_PER_DAY = 24 * 60 * 60 * 1000
 const START = new Date('2024-01-01T00:00:00Z').getTime()

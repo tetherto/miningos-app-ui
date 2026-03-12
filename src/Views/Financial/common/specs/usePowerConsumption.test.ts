@@ -1,13 +1,17 @@
 import { renderHook } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { buildPowerConsumptionParams, usePowerConsumption } from '../usePowerConsumption'
 
-const mockQuery = vi.fn(() => ({ data: undefined, isLoading: false }))
+const mockQuery = vi.fn().mockReturnValue({ data: undefined, isLoading: false })
 
 vi.mock('@/app/services/api', () => ({
-  useGetTailLogRangeAggrQuery: (...args: unknown[]) => mockQuery(...args),
+  useGetTailLogRangeAggrQuery: (arg0: unknown, arg1: unknown) => mockQuery(arg0 as never, arg1 as never),
 }))
+
+beforeEach(() => {
+  mockQuery.mockReturnValue({ data: undefined, isLoading: false })
+})
 
 const START = new Date('2024-01-01T00:00:00Z').getTime()
 const END = new Date('2024-01-31T23:59:59Z').getTime()

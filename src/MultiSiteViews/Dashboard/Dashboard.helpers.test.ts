@@ -272,7 +272,7 @@ describe('readRegionValue', () => {
       log: [{ hashrate: 10 }, { hashrate: 20 }],
       summary: {},
     }
-    expect(readRegionValue(item, { kind: 'logMean', field: 'hashrate' })).toBe(15)
+    expect(readRegionValue(item as never, { kind: 'logMean', field: 'hashrate' })).toBe(15)
   })
 
   it('returns summaryPath value for summaryPath kind', () => {
@@ -281,7 +281,7 @@ describe('readRegionValue', () => {
       log: [],
       summary: { metrics: { hashrate: 42 } },
     }
-    expect(readRegionValue(item, { kind: 'summaryPath', path: 'metrics.hashrate' })).toBe(42)
+    expect(readRegionValue(item as never, { kind: 'summaryPath', path: ['metrics', 'hashrate'] })).toBe(42)
   })
 
   it('returns 0 when logMean log is empty', () => {
@@ -293,7 +293,7 @@ describe('readRegionValue', () => {
 describe('updateMetricFromData', () => {
   it('returns prevMetrics unchanged when data is null', () => {
     const prevMetrics = { US: { hashrate: { value: 5 } } }
-    const result = updateMetricFromData(prevMetrics, null, { metricKey: 'hashrate' })
+    const result = updateMetricFromData(prevMetrics as never, null, { metricKey: 'hashrate' })
     expect(result).toBe(prevMetrics)
   })
 

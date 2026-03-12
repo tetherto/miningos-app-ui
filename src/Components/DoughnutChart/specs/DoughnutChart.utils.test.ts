@@ -27,7 +27,7 @@ describe('DoughnutChart.utils', () => {
         parsed: 10,
         dataset: { unit: 'MW' },
       }
-      const result = labelFn!(mockTooltipItem as never)
+      const result = (labelFn as unknown as (item: unknown) => unknown)(mockTooltipItem)
       expect(Array.isArray(result)).toBe(true)
       expect((result as string[])[1]).toContain('$10')
     })
@@ -40,7 +40,7 @@ describe('DoughnutChart.utils', () => {
         parsed: 10,
         dataset: { unit: 'kW' },
       }
-      const result = labelFn!(mockTooltipItem as never)
+      const result = (labelFn as unknown as (item: unknown) => unknown)(mockTooltipItem)
       expect(Array.isArray(result)).toBe(true)
       expect((result as string[])[1]).toContain('kW')
     })
@@ -49,7 +49,7 @@ describe('DoughnutChart.utils', () => {
       const options = getDoughnutChartOptions([5])
       const labelFn = options.plugins?.tooltip?.callbacks?.label
       const mockTooltipItem = { label: '', parsed: 5, dataset: {} }
-      const result = labelFn!(mockTooltipItem as never)
+      const result = (labelFn as unknown as (item: unknown) => unknown)(mockTooltipItem)
       expect(Array.isArray(result)).toBe(true)
     })
   })

@@ -31,7 +31,7 @@ describe('getCurrentPowerModes', () => {
         },
       },
     ]
-    const result = getCurrentPowerModes([], miners as never[])
+    const result = getCurrentPowerModes([], miners as never[]) as Record<string, number>
     expect(result['normal']).toBe(1)
     expect(result['high']).toBe(1)
     expect(result[MINER_POWER_MODE.SLEEP]).toBe(1)
@@ -41,7 +41,7 @@ describe('getCurrentPowerModes', () => {
     const devices = [
       { last: { snap: { stats: { status: 'mining' }, config: { power_mode: 'low' } } } },
     ]
-    const result = getCurrentPowerModes(devices as never[], [])
+    const result = getCurrentPowerModes(devices as never[], []) as Record<string, number>
     expect(result['low']).toBe(1)
   })
 })
@@ -97,14 +97,14 @@ describe('groupTailLogByMinersByType', () => {
     ]
     // groupTailLogByMinersByType uses _toPairs(tailLogData) — pass an object not an array
     const tailLogData = { power_mode_normal_cnt: { 'container-1': 5 } }
-    const result = groupTailLogByMinersByType(selectedDevices as never[], tailLogData as never[])
+    const result = groupTailLogByMinersByType(selectedDevices as never[], tailLogData as unknown as never[])
     expect(result[MINER_TYPE.ANTMINER].normal).toBe(5)
   })
 
   it('skips entries where container type cannot be determined', () => {
     const selectedDevices: never[] = []
     const tailLogData = { power_mode_normal_cnt: { 'container-unknown': 3 } }
-    const result = groupTailLogByMinersByType(selectedDevices, tailLogData as never[])
+    const result = groupTailLogByMinersByType(selectedDevices, tailLogData as unknown as never[])
     expect(result[MINER_TYPE.ANTMINER].normal).toBe(0)
   })
 })
