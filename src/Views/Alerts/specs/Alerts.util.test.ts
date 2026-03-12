@@ -14,6 +14,20 @@ vi.mock('../../../app/utils/queryUtils', () => ({
   getDeviceByAlertId: vi.fn().mockReturnValue({}),
 }))
 
+vi.mock('../../../app/utils/deviceUtils', () => ({
+  getDeviceData: vi.fn((device: unknown) => {
+    const d = device as Record<string, unknown>
+    return [null, d?.data ?? {}]
+  }),
+  getMinerShortCode: vi.fn(() => 'SC1'),
+  isMiner: vi.fn(() => false),
+  isContainer: vi.fn(() => false),
+}))
+
+vi.mock('../../../app/utils/containerUtils', () => ({
+  getContainerName: vi.fn(() => 'Container1'),
+}))
+
 describe('Alerts.util', () => {
   const baseAlert: ParsedAlertEntry = {
     shortCode: 'SC1',
@@ -106,6 +120,10 @@ describe('Alerts.util', () => {
       getAlertsThingsQuery(undefined, ['tag1'])
       expect(getByTagsWithAlertsQuery).toHaveBeenCalledWith(['tag1'], undefined)
     })
+    it('calls getByTagsWithAlertsQuery with allowEmptyArray when provided', () => {
+      getAlertsThingsQuery(undefined, [], true)
+      expect(getByTagsWithAlertsQuery).toHaveBeenCalledWith([], true)
+    })
   })
 
   describe('getCurrentAlerts', () => {
@@ -115,6 +133,57 @@ describe('Alerts.util', () => {
     })
     it('filters by uuid when id provided', () => {
       const result = getCurrentAlerts([], { localFilters: {}, id: 'some-uuid' })
+      expect(Array.isArray(result)).toBe(true)
+    })
+    it('passes filterTags to composeFilters when no id', () => {
+      const result = getCurrentAlerts([], { localFilters: {}, filterTags: ['t1'] })
+      expect(Array.isArray(result)).toBe(true)
+    })
+  })
+
+  describe('applyAlertsLocalFilters — tag search', () => {
+    it('matches alert by tag when searching by type', () => {
+      const alertWithTag = { ...baseAlert, tags: ['ip-192.168.1.1'], type: 'miner' }
+      const result = applyAlertsLocalFilters([alertWithTag], { type: ['ip-192'] })
+      expect(result).toHaveLength(1)
+    })
+
+    it('returns empty when no alert matches type search', () => {
+      const result = applyAlertsLocalFilters([baseAlert], { type: ['xyz-not-found'] })
+      expect(result).toHaveLength(0)
+    })
+  })
+
+  describe('getHistoricalAlertsData — with filterTags', () => {
+    it('applies filterTags via composeFilters', () => {
+      const result = getHistoricalAlertsData([], {
+        localFilters: {},
+        filterTags: ['tag1'],
+      })
+      expect(Array.isArray(result)).toBe(true)
+    })
+  })
+
+  describe('getAlertsForDevices — with device alerts', () => {
+    it('collects alerts from devices with alert data', () => {
+      const deviceWithAlerts = {
+        code: 'M1',
+        tags: ['t-miner'],
+        data: {
+          id: 'dev-1',
+          type: 'antminer-s19',
+          alerts: [
+            {
+              uuid: 'alert-uuid-1',
+              name: 'Alert',
+              code: 'code',
+              severity: 'high',
+              createdAt: '2024-01-01',
+            },
+          ],
+        },
+      }
+      const result = getAlertsForDevices([[deviceWithAlerts as never]], {})
       expect(Array.isArray(result)).toBe(true)
     })
   })

@@ -5,15 +5,22 @@ import { CHART_COLORS } from '../../../constants/colors'
 import { DATE_TIME_FORMAT } from '../../../constants/dates'
 import {
   aggregateData,
+  calculateCurtailment,
   convertEnergy,
   convertEnergyToRange,
   EXT_DATA_GROUP_RANGE,
   getExtDataGroupRange,
   getUteEnergyAggrValue,
+  HASHRATE_PER_PHS,
+  HOURS_IN_DAY,
   prepareDataForCharts,
   processPowerMeterData,
-  transformStatsHistoryData,
+  toPHS,
+  toMW,
+  toMWh,
   transformCostRevenueData,
+  transformStatsHistoryData,
+  W_TO_MW,
 } from '../electricityUtils'
 
 describe('electricityUtils', () => {
@@ -555,6 +562,84 @@ describe('electricityUtils', () => {
           hourly_estimates: [{ revenue: 200 }],
         },
       ])
+    })
+  })
+})
+
+describe('electricityUtils — unit converters & calculateCurtailment', () => {
+  describe('toMW', () => {
+    it('converts watts to megawatts', () => {
+      expect(toMW(W_TO_MW)).toBe(1)
+      expect(toMW(0)).toBe(0)
+      expect(toMW(500_000)).toBeCloseTo(0.5)
+    })
+  })
+
+  describe('toMWh', () => {
+    it('converts watts to MWh (W / W_TO_MW * 24)', () => {
+      expect(toMWh(W_TO_MW)).toBe(HOURS_IN_DAY)
+      expect(toMWh(0)).toBe(0)
+    })
+  })
+
+  describe('toPHS', () => {
+    it('converts hashrate to PH/s', () => {
+      expect(toPHS(HASHRATE_PER_PHS)).toBe(1)
+      expect(toPHS(0)).toBe(0)
+    })
+  })
+
+  describe('calculateCurtailment', () => {
+    it('returns positive curtailment when nominalAvailable > usedEnergy', () => {
+      const usedEnergy = 500_000 // small, so usedEnergyInMWh < nominalAvailablePowerMWh
+      const nominalAvailablePowerMWh = 20
+      const powerConsumptionMW = 1
+      const hoursInPeriod = 24
+
+      const result = calculateCurtailment(
+        usedEnergy,
+        nominalAvailablePowerMWh,
+        powerConsumptionMW,
+        hoursInPeriod,
+      )
+
+      expect(result.curtailmentMWh).toBeCloseTo(nominalAvailablePowerMWh - toMWh(usedEnergy))
+      expect(result.curtailmentRate).toBeGreaterThan(0)
+    })
+
+    it('clamps curtailmentRate to 0 when used energy exceeds nominal available', () => {
+      const usedEnergy = 50_000_000_000 // very large, usedEnergyInMWh >> nominalAvailablePowerMWh
+      const nominalAvailablePowerMWh = 1
+      const powerConsumptionMW = 1
+      const hoursInPeriod = 24
+
+      const result = calculateCurtailment(
+        usedEnergy,
+        nominalAvailablePowerMWh,
+        powerConsumptionMW,
+        hoursInPeriod,
+      )
+
+      expect(result.curtailmentRate).toBe(0)
+      expect(result.curtailmentMWh).toBeLessThan(0)
+    })
+
+    it('returns zero curtailment when nominalAvailable equals usedEnergyInMWh', () => {
+      const powerConsumptionMW = 1
+      const hoursInPeriod = 24
+      const usedEnergy = 0
+      const nominalAvailablePowerMWh = toMWh(usedEnergy) // both 0
+
+      const result = calculateCurtailment(
+        usedEnergy,
+        nominalAvailablePowerMWh,
+        powerConsumptionMW,
+        hoursInPeriod,
+      )
+
+      expect(result.curtailmentMWh).toBeCloseTo(0)
+      // curtailmentRate = 0 / 24 = 0, not negative, so stays 0
+      expect(result.curtailmentRate).toBeCloseTo(0)
     })
   })
 })

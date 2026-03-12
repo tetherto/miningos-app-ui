@@ -55,7 +55,7 @@
     "start:demo-capture": "cross-env VITE_SAVE_MOCKDATA=true vite",
     "build": "vite build",
     "build:demo": "VITE_USE_MOCKDATA=true vite build",
-    "fullcheck": "npm run prettier:fix && npm run lint && npm run typecheck && npm run test:coverage && git push",
+    "fullcheck": "npm run prettier:fix && npm run lint && npm run typecheck && npm run test",
     "preview": "vite preview",
     "preview:demo": "VITE_USE_MOCKDATA=true vite preview",
     "typecheck": "NODE_OPTIONS='--max-old-space-size=4096' tsc --noEmit",

@@ -4,9 +4,11 @@ import { startOfDay } from 'date-fns/startOfDay'
 import {
   getLastDays,
   getLastNDaysEndingYesterday,
+  getTimeDistance,
   getTimeRange,
   getYesterdaysTimeRange,
   TimeRangeTypes,
+  timeRangeWalker,
 } from '../getTimeRange'
 
 describe('getTimeRange', () => {
@@ -120,5 +122,52 @@ describe('getLastNDaysEndingYesterday', () => {
     const rangeDuration = result.end - result.start
     expect(rangeDuration).toBeLessThanOrEqual(sevenDaysMs)
     expect(rangeDuration).toBeGreaterThan(6 * 24 * 60 * 60 * 1000) // At least 6 days
+  })
+})
+
+describe('getTimeDistance', () => {
+  const formatter = (date: Date, _tz: string, fmt: string) => {
+    if (fmt === 'dd MMM yyyy') return '15 Jan 2025'
+    if (fmt === 'HH:mm:ss') return '10:30:00'
+    return ''
+  }
+
+  it('returns formatted date and time for valid ISO string', () => {
+    const result = getTimeDistance('2025-01-15T10:30:00Z', formatter, 'UTC')
+    expect(result).toBe('15 Jan 2025, 10:30:00')
+  })
+
+  it('returns undefined for invalid date string', () => {
+    const result = getTimeDistance('not-a-date', formatter, 'UTC')
+    expect(result).toBeUndefined()
+  })
+
+  it('returns undefined for empty string', () => {
+    const result = getTimeDistance('', formatter, 'UTC')
+    expect(result).toBeUndefined()
+  })
+})
+
+describe('timeRangeWalker', () => {
+  it('yields start timestamp first, then subsequent intervals', () => {
+    const start = 1_000_000
+    const end = 1_000_000 + 2 * 60 * 60 * 1000 // 2 hours later
+    const gen = timeRangeWalker(start, end, { hours: 1 })
+
+    const values: number[] = []
+    for (const ts of gen) {
+      values.push(ts)
+      if (values.length > 10) break // safety
+    }
+
+    expect(values[0]).toBe(start)
+    expect(values.length).toBeGreaterThanOrEqual(3)
+  })
+
+  it('throws when startTs is missing', () => {
+    expect(() => {
+      const gen = timeRangeWalker(0, 1_000_000, { hours: 1 })
+      gen.next()
+    }).toThrow('startTs, endTs must be provided')
   })
 })

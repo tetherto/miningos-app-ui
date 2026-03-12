@@ -1,5 +1,6 @@
 import {
   getCombinedPowerModeTimelineByMiner,
+  getPowerModeTimelineChartData,
   getPowerModeTimelineDatasetObject,
 } from './PowerModeTimlineChart.helper'
 
@@ -235,5 +236,47 @@ describe('getPowerModeTimelineDatasetObject', () => {
 
     const result = getPowerModeTimelineDatasetObject(combinedPowerModeTimelineByMiner, timezone)
     expect(result).toEqual(expected)
+  })
+
+  it('uses MinerStatusColors for power modes not in PowerModeColors', () => {
+    const combined = {
+      miner1: [
+        {
+          ts: 1724299140000,
+          miner: 'miner1',
+          powerMode: 'mining', // a status color, not a power mode color
+          data: { from: 1724299140000, to: 1724299240000 },
+        },
+      ],
+    }
+    const result = getPowerModeTimelineDatasetObject(combined, 'UTC')
+    expect(result.mining).toBeDefined()
+    expect(result.mining.borderColor[0]).toBeDefined()
+  })
+})
+
+describe('getPowerModeTimelineChartData', () => {
+  it('returns empty labels and datasets when data is undefined', () => {
+    const result = getPowerModeTimelineChartData(undefined, 'UTC')
+    expect(result).toEqual({ labels: [], datasets: [] })
+  })
+
+  it('returns empty labels and datasets when data is empty array', () => {
+    const result = getPowerModeTimelineChartData([], 'UTC')
+    expect(result).toEqual({ labels: [], datasets: [] })
+  })
+
+  it('returns correct labels and datasets for valid data', () => {
+    const data = [
+      {
+        ts: 1724299140000,
+        power_mode_group_aggr: { 'miner-1': 'normal' },
+        status_group_aggr: { 'miner-1': 'mining' },
+      },
+    ]
+    const result = getPowerModeTimelineChartData(data, 'UTC')
+    expect(result.labels).toContain('miner-1')
+    expect(Array.isArray(result.datasets)).toBe(true)
+    expect(result.datasets.length).toBeGreaterThan(0)
   })
 })

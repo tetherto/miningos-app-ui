@@ -1,14 +1,18 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 // @ts-nocheck - Test file with legacy test signatures
 import {
+  formatEnergyConsumption,
   formatPowerConsumption,
   getDeviceModel,
+  getEfficiencyStat,
   getHashrateUnit,
   getLegendLabelText,
   getMinerShortCode,
   getPowerSensorName,
   getRackNameFromId,
+  getReportAggrRangeOf,
   getReportMiningData,
+  getReportUteEnergy,
   getReportWebappHashrateStat,
   getTemperatureColor,
   getTooltipText,
@@ -733,6 +737,124 @@ describe('Miners Short Code generation', () => {
     expect(getMinerShortCode(undefined, ['code-undefined'])).toBe('N/A')
     expect(getMinerShortCode(undefined, ['code-undefined'], 'default')).toBe('default')
     expect(getMinerShortCode('undefined', ['code-undefined'])).toBe('undefined')
+  })
+})
+
+describe('getReportUteEnergy', () => {
+  it('returns empty object for non-array input', () => {
+    expect(getReportUteEnergy('not-array' as never)).toEqual({})
+  })
+
+  it('returns empty uteEnergy when data is empty array', () => {
+    const result = getReportUteEnergy([])
+    expect(result).toEqual({ uteEnergy: undefined })
+  })
+
+  it('extracts uteEnergy from deeply nested structure', () => {
+    const nextHour = new Date().getHours() + 1
+    const uteEnergyDaily: Record<string, number> = { [`h${nextHour}`]: 42 }
+    const data = [
+      [
+        {
+          last: {
+            snap: {
+              stats: { uteEnergy: [uteEnergyDaily] },
+            },
+          },
+        },
+      ],
+    ]
+    const result = getReportUteEnergy(data)
+    expect(result.uteEnergy).toBe(42)
+  })
+})
+
+describe('getEfficiencyStat', () => {
+  it('returns empty object when no power data', () => {
+    const result = getEfficiencyStat({}, 1000)
+    expect(result).toEqual({})
+  })
+
+  it('returns empty object when no hashrateMhs', () => {
+    const data = { last: { snap: { stats: { power_w: 1000 } } } }
+    const result = getEfficiencyStat(data, null)
+    expect(result).toEqual({})
+  })
+
+  it('returns empty object when power is non-finite', () => {
+    const data = { last: { snap: { stats: { power_w: NaN } } } }
+    const result = getEfficiencyStat(data, 1000)
+    expect(result).toEqual({})
+  })
+
+  it('returns empty object when hashrateMhs <= 0', () => {
+    const data = { last: { snap: { stats: { power_w: 100 } } } }
+    const result = getEfficiencyStat(data, 0)
+    expect(result).toEqual({})
+  })
+
+  it('calculates efficiency correctly', () => {
+    const data = { last: { snap: { stats: { power_w: 3000 } } } }
+    const result = getEfficiencyStat(data, 100_000_000) // 100 MHS
+    expect(result).toHaveProperty('efficiency')
+    expect(typeof result.efficiency).toBe('number')
+  })
+})
+
+describe('getReportAggrRangeOf', () => {
+  it('returns null for non-array input', () => {
+    expect(getReportAggrRangeOf('not-array' as never)).toBeNull()
+  })
+
+  it('returns hashrate value from aggr_range', () => {
+    const data = [
+      null,
+      {
+        aggr_range: {
+          hashrate_mhs_1m_avg_over_time: 500,
+        },
+      },
+    ]
+    expect(getReportAggrRangeOf(data, 'hashrate')).toBe(500)
+  })
+
+  it('returns efficiency value from aggr_range', () => {
+    const data = [
+      null,
+      {
+        aggr_range: {
+          efficiency_w_ths_avg_over_time: 30,
+        },
+      },
+    ]
+    expect(getReportAggrRangeOf(data, 'efficiency')).toBe(30)
+  })
+})
+
+describe('formatEnergyConsumption', () => {
+  it('returns null for non-finite value', () => {
+    const result = formatEnergyConsumption(NaN)
+    expect(result.value).toBeNull()
+  })
+
+  it('returns GWh for values >= 1e9', () => {
+    const result = formatEnergyConsumption(2e9)
+    expect(result.unit).toContain('GWh')
+  })
+
+  it('returns MWh for values >= 1e6', () => {
+    const result = formatEnergyConsumption(2e6)
+    expect(result.unit).toContain('MWh')
+  })
+
+  it('returns kWh for values >= 1e3', () => {
+    const result = formatEnergyConsumption(2e3)
+    expect(result.unit).toContain('kWh')
+  })
+
+  it('returns Wh for values < 1e3', () => {
+    const result = formatEnergyConsumption(500)
+    expect(result.unit).toContain('Wh')
   })
 })
 

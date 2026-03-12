@@ -19,6 +19,12 @@ import {
   useRevenueSummaryData,
 } from '../useRevenueSummaryData'
 
+import {
+  useGetExtDataQuery,
+  useGetGlobalDataQuery,
+  useGetSiteQuery,
+  useGetTailLogRangeAggrQuery,
+} from '@/app/services/api'
 import { PERIOD } from '@/constants/ranges'
 
 vi.mock('../documentationMocks', () => ({
@@ -109,6 +115,42 @@ describe('processTailLogData', () => {
         [
           { type: 'miner', data: [{ ts, val: { hashrate_mhs_5m_sum_aggr: 1000000 } }] },
           { type: 'powermeter', data: [{ ts, val: { site_power_w: 500000 } }] },
+        ],
+      ],
+    }
+    const result = processTailLogData(res as never)
+    expect(Object.keys(result).length).toBeGreaterThan(0)
+  })
+
+  it('sums hashrate for multiple miner entries on the same day', () => {
+    const ts = day(1)
+    const ts2 = ts + 3600000 // 1 hour later, same day
+    const res = {
+      data: [
+        [
+          {
+            type: 'miner',
+            data: [
+              { ts, val: { hashrate_mhs_5m_sum_aggr: 1000000 } },
+              { ts: ts2, val: { hashrate_mhs_5m_sum_aggr: 500000 } },
+            ],
+          },
+        ],
+      ],
+    }
+    const result = processTailLogData(res as never)
+    const dayTs = Object.keys(result)[0]
+    expect(result[Number(dayTs)].hashrateMHS).toBe(1500000)
+  })
+
+  it('processes powermeter data for a new day not in processed', () => {
+    const ts = day(1)
+    const ts2 = day(2) // different day
+    const res = {
+      data: [
+        [
+          { type: 'miner', data: [{ ts, val: { hashrate_mhs_5m_sum_aggr: 1000000 } }] },
+          { type: 'powermeter', data: [{ ts: ts2, val: { site_power_w: 200000 } }] },
         ],
       ],
     }
@@ -440,5 +482,89 @@ describe('useRevenueSummaryData hook', () => {
   it('handleReset resets date range without throwing', () => {
     const { result } = renderHook(() => useRevenueSummaryData())
     expect(() => result.current.handleReset()).not.toThrow()
+  })
+
+  it('processes full hook body when API queries return data (covers getRevenueLog, aggregateByPeriod, getPeriodPrice, getPeriodBlockSize, getPeriodCosts)', () => {
+    const ts = new Date('2025-01-15T00:00:00Z').getTime()
+
+    // Transaction data: minerpool query
+    const transactionMockData = {
+      data: [[{ ts: String(ts), transactions: [{ changed_balance: 0.001, type: 'energy' }] }]],
+      success: true,
+    }
+
+    // Historical prices: mempool HISTORICAL_PRICES query
+    const pricesMockData = {
+      data: [{ ts, priceUSD: 50000 }],
+      success: true,
+    }
+
+    // Historical block sizes: mempool HISTORICAL_BLOCKSIZES query
+    const blockSizesMockData = {
+      data: [[[{ ts, blockSize: 1000 }]]],
+      success: true,
+    }
+
+    // Current mempool price
+    const mempoolMockData = {
+      data: [[{ currentPrice: 50000, type: 'mempool' }]],
+      success: true,
+    }
+
+    // Tail log aggregation: miner + powermeter
+    const tailLogMockData = {
+      data: [
+        [
+          { type: 'miner', data: [{ ts, val: { hashrate_mhs_5m_sum_aggr: 1_000_000 } }] },
+          { type: 'powermeter', data: [{ ts, val: { site_power_w: 500_000 } }] },
+        ],
+      ],
+      success: true,
+    }
+
+    // Production costs (MONTHLY format)
+    const productionCostsMockData = [
+      { year: 2025, month: 1, energyCostsUSD: 10000, operationalCostsUSD: 5000 },
+    ]
+
+    vi.mocked(useGetExtDataQuery).mockImplementation((args: unknown) => {
+      const a = args as { type?: string; query?: string }
+      if (a?.type === 'minerpool') return { data: transactionMockData, isLoading: false } as never
+      if (a?.query && a.query.includes('HISTORICAL_PRICES'))
+        return { data: pricesMockData, isLoading: false } as never
+      if (a?.query && a.query.includes('HISTORICAL_BLOCKSIZES'))
+        return { data: blockSizesMockData, isLoading: false } as never
+      if (a?.type === 'electricity') return { data: { data: [] }, isLoading: false } as never
+      // Current mempool (type: 'mempool' without specific key)
+      return { data: mempoolMockData, isLoading: false } as never
+    })
+    vi.mocked(useGetTailLogRangeAggrQuery).mockReturnValue({
+      data: tailLogMockData,
+      isLoading: false,
+    } as never)
+    vi.mocked(useGetGlobalDataQuery).mockReturnValue({
+      data: productionCostsMockData,
+      isLoading: false,
+    } as never)
+    vi.mocked(useGetSiteQuery).mockReturnValue({
+      data: { site: 'TEST_SITE' },
+      isLoading: false,
+    } as never)
+
+    const { result } = renderHook(() => useRevenueSummaryData())
+
+    // Hook should produce revenue data from processed transactions
+    expect(result.current).toHaveProperty('revenueData')
+    expect(result.current).toHaveProperty('metrics')
+    expect(result.current.revenueData).toBeDefined()
+  })
+
+  it('handleRangeChange with monthly period triggers monthly aggregation', () => {
+    const { result } = renderHook(() => useRevenueSummaryData())
+    const startDate = new Date('2025-01-01')
+    const endDate = new Date('2025-12-31')
+    expect(() =>
+      result.current.handleRangeChange([startDate, endDate], { period: PERIOD.MONTHLY }),
+    ).not.toThrow()
   })
 })

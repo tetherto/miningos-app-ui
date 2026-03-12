@@ -1,7 +1,10 @@
+import { vi } from 'vitest'
+
 import {
   getCommentIds,
   getCommentPayloadBase,
   getDevicesWithMaintenanceContainer,
+  mutateCommentAsync,
   sortCommentsByRecent,
   sortDevicesByLatestComment,
   CommentDevice,
@@ -213,6 +216,87 @@ describe('Comments.util', () => {
       const devices = [{ id: '1' }] as CommentDevice[]
       const result = getDevicesWithMaintenanceContainer(devices)
       expect(result[0].info?.container).toBe(MAINTENANCE_CONTAINER)
+    })
+  })
+
+  describe('mutateCommentAsync', () => {
+    it('calls refetch and shows success notification when mutation succeeds with success=1', async () => {
+      const refetch = vi.fn()
+      const onFinally = vi.fn()
+      const mutationFn = vi.fn().mockReturnValue({
+        unwrap: () => Promise.resolve([{ success: 1 }]),
+      })
+
+      await mutateCommentAsync(
+        mutationFn,
+        { id: '1' },
+        {
+          refetch,
+          successMessage: 'Saved',
+          errorMessage: 'Error',
+          onFinally,
+        },
+      )
+
+      expect(refetch).toHaveBeenCalled()
+      expect(onFinally).toHaveBeenCalled()
+    })
+
+    it('does not call refetch when mutation result has success !== 1', async () => {
+      const refetch = vi.fn()
+      const mutationFn = vi.fn().mockReturnValue({
+        unwrap: () => Promise.resolve([{ success: 0 }]),
+      })
+
+      await mutateCommentAsync(
+        mutationFn,
+        { id: '1' },
+        {
+          refetch,
+          successMessage: 'Saved',
+          errorMessage: 'Error',
+        },
+      )
+
+      expect(refetch).not.toHaveBeenCalled()
+    })
+
+    it('handles thrown error from mutation unwrap', async () => {
+      const refetch = vi.fn()
+      const mutationFn = vi.fn().mockReturnValue({
+        unwrap: () => Promise.reject(new Error('network error')),
+      })
+
+      await mutateCommentAsync(
+        mutationFn,
+        { id: '1' },
+        {
+          refetch,
+          successMessage: 'Saved',
+          errorMessage: 'Failed',
+        },
+      )
+
+      expect(refetch).not.toHaveBeenCalled()
+    })
+
+    it('handles non-Error thrown values', async () => {
+      const refetch = vi.fn()
+      const mutationFn = vi.fn().mockReturnValue({
+        unwrap: () => Promise.reject('string error'),
+      })
+
+      await expect(
+        mutateCommentAsync(
+          mutationFn,
+          { id: '1' },
+          {
+            refetch,
+            successMessage: 'Saved',
+            errorMessage: 'Failed',
+          },
+        ),
+      ).resolves.toBeUndefined()
     })
   })
 })

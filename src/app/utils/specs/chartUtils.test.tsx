@@ -9,6 +9,9 @@ import {
   getChartBuilderDatasetLines,
   getLineChartBuilderDataset,
   handleLegendClick,
+  harshRateYTickFormatter,
+  consumptionYTickFormatter,
+  efficiencyYTickFormatter,
   hasDataValues,
   hasNonZeroLineSeriesValues,
   hasNonZeroSeriesValues,
@@ -814,5 +817,75 @@ describe('SafeChartDataLabels', () => {
     )
 
     warnSpy.mockRestore()
+  })
+})
+
+describe('getChartBuilderData — footer stats and hideLabel', () => {
+  const basePayload = {
+    lines: [{ label: 'Hashrate', backendAttribute: 'hashrate', borderColor: '#fff' }],
+    formatter: (value: number) => ({ value: `${value}`, unit: 'TH/s', realValue: value }),
+    currentValueLabel: { backendAttribute: 'hashrate' },
+  }
+
+  const data = [
+    { ts: 1_000_000, hashrate: 100 },
+    { ts: 2_000_000, hashrate: 200 },
+    { ts: 3_000_000, hashrate: 300 },
+  ]
+
+  it('returns footerStats when includeFooterStats=true', () => {
+    const builder = getChartBuilderData(basePayload as never, { includeFooterStats: true })
+    const result = builder(data as never[])
+    expect(result.footerStats).toBeDefined()
+    expect(Array.isArray(result.footerStats)).toBe(true)
+    expect(result.footerStats!.length).toBeGreaterThan(0)
+  })
+
+  it('includes dailyAvg stat when includeDailyAvgStats=true', () => {
+    const builder = getChartBuilderData(basePayload as never, {
+      includeFooterStats: true,
+      includeDailyAvgStats: true,
+    })
+    const result = builder(data as never[])
+    const hasDaily = result.footerStats?.some((s) => s.label.toLowerCase().includes('daily'))
+    expect(hasDaily).toBe(true)
+  })
+
+  it('sets currentValueLabel to null when hideLabel=true', () => {
+    const builder = getChartBuilderData(basePayload as never, { hideLabel: true })
+    const result = builder(data as never[])
+    expect(result.currentValueLabel).toBeNull()
+  })
+
+  it('footerStats is undefined when includeFooterStats=false (default)', () => {
+    const builder = getChartBuilderData(basePayload as never)
+    const result = builder(data as never[])
+    expect(result.footerStats).toBeUndefined()
+  })
+
+  it('footerStats uses noop formatter when getFormatOptions not a function', () => {
+    const payloadNoFormatter = {
+      lines: [{ label: 'Hashrate', backendAttribute: 'hashrate', borderColor: '#fff' }],
+      currentValueLabel: { backendAttribute: 'hashrate' },
+    }
+    const builder = getChartBuilderData(payloadNoFormatter as never, { includeFooterStats: true })
+    const result = builder(data as never[])
+    expect(result.footerStats).toBeDefined()
+    // Values will be undefined since no formatter
+    expect(result.footerStats!.every((s) => s.value === undefined)).toBe(true)
+  })
+})
+
+describe('y-tick formatters', () => {
+  it('harshRateYTickFormatter returns a string', () => {
+    expect(typeof harshRateYTickFormatter(1000)).toBe('string')
+  })
+
+  it('consumptionYTickFormatter returns a string', () => {
+    expect(typeof consumptionYTickFormatter(5000)).toBe('string')
+  })
+
+  it('efficiencyYTickFormatter returns a string', () => {
+    expect(typeof efficiencyYTickFormatter(25)).toBe('string')
   })
 })

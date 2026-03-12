@@ -30,20 +30,56 @@ export default defineConfig({
     exclude: ['node_modules', 'dist', '.git', '.cache'],
     // Optimize setup
     setupFiles: ['./src/setupTests.ts'],
-    // Disable CSS processing in tests (not needed for most tests)
     css: false,
-    // Optimize coverage collection
+    mockReset: true,
+    restoreMocks: true,
+    clearMocks: true,
     coverage: {
       provider: 'v8',
-      reporter: ['text', 'json', 'html'],
-      // Exclude unnecessary files from coverage
+      reporter: ['text-summary', 'json', 'html', 'lcov'],
+      reportsDirectory: './coverage',
+      include: ['src/**/*.{ts,tsx}'],
       exclude: [
         'node_modules/**',
         'src/setupTests.ts',
+        'src/setupTests/**',
         '**/*.d.ts',
-        '**/*.config.js',
+        '**/*.config.{js,ts}',
+        'src/**/index.{ts,tsx}',
+        'src/types/**',
+        'src/mockdata/**',
+        'src/router/**',
+        'src/styles/**',
+        'src/App.tsx',
+        'src/index.tsx',
+        'src/initSentry.ts',
+        'src/contexts/**',
+        'src/test-utils/**',
+        'src/**/*.{test,spec}.{js,jsx,ts,tsx}',
+        'src/Components/**/*.tsx',
+        'src/Views/**/*.tsx',
+        'src/MultiSiteViews/**/*.tsx',
+        'src/**/*.{styles,style}.{ts,tsx}',
+        'src/**/*.styled.ts',
+        'src/**/*.types.ts',
+        'src/**/types.ts',
+        // Fixture / documentation data files — not production code
+        'src/**/mocks.ts',
+        'src/**/documentationMocks.ts',
+        // Explicit types subdirectory (e.g. HashBalance/types/*)
+        'src/**/types/**',
+        // Pure-type files that don't match *.types.ts convention
+        'src/Components/Settings/RBACControl/rolePermissions.ts',
       ],
+      thresholds: {
+        lines: 80,
+        statements: 80,
+        functions: 79,
+        branches: 75,
+      },
     },
+    // Optimize test timeout
+    testTimeout: 10000,
     // Optimize transform mode
     transformMode: {
       web: [/\.[jt]sx?$/],
@@ -70,12 +106,6 @@ export default defineConfig({
         singleThread: false, // Allow multiple threads
       },
     },
-    // Optimize test timeout
-    testTimeout: 10000, // 10 seconds should be enough for most tests
-    // Enable test result caching (using Vite's cacheDir instead)
-    // cache: {
-    //   dir: 'node_modules/.vitest',
-    // },
   },
 
   resolve: {

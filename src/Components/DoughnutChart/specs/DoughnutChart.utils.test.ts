@@ -17,5 +17,40 @@ describe('DoughnutChart.utils', () => {
       const options = getDoughnutChartOptions([1, 2], formatter)
       expect(options.plugins?.tooltip?.callbacks?.label).toBeDefined()
     })
+
+    it('label callback uses tooltipValueFormatter when provided', () => {
+      const formatter = (v: number) => `$${v}`
+      const options = getDoughnutChartOptions([10, 20], formatter)
+      const labelFn = options.plugins?.tooltip?.callbacks?.label
+      const mockTooltipItem = {
+        label: 'Segment A',
+        parsed: 10,
+        dataset: { unit: 'MW' },
+      }
+      const result = labelFn!(mockTooltipItem as never)
+      expect(Array.isArray(result)).toBe(true)
+      expect((result as string[])[1]).toContain('$10')
+    })
+
+    it('label callback uses default unit format without tooltipValueFormatter', () => {
+      const options = getDoughnutChartOptions([10, 20])
+      const labelFn = options.plugins?.tooltip?.callbacks?.label
+      const mockTooltipItem = {
+        label: 'Segment B',
+        parsed: 10,
+        dataset: { unit: 'kW' },
+      }
+      const result = labelFn!(mockTooltipItem as never)
+      expect(Array.isArray(result)).toBe(true)
+      expect((result as string[])[1]).toContain('kW')
+    })
+
+    it('label callback handles missing label and unit gracefully', () => {
+      const options = getDoughnutChartOptions([5])
+      const labelFn = options.plugins?.tooltip?.callbacks?.label
+      const mockTooltipItem = { label: '', parsed: 5, dataset: {} }
+      const result = labelFn!(mockTooltipItem as never)
+      expect(Array.isArray(result)).toBe(true)
+    })
   })
 })

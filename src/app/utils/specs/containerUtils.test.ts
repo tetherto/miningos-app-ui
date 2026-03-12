@@ -1,7 +1,11 @@
 import {
   getContainerName,
+  getContainerSettingsModel,
+  getMockedPduData,
+  getPduData,
   getTotalSockets,
   isBitmainImmersion,
+  isMicroBTKehua,
   sortAlphanumeric,
 } from '../containerUtils'
 import type { UnknownRecord } from '../deviceUtils/types'
@@ -128,6 +132,80 @@ describe('Container Utils', () => {
 
     it('returns false if container is not bitmain immersion', () => {
       expect(isBitmainImmersion('container-as-hk3')).toBe(false)
+    })
+  })
+
+  describe('isMicroBTKehua', () => {
+    it('returns true for mbt-kehua type', () => {
+      expect(isMicroBTKehua('container-mbt-kehua')).toBe(true)
+    })
+
+    it('returns false for non-kehua mbt type', () => {
+      expect(isMicroBTKehua('container-mbt-other')).toBe(false)
+    })
+  })
+
+  describe('getContainerSettingsModel', () => {
+    it('returns null for empty type', () => {
+      expect(getContainerSettingsModel('')).toBeNull()
+    })
+
+    it('returns bitdeer model for bitdeer container', () => {
+      expect(getContainerSettingsModel('container-bd-d40')).toBe('bd')
+    })
+
+    it('returns microbt model for microbt container', () => {
+      expect(getContainerSettingsModel('container-mbt-kehua')).toBe('mbt')
+    })
+
+    it('returns hydro model for antspace hydro container', () => {
+      expect(getContainerSettingsModel('container-as-hk3')).toBe('hydro')
+    })
+
+    it('returns immersion model for bitmain immersion container', () => {
+      expect(getContainerSettingsModel('container-as-immersion')).toBe('immersion')
+    })
+
+    it('returns null for unknown container type', () => {
+      expect(getContainerSettingsModel('container-unknown')).toBeNull()
+    })
+  })
+
+  describe('getPduData', () => {
+    it('returns undefined for undefined last', () => {
+      expect(getPduData(undefined)).toBeUndefined()
+    })
+
+    it('returns pdu_data from deeply nested structure', () => {
+      const last = {
+        snap: {
+          stats: {
+            container_specific: {
+              pdu_data: [{ id: 'pdu1' }],
+            },
+          },
+        },
+      }
+      const result = getPduData(last as never)
+      expect(result).toEqual([{ id: 'pdu1' }])
+    })
+  })
+
+  describe('getMockedPduData', () => {
+    it('returns default mock data for unknown type', () => {
+      const result = getMockedPduData('unknown-type')
+      expect(result).toBeDefined()
+    })
+
+    it('returns type-specific pdu data for known container types', () => {
+      const result1 = getMockedPduData('container-bd-d40-m30')
+      const result2 = getMockedPduData('container-bd-d40-a1346')
+      const result3 = getMockedPduData('container-bd-d40-m56')
+      const result4 = getMockedPduData('container-bd-d40-s19xp')
+      expect(result1).toBeDefined()
+      expect(result2).toBeDefined()
+      expect(result3).toBeDefined()
+      expect(result4).toBeDefined()
     })
   })
 

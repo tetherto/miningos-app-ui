@@ -3,15 +3,19 @@ import { describe, expect, it, vi } from 'vitest'
 
 import { useMinerpoolWorkers } from '../useMinerpoolWorkers'
 
-const mockLazyRequest = vi.fn().mockReturnValue({
-  unwrap: () => Promise.resolve([{ workers: [] }]),
-})
+const mockLazyRequest = vi.fn()
 
 vi.mock('@/app/services/api', () => ({
   useLazyGetExtDataQuery: () => [mockLazyRequest],
 }))
 
 describe('useMinerpoolWorkers', () => {
+  beforeEach(() => {
+    mockLazyRequest.mockReturnValue({
+      unwrap: () => Promise.resolve([{ workers: [] }]),
+    })
+  })
+
   it('returns workersObj when workers list is empty', async () => {
     const { result } = renderHook(() => useMinerpoolWorkers())
     await waitFor(() => {

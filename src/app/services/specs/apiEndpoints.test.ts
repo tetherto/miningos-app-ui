@@ -127,39 +127,48 @@ describe('logsEndpoints', () => {
 })
 
 describe('downtimeEndpoints', () => {
-  it('builds downtime query URLs', async () => {
+  it('builds downtime query URLs for all three endpoints', async () => {
     const { downtimeEndpoints } = await import('../api/endpoints/downtime')
     const builder = createMockBuilder()
-    const endpoints = downtimeEndpoints(builder as never)
-    expect(endpoints).toBeDefined()
-    // Call at least one inner query function
-    const keys = Object.keys(endpoints as Record<string, unknown>)
-    if (keys.length > 0) {
-      const firstEndpoint = (endpoints as Record<string, unknown>)[keys[0]] as Record<
-        string,
-        unknown
-      >
-      if (typeof firstEndpoint?.query === 'function') {
-        const result = firstEndpoint.query({})
-        expect(result).toBeDefined()
-      }
-    }
+    const endpoints = downtimeEndpoints(builder as never) as Record<
+      string,
+      { query: (p: unknown) => unknown }
+    >
+
+    const curtailment = endpoints.getDowntimeCurtailment.query({ site: 'S1' }) as string
+    expect(curtailment).toContain('downtime/curtailment')
+
+    const opIssues = endpoints.getDowntimeOperationalIssues.query({ site: 'S1' }) as Record<
+      string,
+      unknown
+    >
+    expect(opIssues.url).toBe('downtime/operationalIssues')
+    expect(opIssues.params).toEqual({ site: 'S1' })
+
+    const downtime = endpoints.getDowntime.query({ site: 'S1' }) as string
+    expect(downtime).toContain('downtime')
   })
 })
 
 describe('financialEndpoints', () => {
-  it('builds financial query URLs', async () => {
+  it('builds financial query URLs for all endpoints', async () => {
     const { financialEndpoints } = await import('../api/endpoints/financial')
     const builder = createMockBuilder()
-    const endpoints = financialEndpoints(builder as never)
-    expect(endpoints).toBeDefined()
-    const keys = Object.keys(endpoints as Record<string, unknown>)
-    keys.slice(0, 3).forEach((key) => {
-      const endpoint = (endpoints as Record<string, unknown>)[key] as Record<string, unknown>
-      if (typeof endpoint?.query === 'function') {
-        expect(endpoint.query({})).toBeDefined()
-      }
-    })
+    const endpoints = financialEndpoints(builder as never) as Record<
+      string,
+      { query: (p: unknown) => unknown }
+    >
+
+    expect(endpoints.getRevenue.query({ site: 'S1' }) as string).toContain('revenue')
+    expect(endpoints.getCosts.query({ site: 'S1' }) as string).toContain('costs')
+    expect(endpoints.getCostOperationalEnergy.query({}) as string).toContain('operational-energy')
+    expect(endpoints.getCostEnergy.query({}) as string).toContain('costs/energy')
+    expect(endpoints.getCostProduction.query({}) as string).toContain('production-price')
+    expect(endpoints.getProductionCosts.query({}) as string).toContain('production-costs')
+
+    const setResult = endpoints.setProductionCosts.query({}) as Record<string, unknown>
+    expect(setResult.url).toBe('production-costs')
+    expect(setResult.method).toBe('POST')
   })
 })
 
@@ -343,22 +352,29 @@ describe('reportsEndpoints', () => {
 })
 
 describe('thingsEndpoints', () => {
-  it('builds things query URLs', async () => {
+  it('builds things query and mutation URLs for all endpoints', async () => {
     const { thingsEndpoints } = await import('../api/endpoints/things')
     const builder = createMockBuilder()
-    const endpoints = thingsEndpoints(builder as never)
-    expect(endpoints).toBeDefined()
-    const keys = Object.keys(endpoints as Record<string, unknown>)
-    keys.slice(0, 3).forEach((key) => {
-      const endpoint = (endpoints as Record<string, unknown>)[key] as Record<string, unknown>
-      if (typeof endpoint?.query === 'function') {
-        try {
-          expect(endpoint.query({})).toBeDefined()
-        } catch {
-          /* ok */
-        }
-      }
-    })
+    const endpoints = thingsEndpoints(builder as never) as Record<
+      string,
+      { query: (p: unknown) => unknown }
+    >
+
+    expect(endpoints.getListThings.query({}) as string).toContain('list-things')
+    expect(endpoints.getListRacks.query({}) as string).toContain('list-racks')
+    expect(endpoints.getThingConfig.query({}) as string).toContain('thing-config')
+
+    const addComment = endpoints.addThingComment.query({}) as Record<string, unknown>
+    expect(addComment.url).toBe('thing/comment')
+    expect(addComment.method).toBe('POST')
+
+    const editComment = endpoints.editThingComment.query({}) as Record<string, unknown>
+    expect(editComment.url).toBe('thing/comment')
+    expect(editComment.method).toBe('PUT')
+
+    const deleteComment = endpoints.deleteThingComment.query({}) as Record<string, unknown>
+    expect(deleteComment.url).toBe('thing/comment')
+    expect(deleteComment.method).toBe('DELETE')
   })
 })
 
