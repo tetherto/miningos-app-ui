@@ -281,7 +281,9 @@ describe('readRegionValue', () => {
       log: [],
       summary: { metrics: { hashrate: 42 } },
     }
-    expect(readRegionValue(item as never, { kind: 'summaryPath', path: ['metrics', 'hashrate'] })).toBe(42)
+    expect(
+      readRegionValue(item as never, { kind: 'summaryPath', path: ['metrics', 'hashrate'] }),
+    ).toBe(42)
   })
 
   it('returns 0 when logMean log is empty', () => {

@@ -97,7 +97,10 @@ describe('groupTailLogByMinersByType', () => {
     ]
     // groupTailLogByMinersByType uses _toPairs(tailLogData) — pass an object not an array
     const tailLogData = { power_mode_normal_cnt: { 'container-1': 5 } }
-    const result = groupTailLogByMinersByType(selectedDevices as never[], tailLogData as unknown as never[])
+    const result = groupTailLogByMinersByType(
+      selectedDevices as never[],
+      tailLogData as unknown as never[],
+    )
     expect(result[MINER_TYPE.ANTMINER].normal).toBe(5)
   })
 

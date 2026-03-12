@@ -6,7 +6,8 @@ import { buildPowerConsumptionParams, usePowerConsumption } from '../usePowerCon
 const mockQuery = vi.fn().mockReturnValue({ data: undefined, isLoading: false })
 
 vi.mock('@/app/services/api', () => ({
-  useGetTailLogRangeAggrQuery: (arg0: unknown, arg1: unknown) => mockQuery(arg0 as never, arg1 as never),
+  useGetTailLogRangeAggrQuery: (arg0: unknown, arg1: unknown) =>
+    mockQuery(arg0 as never, arg1 as never),
 }))
 
 beforeEach(() => {
