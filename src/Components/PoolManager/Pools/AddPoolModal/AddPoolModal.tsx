@@ -78,7 +78,6 @@ interface AddPoolModalProps {
 
 const { setAddPendingSubmissionAction } = actionsSlice.actions
 
-// TODO: Fix incorrect error shown after approval of action.
 export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
   const isLoading = false
   const dispatch = useDispatch()

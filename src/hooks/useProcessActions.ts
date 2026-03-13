@@ -42,8 +42,11 @@ export const useProcessActions = ({ actionIDs }: UseProcessActionsParams) => {
       const { data, error } = await voteForAction({ approve: isApproved, id: actionId })
       const message = isApproved ? MESSAGE.APPROVED : MESSAGE.REJECTED
 
-      const responseData = _head(data as unknown[]) as { success?: number } | undefined
-      if (responseData?.success === 1) {
+      const responseData = _head(data as unknown[]) as
+        | { success?: number; res?: number }
+        | undefined
+      const isSuccess = responseData?.success === 1 || responseData?.res === 1
+      if (isSuccess) {
         notifySuccess(message.title, message.description)
       } else {
         notifyError(
