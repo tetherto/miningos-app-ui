@@ -1,16 +1,20 @@
+import Alert from 'antd/es/alert'
 import type { CheckboxChangeEvent } from 'antd/es/checkbox'
+import _compact from 'lodash/compact'
 import _concat from 'lodash/concat'
+import _filter from 'lodash/filter'
+import _get from 'lodash/get'
+import _head from 'lodash/head'
 import _includes from 'lodash/includes'
+import _isNil from 'lodash/isNil'
 import _map from 'lodash/map'
 import _size from 'lodash/size'
-import _get from 'lodash/get'
 import _without from 'lodash/without'
-import _head from 'lodash/head'
-import _filter from 'lodash/filter'
-import _isNil from 'lodash/isNil'
-import _compact from 'lodash/compact'
 import { useState } from 'react'
+import { useDispatch } from 'react-redux'
 import { useNavigate } from 'react-router-dom'
+
+import { usePoolConfigs } from '../Pools/PoolManager.hooks'
 
 import { SetPoolConfiguration } from './SetPoolConfiguration/SetPoolConfiguration'
 import SetPoolConfigurationModal from './SetPoolConfiguration/SetPoolConfigurationModal'
@@ -23,21 +27,18 @@ import {
   StickyConfigurationCol,
 } from './SitesOverviewStatusCardList.styles'
 
+import { useLazyGetListThingsQuery } from '@/app/services/api'
+import { actionsSlice } from '@/app/slices/actionsSlice'
 import { getContainerName } from '@/app/utils/containerUtils'
+import { getMinerShortCode } from '@/app/utils/deviceUtils'
+import { notifyInfo } from '@/app/utils/NotificationService'
+import { getContainerMinersByContainerTagsQuery } from '@/app/utils/queryUtils'
 import { Spinner } from '@/Components/Spinner/Spinner'
+import { ACTION_TYPES } from '@/constants/actions'
 import { ROUTE } from '@/constants/routes'
 import useDeviceResolution from '@/hooks/useDeviceResolution'
 import { useSitesOverviewData, type ProcessedContainerUnit } from '@/hooks/useSitesOverviewData'
-import { useDispatch } from 'react-redux'
-import { actionsSlice } from '@/app/slices/actionsSlice'
-import { ACTION_TYPES } from '@/constants/actions'
-import { useLazyGetListThingsQuery } from '@/app/services/api'
-import { notifyInfo } from '@/app/utils/NotificationService'
-import { getContainerMinersByContainerTagsQuery } from '@/app/utils/queryUtils'
-import { getMinerShortCode } from '@/app/utils/deviceUtils'
 import { PoolSummary } from '@/Views/PoolManager/types'
-import { usePoolConfigs } from '../Pools/PoolManager.hooks'
-import { Alert } from 'antd'
 
 const { setAddPendingSubmissionAction } = actionsSlice.actions
 
@@ -143,54 +144,58 @@ export const SitesOverviewStatusCardList = () => {
     <>
       {isLoading ? (
         <Spinner />
-      ) : hasError ? (
-        <Alert type="error" message="Failed to load data" />
       ) : (
-        <SitesOverviewRow>
-          <SitesUnitCol>
-            <SitesUnitWrapper>
-              {_map(units, (unit: ProcessedContainerUnit) => (
-                <SitesOverviewStatusCard
-                  key={unit.id}
-                  id={unit.id ? Number(unit.id) : 0}
-                  unit={getContainerName(unit.info?.container ?? '', unit.type)}
-                  pool={getPoolConfigName(unit.info?.poolConfig) ?? '-'}
-                  hashrate={unit.hashrate}
-                  miners={unit.miners?.actualMiners ?? 0}
-                  overrides={0}
-                  onClick={() => handleCardClick(unit.id ?? '')}
-                  checked={_includes(selected, unit.id)}
-                  onSelect={(e: CheckboxChangeEvent) => {
-                    e.stopPropagation()
-                    handleSelect(unit.id ?? '')
-                  }}
-                  status={unit.status}
-                />
-              ))}
-            </SitesUnitWrapper>
-          </SitesUnitCol>
+        <>
+          {hasError ? (
+            <Alert type="error" message="Failed to load data" />
+          ) : (
+            <SitesOverviewRow>
+              <SitesUnitCol>
+                <SitesUnitWrapper>
+                  {_map(units, (unit: ProcessedContainerUnit) => (
+                    <SitesOverviewStatusCard
+                      key={unit.id}
+                      id={unit.id ? Number(unit.id) : 0}
+                      unit={getContainerName(unit.info?.container ?? '', unit.type)}
+                      pool={getPoolConfigName(unit.info?.poolConfig) ?? '-'}
+                      hashrate={unit.hashrate}
+                      miners={unit.miners?.actualMiners ?? 0}
+                      overrides={0}
+                      onClick={() => handleCardClick(unit.id ?? '')}
+                      checked={_includes(selected, unit.id)}
+                      onSelect={(e: CheckboxChangeEvent) => {
+                        e.stopPropagation()
+                        handleSelect(unit.id ?? '')
+                      }}
+                      status={unit.status}
+                    />
+                  ))}
+                </SitesUnitWrapper>
+              </SitesUnitCol>
 
-          {hasSelection &&
-            (isTablet ? (
-              <>
-                <SetPoolConfigurationTabletButton onClick={openSidebar}>
-                  <div>{`${selected.length} Selected unit${selected.length > 1 ? 's' : ''}`}</div>
-                  <div>Selected</div>
-                </SetPoolConfigurationTabletButton>
-                <SetPoolConfigurationModal
-                  isSidebarOpen={isSidebarOpen}
-                  handleCancel={handleSidebarClose}
-                  onSubmit={handleSetPoolConfigurationSubmit}
-                />
-              </>
-            ) : (
-              <StickyConfigurationCol>
-                <SetPoolConfiguration
-                  onSubmit={handleSetPoolConfigurationSubmit}
-                ></SetPoolConfiguration>
-              </StickyConfigurationCol>
-            ))}
-        </SitesOverviewRow>
+              {hasSelection &&
+                (isTablet ? (
+                  <>
+                    <SetPoolConfigurationTabletButton onClick={openSidebar}>
+                      <div>{`${selected.length} Selected unit${selected.length > 1 ? 's' : ''}`}</div>
+                      <div>Selected</div>
+                    </SetPoolConfigurationTabletButton>
+                    <SetPoolConfigurationModal
+                      isSidebarOpen={isSidebarOpen}
+                      handleCancel={handleSidebarClose}
+                      onSubmit={handleSetPoolConfigurationSubmit}
+                    />
+                  </>
+                ) : (
+                  <StickyConfigurationCol>
+                    <SetPoolConfiguration
+                      onSubmit={handleSetPoolConfigurationSubmit}
+                    ></SetPoolConfiguration>
+                  </StickyConfigurationCol>
+                ))}
+            </SitesOverviewRow>
+          )}
+        </>
       )}
     </>
   )

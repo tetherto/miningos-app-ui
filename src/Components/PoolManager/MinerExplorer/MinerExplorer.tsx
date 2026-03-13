@@ -1,19 +1,22 @@
 import { SearchOutlined } from '@ant-design/icons'
+import Alert from 'antd/es/alert'
 import Select from 'antd/es/select'
 import type { ColumnsType } from 'antd/es/table'
 import _capitalize from 'lodash/capitalize'
+import _compact from 'lodash/compact'
 import _get from 'lodash/get'
 import _head from 'lodash/head'
+import _isEmpty from 'lodash/isEmpty'
 import _isNil from 'lodash/isNil'
 import _isNumber from 'lodash/isNumber'
 import _map from 'lodash/map'
 import _reject from 'lodash/reject'
 import _toPairs from 'lodash/toPairs'
 import _values from 'lodash/values'
-import _compact from 'lodash/compact'
-import _isEmpty from 'lodash/isEmpty'
 import type { ComponentProps, FC } from 'react'
 import { useEffect, useState } from 'react'
+
+import { usePoolConfigs } from '../Pools/PoolManager.hooks'
 
 import {
   DropdownFilters,
@@ -43,8 +46,6 @@ import type { Device } from '@/hooks/hooks.types'
 import { useListViewFilters } from '@/hooks/useListViewFilters'
 import useTimezone from '@/hooks/useTimezone'
 import { MinerRecord } from '@/Views/PoolManager/types'
-import { Alert } from 'antd'
-import { usePoolConfigs } from '../Pools/PoolManager.hooks'
 
 interface MinerExplorerProps {
   selectedDevices: MinerRecord[]
@@ -270,103 +271,107 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelec
     <MinerExplorerWrapper>
       {isLoading ? (
         <Spinner />
-      ) : hasError ? (
-        <Alert type="error" message="Error loading data" />
       ) : (
         <>
-          <Header>
-            <FilterRow>
-              <FullWidthSelect
-                suffixIcon={<SearchOutlined />}
-                mode="tags"
-                placeholder="Search by ID, IP, MAC, Serial"
-                onChange={(value: unknown) => handleSearch(value as string[])}
-                tokenSeparators={[',']}
-                value={filterTags}
-              />
-            </FilterRow>
-            <DropdownFilters>
-              <FullWidthSelect
-                placeholder="Model"
-                value={modelFilter}
-                onSelect={(value: unknown) => {
-                  setModelFilter(value as string | null)
-                }}
-                allowClear
-                onClear={() => setModelFilter(null)}
-              >
-                {_map(minerTypeOptions, (item: unknown) => {
-                  const itemTyped = item as { key: string; label: string }
-                  return (
-                    <Select.Option key={itemTyped.key} value={itemTyped.key}>
-                      {itemTyped.label}
-                    </Select.Option>
-                  )
-                })}
-              </FullWidthSelect>
-              <FullWidthSelect
-                placeholder="Status"
-                value={statusFilter}
-                onSelect={(value: unknown) => {
-                  setStatusFilter(value as string | null)
-                }}
-                allowClear
-                onClear={() => setStatusFilter(null)}
-              >
-                {_map(minerStatusOptions, (item: unknown) => {
-                  const itemTyped = item as { key: string; label: string }
-                  return (
-                    <Select.Option key={itemTyped.key} value={itemTyped.key}>
-                      {itemTyped.label}
-                    </Select.Option>
-                  )
-                })}
-              </FullWidthSelect>
-              <FullWidthSelect
-                placeholder="Current Pool"
-                value={poolFilter}
-                onSelect={(value: unknown) => {
-                  setPoolFilter(value as string | null)
-                }}
-                allowClear
-                onClear={() => setPoolFilter(null)}
-              >
-                {_map(poolFilterOptions, (item: unknown) => {
-                  const itemTyped = item as { key: string; label: string }
-                  return (
-                    <Select.Option key={itemTyped.key} value={itemTyped.key}>
-                      {itemTyped.label}
-                    </Select.Option>
-                  )
-                })}
-              </FullWidthSelect>
-            </DropdownFilters>
-          </Header>
-          {isMinerListDataFetching ? (
-            <Spinner />
+          {hasError ? (
+            <Alert type="error" message="Error loading data" />
           ) : (
-            <AppTable
-              {...({
-                columns: minerTableColumns,
-                dataSource: mappedMiners,
-                rowKey: (record: MinerRecord) => record.id,
-                rowSelection: {
-                  type: 'checkbox' as const,
-                  selectedRowKeys,
-                  onSelect: (record: MinerRecord, selected: boolean) =>
-                    setMinerSelection(record, selected),
-                  onSelectAll: handleSelectAll,
-                  getCheckboxProps: (record: MinerRecord) => ({
-                    disabled: record.status === 'offline',
-                  }),
-                },
-                pagination: {
-                  current: page.pageNumber,
-                  pageSize: page.pageSize,
-                  onChange: handlePageChange,
-                },
-              } as unknown as ComponentProps<typeof AppTable>)}
-            />
+            <>
+              <Header>
+                <FilterRow>
+                  <FullWidthSelect
+                    suffixIcon={<SearchOutlined />}
+                    mode="tags"
+                    placeholder="Search by ID, IP, MAC, Serial"
+                    onChange={(value: unknown) => handleSearch(value as string[])}
+                    tokenSeparators={[',']}
+                    value={filterTags}
+                  />
+                </FilterRow>
+                <DropdownFilters>
+                  <FullWidthSelect
+                    placeholder="Model"
+                    value={modelFilter}
+                    onSelect={(value: unknown) => {
+                      setModelFilter(value as string | null)
+                    }}
+                    allowClear
+                    onClear={() => setModelFilter(null)}
+                  >
+                    {_map(minerTypeOptions, (item: unknown) => {
+                      const itemTyped = item as { key: string; label: string }
+                      return (
+                        <Select.Option key={itemTyped.key} value={itemTyped.key}>
+                          {itemTyped.label}
+                        </Select.Option>
+                      )
+                    })}
+                  </FullWidthSelect>
+                  <FullWidthSelect
+                    placeholder="Status"
+                    value={statusFilter}
+                    onSelect={(value: unknown) => {
+                      setStatusFilter(value as string | null)
+                    }}
+                    allowClear
+                    onClear={() => setStatusFilter(null)}
+                  >
+                    {_map(minerStatusOptions, (item: unknown) => {
+                      const itemTyped = item as { key: string; label: string }
+                      return (
+                        <Select.Option key={itemTyped.key} value={itemTyped.key}>
+                          {itemTyped.label}
+                        </Select.Option>
+                      )
+                    })}
+                  </FullWidthSelect>
+                  <FullWidthSelect
+                    placeholder="Current Pool"
+                    value={poolFilter}
+                    onSelect={(value: unknown) => {
+                      setPoolFilter(value as string | null)
+                    }}
+                    allowClear
+                    onClear={() => setPoolFilter(null)}
+                  >
+                    {_map(poolFilterOptions, (item: unknown) => {
+                      const itemTyped = item as { key: string; label: string }
+                      return (
+                        <Select.Option key={itemTyped.key} value={itemTyped.key}>
+                          {itemTyped.label}
+                        </Select.Option>
+                      )
+                    })}
+                  </FullWidthSelect>
+                </DropdownFilters>
+              </Header>
+              {isMinerListDataFetching ? (
+                <Spinner />
+              ) : (
+                <AppTable
+                  {...({
+                    columns: minerTableColumns,
+                    dataSource: mappedMiners,
+                    rowKey: (record: MinerRecord) => record.id,
+                    rowSelection: {
+                      type: 'checkbox' as const,
+                      selectedRowKeys,
+                      onSelect: (record: MinerRecord, selected: boolean) =>
+                        setMinerSelection(record, selected),
+                      onSelectAll: handleSelectAll,
+                      getCheckboxProps: (record: MinerRecord) => ({
+                        disabled: record.status === 'offline',
+                      }),
+                    },
+                    pagination: {
+                      current: page.pageNumber,
+                      pageSize: page.pageSize,
+                      onChange: handlePageChange,
+                    },
+                  } as unknown as ComponentProps<typeof AppTable>)}
+                />
+              )}
+            </>
           )}
         </>
       )}

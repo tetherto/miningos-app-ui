@@ -1,10 +1,11 @@
 import { CheckSquareFilled, CloseCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 import Button from 'antd/es/button'
 import { FormikProvider, useFormik } from 'formik'
-import _pullAt from 'lodash/pullAt'
-import _map from 'lodash/map'
 import _get from 'lodash/get'
+import _map from 'lodash/map'
+import _pullAt from 'lodash/pullAt'
 import _size from 'lodash/size'
+import { useDispatch } from 'react-redux'
 import * as yup from 'yup'
 
 import {
@@ -44,14 +45,13 @@ import {
   ValidationStatusWrapper,
 } from './AddPoolModal.styles'
 
+import { actionsSlice } from '@/app/slices/actionsSlice'
+import { notifyInfo } from '@/app/utils/NotificationService'
 import { FormikInput, FormikSelect } from '@/Components/FormInputs'
 import { Spinner } from '@/Components/Spinner/Spinner'
+import { ACTION_TYPES } from '@/constants/actions'
 import { COLOR } from '@/constants/colors'
 import { useContextualModal } from '@/hooks/useContextualModal'
-import { actionsSlice } from '@/app/slices/actionsSlice'
-import { ACTION_TYPES } from '@/constants/actions'
-import { useDispatch } from 'react-redux'
-import { notifyInfo } from '@/app/utils/NotificationService'
 import { PoolEndpoint } from '@/Views/PoolManager/types'
 
 const validationSchema = yup.object({
@@ -120,7 +120,7 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
         }),
       )
 
-      notifyInfo('Action added', `Pool config registration`)
+      notifyInfo('Action added', 'Pool config registration')
       onClose()
     },
   })

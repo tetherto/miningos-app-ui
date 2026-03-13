@@ -1,14 +1,16 @@
+import Alert from 'antd/es/alert'
 import Button from 'antd/es/button'
+import { intlFormatDistance } from 'date-fns/intlFormatDistance'
 import { FormikProvider, useFormik } from 'formik'
+import _compact from 'lodash/compact'
+import _find from 'lodash/find'
+import _head from 'lodash/head'
+import _isEmpty from 'lodash/isEmpty'
+import _isNil from 'lodash/isNil'
+import _map from 'lodash/map'
+import _size from 'lodash/size'
 import { type FC } from 'react'
 import * as yup from 'yup'
-import _map from 'lodash/map'
-import _find from 'lodash/find'
-import _isNil from 'lodash/isNil'
-import _size from 'lodash/size'
-import _head from 'lodash/head'
-import _compact from 'lodash/compact'
-import _isEmpty from 'lodash/isEmpty'
 
 import {
   FormActions,
@@ -19,6 +21,8 @@ import {
   ModalTitle,
   StyledModal,
 } from '../../PoolManager.common.styles'
+import { POOL_ENDPOINT_ROLES_LABELS, SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
+import { usePoolConfigs } from '../../Pools/PoolManager.hooks'
 
 import {
   CredentialTemplatePreview,
@@ -34,16 +38,12 @@ import {
   TemplateFieldValue,
 } from './AssignPoolModal.styles'
 
+import { useGetListThingsQuery } from '@/app/services/api'
+import { getMinerShortCode } from '@/app/utils/deviceUtils'
 import AppTable from '@/Components/AppTable/AppTable'
 import { FormikSelect } from '@/Components/FormInputs'
 import { Spinner } from '@/Components/Spinner/Spinner'
-import { usePoolConfigs } from '../../Pools/PoolManager.hooks'
-import { useGetListThingsQuery } from '@/app/services/api'
-import { getMinerShortCode } from '@/app/utils/deviceUtils'
 import { PoolSummary } from '@/Views/PoolManager/types'
-import { POOL_ENDPOINT_ROLES_LABELS, SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
-import { Alert } from 'antd'
-import { intlFormatDistance } from 'date-fns'
 
 const validationSchema = yup.object({
   pool: yup.string().required('Pool is required'),
@@ -187,83 +187,87 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
     >
       {isLoading ? (
         <Spinner />
-      ) : hasError ? (
-        <Alert type="error" message="Error loading data" />
       ) : (
-        <FormikProvider value={formik}>
-          <form onSubmit={formik.handleSubmit}>
-            <ModalBody>
-              <Section>
-                <SectionHeader>
-                  <FormSectionHeader>Selected Miners</FormSectionHeader>
-                  <div>{_size(selectedDeviceIds)} miners selected</div>
-                </SectionHeader>
-                <AppTable dataSource={miners} columns={minersTableColumns} pagination={false} />
-              </Section>
-              <Section>
-                <SectionHeader>
-                  <FormSectionHeader>Choose pool group</FormSectionHeader>
-                </SectionHeader>
-                <FormikSelect name="pool" options={poolOptions} />
-                <PoolMeta>
-                  <div>Units: {selectedPool?.units ?? 0}</div>
-                  <div>Miners: {selectedPool?.miners ?? 0}</div>
-                  {selectedPool && (
-                    <div>
-                      Last Updated: {intlFormatDistance(selectedPool?.updatedAt, new Date())}
-                    </div>
-                  )}
-                </PoolMeta>
-              </Section>
-              {!_isNil(selectedPool) && (
-                <Section>
-                  <SectionHeader>Endpoints Preview</SectionHeader>
-                  <EndpointsList>
-                    {selectedPool.endpoints.map((endpoint, index) => (
-                      <EndpointWrapper key={index}>
-                        <EndpointRole>
-                          <EndpointRoleName>
-                            {
-                              POOL_ENDPOINT_ROLES_LABELS[
-                                endpoint.role as keyof typeof POOL_ENDPOINT_ROLES_LABELS
-                              ]
-                            }
-                          </EndpointRoleName>
-                        </EndpointRole>
+        <>
+          {hasError ? (
+            <Alert type="error" message="Error loading data" />
+          ) : (
+            <FormikProvider value={formik}>
+              <form onSubmit={formik.handleSubmit}>
+                <ModalBody>
+                  <Section>
+                    <SectionHeader>
+                      <FormSectionHeader>Selected Miners</FormSectionHeader>
+                      <div>{_size(selectedDeviceIds)} miners selected</div>
+                    </SectionHeader>
+                    <AppTable dataSource={miners} columns={minersTableColumns} pagination={false} />
+                  </Section>
+                  <Section>
+                    <SectionHeader>
+                      <FormSectionHeader>Choose pool group</FormSectionHeader>
+                    </SectionHeader>
+                    <FormikSelect name="pool" options={poolOptions} />
+                    <PoolMeta>
+                      <div>Units: {selectedPool?.units ?? 0}</div>
+                      <div>Miners: {selectedPool?.miners ?? 0}</div>
+                      {selectedPool && (
+                        <div>
+                          Last Updated: {intlFormatDistance(selectedPool?.updatedAt, new Date())}
+                        </div>
+                      )}
+                    </PoolMeta>
+                  </Section>
+                  {!_isNil(selectedPool) && (
+                    <Section>
+                      <SectionHeader>Endpoints Preview</SectionHeader>
+                      <EndpointsList>
+                        {selectedPool.endpoints.map((endpoint, index) => (
+                          <EndpointWrapper key={index}>
+                            <EndpointRole>
+                              <EndpointRoleName>
+                                {
+                                  POOL_ENDPOINT_ROLES_LABELS[
+                                    endpoint.role as keyof typeof POOL_ENDPOINT_ROLES_LABELS
+                                  ]
+                                }
+                              </EndpointRoleName>
+                            </EndpointRole>
 
-                        <EndpointFields>
-                          <EndpointFieldValue>{endpoint.host}</EndpointFieldValue>
-                          <EndpointFieldValueSecondary>
-                            Port: {endpoint.port}
-                          </EndpointFieldValueSecondary>
-                        </EndpointFields>
-                      </EndpointWrapper>
-                    ))}
-                  </EndpointsList>
-                </Section>
-              )}
-              {SHOW_CREDENTIAL_TEMPLATE && (
-                <Section>
-                  <SectionHeader>
-                    <FormSectionHeader>Credential Template Preview</FormSectionHeader>
-                  </SectionHeader>
-                  <CredentialTemplatePreview>
-                    <TemplateFieldName>Worker Name Example</TemplateFieldName>
-                    <TemplateFieldValue>site-a.192-168-1-1</TemplateFieldValue>
-                  </CredentialTemplatePreview>
-                </Section>
-              )}
-              <FormActions>
-                <Button type="primary" htmlType="submit" loading={formik.isSubmitting}>
-                  Assign
-                </Button>
-                <Button onClick={onClose} disabled={formik.isSubmitting}>
-                  Cancel
-                </Button>
-              </FormActions>
-            </ModalBody>
-          </form>
-        </FormikProvider>
+                            <EndpointFields>
+                              <EndpointFieldValue>{endpoint.host}</EndpointFieldValue>
+                              <EndpointFieldValueSecondary>
+                                Port: {endpoint.port}
+                              </EndpointFieldValueSecondary>
+                            </EndpointFields>
+                          </EndpointWrapper>
+                        ))}
+                      </EndpointsList>
+                    </Section>
+                  )}
+                  {SHOW_CREDENTIAL_TEMPLATE && (
+                    <Section>
+                      <SectionHeader>
+                        <FormSectionHeader>Credential Template Preview</FormSectionHeader>
+                      </SectionHeader>
+                      <CredentialTemplatePreview>
+                        <TemplateFieldName>Worker Name Example</TemplateFieldName>
+                        <TemplateFieldValue>site-a.192-168-1-1</TemplateFieldValue>
+                      </CredentialTemplatePreview>
+                    </Section>
+                  )}
+                  <FormActions>
+                    <Button type="primary" htmlType="submit" loading={formik.isSubmitting}>
+                      Assign
+                    </Button>
+                    <Button onClick={onClose} disabled={formik.isSubmitting}>
+                      Cancel
+                    </Button>
+                  </FormActions>
+                </ModalBody>
+              </form>
+            </FormikProvider>
+          )}
+        </>
       )}
     </StyledModal>
   )

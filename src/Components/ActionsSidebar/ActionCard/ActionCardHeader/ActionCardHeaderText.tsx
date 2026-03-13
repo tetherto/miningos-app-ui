@@ -1,10 +1,9 @@
 import { head as _head, isBoolean as _isBoolean, isEmpty as _isEmpty, size as _size } from 'lodash'
+import _get from 'lodash/get'
+import _includes from 'lodash/includes'
+import _map from 'lodash/map'
 import pluralize from 'pluralize'
 import { FC } from 'react'
-import _join from 'lodash/join'
-import _get from 'lodash/get'
-import _map from 'lodash/map'
-import _includes from 'lodash/includes'
 
 import { isContainerAction } from '../../../../app/utils/actionUtils'
 import { getOnOffText } from '../../../../app/utils/deviceUtils'
@@ -190,7 +189,7 @@ const ActionCardHeaderText: FC<ActionCardHeaderTextProps> = ({ cardAction }) => 
     )
   }
 
-  if (action == ACTION_TYPES.SETUP_POOLS) {
+  if (action === ACTION_TYPES.SETUP_POOLS) {
     const miners = query?.id.$in as string[]
     const numMiners = _size(miners)
 

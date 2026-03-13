@@ -8,7 +8,7 @@ import _noop from 'lodash/noop'
 import type React from 'react'
 import InfiniteViewer from 'react-infinite-viewer'
 
-import { SITE_OVERVIEW_STATUS_COLORS, SITE_OVERVIEW_STATUSES } from '../PoolManager.constants'
+import { SITE_OVERVIEW_STATUS_COLORS } from '../PoolManager.constants'
 
 import {
   CursorNotAllowedDiv,
@@ -22,6 +22,7 @@ import {
   UnitRowLabel,
 } from './GridUnit.styles'
 import { MinerBox, MinerId } from './SiteOverviewDetailsContainer.styles'
+import { getMinerStatus } from './SiteOverviewDetailsContainer.utils'
 
 import { isAntspaceHydro, isMicroBT } from '@/app/utils/containerUtils'
 import { getControlSectionsTooltips, type ControlTooltip } from '@/app/utils/keyboardShortcutUtils'
@@ -29,7 +30,6 @@ import useDeviceResolution from '@/hooks/useDeviceResolution'
 import { useInfiniteViewer } from '@/hooks/useInfiniteViewer'
 import { useKeyDown } from '@/hooks/useKeyDown'
 import usePlatform from '@/hooks/usePlatform'
-import { getMinerStatus } from './SiteOverviewDetailsContainer.utils'
 
 interface Socket {
   socket: string

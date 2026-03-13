@@ -12,6 +12,7 @@ import {
   HeaderSubtitleLink,
   PoolManagerDashboardRoot,
 } from '../PoolManagerDashboard.styles'
+import { MinerRecord, PoolSummary } from '../types'
 
 import { actionsSlice } from '@/app/slices/actionsSlice'
 import { notifyInfo } from '@/app/utils/NotificationService'
@@ -23,7 +24,6 @@ import { AUTH_LEVELS, AUTH_PERMISSIONS } from '@/constants/permissions.constants
 import { ROUTE } from '@/constants/routes'
 import { useContextualModal } from '@/hooks/useContextualModal'
 import { useCheckPerm } from '@/hooks/usePermissions'
-import { MinerRecord, PoolSummary } from '../types'
 
 const { setAddPendingSubmissionAction } = actionsSlice.actions
 

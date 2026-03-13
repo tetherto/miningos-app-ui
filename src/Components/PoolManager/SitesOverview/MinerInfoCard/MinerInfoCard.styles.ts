@@ -1,5 +1,6 @@
-import { flexColumn, flexRow } from '@/app/mixins'
 import styled from 'styled-components'
+
+import { flexColumn, flexRow } from '@/app/mixins'
 import { COLOR } from '@/constants/colors'
 
 export const MinerInfoCardWrapper = styled.div`

@@ -1,8 +1,8 @@
 import Button from 'antd/es/button'
 import { FormikProvider, useFormik } from 'formik'
+import _isNil from 'lodash/isNil'
 import type { FC } from 'react'
 import * as yup from 'yup'
-import _isNil from 'lodash/isNil'
 
 import {
   FieldLabel,

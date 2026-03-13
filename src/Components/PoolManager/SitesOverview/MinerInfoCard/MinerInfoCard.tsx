@@ -83,30 +83,34 @@ export const MinerInfoCard = ({ selectedItems, poolIdMap, minersHashmap }: Miner
       </Header>
       {isLoading ? (
         <Spinner />
-      ) : hasError ? (
-        <Alert type="error" message="Failed to load data" />
       ) : (
-        <PoolInformationSection>
-          <PoolInfoTitle>Pool Information</PoolInfoTitle>
-          <PoolInfoFields>
-            <PoolInfoField>
-              <PoolInfoFieldTitle>Pool</PoolInfoFieldTitle>
-              <PoolInfoFieldValue>{pool?.name ?? 'None'}</PoolInfoFieldValue>
-            </PoolInfoField>
-            <PoolInfoField>
-              <PoolInfoFieldTitle>Endpoint</PoolInfoFieldTitle>
-              <PoolInfoFieldValue>{endpoint ?? 'None'}</PoolInfoFieldValue>
-            </PoolInfoField>
-            <PoolInfoField>
-              <PoolInfoFieldTitle>Hashrate</PoolInfoFieldTitle>
-              <PoolInfoFieldValue>{hashrate ?? '-'}</PoolInfoFieldValue>
-            </PoolInfoField>
-            <PoolInfoField>
-              <PoolInfoFieldTitle>Status</PoolInfoFieldTitle>
-              <PoolInfoFieldValue>{status}</PoolInfoFieldValue>
-            </PoolInfoField>
-          </PoolInfoFields>
-        </PoolInformationSection>
+        <>
+          {hasError ? (
+            <Alert type="error" message="Failed to load data" />
+          ) : (
+            <PoolInformationSection>
+              <PoolInfoTitle>Pool Information</PoolInfoTitle>
+              <PoolInfoFields>
+                <PoolInfoField>
+                  <PoolInfoFieldTitle>Pool</PoolInfoFieldTitle>
+                  <PoolInfoFieldValue>{pool?.name ?? 'None'}</PoolInfoFieldValue>
+                </PoolInfoField>
+                <PoolInfoField>
+                  <PoolInfoFieldTitle>Endpoint</PoolInfoFieldTitle>
+                  <PoolInfoFieldValue>{endpoint ?? 'None'}</PoolInfoFieldValue>
+                </PoolInfoField>
+                <PoolInfoField>
+                  <PoolInfoFieldTitle>Hashrate</PoolInfoFieldTitle>
+                  <PoolInfoFieldValue>{hashrate ?? '-'}</PoolInfoFieldValue>
+                </PoolInfoField>
+                <PoolInfoField>
+                  <PoolInfoFieldTitle>Status</PoolInfoFieldTitle>
+                  <PoolInfoFieldValue>{status}</PoolInfoFieldValue>
+                </PoolInfoField>
+              </PoolInfoFields>
+            </PoolInformationSection>
+          )}
+        </>
       )}
     </MinerInfoCardWrapper>
   )

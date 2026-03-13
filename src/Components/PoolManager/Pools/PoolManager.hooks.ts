@@ -1,11 +1,12 @@
+import _fromPairs from 'lodash/fromPairs'
+import _get from 'lodash/get'
+import _includes from 'lodash/includes'
+import _map from 'lodash/map'
+
+import { POOL_ENDPOINT_INDEX_ROLES } from '../PoolManager.constants'
+
 import { useGetPoolConfigsQuery } from '@/app/services/api'
 import { PoolSummary } from '@/Views/PoolManager/types'
-import _map from 'lodash/map'
-import _values from 'lodash/values'
-import _includes from 'lodash/includes'
-import _get from 'lodash/get'
-import _fromPairs from 'lodash/fromPairs'
-import { POOL_ENDPOINT_INDEX_ROLES } from '../PoolManager.constants'
 
 export const usePoolConfigs = () => {
   const { data: poolData, isLoading, error } = useGetPoolConfigsQuery({})

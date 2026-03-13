@@ -2,9 +2,10 @@ import { CheckSquareFilled, CloseCircleOutlined, EditOutlined } from '@ant-desig
 import Button from 'antd/es/button'
 import _get from 'lodash/get'
 import _isEmpty from 'lodash/isEmpty'
-import _map from 'lodash/map'
 import _isNil from 'lodash/isNil'
+import _map from 'lodash/map'
 import _size from 'lodash/size'
+import { useDispatch } from 'react-redux'
 
 import { StatusBlock } from '../../PoolManager.common.styles'
 import {
@@ -46,13 +47,12 @@ import {
   ValidationTimestamp,
 } from './PoolCollapseItemBody.styles'
 
+import { actionsSlice } from '@/app/slices/actionsSlice'
+import { notifyInfo } from '@/app/utils/NotificationService'
+import { ACTION_TYPES } from '@/constants/actions'
 import { COLOR } from '@/constants/colors'
 import { useContextualModal } from '@/hooks/useContextualModal'
-import { useDispatch } from 'react-redux'
-import { actionsSlice } from '@/app/slices/actionsSlice'
-import { ACTION_TYPES } from '@/constants/actions'
 import { PoolEndpoint, PoolEndpointFormValues, PoolSummary } from '@/Views/PoolManager/types'
-import { notifyInfo } from '@/app/utils/NotificationService'
 
 interface PoolCollapseItemBodyProps {
   pool: PoolSummary
@@ -130,7 +130,7 @@ export const PoolCollapseItemBody = ({ pool }: PoolCollapseItemBodyProps) => {
       }),
     )
 
-    notifyInfo('Action added', `Update Pool config`)
+    notifyInfo('Action added', 'Update Pool config')
 
     closeAddEndpointModal()
   }

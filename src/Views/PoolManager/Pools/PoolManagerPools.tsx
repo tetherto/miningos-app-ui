@@ -1,10 +1,7 @@
 import { ArrowLeftOutlined } from '@ant-design/icons'
+import Alert from 'antd/es/alert'
 import Button from 'antd/es/button'
 import type { CollapseProps } from 'antd/es/collapse'
-import _map from 'lodash/map'
-import _values from 'lodash/values'
-import _includes from 'lodash/includes'
-import _get from 'lodash/get'
 import { useState } from 'react'
 
 import {
@@ -20,11 +17,10 @@ import { ADD_POOL_ENABLED } from '@/Components/PoolManager/PoolManager.constants
 import { AddPoolModal } from '@/Components/PoolManager/Pools/AddPoolModal/AddPoolModal'
 import PoolCollapseItemBody from '@/Components/PoolManager/Pools/PoolCollapseItemBody/PoolCollapseItemBody'
 import PoolCollapseItemHeader from '@/Components/PoolManager/Pools/PoolCollapseItemHeader/PoolCollapseItemHeader'
+import { usePoolConfigs } from '@/Components/PoolManager/Pools/PoolManager.hooks'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { ROUTE } from '@/constants/routes'
 import { useContextualModal } from '@/hooks/useContextualModal'
-import { usePoolConfigs } from '@/Components/PoolManager/Pools/PoolManager.hooks'
-import { Alert } from 'antd'
 
 const PoolManagerPools = () => {
   const [activePoolKey, setActivePoolKey] = useState<CollapseProps['activeKey']>([])
@@ -76,15 +72,19 @@ const PoolManagerPools = () => {
       </Header>
       {isLoading ? (
         <Spinner />
-      ) : error ? (
-        <Alert type="error" message="Error loading data" />
       ) : (
-        <PoolsCollapse
-          defaultActiveKey={['1']}
-          activeKey={activePoolKey}
-          onChange={(value) => setActivePoolKey(value)}
-          items={collapseItems}
-        />
+        <>
+          {error ? (
+            <Alert type="error" message="Error loading data" />
+          ) : (
+            <PoolsCollapse
+              defaultActiveKey={['1']}
+              activeKey={activePoolKey}
+              onChange={(value) => setActivePoolKey(value)}
+              items={collapseItems}
+            />
+          )}
+        </>
       )}
       {addPoolModalOpen && <AddPoolModal isOpen={addPoolModalOpen} onClose={closeAddPoolModal} />}
     </PoolManagerDashboardRoot>

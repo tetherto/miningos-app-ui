@@ -1,9 +1,12 @@
+import Alert from 'antd/es/alert'
 import Select from 'antd/es/select'
 import Typography from 'antd/es/typography'
-import _map from 'lodash/map'
-import _find from 'lodash/find'
 import _isNil from 'lodash/isNil'
+import _map from 'lodash/map'
 import { useState } from 'react'
+
+import { POOL_ENDPOINT_ROLES_LABELS, SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
+import { usePoolConfigs } from '../../Pools/PoolManager.hooks'
 
 import {
   ButtonContainer,
@@ -24,11 +27,10 @@ import {
   SubTitle,
   Wrapper,
 } from './SetPoolConfiguration.styles'
-import { usePoolConfigs } from '../../Pools/PoolManager.hooks'
+
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { PoolSummary } from '@/Views/PoolManager/types'
-import { POOL_ENDPOINT_ROLES_LABELS, SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
-import { Alert } from 'antd'
+
 const { Option } = Select
 const { Text } = Typography
 

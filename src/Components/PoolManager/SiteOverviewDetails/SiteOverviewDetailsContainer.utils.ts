@@ -4,10 +4,11 @@ import _head from 'lodash/head'
 import _reverse from 'lodash/reverse'
 import _split from 'lodash/split'
 
-import { Logger } from '@/app/services/logger'
-import { Device } from '@/types'
 import { SITE_OVERVIEW_STATUS_COLORS, SITE_OVERVIEW_STATUSES } from '../PoolManager.constants'
+
+import { Logger } from '@/app/services/logger'
 import { MinerStatuses } from '@/app/utils/statusUtils'
+import { Device } from '@/types'
 
 type HeadMinerConfig =
   | {
