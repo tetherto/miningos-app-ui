@@ -45,7 +45,7 @@ import { getMinersPoolName } from './SiteOverviewDetailsContainer.utils'
 
 import { actionsSlice } from '@/app/slices/actionsSlice'
 import { getConnectedMinerForSocket } from '@/app/utils/containerUtils'
-import { notifyInfo } from '@/app/utils/NotificationService'
+import { notifyInfo, notifyWarning } from '@/app/utils/NotificationService'
 import { MinerStatuses } from '@/app/utils/statusUtils'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { ACTION_TYPES } from '@/constants/actions'
@@ -252,21 +252,29 @@ const SiteOverviewDetailsContainer = ({ unit }: SiteOverviewDetailsContainerProp
     })
 
     const selectedDeviceIds = _map(selectedDevices, (device) => device.id)
-    const codesList = _map(selectedDevices, (device) => device.code)
 
-    dispatch(
-      setAddPendingSubmissionAction({
-        query: { id: { $in: selectedDeviceIds } },
-        action: ACTION_TYPES.SETUP_POOLS,
-        params: [pool.id],
-        overrideQuery: false,
-        codesList,
-        poolName: pool.name,
-      }),
-    )
+    if (!_isEmpty(selectedDeviceIds)) {
+      const codesList = _map(selectedDevices, (device) => device.code)
 
-    notifyInfo('Action added', 'Assign Pools')
-    setSelectedItems(new Set())
+      dispatch(
+        setAddPendingSubmissionAction({
+          query: { id: { $in: selectedDeviceIds } },
+          action: ACTION_TYPES.SETUP_POOLS,
+          params: [pool.id],
+          overrideQuery: false,
+          codesList,
+          poolName: pool.name,
+        }),
+      )
+
+      notifyInfo('Action added', 'Assign Pools')
+      setSelectedItems(new Set())
+    } else {
+      notifyInfo(
+        'Not permitted',
+        'Assign Pools can only be performed on miners which are in mining or not mining state',
+      )
+    }
   }
 
   const isLoading = isSiteOverviewDetailsLoading || isPoolConfigsLoading
