@@ -6,6 +6,8 @@ import _split from 'lodash/split'
 
 import { Logger } from '@/app/services/logger'
 import { Device } from '@/types'
+import { SITE_OVERVIEW_STATUS_COLORS, SITE_OVERVIEW_STATUSES } from '../PoolManager.constants'
+import { MinerStatuses } from '@/app/utils/statusUtils'
 
 type HeadMinerConfig =
   | {
@@ -38,4 +40,23 @@ export const getMinersPoolName = (miners?: Device[]) => {
   }
 
   return _get(_reverse(_split(poolHost, '.')), ['1'], '')
+}
+
+export const getMinerStatus = (miner?: {
+  error?: string
+  snap?: { stats?: { status: string } }
+}) => {
+  if (!miner || miner.error === 'Device Not Found') {
+    return SITE_OVERVIEW_STATUSES.EMPTY as keyof typeof SITE_OVERVIEW_STATUS_COLORS
+  }
+
+  if (miner.snap?.stats?.status === MinerStatuses.NOT_MINING) {
+    return SITE_OVERVIEW_STATUSES.NOT_MINING as keyof typeof SITE_OVERVIEW_STATUS_COLORS
+  }
+
+  if (miner.snap?.stats?.status === MinerStatuses.MINING) {
+    return SITE_OVERVIEW_STATUSES.MINING as keyof typeof SITE_OVERVIEW_STATUS_COLORS
+  }
+
+  return SITE_OVERVIEW_STATUSES.OFFLINE as keyof typeof SITE_OVERVIEW_STATUS_COLORS
 }

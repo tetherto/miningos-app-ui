@@ -36,6 +36,7 @@ export const usePoolConfigs = () => {
             host: '',
             port: '',
             pool: '',
+            url: poolUrl,
           }
         }
         throw error
@@ -48,6 +49,7 @@ export const usePoolConfigs = () => {
         host,
         port,
         pool: poolName,
+        url: poolUrl,
       }
     })
 

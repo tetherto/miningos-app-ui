@@ -6,6 +6,7 @@ export type PoolEndpoint = {
   host: string
   port: string
   pool: string
+  url?: string
   [key: string]: unknown
 }
 

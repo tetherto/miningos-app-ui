@@ -25,11 +25,11 @@ import { MinerBox, MinerId } from './SiteOverviewDetailsContainer.styles'
 
 import { isAntspaceHydro, isMicroBT } from '@/app/utils/containerUtils'
 import { getControlSectionsTooltips, type ControlTooltip } from '@/app/utils/keyboardShortcutUtils'
-import { MinerStatuses } from '@/app/utils/statusUtils'
 import useDeviceResolution from '@/hooks/useDeviceResolution'
 import { useInfiniteViewer } from '@/hooks/useInfiniteViewer'
 import { useKeyDown } from '@/hooks/useKeyDown'
 import usePlatform from '@/hooks/usePlatform'
+import { getMinerStatus } from './SiteOverviewDetailsContainer.utils'
 
 interface Socket {
   socket: string
@@ -169,20 +169,7 @@ export const GridUnit = ({
 
   const getSocketStatus = (pdu: Pdu, socket: Socket): keyof typeof SITE_OVERVIEW_STATUS_COLORS => {
     const miner = getMinerInSocket(pdu, socket)
-
-    if (!miner || miner.error === 'Device Not Found') {
-      return SITE_OVERVIEW_STATUSES.EMPTY as keyof typeof SITE_OVERVIEW_STATUS_COLORS
-    }
-
-    if (miner.snap?.stats?.status === MinerStatuses.NOT_MINING) {
-      return SITE_OVERVIEW_STATUSES.NOT_MINING as keyof typeof SITE_OVERVIEW_STATUS_COLORS
-    }
-
-    if (miner.snap?.stats?.status === MinerStatuses.MINING) {
-      return SITE_OVERVIEW_STATUSES.MINING as keyof typeof SITE_OVERVIEW_STATUS_COLORS
-    }
-
-    return SITE_OVERVIEW_STATUSES.OFFLINE as keyof typeof SITE_OVERVIEW_STATUS_COLORS
+    return getMinerStatus(miner)
   }
 
   const socketHasMiner = (pdu: Pdu, socket: Socket): boolean => {

@@ -67,7 +67,7 @@ interface MinerHashrate {
   realValue?: number
 }
 
-interface MinerData {
+export interface MinerData {
   id: string
   hashrate: MinerHashrate
   error?: string

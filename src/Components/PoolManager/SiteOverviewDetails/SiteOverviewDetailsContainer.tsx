@@ -1,4 +1,3 @@
-import { QuestionCircleOutlined } from '@ant-design/icons'
 import Button from 'antd/es/button'
 import _find from 'lodash/find'
 import _forEach from 'lodash/forEach'
@@ -8,8 +7,10 @@ import _isUndefined from 'lodash/isUndefined'
 import _keys from 'lodash/keys'
 import _map from 'lodash/map'
 import _size from 'lodash/size'
+import _get from 'lodash/get'
+import _isNil from 'lodash/isNil'
 import { useRef, useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useDispatch } from 'react-redux'
 import Selecto from 'react-selecto'
 
 import {
@@ -42,7 +43,7 @@ import {
 } from './SiteOverviewDetailsContainer.styles'
 import { getMinersPoolName } from './SiteOverviewDetailsContainer.utils'
 
-import { actionsSlice, selectPendingSubmissions } from '@/app/slices/actionsSlice'
+import { actionsSlice } from '@/app/slices/actionsSlice'
 import { getConnectedMinerForSocket } from '@/app/utils/containerUtils'
 import { notifyInfo } from '@/app/utils/NotificationService'
 import { MinerStatuses } from '@/app/utils/statusUtils'
@@ -52,9 +53,11 @@ import type { Device } from '@/hooks/hooks.types'
 import useDeviceResolution from '@/hooks/useDeviceResolution'
 import { useKeyDown } from '@/hooks/useKeyDown'
 import { useSiteOverviewDetailsData } from '@/hooks/useSiteOverviewDetailsData'
-import { useUpdateExistedActions } from '@/hooks/useUpdateExistedActions'
 import { getSelectableName } from '@/Views/Container/Tabs/PduTab/pduUtils'
 import { PoolSummary } from '@/Views/PoolManager/types'
+import { MinerInfoCard } from '../SitesOverview/MinerInfoCard/MinerInfoCard'
+import { usePoolConfigs } from '../Pools/PoolManager.hooks'
+import { Alert } from 'antd'
 
 const { setAddPendingSubmissionAction } = actionsSlice.actions
 
@@ -132,6 +135,12 @@ const SiteOverviewDetailsContainer = ({ unit }: SiteOverviewDetailsContainerProp
   }
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set())
 
+  const {
+    poolIdMap,
+    isLoading: isPoolConfigsLoading,
+    error: poolConfigsLoadingError,
+  } = usePoolConfigs()
+
   // Fetch and process all data using custom hook
   const {
     actualMinersCount,
@@ -143,7 +152,7 @@ const SiteOverviewDetailsContainer = ({ unit }: SiteOverviewDetailsContainerProp
     containerInfo,
     connectedMinersData,
     isContainerRunning,
-    isLoading,
+    isLoading: isSiteOverviewDetailsLoading,
   } = useSiteOverviewDetailsData(unit)
 
   const { type } = unit || {}
@@ -260,135 +269,159 @@ const SiteOverviewDetailsContainer = ({ unit }: SiteOverviewDetailsContainerProp
     setSelectedItems(new Set())
   }
 
+  const isLoading = isSiteOverviewDetailsLoading || isPoolConfigsLoading
+  const hasError = !_isNil(poolConfigsLoadingError)
+
   return (
     <Wrapper>
-      <RacksCol $hasSelection={false} $isTablet={isTablet}>
-        <HeaderRow>
-          <Info>
-            <HeaderInfoCol>
-              <HeaderLabel>Pool</HeaderLabel>
-              <HeaderValue>{poolName}</HeaderValue>
-            </HeaderInfoCol>
-            <HeaderInfoCol>
-              <HeaderLabel>Miners</HeaderLabel>
-              <HeaderValue $value={actualMinersCount}>{actualMinersCount}</HeaderValue>
-            </HeaderInfoCol>
-            <HeaderInfoCol>
-              <HeaderLabel>Hashrate</HeaderLabel>
-              <HeaderValue>{containerHashRate}</HeaderValue>
-            </HeaderInfoCol>
-            <HeaderInfoCol>
-              <HeaderLabel>Status</HeaderLabel>
-              <HeaderValue>
-                <StatusBadge
-                  $textColor={
-                    SITE_OVERVIEW_STATUS_COLORS[
-                      isContainerRunning
-                        ? SITE_OVERVIEW_STATUSES.MINING
-                        : SITE_OVERVIEW_STATUSES.OFFLINE
-                    ]
-                  }
-                >
-                  {
-                    SITE_OVERVIEW_STATUS_LABELS[
-                      isContainerRunning
-                        ? SITE_OVERVIEW_STATUSES.MINING
-                        : SITE_OVERVIEW_STATUSES.OFFLINE
-                    ]
-                  }
-                </StatusBadge>
-              </HeaderValue>
-            </HeaderInfoCol>
-          </Info>
-          <Actions>
-            {hasSelection && (
-              <Button onClick={() => setSelectedItems(new Set())}>Deselect All</Button>
-            )}
-            <Button onClick={handleSelectAll}>Select All</Button>
-          </Actions>
-        </HeaderRow>
+      {isLoading ? (
+        <Spinner />
+      ) : hasError ? (
+        <Alert type="error" message="Failed to load data" />
+      ) : (
+        <>
+          <RacksCol $hasSelection={false} $isTablet={isTablet}>
+            <HeaderRow>
+              <Info>
+                <HeaderInfoCol>
+                  <HeaderLabel>Pool</HeaderLabel>
+                  <HeaderValue>{poolName}</HeaderValue>
+                </HeaderInfoCol>
+                <HeaderInfoCol>
+                  <HeaderLabel>Miners</HeaderLabel>
+                  <HeaderValue $value={actualMinersCount}>{actualMinersCount}</HeaderValue>
+                </HeaderInfoCol>
+                <HeaderInfoCol>
+                  <HeaderLabel>Hashrate</HeaderLabel>
+                  <HeaderValue>{containerHashRate}</HeaderValue>
+                </HeaderInfoCol>
+                <HeaderInfoCol>
+                  <HeaderLabel>Status</HeaderLabel>
+                  <HeaderValue>
+                    <StatusBadge
+                      $textColor={
+                        SITE_OVERVIEW_STATUS_COLORS[
+                          isContainerRunning
+                            ? SITE_OVERVIEW_STATUSES.MINING
+                            : SITE_OVERVIEW_STATUSES.OFFLINE
+                        ]
+                      }
+                    >
+                      {
+                        SITE_OVERVIEW_STATUS_LABELS[
+                          isContainerRunning
+                            ? SITE_OVERVIEW_STATUSES.MINING
+                            : SITE_OVERVIEW_STATUSES.OFFLINE
+                        ]
+                      }
+                    </StatusBadge>
+                  </HeaderValue>
+                </HeaderInfoCol>
+              </Info>
+              <Actions>
+                {hasSelection && (
+                  <Button onClick={() => setSelectedItems(new Set())}>Deselect All</Button>
+                )}
+                <Button onClick={handleSelectAll}>Select All</Button>
+              </Actions>
+            </HeaderRow>
 
-        {isLoading ? (
-          <Spinner />
-        ) : (
-          <>
-            <div ref={registerSelectablesContainer}>
-              {_map(_keys(segregatedPduSections), (sectionKey: string) => (
-                <GridUnit
-                  key={sectionKey}
-                  containerInfo={containerInfo}
-                  connectedMiners={
-                    connectedMinersData as unknown as Array<{
-                      rack?: string
-                      [key: string]: unknown
-                    }>
-                  }
-                  type={type}
-                  selectedItems={selectedItems}
-                  setSelectedItems={setSelectedItems}
-                  sectionKey={sectionKey}
-                  mobileSelectionEnabled={mobileSelectionEnabled}
-                  segregatedPduSections={segregatedPduSections as unknown as Record<string, Pdu[]>}
-                  minersHashmap={minersHashmap as Record<string, MinerData>}
-                  getSelectableName={getSelectableName}
+            {isLoading ? (
+              <Spinner />
+            ) : (
+              <>
+                <div ref={registerSelectablesContainer}>
+                  {_map(_keys(segregatedPduSections), (sectionKey: string) => (
+                    <GridUnit
+                      key={sectionKey}
+                      containerInfo={containerInfo}
+                      connectedMiners={
+                        connectedMinersData as unknown as Array<{
+                          rack?: string
+                          [key: string]: unknown
+                        }>
+                      }
+                      type={type}
+                      selectedItems={selectedItems}
+                      setSelectedItems={setSelectedItems}
+                      sectionKey={sectionKey}
+                      mobileSelectionEnabled={mobileSelectionEnabled}
+                      segregatedPduSections={
+                        segregatedPduSections as unknown as Record<string, Pdu[]>
+                      }
+                      minersHashmap={minersHashmap as Record<string, MinerData>}
+                      getSelectableName={getSelectableName}
+                    />
+                  ))}
+                </div>
+                {showSelecto && isSelectoActive && !!selectablesContainerRef.current && (
+                  <Selecto
+                    ratio={0}
+                    hitRate={25}
+                    selectByClick
+                    toggleContinueSelect={['shift']}
+                    selectableTargets={['.socket-container']}
+                    dragContainer={selectablesContainerRef.current}
+                    onSelectStart={handleSelectStart}
+                    onSelectEnd={handleSelectEnd}
+                  />
+                )}
+              </>
+            )}
+
+            <Legend>
+              <LegendItem color={SiteOverviewDetailsLegendColors[SITE_OVERVIEW_STATUSES.OFFLINE]}>
+                Offline
+              </LegendItem>
+              <LegendItem
+                $hasBorder
+                color={SiteOverviewDetailsLegendColors[SITE_OVERVIEW_STATUSES.EMPTY]}
+              >
+                Empty
+              </LegendItem>
+              <LegendItem
+                color={SiteOverviewDetailsLegendColors[SITE_OVERVIEW_STATUSES.NOT_MINING]}
+              >
+                Not Mining (Sleep + Error)
+              </LegendItem>
+              <LegendItem color={SiteOverviewDetailsLegendColors[SITE_OVERVIEW_STATUSES.MINING]}>
+                Online
+              </LegendItem>
+            </Legend>
+          </RacksCol>
+          {hasSelection &&
+            ASSIGN_POOL_POPUP_ENABLED &&
+            (isTablet ? (
+              <>
+                <SetPoolConfigurationTabletButton onClick={openSidebar}>
+                  <div>
+                    {' '}
+                    {selectedItems.size}{' '}
+                    {selectedItems.size > 1 ? 'Selected units' : 'Selected unit'}
+                  </div>
+                  <div>Selected</div>
+                </SetPoolConfigurationTabletButton>
+                <SetPoolConfigurationModal
+                  isSidebarOpen={isSidebarOpen}
+                  handleCancel={handleSidebarClose}
+                  onSubmit={handleAssignPoolSubmit}
                 />
-              ))}
-            </div>
-            {showSelecto && isSelectoActive && !!selectablesContainerRef.current && (
-              <Selecto
-                ratio={0}
-                hitRate={25}
-                selectByClick
-                toggleContinueSelect={['shift']}
-                selectableTargets={['.socket-container']}
-                dragContainer={selectablesContainerRef.current}
-                onSelectStart={handleSelectStart}
-                onSelectEnd={handleSelectEnd}
-              />
-            )}
-          </>
-        )}
-
-        <Legend>
-          <LegendItem color={SiteOverviewDetailsLegendColors[SITE_OVERVIEW_STATUSES.OFFLINE]}>
-            Offline
-          </LegendItem>
-          <LegendItem
-            $hasBorder
-            color={SiteOverviewDetailsLegendColors[SITE_OVERVIEW_STATUSES.EMPTY]}
-          >
-            Empty
-          </LegendItem>
-          <LegendItem color={SiteOverviewDetailsLegendColors[SITE_OVERVIEW_STATUSES.NOT_MINING]}>
-            Not Mining (Sleep + Error)
-          </LegendItem>
-          <LegendItem color={SiteOverviewDetailsLegendColors[SITE_OVERVIEW_STATUSES.MINING]}>
-            Online
-          </LegendItem>
-        </Legend>
-      </RacksCol>
-      {hasSelection &&
-        ASSIGN_POOL_POPUP_ENABLED &&
-        (isTablet ? (
-          <>
-            <SetPoolConfigurationTabletButton onClick={openSidebar}>
-              <div>
-                {' '}
-                {selectedItems.size} {selectedItems.size > 1 ? 'Selected units' : 'Selected unit'}
-              </div>
-              <div>Selected</div>
-            </SetPoolConfigurationTabletButton>
-            <SetPoolConfigurationModal
-              isSidebarOpen={isSidebarOpen}
-              handleCancel={handleSidebarClose}
-              onSubmit={handleAssignPoolSubmit}
-            />
-          </>
-        ) : (
-          <StickyConfigurationCol>
-            <SetPoolConfiguration onSubmit={handleAssignPoolSubmit}></SetPoolConfiguration>
-          </StickyConfigurationCol>
-        ))}
+              </>
+            ) : (
+              <StickyConfigurationCol>
+                {selectedItems.size === 1 && (
+                  <MinerInfoCard
+                    containerName="Acme"
+                    minersHashmap={minersHashmap}
+                    selectedItems={selectedItems}
+                    poolIdMap={poolIdMap}
+                  />
+                )}
+                <SetPoolConfiguration onSubmit={handleAssignPoolSubmit}></SetPoolConfiguration>
+              </StickyConfigurationCol>
+            ))}
+        </>
+      )}
     </Wrapper>
   )
 }

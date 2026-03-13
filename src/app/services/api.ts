@@ -1101,6 +1101,16 @@ export const api = createApi({
         maxRetries: 3,
       },
     }),
+    getPoolForMiner: builder.query({
+      /**
+       * @param {Object} payload
+       * @param {string} payload.minerId
+       */
+      query: (payload) => `/pools/config/${payload.minerId}`,
+      extraOptions: {
+        maxRetries: 3,
+      },
+    }),
   }),
 })
 
@@ -1180,4 +1190,5 @@ export const {
   useImportSettingsMutation,
   useGetPoolConfigsQuery,
   useGetPoolStatsQuery,
+  useGetPoolForMinerQuery,
 } = api
