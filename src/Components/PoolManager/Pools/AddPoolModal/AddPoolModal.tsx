@@ -78,43 +78,19 @@ interface AddPoolModalProps {
 
 const { setAddPendingSubmissionAction } = actionsSlice.actions
 
-// TODO: Fix incorrect error shown after approval of action
+// TODO: Fix incorrect error shown after approval of action.
 export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
   const isLoading = false
   const dispatch = useDispatch()
 
   const formik = useFormik<FormValues>({
-    // initialValues: {
-    //   groupName: '',
-    //   description: '',
-    //   workerName: '',
-    //   workerPassword: '',
-    //   suffixType: null,
-    //   endpoints: [],
-    // },
-    // TODO: Remove hard coded values added for testing
     initialValues: {
-      groupName: 'Dev-1',
-      description: 'Some descriptive text',
-      workerName: 'wn-1',
-      workerPassword: 'wp-1',
+      groupName: '',
+      description: '',
+      workerName: '',
+      workerPassword: '',
       suffixType: null,
-      endpoints: [
-        {
-          host: 'pool.example.com',
-          port: '3333',
-          role: null,
-          region: null,
-          pool: 'fpool',
-        },
-        {
-          host: 'backup.example.com',
-          port: '3333',
-          role: null,
-          region: null,
-          pool: 'apool',
-        },
-      ],
+      endpoints: [],
     },
     validationSchema,
     onSubmit: async (values) => {
