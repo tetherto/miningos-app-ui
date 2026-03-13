@@ -1,4 +1,10 @@
-import { PoolSummary } from '@/Views/PoolManager/types'
+import Alert from 'antd/es/alert'
+import _get from 'lodash/get'
+import _isNil from 'lodash/isNil'
+
+import { SITE_OVERVIEW_STATUS_COLORS } from '../../PoolManager.constants'
+import { getMinerStatus } from '../../SiteOverviewDetails/SiteOverviewDetailsContainer.utils'
+
 import {
   MinerInfoCardWrapper,
   Header,
@@ -14,15 +20,12 @@ import {
   Title,
   SocketBadge,
 } from './MinerInfoCard.styles'
-import _get from 'lodash/get'
-import _isNil from 'lodash/isNil'
-import { MinerData } from '@/hooks/useSiteOverviewDetailsData'
-import { getMinerStatus } from '../../SiteOverviewDetails/SiteOverviewDetailsContainer.utils'
-import { SITE_OVERVIEW_STATUS_COLORS } from '../../PoolManager.constants'
+
 import { useGetPoolForMinerQuery } from '@/app/services/api'
-import { Spinner } from '@/Components/Spinner/Spinner'
-import { Alert } from 'antd'
 import { getMinerName } from '@/app/utils/deviceUtils'
+import { Spinner } from '@/Components/Spinner/Spinner'
+import { MinerData } from '@/hooks/useSiteOverviewDetailsData'
+import { PoolSummary } from '@/Views/PoolManager/types'
 
 export type MinerInfoCardProps = {
   selectedItems: Set<string>

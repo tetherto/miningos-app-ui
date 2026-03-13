@@ -82,56 +82,64 @@ export const SetPoolConfiguration = ({
         <StyledTitle level={4}>Set Pool Configuration</StyledTitle>
         {isLoading ? (
           <Spinner />
-        ) : error ? (
-          <Alert type="error" message="Error loading data" />
         ) : (
           <>
-            <Section>
-              <SubTitle>Choose Pool</SubTitle>
-              <Label>Pool</Label>
-              <Select value={selectedPoolId} onChange={setSelectedPoolId} style={{ width: '100%' }}>
-                {_map(pools, (pool) => (
-                  <Option key={pool.id} value={pool.id}>
-                    {pool.name}
-                  </Option>
-                ))}
-              </Select>
-              <InfoRow>
-                <Text type="secondary">#Units: {currentPool?.units ?? 0}</Text>
-                <Text type="secondary">#Miners: {currentPool?.miners ?? 0}</Text>
-              </InfoRow>
-            </Section>
-
-            {!_isNil(currentPool) && (
+            {error ? (
+              <Alert type="error" message="Error loading data" />
+            ) : (
               <>
                 <Section>
-                  <SubTitle>Endpoints Preview</SubTitle>
-                  <StyledTable
-                    columns={columns}
-                    dataSource={currentPool.endpoints}
-                    pagination={false}
-                    size="small"
-                  />
+                  <SubTitle>Choose Pool</SubTitle>
+                  <Label>Pool</Label>
+                  <Select
+                    value={selectedPoolId}
+                    onChange={setSelectedPoolId}
+                    style={{ width: '100%' }}
+                  >
+                    {_map(pools, (pool) => (
+                      <Option key={pool.id} value={pool.id}>
+                        {pool.name}
+                      </Option>
+                    ))}
+                  </Select>
+                  <InfoRow>
+                    <Text type="secondary">#Units: {currentPool?.units ?? 0}</Text>
+                    <Text type="secondary">#Miners: {currentPool?.miners ?? 0}</Text>
+                  </InfoRow>
                 </Section>
 
-                {SHOW_CREDENTIAL_TEMPLATE && (
-                  <Section>
-                    <SubTitle>Credentials Template Preview</SubTitle>
-                    <Credentials>
-                      <CredentialsRow>
-                        <CredentialLabel>Worker Name Pattern:</CredentialLabel>{' '}
-                        <CredentialUnit>{'{unit_id}.{miner_id}'}</CredentialUnit>
-                      </CredentialsRow>
-                      <CredentialsRow $hasBorderBottom>
-                        <CredentialLabel>Suffix Type:</CredentialLabel>{' '}
-                        <CredentialUnit>Sequential</CredentialUnit>
-                      </CredentialsRow>
-                      <Example>
-                        <CredentialLabel>Example Preview:</CredentialLabel>{' '}
-                        <ExampleValue>unit01.miner001</ExampleValue>
-                      </Example>
-                    </Credentials>
-                  </Section>
+                {!_isNil(currentPool) && (
+                  <>
+                    <Section>
+                      <SubTitle>Endpoints Preview</SubTitle>
+                      <StyledTable
+                        columns={columns}
+                        dataSource={currentPool.endpoints}
+                        pagination={false}
+                        size="small"
+                      />
+                    </Section>
+
+                    {SHOW_CREDENTIAL_TEMPLATE && (
+                      <Section>
+                        <SubTitle>Credentials Template Preview</SubTitle>
+                        <Credentials>
+                          <CredentialsRow>
+                            <CredentialLabel>Worker Name Pattern:</CredentialLabel>{' '}
+                            <CredentialUnit>{'{unit_id}.{miner_id}'}</CredentialUnit>
+                          </CredentialsRow>
+                          <CredentialsRow $hasBorderBottom>
+                            <CredentialLabel>Suffix Type:</CredentialLabel>{' '}
+                            <CredentialUnit>Sequential</CredentialUnit>
+                          </CredentialsRow>
+                          <Example>
+                            <CredentialLabel>Example Preview:</CredentialLabel>{' '}
+                            <ExampleValue>unit01.miner001</ExampleValue>
+                          </Example>
+                        </Credentials>
+                      </Section>
+                    )}
+                  </>
                 )}
               </>
             )}
