@@ -41,7 +41,7 @@ import { usePoolConfigs } from '../../Pools/PoolManager.hooks'
 import { useGetListThingsQuery } from '@/app/services/api'
 import { getMinerShortCode } from '@/app/utils/deviceUtils'
 import { PoolSummary } from '@/Views/PoolManager/types'
-import { SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
+import { POOL_ENDPOINT_ROLES_LABELS, SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
 import { Alert } from 'antd'
 
 const validationSchema = yup.object({
@@ -212,7 +212,13 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
                     {selectedPool.endpoints.map((endpoint, index) => (
                       <EndpointWrapper key={index}>
                         <EndpointRole>
-                          <EndpointRoleName>{endpoint.role}</EndpointRoleName>
+                          <EndpointRoleName>
+                            {
+                              POOL_ENDPOINT_ROLES_LABELS[
+                                endpoint.role as keyof typeof POOL_ENDPOINT_ROLES_LABELS
+                              ]
+                            }
+                          </EndpointRoleName>
                         </EndpointRole>
 
                         <EndpointFields>

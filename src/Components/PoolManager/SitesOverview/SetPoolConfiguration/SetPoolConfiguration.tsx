@@ -27,7 +27,7 @@ import {
 import { usePoolConfigs } from '../../Pools/PoolManager.hooks'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { PoolSummary } from '@/Views/PoolManager/types'
-import { SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
+import { POOL_ENDPOINT_ROLES_LABELS, SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
 import { Alert } from 'antd'
 const { Option } = Select
 const { Text } = Typography
@@ -48,7 +48,11 @@ export const SetPoolConfiguration = ({
       title: 'Role',
       dataIndex: 'role',
       key: 'role',
-      render: (role: string) => <RoleTag $primary={role === 'PRIMARY'}>{role}</RoleTag>,
+      render: (role: string) => (
+        <RoleTag $primary={role === 'PRIMARY'}>
+          {POOL_ENDPOINT_ROLES_LABELS[role as keyof typeof POOL_ENDPOINT_ROLES_LABELS]}
+        </RoleTag>
+      ),
     },
   ]
 
