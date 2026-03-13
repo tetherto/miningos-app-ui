@@ -24,11 +24,12 @@ import { Spinner } from '@/Components/Spinner/Spinner'
 import { ROUTE } from '@/constants/routes'
 import { useContextualModal } from '@/hooks/useContextualModal'
 import { usePoolConfigs } from '@/Components/PoolManager/Pools/PoolManager.hooks'
+import { Alert } from 'antd'
 
 const PoolManagerPools = () => {
   const [activePoolKey, setActivePoolKey] = useState<CollapseProps['activeKey']>([])
 
-  const { pools, isLoading: isPoolDataLoading } = usePoolConfigs()
+  const { pools, isLoading: isPoolDataLoading, error } = usePoolConfigs()
 
   const {
     modalOpen: addPoolModalOpen,
@@ -75,6 +76,8 @@ const PoolManagerPools = () => {
       </Header>
       {isLoading ? (
         <Spinner />
+      ) : error ? (
+        <Alert type="error" message="Error loading data" />
       ) : (
         <PoolsCollapse
           defaultActiveKey={['1']}

@@ -7,6 +7,8 @@ import _find from 'lodash/find'
 import _isNil from 'lodash/isNil'
 import _size from 'lodash/size'
 import _head from 'lodash/head'
+import _compact from 'lodash/compact'
+import _isEmpty from 'lodash/isEmpty'
 
 import {
   FormActions,
@@ -40,6 +42,7 @@ import { useGetListThingsQuery } from '@/app/services/api'
 import { getMinerShortCode } from '@/app/utils/deviceUtils'
 import { PoolSummary } from '@/Views/PoolManager/types'
 import { SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
+import { Alert } from 'antd'
 
 const validationSchema = yup.object({
   pool: yup.string().required('Pool is required'),
@@ -97,8 +100,12 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
   onSubmit,
   selectedDeviceIds,
 }) => {
-  const { pools, isLoading: isPoolDataLoading } = usePoolConfigs()
-  const { data: minersData, isLoading: isMinerDataLoading } = useGetListThingsQuery({
+  const { pools, isLoading: isPoolDataLoading, error: poolConfigLoadingError } = usePoolConfigs()
+  const {
+    data: minersData,
+    isLoading: isMinerDataLoading,
+    error: minerDataLoadingError,
+  } = useGetListThingsQuery({
     status: 1,
     fields: JSON.stringify({
       id: 1,
@@ -121,7 +128,8 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
     return {
       id,
       code: shortCode,
-      pool: 'UNKNOWN', // TODO: Populate after API is available
+      // TODO: Populate after API is available
+      pool: 'UNKNOWN',
       unit: info?.container ?? '-',
     }
   })
@@ -161,6 +169,7 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
     : undefined
 
   const isLoading = isPoolDataLoading || isMinerDataLoading
+  const hasError = !_isEmpty(_compact([poolConfigLoadingError, minerDataLoadingError]))
 
   return (
     <StyledModal
@@ -173,6 +182,8 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
     >
       {isLoading ? (
         <Spinner />
+      ) : hasError ? (
+        <Alert type="error" message="Error loading data" />
       ) : (
         <FormikProvider value={formik}>
           <form onSubmit={formik.handleSubmit}>

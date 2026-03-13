@@ -10,6 +10,8 @@ import _map from 'lodash/map'
 import _reject from 'lodash/reject'
 import _toPairs from 'lodash/toPairs'
 import _values from 'lodash/values'
+import _compact from 'lodash/compact'
+import _isEmpty from 'lodash/isEmpty'
 import type { ComponentProps, FC } from 'react'
 import { useEffect, useState } from 'react'
 
@@ -113,6 +115,8 @@ const minerStatusOptions = _map(_toPairs(MinerStatuses), ([label, value]) => ({
   label,
 }))
 
+// TODO: Add pool filter when API supports it
+
 export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelectionChange }) => {
   const { getFormattedDate } = useTimezone()
   const [filterTags, setFilterTags] = useState<string[]>([])
@@ -125,7 +129,11 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelec
 
   const minerTableColumns = getMinerTableColumns(getFormattedDate)
 
-  const { data: siteData, isLoading: isSiteLoading } = useGetSiteQuery(undefined)
+  const {
+    data: siteData,
+    isLoading: isSiteLoading,
+    error: siteLoadingError,
+  } = useGetSiteQuery(undefined)
   const site = _capitalize(_get(siteData, ['site']))
   const { onFiltersChange, filters } = useListViewFilters({
     selectedType: CROSS_THING_TYPES.MINER,
@@ -153,6 +161,7 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelec
     data: minerListData,
     isLoading: isMinerListDataLoading,
     isFetching: isMinerListDataFetching,
+    error: minerListLoadingError,
   } = useGetListThingsQuery({
     status: 1,
     fields: JSON.stringify({
@@ -233,6 +242,7 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelec
   }
 
   const isLoading = isSiteLoading || isMinerListDataLoading
+  const hasError = !_isEmpty(_compact([minerListLoadingError, siteLoadingError]))
 
   const selectedRowKeys = _map(selectedDevices, 'id')
 

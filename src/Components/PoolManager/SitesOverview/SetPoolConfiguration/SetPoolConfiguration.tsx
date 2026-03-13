@@ -28,6 +28,7 @@ import { usePoolConfigs } from '../../Pools/PoolManager.hooks'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { PoolSummary } from '@/Views/PoolManager/types'
 import { SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
+import { Alert } from 'antd'
 const { Option } = Select
 const { Text } = Typography
 
@@ -38,7 +39,7 @@ export const SetPoolConfiguration = ({
 }) => {
   const [selectedPoolId, setSelectedPoolId] = useState<string | null>(null)
 
-  const { pools, isLoading } = usePoolConfigs()
+  const { pools, isLoading, error } = usePoolConfigs()
 
   const columns = [
     { title: 'Host', dataIndex: 'host', key: 'host' },
@@ -75,6 +76,8 @@ export const SetPoolConfiguration = ({
         <StyledTitle level={4}>Set Pool Configuration</StyledTitle>
         {isLoading ? (
           <Spinner />
+        ) : error ? (
+          <Alert type="error" message="Error loading data" />
         ) : (
           <>
             <Section>

@@ -7,7 +7,7 @@ import _get from 'lodash/get'
 import { POOL_ENDPOINT_INDEX_ROLES } from '../PoolManager.constants'
 
 export const usePoolConfigs = () => {
-  const { data: poolData, isLoading } = useGetPoolConfigsQuery({})
+  const { data: poolData, isLoading, error } = useGetPoolConfigsQuery({})
   const pools: PoolSummary[] = _map(poolData, (poolConfigData) => {
     const { poolConfigName: name, description, poolUrls, id } = poolConfigData
     const workerName = _get(poolUrls, ['0', 'workerName'])
@@ -53,5 +53,6 @@ export const usePoolConfigs = () => {
   return {
     pools,
     isLoading,
+    error,
   }
 }
