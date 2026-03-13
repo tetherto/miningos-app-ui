@@ -3,6 +3,7 @@ import _concat from 'lodash/concat'
 import _includes from 'lodash/includes'
 import _map from 'lodash/map'
 import _size from 'lodash/size'
+import _get from 'lodash/get'
 import _without from 'lodash/without'
 import _head from 'lodash/head'
 import _filter from 'lodash/filter'
@@ -35,6 +36,8 @@ import { notifyInfo } from '@/app/utils/NotificationService'
 import { getContainerMinersByContainerTagsQuery } from '@/app/utils/queryUtils'
 import { getMinerShortCode } from '@/app/utils/deviceUtils'
 import { PoolSummary } from '@/Views/PoolManager/types'
+import { usePoolConfigs } from '../Pools/PoolManager.hooks'
+import { Alert } from 'antd'
 
 const { setAddPendingSubmissionAction } = actionsSlice.actions
 
@@ -51,7 +54,12 @@ export const SitesOverviewStatusCardList = () => {
   const { isTablet } = useDeviceResolution()
 
   // Fetch and process all data using custom hook
-  const { units, isLoading } = useSitesOverviewData()
+  const { units, isLoading: isSiteOverviewDataLoading } = useSitesOverviewData()
+  const {
+    poolIdMap,
+    isLoading: isPoolConfigsLoading,
+    error: poolConfigsLoadingError,
+  } = usePoolConfigs()
   const [lazyListThingsRequest] = useLazyGetListThingsQuery()
 
   const handleSelect = (id: string) => {
@@ -120,10 +128,23 @@ export const SitesOverviewStatusCardList = () => {
     setSelected([])
   }
 
+  const getPoolConfigName = (poolConfigId?: string) => {
+    if (_isNil(poolConfigId)) {
+      return
+    }
+
+    return _get(poolIdMap, [poolConfigId, 'name'])
+  }
+
+  const isLoading = isPoolConfigsLoading || isSiteOverviewDataLoading
+  const hasError = !_isNil(poolConfigsLoadingError)
+
   return (
     <>
       {isLoading ? (
         <Spinner />
+      ) : hasError ? (
+        <Alert type="error" message="Failed to load data" />
       ) : (
         <SitesOverviewRow>
           <SitesUnitCol>
@@ -133,7 +154,7 @@ export const SitesOverviewStatusCardList = () => {
                   key={unit.id}
                   id={unit.id ? Number(unit.id) : 0}
                   unit={getContainerName(unit.info?.container ?? '', unit.type)}
-                  pool="-"
+                  pool={getPoolConfigName(unit.info?.poolConfig) ?? '-'}
                   hashrate={unit.hashrate}
                   miners={unit.miners?.actualMiners ?? 0}
                   overrides={0}

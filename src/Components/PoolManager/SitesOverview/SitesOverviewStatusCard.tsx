@@ -43,6 +43,7 @@ const SitesOverviewStatusCard: FC<SitesOverviewStatusCardProps> = ({
   onClick,
   checked,
   selectable = true,
+  pool,
 }) => (
   <Card onClick={onClick}>
     <Header>
@@ -56,6 +57,7 @@ const SitesOverviewStatusCard: FC<SitesOverviewStatusCardProps> = ({
         )}
         <UnitName>{unit}</UnitName>
       </UnitInfo>
+      {/* TODO: Override status should be shown here once API is available */}
       <StatusBadge
         $textColor={
           SITE_OVERVIEW_STATUS_COLORS[status] ?? SITE_OVERVIEW_STATUS_COLORS[STATUS_DEFAULT]
@@ -66,6 +68,9 @@ const SitesOverviewStatusCard: FC<SitesOverviewStatusCardProps> = ({
     </Header>
 
     <InfoList>
+      <div>
+        Pool: <span>{pool}</span>
+      </div>
       <div>
         Hashrate: <span>{hashrate}</span>
       </div>

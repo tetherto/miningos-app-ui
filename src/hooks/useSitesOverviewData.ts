@@ -20,6 +20,7 @@ export interface ContainerUnit {
   info?: {
     container?: string
     nominalMinerCapacity?: string
+    poolConfig?: string
   }
   miners?: {
     total: number
