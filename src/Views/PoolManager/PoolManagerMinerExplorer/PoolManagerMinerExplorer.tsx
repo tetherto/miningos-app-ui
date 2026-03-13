@@ -53,9 +53,10 @@ export const PoolManagerMinerExplorer = () => {
 
   const handleAssignPoolSubmit = ({ pool }: { pool: PoolSummary }) => {
     const codesList = _map(selectedDevices, 'code')
+    const selectedDeviceIds = _map(selectedDevices, 'id')
     dispatch(
       setAddPendingSubmissionAction({
-        query: { id: { $in: selectedDevices } },
+        query: { id: { $in: selectedDeviceIds } },
         action: ACTION_TYPES.SETUP_POOLS,
         params: [pool.id],
         overrideQuery: false,

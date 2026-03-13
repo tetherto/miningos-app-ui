@@ -152,7 +152,7 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
 
   return (
     <StyledModal
-      title={<ModalTitle>Add Endpoint</ModalTitle>}
+      title={<ModalTitle>Add Pool</ModalTitle>}
       open={isOpen}
       footer={false}
       onCancel={onClose}

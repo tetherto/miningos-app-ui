@@ -52,9 +52,9 @@ export const AddPoolEndpointModal: FC<AddPoolEndpointModalProps> = ({
   onSubmit,
 }) => {
   const isLoading = false
-
+  const isEditMode = !_isNil(endpoint)
   const formik = useFormik({
-    initialValues: _isNil(endpoint)
+    initialValues: !isEditMode
       ? emptyInitialValues
       : {
           role: null,
@@ -71,7 +71,7 @@ export const AddPoolEndpointModal: FC<AddPoolEndpointModalProps> = ({
 
   return (
     <StyledModal
-      title={<ModalTitle>Add Endpoint</ModalTitle>}
+      title={<ModalTitle>{isEditMode ? 'Edit' : 'Add'} Endpoint</ModalTitle>}
       open={isOpen}
       footer={false}
       onCancel={onClose}
