@@ -4,6 +4,10 @@ import _includes from 'lodash/includes'
 import _map from 'lodash/map'
 import _size from 'lodash/size'
 import _without from 'lodash/without'
+import _head from 'lodash/head'
+import _filter from 'lodash/filter'
+import _isNil from 'lodash/isNil'
+import _compact from 'lodash/compact'
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -23,14 +27,32 @@ import { Spinner } from '@/Components/Spinner/Spinner'
 import { ROUTE } from '@/constants/routes'
 import useDeviceResolution from '@/hooks/useDeviceResolution'
 import { useSitesOverviewData, type ProcessedContainerUnit } from '@/hooks/useSitesOverviewData'
+import { useDispatch } from 'react-redux'
+import { actionsSlice } from '@/app/slices/actionsSlice'
+import { ACTION_TYPES } from '@/constants/actions'
+import { useLazyGetListThingsQuery } from '@/app/services/api'
+import { notifyInfo } from '@/app/utils/NotificationService'
+import { getContainerMinersByContainerTagsQuery } from '@/app/utils/queryUtils'
+import { getMinerShortCode } from '@/app/utils/deviceUtils'
+import { PoolSummary } from '@/Views/PoolManager/types'
+
+const { setAddPendingSubmissionAction } = actionsSlice.actions
+
+type ContainerMiner = {
+  id: string
+  code: string
+  tags: string[]
+}
 
 export const SitesOverviewStatusCardList = () => {
+  const dispatch = useDispatch()
   const [selected, setSelected] = useState<string[]>([])
   const navigate = useNavigate()
   const { isTablet } = useDeviceResolution()
 
   // Fetch and process all data using custom hook
   const { units, isLoading } = useSitesOverviewData()
+  const [lazyListThingsRequest] = useLazyGetListThingsQuery()
 
   const handleSelect = (id: string) => {
     setSelected((prev: string[]) => (_includes(prev, id) ? _without(prev, id) : _concat(prev, id)))
@@ -47,6 +69,56 @@ export const SitesOverviewStatusCardList = () => {
   }
 
   const hasSelection = _size(selected) > 0
+
+  const handleSetPoolConfigurationSubmit = async ({ pool }: { pool: PoolSummary }) => {
+    const selectedContainersSet = new Set(selected)
+    const containerTags = _compact(
+      _map(
+        _filter(units, (unit) => {
+          const { id } = unit
+          if (_isNil(id)) {
+            return false
+          }
+          return selectedContainersSet.has(id)
+        }),
+        (unit) => {
+          if (_isNil(unit.info?.container)) {
+            return null
+          }
+          return `container-${unit.info?.container}`
+        },
+      ),
+    )
+
+    const minersInContainersResponse = await lazyListThingsRequest({
+      query: getContainerMinersByContainerTagsQuery(containerTags),
+      fields: JSON.stringify({
+        id: 1,
+        code: 1,
+        tags: 1,
+      }),
+    })
+
+    const minersInContainers = _head(minersInContainersResponse.data) as ContainerMiner[]
+    const selectedDeviceIds = _map(minersInContainers, 'id')
+    const codesList = _map(minersInContainers, (device) =>
+      getMinerShortCode(device.code, device.tags),
+    )
+
+    dispatch(
+      setAddPendingSubmissionAction({
+        query: { id: { $in: selectedDeviceIds } },
+        action: ACTION_TYPES.SETUP_POOLS,
+        params: [pool.id],
+        overrideQuery: false,
+        codesList,
+        poolName: pool.name,
+      }),
+    )
+
+    notifyInfo('Action added', 'Assign Pools')
+    setSelected([])
+  }
 
   return (
     <>
@@ -72,7 +144,6 @@ export const SitesOverviewStatusCardList = () => {
                     handleSelect(unit.id ?? '')
                   }}
                   status={unit.status}
-                  selectable={false}
                 />
               ))}
             </SitesUnitWrapper>
@@ -88,11 +159,14 @@ export const SitesOverviewStatusCardList = () => {
                 <SetPoolConfigurationModal
                   isSidebarOpen={isSidebarOpen}
                   handleCancel={handleSidebarClose}
+                  onSubmit={handleSetPoolConfigurationSubmit}
                 />
               </>
             ) : (
               <StickyConfigurationCol>
-                <SetPoolConfiguration></SetPoolConfiguration>
+                <SetPoolConfiguration
+                  onSubmit={handleSetPoolConfigurationSubmit}
+                ></SetPoolConfiguration>
               </StickyConfigurationCol>
             ))}
         </SitesOverviewRow>

@@ -40,21 +40,11 @@ import { CROSS_THING_TYPES } from '@/constants/devices'
 import type { Device } from '@/hooks/hooks.types'
 import { useListViewFilters } from '@/hooks/useListViewFilters'
 import useTimezone from '@/hooks/useTimezone'
-
-interface MinerRecord {
-  id: string
-  code: string
-  status?: string
-  unit?: string
-  hashrate?: number
-  lastSyncedAt: Date
-  tags?: string[]
-  raw: Device
-}
+import { MinerRecord } from '@/Views/PoolManager/types'
 
 interface MinerExplorerProps {
-  selectedDeviceIds: string[]
-  setSelectedDeviceIds: (ids: string[] | ((prev: string[]) => string[])) => void
+  selectedDevices: MinerRecord[]
+  onSelectionChange: (miners: MinerRecord[]) => void
 }
 
 const getMinerTableColumns = (
@@ -123,10 +113,7 @@ const minerStatusOptions = _map(_toPairs(MinerStatuses), ([label, value]) => ({
   label,
 }))
 
-export const MinerExplorer: FC<MinerExplorerProps> = ({
-  selectedDeviceIds,
-  setSelectedDeviceIds,
-}) => {
+export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelectionChange }) => {
   const { getFormattedDate } = useTimezone()
   const [filterTags, setFilterTags] = useState<string[]>([])
   const [page, setPage] = useState({
@@ -219,15 +206,15 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({
 
   const setMinerSelection = (miner: MinerRecord, isSelected: boolean) => {
     if (!isSelected) {
-      setSelectedDeviceIds(_reject(selectedDeviceIds, (id: string) => miner.id === id))
+      onSelectionChange(_reject(selectedDevices, ({ id }) => miner.id === id))
       return
     }
 
-    return setSelectedDeviceIds([...selectedDeviceIds, miner.id])
+    return onSelectionChange([...selectedDevices, miner])
   }
 
   const handlePageChange = (pageNumber: number, pageSize: number) => {
-    setSelectedDeviceIds([])
+    onSelectionChange([])
 
     setPage({
       pageNumber,
@@ -237,20 +224,17 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({
 
   const handleSelectAll = (isChecked: boolean) => {
     if (!isChecked) {
-      return setSelectedDeviceIds([])
+      return onSelectionChange([])
     }
 
     const sliceStart = (page.pageNumber - 1) * page.pageSize
     const sliceEnd = page.pageNumber * page.pageSize
-    setSelectedDeviceIds(
-      _map(
-        _reject(mappedMiners.slice(sliceStart, sliceEnd), ['status', 'offline']),
-        ({ id }: MinerRecord) => id,
-      ),
-    )
+    onSelectionChange(_reject(mappedMiners.slice(sliceStart, sliceEnd), ['status', 'offline']))
   }
 
   const isLoading = isSiteLoading || isMinerListDataLoading
+
+  const selectedRowKeys = _map(selectedDevices, 'id')
 
   return (
     <MinerExplorerWrapper>
@@ -318,7 +302,7 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({
                 rowKey: (record: MinerRecord) => record.id,
                 rowSelection: {
                   type: 'checkbox' as const,
-                  selectedRowKeys: selectedDeviceIds,
+                  selectedRowKeys,
                   onSelect: (record: MinerRecord, selected: boolean) =>
                     setMinerSelection(record, selected),
                   onSelectAll: handleSelectAll,

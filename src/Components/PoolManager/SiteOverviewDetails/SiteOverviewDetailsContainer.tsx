@@ -14,7 +14,6 @@ import Selecto from 'react-selecto'
 
 import {
   ASSIGN_POOL_POPUP_ENABLED,
-  SETUP_POOLS_WARNING_MESSAGE,
   SITE_OVERVIEW_STATUS_COLORS,
   SITE_OVERVIEW_STATUS_LABELS,
   SITE_OVERVIEW_STATUSES,
@@ -45,10 +44,8 @@ import { getMinersPoolName } from './SiteOverviewDetailsContainer.utils'
 
 import { actionsSlice, selectPendingSubmissions } from '@/app/slices/actionsSlice'
 import { getConnectedMinerForSocket } from '@/app/utils/containerUtils'
-import { appendIdToTag } from '@/app/utils/deviceUtils'
 import { notifyInfo } from '@/app/utils/NotificationService'
 import { MinerStatuses } from '@/app/utils/statusUtils'
-import { DangerActionButton } from '@/Components/DangerActionButton/DangerActionButton'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { ACTION_TYPES } from '@/constants/actions'
 import type { Device } from '@/hooks/hooks.types'
@@ -57,6 +54,7 @@ import { useKeyDown } from '@/hooks/useKeyDown'
 import { useSiteOverviewDetailsData } from '@/hooks/useSiteOverviewDetailsData'
 import { useUpdateExistedActions } from '@/hooks/useUpdateExistedActions'
 import { getSelectableName } from '@/Views/Container/Tabs/PduTab/pduUtils'
+import { PoolSummary } from '@/Views/PoolManager/types'
 
 const { setAddPendingSubmissionAction } = actionsSlice.actions
 
@@ -224,11 +222,11 @@ const SiteOverviewDetailsContainer = ({ unit }: SiteOverviewDetailsContainerProp
 
   const hasSelection = _size(selectedItems) > 0
 
-  const pendingSubmissions = useSelector(selectPendingSubmissions)
-  const { updateExistedActions } = useUpdateExistedActions()
   const dispatch = useDispatch()
 
-  const handleSetupPools = () => {
+  const poolName = getMinersPoolName(connectedMiners) || '-'
+
+  const handleAssignPoolSubmit = ({ pool }: { pool: PoolSummary }) => {
     const selectedDevices: Device[] = []
     _forEach([...selectedItems], (name: string) => {
       const parsed = JSON.parse(name) as { pduIndex: string; socketIndex: string }
@@ -244,37 +242,23 @@ const SiteOverviewDetailsContainer = ({ unit }: SiteOverviewDetailsContainerProp
       }
     })
 
-    if (_isEmpty(selectedDevices)) {
-      notifyInfo('No miners found', "Selected miners are not in 'Not Mining (Sleep + Error)' state")
-    }
+    const selectedDeviceIds = _map(selectedDevices, (device) => device.id)
+    const codesList = _map(selectedDevices, (device) => device.code)
 
-    const selectedDevicesTags = _map(selectedDevices, (device: Device) => appendIdToTag(device.id))
-    updateExistedActions({
-      actionType: ACTION_TYPES.SETUP_POOLS,
-      pendingSubmissions: pendingSubmissions as Array<{
-        id: string | number
-        action: string
-        tags: string[]
-        [key: string]: unknown
-      }>,
-      selectedDevices,
-    })
+    dispatch(
+      setAddPendingSubmissionAction({
+        query: { id: { $in: selectedDeviceIds } },
+        action: ACTION_TYPES.SETUP_POOLS,
+        params: [pool.id],
+        overrideQuery: false,
+        codesList,
+        poolName: pool.name,
+      }),
+    )
 
-    if (!_isEmpty(selectedDevicesTags)) {
-      dispatch(
-        setAddPendingSubmissionAction({
-          type: 'voting',
-          action: ACTION_TYPES.SETUP_POOLS,
-          tags: selectedDevicesTags,
-          params: [],
-        }),
-      )
-
-      notifyInfo('Action added', 'Setup Pools')
-    }
+    notifyInfo('Action added', 'Assign Pools')
+    setSelectedItems(new Set())
   }
-
-  const poolName = getMinersPoolName(connectedMiners) || '-'
 
   return (
     <Wrapper>
@@ -317,17 +301,6 @@ const SiteOverviewDetailsContainer = ({ unit }: SiteOverviewDetailsContainerProp
             </HeaderInfoCol>
           </Info>
           <Actions>
-            {hasSelection && (
-              <DangerActionButton
-                confirmation={{
-                  title: 'Setup Pools',
-                  description: SETUP_POOLS_WARNING_MESSAGE,
-                  onConfirm: () => handleSetupPools(),
-                  icon: <QuestionCircleOutlined style={{ color: 'red' }} />,
-                }}
-                label="Setup Pools"
-              />
-            )}
             {hasSelection && (
               <Button onClick={() => setSelectedItems(new Set())}>Deselect All</Button>
             )}
@@ -408,11 +381,12 @@ const SiteOverviewDetailsContainer = ({ unit }: SiteOverviewDetailsContainerProp
             <SetPoolConfigurationModal
               isSidebarOpen={isSidebarOpen}
               handleCancel={handleSidebarClose}
+              onSubmit={handleAssignPoolSubmit}
             />
           </>
         ) : (
           <StickyConfigurationCol>
-            <SetPoolConfiguration></SetPoolConfiguration>
+            <SetPoolConfiguration onSubmit={handleAssignPoolSubmit}></SetPoolConfiguration>
           </StickyConfigurationCol>
         ))}
     </Wrapper>

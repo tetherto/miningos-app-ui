@@ -151,6 +151,8 @@ export const api = createApi({
     'ProductionCosts',
     'RolePermissions',
     'ContainerSettings',
+    'PoolConfigs',
+    'PoolStats',
   ],
   // Performance optimization: Better cache management
   keepUnusedDataFor: 300, // Keep data for 5 minutes (stable data)
@@ -200,6 +202,28 @@ export const api = createApi({
        */
       query: () => ({ url: 'roles/permissions', method: 'GET' }),
       providesTags: ['RolePermissions'],
+      extraOptions: {
+        maxRetries: 3,
+      },
+    }),
+
+    getPoolConfigs: builder.query({
+      /**
+       * @returns {Array} { pools }
+       */
+      query: () => ({ url: 'configs/pool', method: 'GET' }),
+      providesTags: ['PoolConfigs'],
+      extraOptions: {
+        maxRetries: 3,
+      },
+    }),
+
+    getPoolStats: builder.query({
+      /**
+       * @returns {Array} { stats }
+       */
+      query: () => ({ url: 'pool-manager/stats', method: 'GET' }),
+      providesTags: ['PoolStats'],
       extraOptions: {
         maxRetries: 3,
       },
@@ -1154,4 +1178,6 @@ export const {
   useUpdateHeaderControlsMutation,
   useGetExportSettingsQuery,
   useImportSettingsMutation,
+  useGetPoolConfigsQuery,
+  useGetPoolStatsQuery,
 } = api

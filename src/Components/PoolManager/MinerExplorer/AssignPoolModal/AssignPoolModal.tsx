@@ -2,6 +2,11 @@ import Button from 'antd/es/button'
 import { FormikProvider, useFormik } from 'formik'
 import { type FC } from 'react'
 import * as yup from 'yup'
+import _map from 'lodash/map'
+import _find from 'lodash/find'
+import _isNil from 'lodash/isNil'
+import _size from 'lodash/size'
+import _head from 'lodash/head'
 
 import {
   FormActions,
@@ -30,6 +35,11 @@ import {
 import AppTable from '@/Components/AppTable/AppTable'
 import { FormikSelect } from '@/Components/FormInputs'
 import { Spinner } from '@/Components/Spinner/Spinner'
+import { usePoolConfigs } from '../../Pools/PoolManager.hooks'
+import { useGetListThingsQuery } from '@/app/services/api'
+import { getMinerShortCode } from '@/app/utils/deviceUtils'
+import { PoolSummary } from '@/Views/PoolManager/types'
+import { SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
 
 const validationSchema = yup.object({
   pool: yup.string().required('Pool is required'),
@@ -40,6 +50,15 @@ interface MinerRow {
   unit?: string
   pool?: string
   [key: string]: unknown
+}
+
+type MinerDataRow = {
+  code: string
+  info?: {
+    container: string
+  }
+  id: string
+  tags: string[]
 }
 
 const minersTableColumns = [
@@ -66,52 +85,86 @@ const minersTableColumns = [
 interface AssignPoolModalProps {
   isOpen: boolean
   onClose: () => void
-  onSubmit: (values: { pool: string | null }) => void
+  onSubmit: (values: { pool: PoolSummary }) => void
+  selectedDeviceIds: string[]
 }
 
-export const AssignPoolModal: FC<AssignPoolModalProps> = ({ isOpen, onClose, onSubmit }) => {
-  const isLoading = false
+// TODO: Handle error on miners loading
+
+export const AssignPoolModal: FC<AssignPoolModalProps> = ({
+  isOpen,
+  onClose,
+  onSubmit,
+  selectedDeviceIds,
+}) => {
+  const { pools, isLoading: isPoolDataLoading } = usePoolConfigs()
+  const { data: minersData, isLoading: isMinerDataLoading } = useGetListThingsQuery({
+    status: 1,
+    fields: JSON.stringify({
+      id: 1,
+      info: 1,
+      code: 1,
+      type: 1,
+      containerId: 1,
+      tags: 1,
+    }),
+    query: JSON.stringify({
+      id: {
+        $in: selectedDeviceIds,
+      },
+    }),
+  })
+
+  const miners = _map(_head(minersData as MinerDataRow[][]), (minerData) => {
+    const { code, tags, id, info } = minerData
+    const shortCode = getMinerShortCode(code, tags || [])
+    return {
+      id,
+      code: shortCode,
+      pool: 'UNKNOWN', // TODO: Populate after API is available
+      unit: info?.container ?? '-',
+    }
+  })
+
+  const poolOptions = _map(pools, (poolData) => ({
+    key: poolData.id,
+    value: poolData.id,
+    label: poolData.name,
+  }))
 
   const formik = useFormik({
     initialValues: {
       pool: null,
     },
     validationSchema,
-    onSubmit: (values) => {
-      onSubmit(values)
-      onClose()
+    onSubmit: async (values) => {
+      const { pool } = values
+
+      if (_isNil(pool)) {
+        return
+      }
+
+      const selectedPool = _find(pools, { id: pool })
+
+      if (_isNil(selectedPool)) {
+        return
+      }
+
+      onSubmit({
+        pool: selectedPool,
+      })
     },
   })
 
-  const poolOptions = [
-    {
-      key: 'POOL_1',
-      label: 'Pool 1',
-    },
-    {
-      key: 'POOL_2',
-      label: 'Pool 2',
-    },
-  ]
+  const selectedPool = !_isNil(formik.values.pool)
+    ? _find(pools, { id: formik.values.pool })
+    : undefined
 
-  const endpoints = [
-    {
-      role: 'PRIMARY',
-      host: 'stratum+tcp://pool.example.com',
-      port: 4444,
-      region: 'EUROPE',
-    },
-    {
-      role: 'FAILOVER_1',
-      host: 'stratum+tcp://pool.example.com',
-      port: 4444,
-      region: 'EUROPE',
-    },
-  ]
+  const isLoading = isPoolDataLoading || isMinerDataLoading
 
   return (
     <StyledModal
-      title={<ModalTitle>Add Endpoint</ModalTitle>}
+      title={<ModalTitle>Assign Pool</ModalTitle>}
       open={isOpen}
       footer={false}
       onCancel={onClose}
@@ -127,9 +180,9 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({ isOpen, onClose, onS
               <Section>
                 <SectionHeader>
                   <FormSectionHeader>Selected Miners</FormSectionHeader>
-                  <div>4 miners selected</div>
+                  <div>{_size(selectedDeviceIds)} miners selected</div>
                 </SectionHeader>
-                <AppTable columns={minersTableColumns} pagination={false} />
+                <AppTable dataSource={miners} columns={minersTableColumns} pagination={false} />
               </Section>
               <Section>
                 <SectionHeader>
@@ -137,39 +190,44 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({ isOpen, onClose, onS
                 </SectionHeader>
                 <FormikSelect name="pool" options={poolOptions} />
                 <PoolMeta>
-                  <div>Units: 45</div>
-                  <div>Miners: 45</div>
-                  <div>Last Updated: 45</div>
+                  {/* TODO: Update when API supports these stats */}
+                  <div>Units: 0</div>
+                  <div>Miners: 0</div>
+                  <div>Last Updated: 0</div>
                 </PoolMeta>
               </Section>
-              <Section>
-                <SectionHeader>Endpoints Preview</SectionHeader>
-                <EndpointsList>
-                  {endpoints.map((endpoint, index) => (
-                    <EndpointWrapper key={index}>
-                      <EndpointRole>
-                        <EndpointRoleName>{endpoint.role}</EndpointRoleName>
-                      </EndpointRole>
+              {!_isNil(selectedPool) && (
+                <Section>
+                  <SectionHeader>Endpoints Preview</SectionHeader>
+                  <EndpointsList>
+                    {selectedPool.endpoints.map((endpoint, index) => (
+                      <EndpointWrapper key={index}>
+                        <EndpointRole>
+                          <EndpointRoleName>{endpoint.role}</EndpointRoleName>
+                        </EndpointRole>
 
-                      <EndpointFields>
-                        <EndpointFieldValue>{endpoint.host}</EndpointFieldValue>
-                        <EndpointFieldValueSecondary>
-                          Port: {endpoint.port}
-                        </EndpointFieldValueSecondary>
-                      </EndpointFields>
-                    </EndpointWrapper>
-                  ))}
-                </EndpointsList>
-              </Section>
-              <Section>
-                <SectionHeader>
-                  <FormSectionHeader>Credential Template Preview</FormSectionHeader>
-                </SectionHeader>
-                <CredentialTemplatePreview>
-                  <TemplateFieldName>Worker Name Example</TemplateFieldName>
-                  <TemplateFieldValue>site-a.192-168-1-1</TemplateFieldValue>
-                </CredentialTemplatePreview>
-              </Section>
+                        <EndpointFields>
+                          <EndpointFieldValue>{endpoint.host}</EndpointFieldValue>
+                          <EndpointFieldValueSecondary>
+                            Port: {endpoint.port}
+                          </EndpointFieldValueSecondary>
+                        </EndpointFields>
+                      </EndpointWrapper>
+                    ))}
+                  </EndpointsList>
+                </Section>
+              )}
+              {SHOW_CREDENTIAL_TEMPLATE && (
+                <Section>
+                  <SectionHeader>
+                    <FormSectionHeader>Credential Template Preview</FormSectionHeader>
+                  </SectionHeader>
+                  <CredentialTemplatePreview>
+                    <TemplateFieldName>Worker Name Example</TemplateFieldName>
+                    <TemplateFieldValue>site-a.192-168-1-1</TemplateFieldValue>
+                  </CredentialTemplatePreview>
+                </Section>
+              )}
               <FormActions>
                 <Button type="primary" htmlType="submit" loading={formik.isSubmitting}>
                   Assign

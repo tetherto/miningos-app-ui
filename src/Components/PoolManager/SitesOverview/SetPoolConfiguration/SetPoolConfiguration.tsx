@@ -1,6 +1,8 @@
 import Select from 'antd/es/select'
 import Typography from 'antd/es/typography'
 import _map from 'lodash/map'
+import _find from 'lodash/find'
+import _isNil from 'lodash/isNil'
 import { useState } from 'react'
 
 import {
@@ -22,21 +24,21 @@ import {
   SubTitle,
   Wrapper,
 } from './SetPoolConfiguration.styles'
+import { usePoolConfigs } from '../../Pools/PoolManager.hooks'
+import { Spinner } from '@/Components/Spinner/Spinner'
+import { PoolSummary } from '@/Views/PoolManager/types'
+import { SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
 const { Option } = Select
 const { Text } = Typography
 
-export const SetPoolConfiguration = () => {
-  const [selectedPool, setSelectedPool] = useState('Foundry-EU')
+export const SetPoolConfiguration = ({
+  onSubmit,
+}: {
+  onSubmit: (values: { pool: PoolSummary }) => Promise<void> | void
+}) => {
+  const [selectedPoolId, setSelectedPoolId] = useState<string | null>(null)
 
-  const pools = [
-    { name: 'Foundry-EU', units: 9, miners: 2806 },
-    { name: 'Foundry-US', units: 12, miners: 3500 },
-  ]
-
-  const endpoints = [
-    { key: 1, host: 'stratum.foundry.eu', port: 4444, role: 'PRIMARY' },
-    { key: 2, host: 'backup.foundry.eu', port: 4444, role: 'FAILOVER' },
-  ]
+  const { pools, isLoading } = usePoolConfigs()
 
   const columns = [
     { title: 'Host', dataIndex: 'host', key: 'host' },
@@ -49,54 +51,88 @@ export const SetPoolConfiguration = () => {
     },
   ]
 
-  const currentPool = pools.find((p) => p.name === selectedPool)
+  const handleAssign = () => {
+    if (_isNil(selectedPoolId)) {
+      return
+    }
+
+    const selectedPool = pools.find((p) => p.id === selectedPoolId)
+
+    if (_isNil(selectedPool)) {
+      return
+    }
+
+    onSubmit({
+      pool: selectedPool,
+    })
+  }
+
+  const currentPool = pools.find((p) => p.id === selectedPoolId)
 
   return (
     <Wrapper>
       <Container>
         <StyledTitle level={4}>Set Pool Configuration</StyledTitle>
+        {isLoading ? (
+          <Spinner />
+        ) : (
+          <>
+            <Section>
+              <SubTitle>Choose Pool</SubTitle>
+              <Label>Pool</Label>
+              <Select value={selectedPoolId} onChange={setSelectedPoolId} style={{ width: '100%' }}>
+                {_map(pools, (pool) => (
+                  <Option key={pool.id} value={pool.id}>
+                    {pool.name}
+                  </Option>
+                ))}
+              </Select>
+              <InfoRow>
+                <Text type="secondary">#Units: {currentPool?.units ?? 0}</Text>
+                <Text type="secondary">#Miners: {currentPool?.miners ?? 0}</Text>
+              </InfoRow>
+            </Section>
 
-        <Section>
-          <SubTitle>Choose Pool</SubTitle>
-          <Label>Pool</Label>
-          <Select value={selectedPool} onChange={setSelectedPool} style={{ width: '100%' }}>
-            {_map(pools, (pool) => (
-              <Option key={pool.name} value={pool.name}>
-                {pool.name}
-              </Option>
-            ))}
-          </Select>
-          <InfoRow>
-            <Text type="secondary">#Units: {currentPool?.units}</Text>
-            <Text type="secondary">#Miners: {currentPool?.miners}</Text>
-          </InfoRow>
-        </Section>
+            {!_isNil(currentPool) && (
+              <>
+                <Section>
+                  <SubTitle>Endpoints Preview</SubTitle>
+                  <StyledTable
+                    columns={columns}
+                    dataSource={currentPool.endpoints}
+                    pagination={false}
+                    size="small"
+                  />
+                </Section>
 
-        <Section>
-          <SubTitle>Endpoints Preview</SubTitle>
-          <StyledTable columns={columns} dataSource={endpoints} pagination={false} size="small" />
-        </Section>
-
-        <Section>
-          <SubTitle>Credentials Template Preview</SubTitle>
-          <Credentials>
-            <CredentialsRow>
-              <CredentialLabel>Worker Name Pattern:</CredentialLabel>{' '}
-              <CredentialUnit>{'{unit_id}.{miner_id}'}</CredentialUnit>
-            </CredentialsRow>
-            <CredentialsRow $hasBorderBottom>
-              <CredentialLabel>Suffix Type:</CredentialLabel>{' '}
-              <CredentialUnit>Sequential</CredentialUnit>
-            </CredentialsRow>
-            <Example>
-              <CredentialLabel>Example Preview:</CredentialLabel>{' '}
-              <ExampleValue>unit01.miner001</ExampleValue>
-            </Example>
-          </Credentials>
-        </Section>
+                {SHOW_CREDENTIAL_TEMPLATE && (
+                  <Section>
+                    <SubTitle>Credentials Template Preview</SubTitle>
+                    <Credentials>
+                      <CredentialsRow>
+                        <CredentialLabel>Worker Name Pattern:</CredentialLabel>{' '}
+                        <CredentialUnit>{'{unit_id}.{miner_id}'}</CredentialUnit>
+                      </CredentialsRow>
+                      <CredentialsRow $hasBorderBottom>
+                        <CredentialLabel>Suffix Type:</CredentialLabel>{' '}
+                        <CredentialUnit>Sequential</CredentialUnit>
+                      </CredentialsRow>
+                      <Example>
+                        <CredentialLabel>Example Preview:</CredentialLabel>{' '}
+                        <ExampleValue>unit01.miner001</ExampleValue>
+                      </Example>
+                    </Credentials>
+                  </Section>
+                )}
+              </>
+            )}
+          </>
+        )}
       </Container>
       <ButtonContainer>
-        <StyledButton block>Assign Configuration</StyledButton>
+        <StyledButton block disabled={isLoading} onClick={handleAssign}>
+          Assign Configuration
+        </StyledButton>
       </ButtonContainer>
     </Wrapper>
   )

@@ -340,7 +340,10 @@ export const executeCreateAction = async ({
       delete newActionPayload.metadata
     }
   } else {
-    newActionPayload.query = { tags: { $in: action.create?.tags } }
+    const overrideQuery = _get(newActionPayload, ['overrideQuery'], true)
+    if (overrideQuery) {
+      newActionPayload.query = { tags: { $in: action.create?.tags } }
+    }
 
     if (newActionPayload) {
       delete newActionPayload.codesList

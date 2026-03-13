@@ -30,6 +30,10 @@ export const ACTION_TYPES = {
 
   //Rack actions
   RACK_REBOOT: 'rackReboot',
+
+  // Pool Manager
+  REGISTER_POOL_CONFIG: 'registerConfig',
+  UPDATE_POOL_CONFIG: 'updateConfig',
 } as const
 
 export const ACTION_SUFFIXES = {
