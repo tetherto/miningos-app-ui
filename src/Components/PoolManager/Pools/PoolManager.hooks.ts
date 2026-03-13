@@ -4,54 +4,71 @@ import _map from 'lodash/map'
 import _values from 'lodash/values'
 import _includes from 'lodash/includes'
 import _get from 'lodash/get'
+import _fromPairs from 'lodash/fromPairs'
 import { POOL_ENDPOINT_INDEX_ROLES } from '../PoolManager.constants'
 
 export const usePoolConfigs = () => {
   const { data: poolData, isLoading, error } = useGetPoolConfigsQuery({})
   const pools: PoolSummary[] = _map(poolData, (poolConfigData) => {
-    const { poolConfigName: name, description, poolUrls, id } = poolConfigData
+    const {
+      poolConfigName: name,
+      description,
+      poolUrls,
+      id,
+      miners,
+      containers: units,
+      updatedAt: updatedAtTs,
+    } = poolConfigData
+
     const workerName = _get(poolUrls, ['0', 'workerName'])
     const workerPassword = _get(poolUrls, ['0', 'workerPassword'])
+    const updatedAt = new Date(updatedAtTs)
+
+    const endpoints = _map(poolUrls, (endpoint, index) => {
+      const { url: poolUrl, pool: poolName } = endpoint
+
+      let url: URL
+      try {
+        url = new URL(poolUrl)
+      } catch (error) {
+        if (_includes(_get(error, 'message', '') as string, 'Invalid URL')) {
+          return {
+            host: '',
+            port: '',
+            pool: '',
+          }
+        }
+        throw error
+      }
+      const role = POOL_ENDPOINT_INDEX_ROLES[index as keyof typeof POOL_ENDPOINT_INDEX_ROLES]
+      const host = url.hostname
+      const port = url.port || '80' // Default port if not specified
+      return {
+        role,
+        host,
+        port,
+        pool: poolName,
+      }
+    })
+
     return {
       id,
       name,
       description,
-      // TODO: fetch these stats when API supports them
-      units: 0,
-      miners: 0,
+      units,
+      miners,
       workerName,
       workerPassword,
-      endpoints: _map(poolUrls, (endpoint, index) => {
-        const { url: poolUrl, pool: poolName } = endpoint
-
-        let url: URL
-        try {
-          url = new URL(poolUrl)
-        } catch (error) {
-          if (_includes(_get(error, 'message', '') as string, 'Invalid URL')) {
-            return {
-              host: '',
-              port: '',
-              pool: '',
-            }
-          }
-          throw error
-        }
-        const role = POOL_ENDPOINT_INDEX_ROLES[index as keyof typeof POOL_ENDPOINT_INDEX_ROLES]
-        const host = url.hostname
-        const port = url.port || '80' // Default port if not specified
-        return {
-          role,
-          host,
-          port,
-          pool: poolName,
-        }
-      }),
+      endpoints,
+      updatedAt,
     }
   })
 
+  const poolIdMap = _fromPairs(_map(pools, (pool) => [pool.id, pool]))
+
   return {
     pools,
+    poolIdMap,
     isLoading,
     error,
   }

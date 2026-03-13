@@ -43,6 +43,7 @@ import { getMinerShortCode } from '@/app/utils/deviceUtils'
 import { PoolSummary } from '@/Views/PoolManager/types'
 import { POOL_ENDPOINT_ROLES_LABELS, SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
 import { Alert } from 'antd'
+import { intlFormatDistance } from 'date-fns'
 
 const validationSchema = yup.object({
   pool: yup.string().required('Pool is required'),
@@ -59,6 +60,7 @@ type MinerDataRow = {
   code: string
   info?: {
     container: string
+    poolConfig: string
   }
   id: string
   tags: string[]
@@ -98,7 +100,13 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
   onSubmit,
   selectedDeviceIds,
 }) => {
-  const { pools, isLoading: isPoolDataLoading, error: poolConfigLoadingError } = usePoolConfigs()
+  const {
+    pools,
+    poolIdMap,
+    isLoading: isPoolDataLoading,
+    error: poolConfigLoadingError,
+  } = usePoolConfigs()
+
   const {
     data: minersData,
     isLoading: isMinerDataLoading,
@@ -126,8 +134,7 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
     return {
       id,
       code: shortCode,
-      // TODO: Populate after API is available
-      pool: 'UNKNOWN',
+      pool: info?.poolConfig ? (poolIdMap[info?.poolConfig]?.name ?? '-') : '-',
       unit: info?.container ?? '-',
     }
   })
@@ -199,10 +206,13 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
                 </SectionHeader>
                 <FormikSelect name="pool" options={poolOptions} />
                 <PoolMeta>
-                  {/* TODO: Update when API supports these stats */}
-                  <div>Units: 0</div>
-                  <div>Miners: 0</div>
-                  <div>Last Updated: 0</div>
+                  <div>Units: {selectedPool?.units ?? 0}</div>
+                  <div>Miners: {selectedPool?.miners ?? 0}</div>
+                  {selectedPool && (
+                    <div>
+                      Last Updated: {intlFormatDistance(selectedPool?.updatedAt, new Date())}
+                    </div>
+                  )}
                 </PoolMeta>
               </Section>
               {!_isNil(selectedPool) && (

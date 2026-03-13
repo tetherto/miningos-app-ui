@@ -27,6 +27,7 @@ export type PoolSummary = {
     workerName: string
     suffixType: string
   }
+  updatedAt: Date
 }
 
 export interface MinerRecord {
@@ -37,5 +38,6 @@ export interface MinerRecord {
   hashrate?: number
   lastSyncedAt: Date
   tags?: string[]
+  pool?: string
   raw: Device
 }

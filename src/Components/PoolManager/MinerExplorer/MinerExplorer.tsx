@@ -44,6 +44,7 @@ import { useListViewFilters } from '@/hooks/useListViewFilters'
 import useTimezone from '@/hooks/useTimezone'
 import { MinerRecord } from '@/Views/PoolManager/types'
 import { Alert } from 'antd'
+import { usePoolConfigs } from '../Pools/PoolManager.hooks'
 
 interface MinerExplorerProps {
   selectedDevices: MinerRecord[]
@@ -64,6 +65,12 @@ const getMinerTableColumns = (
     key: 'unit',
     title: 'Unit',
     sorter: (a: MinerRecord, b: MinerRecord) => (a.unit || '').localeCompare(b.unit || ''),
+  },
+  {
+    dataIndex: 'pool',
+    key: 'pool',
+    title: 'Current Pool',
+    sorter: (a: MinerRecord, b: MinerRecord) => (a.pool || '').localeCompare(b.pool || ''),
   },
   {
     dataIndex: 'status',
@@ -116,8 +123,6 @@ const minerStatusOptions = _map(_toPairs(MinerStatuses), ([label, value]) => ({
   label,
 }))
 
-// TODO: Add pool filter when API supports it
-
 export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelectionChange }) => {
   const { getFormattedDate } = useTimezone()
   const [filterTags, setFilterTags] = useState<string[]>([])
@@ -127,14 +132,23 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelec
   })
   const [modelFilter, setModelFilter] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
+  const [poolFilter, setPoolFilter] = useState<string | null>(null)
 
   const minerTableColumns = getMinerTableColumns(getFormattedDate)
+
+  const {
+    pools,
+    poolIdMap,
+    isLoading: isPoolDataLoading,
+    error: poolConfigLoadingError,
+  } = usePoolConfigs()
 
   const {
     data: siteData,
     isLoading: isSiteLoading,
     error: siteLoadingError,
   } = useGetSiteQuery(undefined)
+
   const site = _capitalize(_get(siteData, ['site']))
   const { onFiltersChange, filters } = useListViewFilters({
     selectedType: CROSS_THING_TYPES.MINER,
@@ -155,8 +169,12 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelec
       nextFilters.push(['last.snap.stats.status', statusFilter])
     }
 
+    if (!_isNil(poolFilter)) {
+      nextFilters.push(['info.poolConfig', poolFilter])
+    }
+
     onFiltersChange(nextFilters as unknown as Array<[string, string]>)
-  }, [modelFilter, onFiltersChange, statusFilter])
+  }, [modelFilter, onFiltersChange, statusFilter, poolFilter])
 
   const {
     data: minerListData,
@@ -184,20 +202,13 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelec
     _map(
       _head(minerListData as Device[][] | undefined) as Device[] | undefined,
       (device: Device) => {
-        const deviceData = getTableDeviceData(device) as {
-          id?: string
-          code?: string
-          tags?: string[]
-          stats?: { status?: string; hashrate_mhs?: { t_5m?: number } }
-          info?: { container?: string }
-          [key: string]: unknown
-        }
+        const deviceData = getTableDeviceData(device)
         const code = deviceData.code as string | undefined
         const tags = deviceData.tags as string[] | undefined
         const stats = deviceData.stats as
           | { status?: string; hashrate_mhs?: { t_5m?: number } }
           | undefined
-        const info = deviceData.info as { container?: string } | undefined
+        const info = deviceData.info
         const shortCode = getMinerShortCode(code, tags || [])
         const deviceId = deviceData.id as string
         const lastTs = device.last?.ts
@@ -209,10 +220,16 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelec
           hashrate: stats?.hashrate_mhs?.t_5m,
           lastSyncedAt: lastTs && _isNumber(lastTs) ? new Date(lastTs) : new Date(0),
           tags: tags || [],
+          pool: info?.poolConfig ? poolIdMap[info?.poolConfig].name : undefined,
           raw: device,
         }
       },
     ) || []
+
+  const poolFilterOptions = _map(pools, (pool) => ({
+    key: pool.id,
+    label: pool.name,
+  }))
 
   const setMinerSelection = (miner: MinerRecord, isSelected: boolean) => {
     if (!isSelected) {
@@ -242,8 +259,10 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelec
     onSelectionChange(_reject(mappedMiners.slice(sliceStart, sliceEnd), ['status', 'offline']))
   }
 
-  const isLoading = isSiteLoading || isMinerListDataLoading
-  const hasError = !_isEmpty(_compact([minerListLoadingError, siteLoadingError]))
+  const isLoading = isSiteLoading || isMinerListDataLoading || isPoolDataLoading
+  const hasError = !_isEmpty(
+    _compact([minerListLoadingError, siteLoadingError, poolConfigLoadingError]),
+  )
 
   const selectedRowKeys = _map(selectedDevices, 'id')
 
@@ -295,6 +314,24 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelec
                 onClear={() => setStatusFilter(null)}
               >
                 {_map(minerStatusOptions, (item: unknown) => {
+                  const itemTyped = item as { key: string; label: string }
+                  return (
+                    <Select.Option key={itemTyped.key} value={itemTyped.key}>
+                      {itemTyped.label}
+                    </Select.Option>
+                  )
+                })}
+              </FullWidthSelect>
+              <FullWidthSelect
+                placeholder="Current Pool"
+                value={poolFilter}
+                onSelect={(value: unknown) => {
+                  setPoolFilter(value as string | null)
+                }}
+                allowClear
+                onClear={() => setPoolFilter(null)}
+              >
+                {_map(poolFilterOptions, (item: unknown) => {
                   const itemTyped = item as { key: string; label: string }
                   return (
                     <Select.Option key={itemTyped.key} value={itemTyped.key}>
