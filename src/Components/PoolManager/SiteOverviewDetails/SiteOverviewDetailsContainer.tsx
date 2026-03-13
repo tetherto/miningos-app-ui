@@ -411,7 +411,6 @@ const SiteOverviewDetailsContainer = ({ unit }: SiteOverviewDetailsContainerProp
               <StickyConfigurationCol>
                 {selectedItems.size === 1 && (
                   <MinerInfoCard
-                    containerName="Acme"
                     minersHashmap={minersHashmap}
                     selectedItems={selectedItems}
                     poolIdMap={poolIdMap}

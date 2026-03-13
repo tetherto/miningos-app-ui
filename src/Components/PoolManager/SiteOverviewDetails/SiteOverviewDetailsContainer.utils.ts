@@ -44,7 +44,7 @@ export const getMinersPoolName = (miners?: Device[]) => {
 
 export const getMinerStatus = (miner?: {
   error?: string
-  snap?: { stats?: { status: string } }
+  snap?: { stats?: { status?: string } }
 }) => {
   if (!miner || miner.error === 'Device Not Found') {
     return SITE_OVERVIEW_STATUSES.EMPTY as keyof typeof SITE_OVERVIEW_STATUS_COLORS

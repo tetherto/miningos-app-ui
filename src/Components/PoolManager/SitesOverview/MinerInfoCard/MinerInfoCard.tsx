@@ -22,27 +22,22 @@ import { SITE_OVERVIEW_STATUS_COLORS } from '../../PoolManager.constants'
 import { useGetPoolForMinerQuery } from '@/app/services/api'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { Alert } from 'antd'
+import { getMinerName } from '@/app/utils/deviceUtils'
 
 export type MinerInfoCardProps = {
   selectedItems: Set<string>
   poolIdMap: Record<string, PoolSummary>
   minersHashmap: Record<string, MinerData>
-  containerName: string
 }
 
-export const MinerInfoCard = ({
-  selectedItems,
-  poolIdMap,
-  minersHashmap,
-  containerName,
-}: MinerInfoCardProps) => {
+export const MinerInfoCard = ({ selectedItems, poolIdMap, minersHashmap }: MinerInfoCardProps) => {
   const socket = selectedItems.size > 0 ? JSON.parse(Array.from(selectedItems)[0]) : undefined
   const { pduIndex, socketIndex } = socket ?? {}
 
   const miner = socket ? _get(minersHashmap, [`${pduIndex}_${socketIndex}`]) : undefined
   const pool = socket ? _get(poolIdMap, [_get(miner, ['info', 'poolConfig'])]) : undefined
   const endpoint = _get(pool, ['endpoints', '0', 'url'])
-
+  const minerName = socket && miner?.type ? getMinerName(miner?.type) : undefined
   const hashrate = miner?.hashrate.value
     ? `${miner?.hashrate.value} ${miner?.hashrate.unit}`
     : undefined
@@ -78,7 +73,7 @@ export const MinerInfoCard = ({
         <Title>Miner Info</Title>
         <SubTitle>
           <Pdu>
-            {containerName} {pduIndex}
+            {minerName} {pduIndex}
           </Pdu>
           <Socket>
             <SocketBadge color={SITE_OVERVIEW_STATUS_COLORS[getMinerStatus(miner)]} />

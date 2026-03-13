@@ -71,6 +71,7 @@ export interface MinerData {
   id: string
   hashrate: MinerHashrate
   error?: string
+  type?: string
   snap?: {
     config?: {
       power_mode: string
@@ -258,6 +259,7 @@ export const useSiteOverviewDetailsData = (unit?: UnitData): UseSiteOverviewDeta
           ...(miner || {}),
           id: (miner as Device)?.id || '',
           hashrate: formattedHashrate,
+          type,
           error,
           snap: (miner as Device)?.last?.snap as UnknownRecord,
         } as unknown as MinerData
