@@ -20,6 +20,7 @@ import {
   MAX_POOL_ENDPOINTS,
   POOL_CREDENTIAL_TEMPLATE_SUFFIX_TYPE_OPTIONS,
   POOL_ENDPOINT_INDEX_ROLES,
+  POOL_ENDPOINT_ROLES_LABELS,
   SHOW_CREDENTIAL_TEMPLATE,
   SHOW_POOL_VALIDATION,
 } from '../../PoolManager.constants'
@@ -210,7 +211,11 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
                     <EndpointWrapper key={index}>
                       <EndpointHeader>
                         <EndpointPointRole>
-                          {_get(POOL_ENDPOINT_INDEX_ROLES, index, 'FAILOVER')}
+                          {_get(
+                            POOL_ENDPOINT_ROLES_LABELS,
+                            _get(POOL_ENDPOINT_INDEX_ROLES, index, 'FAILOVER'),
+                            'FAILOVER',
+                          )}
                         </EndpointPointRole>
                         <Button
                           icon={<DeleteOutlined />}

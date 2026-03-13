@@ -14,6 +14,7 @@ import {
   POOL_CREDENTIAL_TEMPLATE_SUFFIX_TYPE_LABELS,
   POOL_ENDPOINT_INDEX_ROLES,
   POOL_ENDPOINT_ROLE_COLORS,
+  POOL_ENDPOINT_ROLES_LABELS,
   POOL_STATUS_INDICATOR_ENABLED,
   POOL_VALIDATION_STATUSES,
 } from '../../PoolManager.constants'
@@ -135,7 +136,6 @@ export const PoolCollapseItemBody = ({ pool }: PoolCollapseItemBodyProps) => {
   }
 
   const showAddEndpointButton = _size(pool.endpoints) < MAX_POOL_ENDPOINTS
-  // TODO: Disable add endpoint when 3 endpoints are present
   return (
     <>
       <BodyWrapper>
@@ -155,7 +155,13 @@ export const PoolCollapseItemBody = ({ pool }: PoolCollapseItemBodyProps) => {
               _map(pool.endpoints, (endpoint: PoolEndpoint, index: number) => (
                 <EndpointWrapper key={index}>
                   <EndpointRole>
-                    <EndpointRoleName>{_get(POOL_ENDPOINT_INDEX_ROLES, index)}</EndpointRoleName>
+                    <EndpointRoleName>
+                      {_get(
+                        POOL_ENDPOINT_ROLES_LABELS,
+                        _get(POOL_ENDPOINT_INDEX_ROLES, index, 'FAILOVER'),
+                        'FAILOVER',
+                      )}
+                    </EndpointRoleName>
                     {POOL_STATUS_INDICATOR_ENABLED && (
                       <StatusBlock
                         $color={_get(POOL_ENDPOINT_ROLE_COLORS, endpoint.role ?? 'PRIMARY')}
