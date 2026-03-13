@@ -43,6 +43,7 @@ import type { Device } from '@/hooks/hooks.types'
 import { useListViewFilters } from '@/hooks/useListViewFilters'
 import useTimezone from '@/hooks/useTimezone'
 import { MinerRecord } from '@/Views/PoolManager/types'
+import { Alert } from 'antd'
 
 interface MinerExplorerProps {
   selectedDevices: MinerRecord[]
@@ -250,6 +251,8 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelec
     <MinerExplorerWrapper>
       {isLoading ? (
         <Spinner />
+      ) : hasError ? (
+        <Alert type="error" message="Error loading data" />
       ) : (
         <>
           <Header>
