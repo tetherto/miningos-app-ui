@@ -92,8 +92,6 @@ interface AssignPoolModalProps {
   selectedDeviceIds: string[]
 }
 
-// TODO: Handle error on miners loading
-
 export const AssignPoolModal: FC<AssignPoolModalProps> = ({
   isOpen,
   onClose,

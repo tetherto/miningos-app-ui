@@ -4,6 +4,7 @@ import { FormikProvider, useFormik } from 'formik'
 import _pullAt from 'lodash/pullAt'
 import _map from 'lodash/map'
 import _get from 'lodash/get'
+import _size from 'lodash/size'
 import * as yup from 'yup'
 
 import {
@@ -16,6 +17,7 @@ import {
   StyledModal,
 } from '../../PoolManager.common.styles'
 import {
+  MAX_POOL_ENDPOINTS,
   POOL_CREDENTIAL_TEMPLATE_SUFFIX_TYPE_OPTIONS,
   POOL_ENDPOINT_INDEX_ROLES,
   SHOW_CREDENTIAL_TEMPLATE,
@@ -76,8 +78,6 @@ interface AddPoolModalProps {
 const { setAddPendingSubmissionAction } = actionsSlice.actions
 
 // TODO: Fix incorrect error shown after approval of action
-// TODO: Disable add endpoint when 3 endpoints are present
-
 export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
   const isLoading = false
   const dispatch = useDispatch()
@@ -172,6 +172,8 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
   const isPoolValidated = false
   const poolValidationColor = isPoolValidated ? COLOR.GREEN : COLOR.RED
 
+  const disableAddEndpointButton = _size(formik.values.endpoints) >= MAX_POOL_ENDPOINTS
+
   return (
     <StyledModal
       title={<ModalTitle>Add Endpoint</ModalTitle>}
@@ -199,7 +201,9 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
               <EndpointsSection>
                 <EndpointsSectionHeader>
                   <FormSectionHeader>ENDPOINTS CONFIGURATION</FormSectionHeader>
-                  <Button onClick={openAddEndpointModal}>Add Endpoint</Button>
+                  <Button onClick={openAddEndpointModal} disabled={disableAddEndpointButton}>
+                    Add Endpoint
+                  </Button>
                 </EndpointsSectionHeader>
                 <EndpointsWrapper>
                   {formik.values.endpoints.map((endpoint, index) => (

@@ -4,15 +4,16 @@ import _get from 'lodash/get'
 import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
 import _isNil from 'lodash/isNil'
+import _size from 'lodash/size'
 
 import { StatusBlock } from '../../PoolManager.common.styles'
 import {
   ADD_ENDPOINT_ENABLED,
   EDIT_ENDPOINT_ENABLED,
+  MAX_POOL_ENDPOINTS,
   POOL_CREDENTIAL_TEMPLATE_SUFFIX_TYPE_LABELS,
   POOL_ENDPOINT_INDEX_ROLES,
   POOL_ENDPOINT_ROLE_COLORS,
-  POOL_ENDPOINT_ROLES_LABELS,
   POOL_STATUS_INDICATOR_ENABLED,
   POOL_VALIDATION_STATUSES,
 } from '../../PoolManager.constants'
@@ -133,6 +134,7 @@ export const PoolCollapseItemBody = ({ pool }: PoolCollapseItemBodyProps) => {
     closeAddEndpointModal()
   }
 
+  const showAddEndpointButton = _size(pool.endpoints) < MAX_POOL_ENDPOINTS
   // TODO: Disable add endpoint when 3 endpoints are present
   return (
     <>
@@ -140,7 +142,7 @@ export const PoolCollapseItemBody = ({ pool }: PoolCollapseItemBodyProps) => {
         <Endpoints>
           <SectionHeader>
             <SectionHeaderTitle>Endpoints Configuration</SectionHeaderTitle>
-            {ADD_ENDPOINT_ENABLED && (
+            {ADD_ENDPOINT_ENABLED && showAddEndpointButton && (
               <Button type="link" onClick={() => openAddEndpointModal(undefined)}>
                 + Add Endpoint
               </Button>

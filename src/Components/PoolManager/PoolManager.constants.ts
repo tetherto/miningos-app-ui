@@ -138,3 +138,5 @@ export const ASSIGN_POOL_POPUP_ENABLED = true
 export const POOL_STATUS_INDICATOR_ENABLED = false
 export const SHOW_POOL_VALIDATION = false
 export const SHOW_CREDENTIAL_TEMPLATE = false
+
+export const MAX_POOL_ENDPOINTS = 3
