@@ -1,7 +1,12 @@
+import _fromPairs from 'lodash/fromPairs'
 import _head from 'lodash/head'
 import _map from 'lodash/map'
 
-import { useGetListThingsQuery, useGetTailLogQuery } from '@/app/services/api'
+import {
+  useGetContainerPoolStatsQuery,
+  useGetListThingsQuery,
+  useGetTailLogQuery,
+} from '@/app/services/api'
 import { megaToTera } from '@/app/utils/deviceUtils'
 import { formatValueUnit } from '@/app/utils/format'
 import { convertUnits, UNIT_LABELS } from '@/app/utils/numberUtils'
@@ -46,11 +51,17 @@ export interface ContainerUnit {
 export interface ProcessedContainerUnit extends ContainerUnit {
   hashrate: string
   status: typeof SITE_OVERVIEW_STATUSES.MINING | typeof SITE_OVERVIEW_STATUSES.OFFLINE
+  poolStats?: ContainerPoolStat
 }
 
 export interface UseSitesOverviewDataResult {
   units: ProcessedContainerUnit[]
   isLoading: boolean
+}
+
+export interface ContainerPoolStat {
+  container: string
+  overriddenConfig: number
 }
 
 /**
@@ -80,6 +91,9 @@ export const useSitesOverviewData = (): UseSitesOverviewDataResult => {
     limit: 1,
   })
 
+  const { data: containerPoolStats, isLoading: isContainerPoolStatsLoading } =
+    useGetContainerPoolStatsQuery({})
+
   // Process units data
   const unitsDataArray = Array.isArray(unitsData) ? unitsData : []
   const tailLogArray = (_head(minerTailLogData) as MinerTailLogItem[] | undefined) || []
@@ -107,17 +121,22 @@ export const useSitesOverviewData = (): UseSitesOverviewDataResult => {
     return formatValueUnit(hashRatePhs, UNITS.HASHRATE_PH_S)
   }
 
+  const containerPoolStatsMap = _fromPairs(
+    _map(containerPoolStats as ContainerPoolStat[], (stat) => [stat.container, stat]),
+  )
+
   // Process units with hash rate and status
   const units: ProcessedContainerUnit[] = _map(rawUnits, (unit: ContainerUnit) => ({
     ...unit,
     hashrate: getHashRate(unit),
+    poolStats: unit.info?.container ? containerPoolStatsMap[unit.info?.container] : undefined,
     status:
       unit.last?.snap?.stats?.status === CONTAINER_STATUS.RUNNING
         ? SITE_OVERVIEW_STATUSES.MINING
         : SITE_OVERVIEW_STATUSES.OFFLINE,
   }))
 
-  const isLoading = isMinerTailLogLoading || isUnitsDataLoading
+  const isLoading = isMinerTailLogLoading || isUnitsDataLoading || isContainerPoolStatsLoading
 
   return {
     units,

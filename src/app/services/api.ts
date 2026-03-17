@@ -218,12 +218,11 @@ export const api = createApi({
       },
     }),
 
-    getPoolStats: builder.query({
-      /**
-       * @returns {Array} { stats }
-       */
-      query: () => ({ url: 'pool-manager/stats', method: 'GET' }),
-      providesTags: ['PoolStats'],
+    getContainerPoolStats: builder.query({
+      query: () => ({
+        url: 'pools/stats/containers',
+        method: 'GET',
+      }),
       extraOptions: {
         maxRetries: 3,
       },
@@ -1189,6 +1188,6 @@ export const {
   useGetExportSettingsQuery,
   useImportSettingsMutation,
   useGetPoolConfigsQuery,
-  useGetPoolStatsQuery,
   useGetPoolForMinerQuery,
+  useGetContainerPoolStatsQuery,
 } = api
