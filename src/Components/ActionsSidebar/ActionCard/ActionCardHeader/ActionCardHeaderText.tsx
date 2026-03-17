@@ -197,7 +197,7 @@ const ActionCardHeaderText: FC<ActionCardHeaderTextProps> = ({ cardAction }) => 
       <HeaderTextComponent
         actionCardType={actionCardType}
         leftText={`${numMiners} ${pluralize('Miner', numMiners)} - Assign pools`}
-        rightText={`Assign Pool: ${poolName} to miners${deviceCodesString ? `: ${deviceCodesString}` : ''}`}
+        rightText={`Assign Pool ${poolName ? `: ${poolName}` : ''} to miners${deviceCodesString ? `: ${deviceCodesString}` : ''}`}
       />
     )
   }
