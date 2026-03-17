@@ -165,7 +165,7 @@ export const SitesOverviewStatusCardList = () => {
                       pool={getPoolConfigName(unit.info?.poolConfig) ?? '-'}
                       hashrate={unit.hashrate}
                       miners={unit.miners?.actualMiners ?? 0}
-                      overrides={0}
+                      overrides={unit.poolStats?.overriddenConfig ?? 0}
                       onClick={() => handleCardClick(unit.id ?? '')}
                       checked={_includes(selected, unit.id)}
                       onSelect={(e: CheckboxChangeEvent) => {

@@ -1,5 +1,6 @@
 import Checkbox from 'antd/es/checkbox'
 import type { CheckboxChangeEvent } from 'antd/es/checkbox'
+import _isNil from 'lodash/isNil'
 import type { FC, MouseEvent } from 'react'
 
 import {
@@ -12,6 +13,7 @@ import {
   Card,
   Header,
   InfoList,
+  InfoListItem,
   StatusBadge,
   UnitInfo,
   UnitName,
@@ -44,6 +46,7 @@ const SitesOverviewStatusCard: FC<SitesOverviewStatusCardProps> = ({
   checked,
   selectable = true,
   pool,
+  overrides,
 }) => (
   <Card onClick={onClick}>
     <Header>
@@ -68,15 +71,18 @@ const SitesOverviewStatusCard: FC<SitesOverviewStatusCardProps> = ({
     </Header>
 
     <InfoList>
-      <div>
+      <InfoListItem>
         Pool: <span>{pool}</span>
-      </div>
-      <div>
+      </InfoListItem>
+      <InfoListItem>
         Hashrate: <span>{hashrate}</span>
-      </div>
-      <div>
+      </InfoListItem>
+      <InfoListItem>
         Miners: <span>{miners}</span>
-      </div>
+      </InfoListItem>
+      <InfoListItem $primary={!_isNil(overrides) && overrides > 0}>
+        Overrides: <span>{overrides}</span>
+      </InfoListItem>
     </InfoList>
   </Card>
 )
