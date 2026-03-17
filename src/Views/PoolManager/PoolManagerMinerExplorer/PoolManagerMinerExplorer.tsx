@@ -58,7 +58,12 @@ export const PoolManagerMinerExplorer = () => {
       setAddPendingSubmissionAction({
         query: { id: { $in: selectedDeviceIds } },
         action: ACTION_TYPES.SETUP_POOLS,
-        params: [pool.id],
+        params: [
+          {
+            poolConfigId: pool.id,
+            configType: 'pool',
+          },
+        ],
         overrideQuery: false,
         codesList,
         poolName: pool.name,
