@@ -19,6 +19,7 @@ export const SitesOverviewRow = styled.div<StyledProps>`
   width: 100%;
   align-items: flex-start;
   margin-top: 40px;
+  gap: 16px;
 `
 
 export const SitesUnitCol = styled.div<StyledProps>`
