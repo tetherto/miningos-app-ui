@@ -2,6 +2,7 @@ import { CheckSquareFilled, CloseCircleOutlined, DeleteOutlined } from '@ant-des
 import Button from 'antd/es/button'
 import { FormikProvider, useFormik } from 'formik'
 import _get from 'lodash/get'
+import _isNil from 'lodash/isNil'
 import _map from 'lodash/map'
 import _pullAt from 'lodash/pullAt'
 import _size from 'lodash/size'
@@ -33,6 +34,7 @@ import {
   EndpointHeader,
   EndpointPointRole,
   EndpointsSection,
+  EndpointsSectionError,
   EndpointsSectionHeader,
   EndpointsWrapper,
   EndpointWrapper,
@@ -59,7 +61,7 @@ const validationSchema = yup.object({
   description: yup.string(),
   workerName: yup.string().required('Port is required'),
   workerPassword: yup.string().required('Region is required'),
-  endpoints: yup.array().required().min(1),
+  endpoints: yup.array().required().min(1, 'Atleast one endpoint is needed'),
 })
 
 interface FormValues {
@@ -149,6 +151,9 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
   const poolValidationColor = isPoolValidated ? COLOR.GREEN : COLOR.RED
 
   const disableAddEndpointButton = _size(formik.values.endpoints) >= MAX_POOL_ENDPOINTS
+  const endpointsError = formik.errors.endpoints
+  const showEndpointsError =
+    !_isNil(endpointsError) && formik.touched.endpoints && typeof endpointsError === 'string'
 
   return (
     <StyledModal
@@ -181,6 +186,9 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
                     Add Endpoint
                   </Button>
                 </EndpointsSectionHeader>
+                {showEndpointsError && (
+                  <EndpointsSectionError>{endpointsError}</EndpointsSectionError>
+                )}
                 <EndpointsWrapper>
                   {formik.values.endpoints.map((endpoint, index) => (
                     <EndpointWrapper key={index}>
