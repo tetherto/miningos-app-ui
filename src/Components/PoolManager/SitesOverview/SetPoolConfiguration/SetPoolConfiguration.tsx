@@ -102,10 +102,12 @@ export const SetPoolConfiguration = ({
                       </Option>
                     ))}
                   </Select>
-                  <InfoRow>
-                    <Text type="secondary">#Units: {currentPool?.units ?? 0}</Text>
-                    <Text type="secondary">#Miners: {currentPool?.miners ?? 0}</Text>
-                  </InfoRow>
+                  {!_isNil(selectedPoolId) && (
+                    <InfoRow>
+                      <Text type="secondary">#Units: {currentPool?.units ?? 0}</Text>
+                      <Text type="secondary">#Miners: {currentPool?.miners ?? 0}</Text>
+                    </InfoRow>
+                  )}
                 </Section>
 
                 {!_isNil(currentPool) && (

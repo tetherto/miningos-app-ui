@@ -207,15 +207,17 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
                       <FormSectionHeader>Choose pool group</FormSectionHeader>
                     </SectionHeader>
                     <FormikSelect name="pool" options={poolOptions} />
-                    <PoolMeta>
-                      <div>Units: {selectedPool?.units ?? 0}</div>
-                      <div>Miners: {selectedPool?.miners ?? 0}</div>
-                      {selectedPool && (
-                        <div>
-                          Last Updated: {intlFormatDistance(selectedPool?.updatedAt, new Date())}
-                        </div>
-                      )}
-                    </PoolMeta>
+                    {!_isNil(formik.values.pool) && (
+                      <PoolMeta>
+                        <div>Units: {selectedPool?.units ?? 0}</div>
+                        <div>Miners: {selectedPool?.miners ?? 0}</div>
+                        {selectedPool && (
+                          <div>
+                            Last Updated: {intlFormatDistance(selectedPool?.updatedAt, new Date())}
+                          </div>
+                        )}
+                      </PoolMeta>
+                    )}
                   </Section>
                   {!_isNil(selectedPool) && (
                     <Section>
