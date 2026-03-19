@@ -61,7 +61,7 @@ const validationSchema = yup.object({
   description: yup.string(),
   workerName: yup.string().required('Port is required'),
   workerPassword: yup.string().required('Region is required'),
-  endpoints: yup.array().required().min(1, 'Atleast one endpoint is needed'),
+  endpoints: yup.array().required().min(1, 'At least one endpoint is needed'),
 })
 
 interface FormValues {
