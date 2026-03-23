@@ -30,7 +30,7 @@ export const SiteTotalName = styled.p`
   font-size: 10px;
   font-weight: 400;
   line-heght: normal;
-  color: ${COLOR.DARK_GRAY};
+  color: ${COLOR.NEUTRAL_GRAY};
 `
 
 export const SiteTotalRight = styled.div`

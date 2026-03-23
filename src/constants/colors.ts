@@ -84,7 +84,7 @@ export const COLOR = {
   SOCKET_ON_GREEN: '#2C5B3C',
   LOW_YELLOW: '#F6EE5C',
   PURPLE_HIGH: '#8B5CF6',
-  DARK_GRAY: '#888888',
+  NEUTRAL_GRAY: '#888888',
 
   // Greys
   GRAY: '#424242',
