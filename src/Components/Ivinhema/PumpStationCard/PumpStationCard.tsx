@@ -14,7 +14,15 @@ const PumpStationCard = ({ label }: PumpStationCardProps) => (
     <PumpStationGrid>
       {_map(
         PUMP_STATION_DATA,
-        ({ pump_id, pump_name, pump_status, pump_speed, pump_voltage, speed_unit, voltage_unit }) => (
+        ({
+          pump_id,
+          pump_name,
+          pump_status,
+          pump_speed,
+          pump_voltage,
+          speed_unit,
+          voltage_unit,
+        }) => (
           <ContentPanel key={pump_id}>
             <EntityHeader
               id={pump_id}

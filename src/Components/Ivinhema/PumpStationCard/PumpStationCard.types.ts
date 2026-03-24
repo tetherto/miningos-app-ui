@@ -1,6 +1,7 @@
 import { PUMP_STATION_STATUS_LABELS } from './PumpStationCard.const'
 
-export type PumpStationStatus = (typeof PUMP_STATION_STATUS_LABELS)[keyof typeof PUMP_STATION_STATUS_LABELS]
+export type PumpStationStatus =
+  (typeof PUMP_STATION_STATUS_LABELS)[keyof typeof PUMP_STATION_STATUS_LABELS]
 
 export type PumpStationCardProps = {
   label: string
