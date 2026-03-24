@@ -60,7 +60,9 @@ const ContainerOnlineCard: FC<ContainerOnlineCardProps> = ({ data }) => {
           icon={<Power />}
           text={
             <DeviceCardColText>
-              {_isNumber(stats?.power_w) ? formatValueUnit(unitToKilo(stats.power_w), UNITS.POWER_KW) : '-'}
+              {_isNumber(stats?.power_w)
+                ? formatValueUnit(unitToKilo(stats.power_w), UNITS.POWER_KW)
+                : '-'}
             </DeviceCardColText>
           }
         />
