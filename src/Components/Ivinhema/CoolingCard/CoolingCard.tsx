@@ -12,7 +12,7 @@ import {
 } from './CoolingCard.styles'
 
 import { formatNumber } from '@/app/utils/format'
-import DataCard from '@/Components/Ivanhema/DataCard/DataCard'
+import DataCard from '@/Components/Ivinhema/DataCard/DataCard'
 
 const CoolingCard = () => (
   <>

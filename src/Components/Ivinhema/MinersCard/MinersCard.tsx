@@ -2,7 +2,7 @@ import _map from 'lodash/map'
 
 import { MINERS_CARD_DATA } from './MinersCard.const'
 
-import DataCard from '@/Components/Ivanhema/DataCard/DataCard'
+import DataCard from '@/Components/Ivinhema/DataCard/DataCard'
 
 const minersData = _map(MINERS_CARD_DATA, ({ rack, power_w, unit, children }) => ({
   unit,
