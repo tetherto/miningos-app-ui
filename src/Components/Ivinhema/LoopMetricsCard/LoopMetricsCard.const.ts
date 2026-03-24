@@ -1,6 +1,13 @@
 import { UNITS } from '@/constants/units'
 
-export const LOOP_METRICS_DATA = [
+type LoopMetricsDataItem = {
+  value: number
+  info: string
+  title: string
+  unit: string
+}
+
+export const LOOP_METRICS_DATA: LoopMetricsDataItem[] = [
   {
     value: 29.1,
     info: 'From tower',

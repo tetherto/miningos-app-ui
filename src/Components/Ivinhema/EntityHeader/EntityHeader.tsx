@@ -22,7 +22,10 @@ const EntityHeader = ({ id, name, status, statusColor }: EntityHeaderProps) => (
       <EntityHeaderName>{name}</EntityHeaderName>
     </EntityHeaderLeft>
     {status && (
-      <EntityHeaderStatus $color={statusColor || ''} $bgColor={hexToOpacity(statusColor || '', 0.15)}>
+      <EntityHeaderStatus
+        $color={statusColor || ''}
+        $bgColor={hexToOpacity(statusColor || '', 0.15)}
+      >
         {status}
       </EntityHeaderStatus>
     )}
