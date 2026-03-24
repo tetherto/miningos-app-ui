@@ -155,6 +155,7 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
   const showEndpointsError =
     !_isNil(endpointsError) && formik.touched.endpoints && typeof endpointsError === 'string'
 
+  // TODO: Remove worker name and password
   return (
     <StyledModal
       title={<ModalTitle>Add Pool</ModalTitle>}
@@ -170,9 +171,9 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
         <FormikProvider value={formik}>
           <form onSubmit={formik.handleSubmit}>
             <ModalBody>
-              <FormSectionHeader>GROUP INFO</FormSectionHeader>
+              <FormSectionHeader>POOL INFO</FormSectionHeader>
               <FormField>
-                <FieldLabel>Group Name</FieldLabel>
+                <FieldLabel>Pool Name</FieldLabel>
                 <FormikInput name="groupName" />
               </FormField>
               <FormField>

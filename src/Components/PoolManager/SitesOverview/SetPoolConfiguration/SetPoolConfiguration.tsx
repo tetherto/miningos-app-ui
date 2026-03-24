@@ -150,7 +150,7 @@ export const SetPoolConfiguration = ({
       </Container>
       <ButtonContainer>
         <StyledButton block disabled={isLoading} onClick={handleAssign}>
-          Assign Configuration
+          Assign Pool
         </StyledButton>
       </ButtonContainer>
     </Wrapper>
