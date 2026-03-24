@@ -11,6 +11,7 @@ import Power from '../../MinerCard/Icons/Power'
 import { TemperatureIndicator } from '../../MinerCard/Icons/TemperatureIndicator'
 
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
+import { UNITS } from '@/constants/units'
 
 interface ContainerOnlineCardProps {
   data?: UnknownRecord
@@ -59,7 +60,7 @@ const ContainerOnlineCard: FC<ContainerOnlineCardProps> = ({ data }) => {
           icon={<Power />}
           text={
             <DeviceCardColText>
-              {_isNumber(stats?.power_w) ? formatValueUnit(unitToKilo(stats.power_w), 'kW') : '-'}
+              {_isNumber(stats?.power_w) ? formatValueUnit(unitToKilo(stats.power_w), UNITS.POWER_KW) : '-'}
             </DeviceCardColText>
           }
         />
