@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { getContainerSettingsModel } from '../containerUtils/index'
+import { getContainerSettingsModel } from '../containerUtils'
 
 import {
   COMPLETE_CONTAINER_TYPE,
