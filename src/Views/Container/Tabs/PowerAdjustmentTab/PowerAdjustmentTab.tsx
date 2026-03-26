@@ -16,7 +16,6 @@ import { ControlsSection, PowerAdjustmentTabContainer } from './PowerAdjustmentT
 import { PowerControlsPanel, type SelectedSocket } from './PowerControlsPanel'
 
 import { actionsSlice, selectPendingSubmissions } from '@/app/slices/actionsSlice'
-import type { RootState } from '@/app/store'
 import { getConnectedMinerForSocket, getContainerPduData } from '@/app/utils/containerUtils'
 import { appendIdToTag } from '@/app/utils/deviceUtils'
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
@@ -40,7 +39,6 @@ const { setAddPendingSubmissionAction } = actionsSlice.actions
 
 const PowerAdjustmentTab = ({ data }: PowerAdjustmentTabProps) => {
   const dispatch = useDispatch()
-  const isPduLayout = useSelector((state: RootState) => state.pdu.isPduLayout)
   const pendingSubmissions = useSelector(selectPendingSubmissions)
   const printLayoutRef = useRef<HTMLDivElement | null>(null)
 
@@ -49,7 +47,7 @@ const PowerAdjustmentTab = ({ data }: PowerAdjustmentTabProps) => {
   const { last, connectedMiners, type, info } = data || {}
   const { updateExistedActions } = useUpdateExistedActions()
 
-  const pdus = getContainerPduData(type || '', last ?? {}, isPduLayout) as
+  const pdus = getContainerPduData(type || '', last ?? {}) as
     | import('@/app/utils/containerUtils/containerPdu').PduData[]
     | undefined
 
