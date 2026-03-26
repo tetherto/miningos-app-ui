@@ -152,6 +152,7 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
   const showEndpointsError =
     !_isNil(endpointsError) && formik.touched.endpoints && typeof endpointsError === 'string'
 
+  // TODO: Remove worker name and password
   return (
     <StyledModal
       title={<ModalTitle>Add Pool</ModalTitle>}

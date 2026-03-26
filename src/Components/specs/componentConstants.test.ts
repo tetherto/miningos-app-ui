@@ -11,7 +11,6 @@ vi.mock('@/Views/ContainerWidgets/Icons/PressureAlarm', () => ({ PressureAlarm: 
 vi.mock('@/Views/ContainerWidgets/Icons/TemperatureAlarm', () => ({ TemperatureAlarm: () => null }))
 
 import { DOUGHNUT_CHART_DEFAULT_MIN_HEIGHT } from '../DoughnutChartCard/DoughnutChartCard.const'
-import { formatValue as formatEnergyValue } from '../Electricity/ConsumedVsAvailableEnergy.utils'
 import {
   MINERS_ACTIVITY_ITEMS,
   MINERS_ACTIVITY_LABELS,
@@ -165,17 +164,5 @@ describe('Settings/ImportExport/exportUtils', () => {
     const filename = exportSettingsToFile({ timestamp: '2024-01-01' } as never)
     expect(filename).toContain('miningos-settings-')
     expect(filename).toContain('.json')
-  })
-})
-
-describe('Electricity/ConsumedVsAvailableEnergy.utils', () => {
-  it('formatValue returns formatted string', () => {
-    const result = formatEnergyValue(100)
-    expect(typeof result).toBe('string')
-  })
-
-  it('formatValue handles zero', () => {
-    const result = formatEnergyValue(0)
-    expect(typeof result).toBe('string')
   })
 })

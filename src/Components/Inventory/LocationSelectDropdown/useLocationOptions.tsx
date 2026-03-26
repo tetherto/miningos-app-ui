@@ -29,10 +29,7 @@ const useLocationOptions = ({
     const firstItem = _isArray(head) ? _head(head as unknown[] | undefined) : head
     if (!firstItem || !_isObject(firstItem)) return []
 
-    const config = (firstItem as Record<string, unknown>).config
-    if (!config || !_isObject(config)) return []
-
-    const siteMovements = (config as Record<string, unknown>).siteMovements
+    const siteMovements = (firstItem as Record<string, unknown>).siteMovements
     if (!siteMovements || !_isObject(siteMovements)) return []
 
     const majorLocationData = (siteMovements as Record<string, unknown>)[majorLocation]
