@@ -59,8 +59,7 @@ import { PoolEndpoint } from '@/Views/PoolManager/types'
 const validationSchema = yup.object({
   groupName: yup.string().required('Name is required'),
   description: yup.string(),
-  workerName: yup.string().required('Port is required'),
-  workerPassword: yup.string().required('Region is required'),
+  workerName: yup.string().required('Pool Username is required'),
   endpoints: yup.array().required().min(1, 'At least one endpoint is needed'),
 })
 
@@ -68,7 +67,6 @@ interface FormValues {
   groupName: string
   description: string
   workerName: string
-  workerPassword: string
   suffixType: string | null
   endpoints: PoolEndpoint[]
 }
@@ -89,13 +87,12 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
       groupName: '',
       description: '',
       workerName: '',
-      workerPassword: '',
       suffixType: null,
       endpoints: [],
     },
     validationSchema,
     onSubmit: async (values) => {
-      const { groupName, description, workerName, workerPassword, endpoints } = values
+      const { groupName, description, workerName, endpoints } = values
 
       dispatch(
         setAddPendingSubmissionAction({
@@ -112,7 +109,7 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
                   return {
                     url: `stratum+tcp://${host}:${port}`,
                     workerName,
-                    workerPassword,
+                    workerPassword: '.',
                     pool,
                   }
                 }),
@@ -155,7 +152,6 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
   const showEndpointsError =
     !_isNil(endpointsError) && formik.touched.endpoints && typeof endpointsError === 'string'
 
-  // TODO: Remove worker name and password
   return (
     <StyledModal
       title={<ModalTitle>Add Pool</ModalTitle>}
@@ -222,12 +218,8 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
               </EndpointsSection>
               <FormSectionHeader>CREDENTIALS TEMPLATE</FormSectionHeader>
               <FormField>
-                <FieldLabel>Worker Name</FieldLabel>
+                <FieldLabel>Pool Username</FieldLabel>
                 <FormikInput name="workerName" />
-              </FormField>
-              <FormField>
-                <FieldLabel>Worker Password</FieldLabel>
-                <FormikInput name="workerPassword" />
               </FormField>
               {SHOW_CREDENTIAL_TEMPLATE && (
                 <FormField>
