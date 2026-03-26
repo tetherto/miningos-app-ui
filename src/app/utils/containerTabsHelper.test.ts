@@ -17,6 +17,9 @@ vi.mock('@/Views/Container/Tabs/BitMainImmersion/ControlsTab/ControlsTab', () =>
 vi.mock('@/Views/Container/Tabs/SettingsTab/SettingsTab', () => ({ SettingsTab: () => null }))
 vi.mock('@/Views/Container/Tabs/ChartsTab/ChartsTab', () => ({ ChartsTab: () => null }))
 vi.mock('@/Views/Container/Tabs/HeatmapTab/HeatmapTab', () => ({ HeatmapTab: () => null }))
+vi.mock('@/Views/Container/Tabs/PowerAdjustmentTab/PowerAdjustmentTab', () => ({
+  PowerAdjustmentTab: () => null,
+}))
 
 import { getAllContainerTabs, getSupportedTabs } from './containerTabsHelper'
 
@@ -27,9 +30,9 @@ const MICROBT_TYPE = 'container-mbt-wm30s' // isMicroBT
 const UNKNOWN_TYPE = 'container-unknown-xyz'
 
 describe('getAllContainerTabs', () => {
-  it('returns all 8 tab configurations', () => {
+  it('returns all 9 tab configurations', () => {
     const tabs = getAllContainerTabs()
-    expect(Object.keys(tabs)).toHaveLength(8)
+    expect(Object.keys(tabs)).toHaveLength(9)
     expect(tabs).toHaveProperty('HOME')
     expect(tabs).toHaveProperty('PDU')
     expect(tabs).toHaveProperty('PARAMETERS')
@@ -38,6 +41,7 @@ describe('getAllContainerTabs', () => {
     expect(tabs).toHaveProperty('SETTINGS')
     expect(tabs).toHaveProperty('CHARTS')
     expect(tabs).toHaveProperty('HEATMAP')
+    expect(tabs).toHaveProperty('POWER_ADJUSTMENT')
   })
 
   it('each tab has key, label, and children', () => {
@@ -102,12 +106,13 @@ describe('getSupportedTabs', () => {
   })
 
   describe('MicroBT container', () => {
-    it('returns 5 tabs: HOME, PDU, SETTINGS, CHARTS, HEATMAP', () => {
+    it('returns 6 tabs: HOME, PDU, POWER_ADJUSTMENT, SETTINGS, CHARTS, HEATMAP', () => {
       const tabs = getSupportedTabs(MICROBT_TYPE)
       const keys = tabs.map((t) => t.key)
-      expect(keys).toHaveLength(5)
+      expect(keys).toHaveLength(6)
       expect(keys).toContain('home')
       expect(keys).toContain('pdu')
+      expect(keys).toContain('power-adjustment')
       expect(keys).toContain('settings')
       expect(keys).toContain('charts')
       expect(keys).toContain('heatmap')
