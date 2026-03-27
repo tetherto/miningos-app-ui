@@ -5,6 +5,8 @@ import styled from 'styled-components'
 import { flexColumn, flexRow } from '@/app/mixins'
 import { COLOR } from '@/constants/colors'
 
+const BUTTON_BORDER_RADIUS = '6px'
+
 export const PanelContainer = styled.div`
   ${flexColumn};
   background: ${COLOR.EBONY};
@@ -88,13 +90,13 @@ export const PercentageButton = styled(Button)<{ $isActive?: boolean }>`
   color: ${({ $isActive }) => ($isActive ? COLOR.BLACK : COLOR.WHITE)};
 
   &:first-child {
-    border-top-left-radius: 6px;
-    border-bottom-left-radius: 6px;
+    border-top-left-radius: ${BUTTON_BORDER_RADIUS};
+    border-bottom-left-radius: ${BUTTON_BORDER_RADIUS};
   }
 
   &:last-child {
-    border-top-right-radius: 6px;
-    border-bottom-right-radius: 6px;
+    border-top-right-radius: ${BUTTON_BORDER_RADIUS};
+    border-bottom-right-radius: ${BUTTON_BORDER_RADIUS};
   }
 
   &:hover {
