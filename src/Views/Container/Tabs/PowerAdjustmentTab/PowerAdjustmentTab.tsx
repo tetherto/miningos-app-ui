@@ -17,6 +17,7 @@ import { PowerControlsPanel, type SelectedSocket } from './PowerControlsPanel'
 
 import { actionsSlice, selectPendingSubmissions } from '@/app/slices/actionsSlice'
 import { getConnectedMinerForSocket, getContainerPduData } from '@/app/utils/containerUtils'
+import type { PduData } from '@/app/utils/containerUtils/containerPdu'
 import { appendIdToTag } from '@/app/utils/deviceUtils'
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
 import { notifyInfo } from '@/app/utils/NotificationService'
@@ -26,13 +27,15 @@ import { CROSS_THING_TYPES } from '@/constants/devices'
 import { useUpdateExistedActions } from '@/hooks/useUpdateExistedActions'
 import type { Device } from '@/types'
 
+interface PowerAdjustmentData {
+  last: UnknownRecord
+  connectedMiners: UnknownRecord[]
+  type: string
+  info: UnknownRecord
+}
+
 interface PowerAdjustmentTabProps {
-  data?: {
-    last?: UnknownRecord
-    connectedMiners?: UnknownRecord[]
-    type?: string
-    info?: UnknownRecord
-  }
+  data?: Partial<PowerAdjustmentData>
 }
 
 const { setAddPendingSubmissionAction } = actionsSlice.actions
@@ -47,9 +50,7 @@ const PowerAdjustmentTab = ({ data }: PowerAdjustmentTabProps) => {
   const { last, connectedMiners, type, info } = data || {}
   const { updateExistedActions } = useUpdateExistedActions()
 
-  const pdus = getContainerPduData(type || '', last ?? {}) as
-    | import('@/app/utils/containerUtils/containerPdu').PduData[]
-    | undefined
+  const pdus = getContainerPduData(type || '', last ?? {}) as PduData[] | undefined
 
   const handleSelectAll = () => {
     const allSockets = new Set<string>()
