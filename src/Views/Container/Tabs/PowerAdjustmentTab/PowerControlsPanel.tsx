@@ -60,8 +60,8 @@ const powerPercentageSchema = yup.object({
   powerPercentage: yup
     .number()
     .nullable()
-    .min(MIN_POWER_PERCENTAGE, `Minimum is ${MIN_POWER_PERCENTAGE}%`)
-    .max(MAX_POWER_PERCENTAGE, `Maximum is ${MAX_POWER_PERCENTAGE}%`)
+    .min(MIN_POWER_PERCENTAGE, `Minimum is ${MIN_POWER_PERCENTAGE}${UNITS.PERCENT}`)
+    .max(MAX_POWER_PERCENTAGE, `Maximum is ${MAX_POWER_PERCENTAGE}${UNITS.PERCENT}`)
     .required('Power percentage is required'),
 })
 
