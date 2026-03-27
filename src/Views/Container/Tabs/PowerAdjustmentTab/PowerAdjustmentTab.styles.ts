@@ -4,7 +4,7 @@ import { flexColumn, flexRow } from '@/app/mixins'
 
 export const PowerAdjustmentTabContainer = styled.div`
   ${flexRow};
-  overflow-x: auto !important;
+  overflow-x: auto;
 
   @media (min-width: 992px) {
     gap: 10px;
