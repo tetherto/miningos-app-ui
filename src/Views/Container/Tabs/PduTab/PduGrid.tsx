@@ -8,8 +8,7 @@ import _min from 'lodash/minBy'
 import _noop from 'lodash/noop'
 import _split from 'lodash/split'
 import _values from 'lodash/values'
-import * as React from 'react'
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { type ReactNode, useEffect, useState, useRef, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import Selecto from 'react-selecto'
 
@@ -50,7 +49,7 @@ interface PduGridProps {
   mobileSelectionEnabled?: boolean
   detailsLoading?: boolean
   onRangesChange?: (ranges: Record<string, { min?: number; max?: number }>) => void
-  additionalToolbarControls?: React.ReactNode
+  additionalToolbarControls?: ReactNode
 }
 
 const PduGrid = ({

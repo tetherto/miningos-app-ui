@@ -6,7 +6,7 @@ import _head from 'lodash/head'
 import _isNil from 'lodash/isNil'
 import _map from 'lodash/map'
 import _noop from 'lodash/noop'
-import React, { useEffect, useRef, useState, type MouseEvent } from 'react'
+import React, { type ReactNode, useEffect, useRef, useState, type MouseEvent } from 'react'
 import InfiniteViewer from 'react-infinite-viewer'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -67,7 +67,7 @@ interface PduGridUnitProps {
   getSelectableName?: (pdu: string | number, socket: string | number) => string
   ranges?: UnknownRecord
   detailsLoading?: boolean
-  additionalToolbarControls?: React.ReactNode
+  additionalToolbarControls?: ReactNode
 }
 
 const LAYOUT_RESET_DELAY_MS = 250
