@@ -116,9 +116,6 @@ export const ApplyButton = styled(Button)`
   margin-top: 8px;
 
   &:hover {
-    background: ${COLOR.COLD_ORANGE};
-    border-color: ${COLOR.COLD_ORANGE};
-    color: ${COLOR.BLACK};
     opacity: 0.9;
   }
 
