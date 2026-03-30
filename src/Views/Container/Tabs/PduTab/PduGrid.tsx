@@ -50,6 +50,7 @@ interface PduGridProps {
   detailsLoading?: boolean
   onRangesChange?: (ranges: Record<string, { min?: number; max?: number }>) => void
   additionalToolbarControls?: ReactNode
+  isSocketSelectable?: (miner: UnknownRecord | undefined) => boolean
 }
 
 const PduGrid = ({
@@ -69,6 +70,7 @@ const PduGrid = ({
   detailsLoading,
   onRangesChange,
   additionalToolbarControls,
+  isSocketSelectable,
 }: PduGridProps) => {
   const selectablesContainerRef = useRef<HTMLElement | null>(null)
   const [showSelecto, setShowSelecto] = useState<boolean>(false)
@@ -293,14 +295,21 @@ const PduGrid = ({
       }
 
       const shouldFilterByMiner = (addedElements?.length ?? 0) > 1
-      const filteredAddedElements = shouldFilterByMiner
-        ? _filter(addedElements, (socketElement) => {
-            const { dataset } = socketElement as unknown as {
-              dataset: { pduIndex?: string; socketIndex?: string }
-            }
-            return hasConnectedMiner(dataset.pduIndex, dataset.socketIndex)
-          })
-        : addedElements
+      const filteredAddedElements = _filter(addedElements, (socketElement) => {
+        const { dataset } = socketElement as unknown as {
+          dataset: { pduIndex?: string; socketIndex?: string }
+        }
+        if (isSocketSelectable) {
+          const miner = minersHashmap?.[`${dataset.pduIndex}_${dataset.socketIndex}`] as
+            | UnknownRecord
+            | undefined
+          if (!isSocketSelectable(miner)) return false
+        }
+        if (shouldFilterByMiner) {
+          return hasConnectedMiner(dataset.pduIndex, dataset.socketIndex)
+        }
+        return true
+      })
 
       _forEach(filteredAddedElements, (socketElement: HTMLElement) => {
         const { dataset } = socketElement as unknown as {
@@ -381,6 +390,7 @@ const PduGrid = ({
             ranges={ranges}
             detailsLoading={detailsLoading}
             additionalToolbarControls={additionalToolbarControls}
+            isSocketSelectable={isSocketSelectable}
           />
         ))}
       </SectionsList>
