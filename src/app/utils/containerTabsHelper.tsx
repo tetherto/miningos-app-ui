@@ -5,6 +5,7 @@ import {
   isAntspaceImmersion,
   isBitdeer,
   isMicroBT,
+  isWhatsminerContainer,
 } from '@/app/utils/containerUtils'
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
 import { LazyTabWrapper } from '@/Components/LazyTabWrapper/LazyTabWrapper'
@@ -127,27 +128,18 @@ export const getAllContainerTabs = (data?: UnknownRecord): AllContainerTabs => {
 export const getSupportedTabs = (type: string, data?: UnknownRecord): TabConfig[] => {
   const availableTabs = getAllContainerTabs(data)
 
+  let tabs: TabConfig[] = []
+
   if (isBitdeer(type)) {
-    return [
+    tabs = [
       availableTabs.HOME,
       availableTabs.PDU,
       availableTabs.SETTINGS,
       availableTabs.CHARTS,
       availableTabs.HEATMAP,
     ]
-  }
-  if (isAntspaceHydro(type)) {
-    return [
-      availableTabs.HOME,
-      availableTabs.PDU,
-      availableTabs.ALARM,
-      availableTabs.SETTINGS,
-      availableTabs.CHARTS,
-      availableTabs.HEATMAP,
-    ]
-  }
-  if (isAntspaceImmersion(type)) {
-    return [
+  } else if (isAntspaceHydro(type)) {
+    tabs = [
       availableTabs.HOME,
       availableTabs.PDU,
       availableTabs.ALARM,
@@ -155,16 +147,29 @@ export const getSupportedTabs = (type: string, data?: UnknownRecord): TabConfig[
       availableTabs.CHARTS,
       availableTabs.HEATMAP,
     ]
-  }
-  if (isMicroBT(type)) {
-    return [
+  } else if (isAntspaceImmersion(type)) {
+    tabs = [
       availableTabs.HOME,
       availableTabs.PDU,
-      availableTabs.POWER_ADJUSTMENT,
+      availableTabs.ALARM,
+      availableTabs.SETTINGS,
+      availableTabs.CHARTS,
+      availableTabs.HEATMAP,
+    ]
+  } else if (isMicroBT(type)) {
+    tabs = [
+      availableTabs.HOME,
+      availableTabs.PDU,
       availableTabs.SETTINGS,
       availableTabs.CHARTS,
       availableTabs.HEATMAP,
     ]
   }
-  return []
+
+  if (isWhatsminerContainer(type)) {
+    const pduIndex = tabs.findIndex((t) => t.key === 'pdu')
+    tabs.splice(pduIndex + 1, 0, availableTabs.POWER_ADJUSTMENT)
+  }
+
+  return tabs
 }
