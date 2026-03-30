@@ -18,7 +18,7 @@ import { PowerControlsPanel, type SelectedSocket } from './PowerControlsPanel'
 import { actionsSlice, selectPendingSubmissions } from '@/app/slices/actionsSlice'
 import { getConnectedMinerForSocket, getContainerPduData } from '@/app/utils/containerUtils'
 import type { PduData } from '@/app/utils/containerUtils/containerPdu'
-import { appendIdToTag } from '@/app/utils/deviceUtils'
+import { appendIdToTag, isWhatsminer } from '@/app/utils/deviceUtils'
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
 import { notifyInfo } from '@/app/utils/NotificationService'
 import { SocketSelectionContainer } from '@/Components/Container/Socket/Socket.styles'
@@ -27,18 +27,24 @@ import { CROSS_THING_TYPES } from '@/constants/devices'
 import { useUpdateExistedActions } from '@/hooks/useUpdateExistedActions'
 import type { Device } from '@/types'
 
-interface PowerAdjustmentData {
-  last: UnknownRecord
-  connectedMiners: UnknownRecord[]
-  type: string
-  info: UnknownRecord
+interface ContainerInfo {
+  container?: string
+  [key: string]: unknown
 }
 
 interface PowerAdjustmentTabProps {
-  data?: Partial<PowerAdjustmentData>
+  data?: {
+    last?: Record<string, unknown>
+    connectedMiners?: Device[]
+    type?: string
+    info?: ContainerInfo
+  }
 }
 
 const { setAddPendingSubmissionAction } = actionsSlice.actions
+
+const isWhatsminerSocket = (miner: UnknownRecord | undefined): boolean =>
+  !!miner && isWhatsminer(miner.type as string)
 
 const PowerAdjustmentTab = ({ data }: PowerAdjustmentTabProps) => {
   const dispatch = useDispatch()
@@ -56,11 +62,13 @@ const PowerAdjustmentTab = ({ data }: PowerAdjustmentTabProps) => {
     const allSockets = new Set<string>()
     _forEach(pdus, (pdu) => {
       _forEach(pdu.sockets, (socket) => {
-        const name = getSelectableName(
+        const miner = getConnectedMinerForSocket(
+          connectedMiners || [],
           String(pdu.pdu),
-          String((socket as { socket: string }).socket),
-        )
-        allSockets.add(name)
+          String(socket.socket),
+        ) as Device | undefined
+        if (!miner || !isWhatsminer(miner.type)) return
+        allSockets.add(getSelectableName(String(pdu.pdu), String(socket.socket)))
       })
     })
     setSelectedItems(allSockets)
@@ -71,37 +79,26 @@ const PowerAdjustmentTab = ({ data }: PowerAdjustmentTabProps) => {
   }
 
   const handleApply = (percentage: number, selectedSockets: SelectedSocket[]) => {
-    // Map selected sockets to their connected miners
     const miners = _compact(
-      _map(selectedSockets, (socket) => {
-        const miner = getConnectedMinerForSocket(
-          (connectedMiners || []) as Device[],
-          socket.pduIndex,
-          socket.socketIndex,
-        )
-        return miner as Device | undefined
-      }),
-    )
+      _map(selectedSockets, (socket) =>
+        getConnectedMinerForSocket(connectedMiners || [], socket.pduIndex, socket.socketIndex),
+      ),
+    ) as Device[]
 
     if (_isEmpty(miners)) {
       notifyInfo('No actions added', 'No miners found for selected sockets')
       return
     }
 
-    // Get miner tags and container info
     const minerTags = _map(miners, (miner) => appendIdToTag(miner.id))
-    const containerNames = _uniq(
-      _compact(_map(miners, (miner) => miner?.info?.container as string | undefined)),
-    )
+    const containerNames = _uniq(_compact(_map(miners, (miner) => miner.info?.container)))
 
-    // Update existing actions if any
     updateExistedActions({
       actionType: ACTION_TYPES.SET_POWER_PCT,
       pendingSubmissions: pendingSubmissions as [],
       selectedDevices: miners,
     })
 
-    // Dispatch the action - params is percentage as string
     dispatch(
       setAddPendingSubmissionAction({
         type: 'voting',
@@ -145,6 +142,7 @@ const PowerAdjustmentTab = ({ data }: PowerAdjustmentTabProps) => {
           mobileSelectionEnabled={false}
           detailsLoading={false}
           additionalToolbarControls={additionalToolbarControls}
+          isSocketSelectable={isWhatsminerSocket}
         />
         <SocketsLegendsList />
       </SocketSelectionContainer>

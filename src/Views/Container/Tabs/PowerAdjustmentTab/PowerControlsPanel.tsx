@@ -35,20 +35,25 @@ import {
   SummaryTitle,
 } from './PowerControlsPanel.styles'
 
-import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
 import { NoMinersSelectedContainer } from '@/Components/Explorer/DetailsView/DetailsView.styles'
 import NoDataSelected from '@/Components/Explorer/DetailsView/NoDataSelected/NoDataSelected'
 import { UNITS } from '@/constants/units'
+import type { Device } from '@/types'
 
 interface SelectedSocket {
   pduIndex: string
   socketIndex: string
 }
 
+interface ContainerInfo {
+  container?: string
+  [key: string]: unknown
+}
+
 interface PowerControlsPanelProps {
   selectedItems: Set<string>
-  connectedMiners?: UnknownRecord[]
-  containerInfo?: UnknownRecord
+  connectedMiners?: Device[]
+  containerInfo?: ContainerInfo
   onApply: (percentage: number, selectedSockets: SelectedSocket[]) => void
 }
 
@@ -120,14 +125,12 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
   const getSocketsByRack = (): Record<string, SelectedSocket[]> =>
     _groupBy(selectedSockets, 'pduIndex')
 
-  // Get model name from first connected miner
   const getModelName = (): string => {
     if (!connectedMiners || _isEmpty(connectedMiners)) {
       return 'Whatsminer'
     }
-    const firstMiner = _head(connectedMiners) as UnknownRecord | undefined
-    const type = firstMiner?.type as string | undefined
-    return type || 'Whatsminer'
+    const firstMiner = _head(connectedMiners)
+    return firstMiner?.type || 'Whatsminer'
   }
 
   const handlePercentageChange = (value: number | string | null) => {
@@ -143,7 +146,7 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
 
   const selectedRacks = getSelectedRacks()
   const socketsByRack = getSocketsByRack()
-  const containerName = (containerInfo?.container as string) || 'Container'
+  const containerName = containerInfo?.container || 'Container'
 
   const isApplyDisabled =
     formik.values.powerPercentage === null || !formik.isValid || formik.isSubmitting
