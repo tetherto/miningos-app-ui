@@ -1,6 +1,8 @@
 import { head as _head, isBoolean as _isBoolean, isEmpty as _isEmpty, size as _size } from 'lodash'
 import _get from 'lodash/get'
 import _includes from 'lodash/includes'
+import _isNil from 'lodash/isNil'
+import _join from 'lodash/join'
 import _map from 'lodash/map'
 import pluralize from 'pluralize'
 import { FC } from 'react'
@@ -52,6 +54,7 @@ const ActionCardHeaderText: FC<ActionCardHeaderTextProps> = ({ cardAction }) => 
     isBulkContainerAction,
     actionCardType,
     codesList,
+    containersList,
     targets,
     query,
     poolName,
@@ -60,6 +63,7 @@ const ActionCardHeaderText: FC<ActionCardHeaderTextProps> = ({ cardAction }) => 
     isBulkContainerAction?: boolean
     actionCardType?: string
     codesList?: string[]
+    containersList?: string[]
     targets?: Record<string, { calls: Array<{ id: string; code?: string }> }>
   }
   const sizeTags = _size(tags)
@@ -190,14 +194,30 @@ const ActionCardHeaderText: FC<ActionCardHeaderTextProps> = ({ cardAction }) => 
   }
 
   if (action === ACTION_TYPES.SETUP_POOLS) {
-    const miners = query?.id.$in as string[]
-    const numMiners = _size(miners)
+    let rightText = 'Assign pools'
+    let leftText = 'Assign Pool'
+
+    const hasMiners = !_isNil(codesList)
+    const hasContainers = !_isNil(containersList)
+
+    if (hasMiners) {
+      const targets = query?.id.$in as string[]
+      const numTargets = _size(targets)
+      leftText = `${numTargets} ${pluralize('Miner', numTargets)} - Assign pools`
+      rightText = `Assign Pool ${poolName ? `: ${poolName}` : ''} to miners${deviceCodesString ? `: ${deviceCodesString}` : ''}`
+    } else if (hasContainers) {
+      const targets = query?.tags?.$in as string[]
+      const numTargets = _size(targets)
+      leftText = `${numTargets} ${pluralize('Container', numTargets)} - Assign pools`
+      const containerNames = _join(containersList, ', ')
+      rightText = `Assign Pool ${poolName ? `: ${poolName}` : ''} to units: ${containerNames}`
+    }
 
     return (
       <HeaderTextComponent
         actionCardType={actionCardType}
-        leftText={`${numMiners} ${pluralize('Miner', numMiners)} - Assign pools`}
-        rightText={`Assign Pool ${poolName ? `: ${poolName}` : ''} to miners${deviceCodesString ? `: ${deviceCodesString}` : ''}`}
+        leftText={leftText}
+        rightText={rightText}
       />
     )
   }

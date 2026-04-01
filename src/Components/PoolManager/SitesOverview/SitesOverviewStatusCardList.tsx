@@ -61,7 +61,7 @@ export const SitesOverviewStatusCardList = () => {
     isLoading: isPoolConfigsLoading,
     error: poolConfigsLoadingError,
   } = usePoolConfigs()
-  const [lazyListThingsRequest] = useLazyGetListThingsQuery()
+  // const [lazyListThingsRequest] = useLazyGetListThingsQuery()
 
   const handleSelect = (id: string) => {
     setSelected((prev: string[]) => (_includes(prev, id) ? _without(prev, id) : _concat(prev, id)))
@@ -99,24 +99,34 @@ export const SitesOverviewStatusCardList = () => {
       ),
     )
 
-    const minersInContainersResponse = await lazyListThingsRequest({
-      query: getContainerMinersByContainerTagsQuery(containerTags),
-      fields: JSON.stringify({
-        id: 1,
-        code: 1,
-        tags: 1,
-      }),
-    })
+    // const minersInContainersResponse = await lazyListThingsRequest({
+    //   query: getContainerMinersByContainerTagsQuery(containerTags),
+    //   fields: JSON.stringify({
+    //     id: 1,
+    //     code: 1,
+    //     tags: 1,
+    //   }),
+    // })
 
-    const minersInContainers = _head(minersInContainersResponse.data) as ContainerMiner[]
-    const selectedDeviceIds = _map(minersInContainers, 'id')
-    const codesList = _map(minersInContainers, (device) =>
-      getMinerShortCode(device.code, device.tags),
+    // const minersInContainers = _head(minersInContainersResponse.data) as ContainerMiner[]
+    // const selectedDeviceIds = _map(minersInContainers, 'id')
+    // const codesList = _map(minersInContainers, (device) =>
+    //   getMinerShortCode(device.code, device.tags),
+    // )
+
+    const selectedSet = new Set(selected)
+    const containersList = _map(
+      _filter(units, (unit) => !_isNil(unit.id) && selectedSet.has(unit.id)),
+      (unit) => getContainerName(unit.info?.container ?? '', unit.type),
     )
 
     dispatch(
       setAddPendingSubmissionAction({
-        query: { id: { $in: selectedDeviceIds } },
+        query: {
+          tags: {
+            $in: containerTags,
+          },
+        },
         action: ACTION_TYPES.SETUP_POOLS,
         params: [
           {
@@ -125,7 +135,8 @@ export const SitesOverviewStatusCardList = () => {
           },
         ],
         overrideQuery: false,
-        codesList,
+        // codesList,
+        containersList,
         poolName: pool.name,
       }),
     )

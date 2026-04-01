@@ -42,6 +42,7 @@ export interface CardAction {
   createdAt?: number
   query?: {
     id: UnknownRecord
+    tags?: UnknownRecord
   }
   [key: string]: unknown
 }
