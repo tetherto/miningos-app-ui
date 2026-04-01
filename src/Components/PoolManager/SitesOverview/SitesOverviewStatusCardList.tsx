@@ -4,7 +4,6 @@ import _compact from 'lodash/compact'
 import _concat from 'lodash/concat'
 import _filter from 'lodash/filter'
 import _get from 'lodash/get'
-import _head from 'lodash/head'
 import _includes from 'lodash/includes'
 import _isNil from 'lodash/isNil'
 import _map from 'lodash/map'
@@ -27,12 +26,9 @@ import {
   StickyConfigurationCol,
 } from './SitesOverviewStatusCardList.styles'
 
-import { useLazyGetListThingsQuery } from '@/app/services/api'
 import { actionsSlice } from '@/app/slices/actionsSlice'
 import { getContainerName } from '@/app/utils/containerUtils'
-import { getMinerShortCode } from '@/app/utils/deviceUtils'
 import { notifyInfo } from '@/app/utils/NotificationService'
-import { getContainerMinersByContainerTagsQuery } from '@/app/utils/queryUtils'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { ACTION_TYPES } from '@/constants/actions'
 import { ROUTE } from '@/constants/routes'
@@ -41,12 +37,6 @@ import { useSitesOverviewData, type ProcessedContainerUnit } from '@/hooks/useSi
 import { PoolSummary } from '@/Views/PoolManager/types'
 
 const { setAddPendingSubmissionAction } = actionsSlice.actions
-
-type ContainerMiner = {
-  id: string
-  code: string
-  tags: string[]
-}
 
 export const SitesOverviewStatusCardList = () => {
   const dispatch = useDispatch()
@@ -61,7 +51,6 @@ export const SitesOverviewStatusCardList = () => {
     isLoading: isPoolConfigsLoading,
     error: poolConfigsLoadingError,
   } = usePoolConfigs()
-  // const [lazyListThingsRequest] = useLazyGetListThingsQuery()
 
   const handleSelect = (id: string) => {
     setSelected((prev: string[]) => (_includes(prev, id) ? _without(prev, id) : _concat(prev, id)))
@@ -99,21 +88,6 @@ export const SitesOverviewStatusCardList = () => {
       ),
     )
 
-    // const minersInContainersResponse = await lazyListThingsRequest({
-    //   query: getContainerMinersByContainerTagsQuery(containerTags),
-    //   fields: JSON.stringify({
-    //     id: 1,
-    //     code: 1,
-    //     tags: 1,
-    //   }),
-    // })
-
-    // const minersInContainers = _head(minersInContainersResponse.data) as ContainerMiner[]
-    // const selectedDeviceIds = _map(minersInContainers, 'id')
-    // const codesList = _map(minersInContainers, (device) =>
-    //   getMinerShortCode(device.code, device.tags),
-    // )
-
     const selectedSet = new Set(selected)
     const containersList = _map(
       _filter(units, (unit) => !_isNil(unit.id) && selectedSet.has(unit.id)),
@@ -135,7 +109,6 @@ export const SitesOverviewStatusCardList = () => {
           },
         ],
         overrideQuery: false,
-        // codesList,
         containersList,
         poolName: pool.name,
       }),
