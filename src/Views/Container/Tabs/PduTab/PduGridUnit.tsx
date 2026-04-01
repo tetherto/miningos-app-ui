@@ -6,7 +6,7 @@ import _head from 'lodash/head'
 import _isNil from 'lodash/isNil'
 import _map from 'lodash/map'
 import _noop from 'lodash/noop'
-import React, { useEffect, useRef, useState, type MouseEvent } from 'react'
+import React, { type ReactNode, useEffect, useRef, useState, type MouseEvent } from 'react'
 import InfiniteViewer from 'react-infinite-viewer'
 import { useDispatch, useSelector } from 'react-redux'
 
@@ -67,6 +67,8 @@ interface PduGridUnitProps {
   getSelectableName?: (pdu: string | number, socket: string | number) => string
   ranges?: UnknownRecord
   detailsLoading?: boolean
+  additionalToolbarControls?: ReactNode
+  isSocketSelectable?: (miner: UnknownRecord | undefined) => boolean
 }
 
 const LAYOUT_RESET_DELAY_MS = 250
@@ -87,6 +89,8 @@ const PduGridUnit = ({
   minersHashmap,
   getSelectableName,
   ranges,
+  additionalToolbarControls,
+  isSocketSelectable,
 }: PduGridUnitProps) => {
   const minersFormattedJson = getMinersFormattedJson(connectedMiners as Device[])
   const isAltDown = useKeyDown('Alt')
@@ -120,6 +124,12 @@ const PduGridUnit = ({
       disableMinerSelect
     )
 
+  const getIsSocketUnselectable = (pdu: UnknownRecord, socket: UnknownRecord): boolean => {
+    if (!isSocketSelectable) return false
+    const miner = minersHashmap?.[`${pdu?.pdu}_${socket?.socket}`] as UnknownRecord | undefined
+    return !isSocketSelectable(miner)
+  }
+
   const getPduLabel = (pdu: UnknownRecord): string => `Rack ${pdu?.pdu as string}`
 
   const onSocketClickHandler = (pdu: UnknownRecord, socket: UnknownRecord) => {
@@ -140,6 +150,7 @@ const PduGridUnit = ({
     setSelectedItems?.((existingItems: Set<string>) => {
       const selectedSet = new Set([...existingItems])
       _forEach(pdu.sockets as UnknownRecord[], (socket) => {
+        if (getIsSocketUnselectable(pdu, socket as UnknownRecord)) return
         const name = getSelectableName?.(
           pdu.pdu as string | number,
           (socket as UnknownRecord).socket as string | number,
@@ -255,6 +266,7 @@ const PduGridUnit = ({
             <ButtonWrapper>
               <ToolbarPowerModeSelector />
             </ButtonWrapper>
+            {additionalToolbarControls}
           </PduControlsSection>
           <PduControlsSection>
             <Tooltip
@@ -326,17 +338,20 @@ const PduGridUnit = ({
                   >
                     {_map(pduRecord?.sockets as UnknownRecord[] | undefined, (socket) => {
                       const socketRecord = socket as UnknownRecord
+                      const isDisabled =
+                        getIsClickDisabled(pduRecord, socketRecord) ||
+                        getIsSocketUnselectable(pduRecord, socketRecord)
                       return (
                         <CursorNotAllowedDiv
                           key={socketRecord.socket as string | number}
-                          disabled={getIsClickDisabled(pduRecord, socketRecord)}
+                          disabled={isDisabled}
                           $socket={socketRecord.socket as string}
                           $pduIndex={pduRecord?.pdu as string}
                           $type={type}
                         >
                           <SocketContainerDiv
                             onClick={() => onSocketClickHandler(pduRecord, socketRecord)}
-                            disabled={getIsClickDisabled(pduRecord, socketRecord)}
+                            disabled={isDisabled}
                           >
                             <Socket
                               miner={
@@ -360,7 +375,7 @@ const PduGridUnit = ({
                               pdu={pduRecord}
                               {...socketRecord}
                               isEditFlow={isEditFlow}
-                              clickDisabled={getIsClickDisabled(pduRecord, socketRecord)}
+                              clickDisabled={isDisabled}
                               isEmptyPowerDashed={isMicroBT(type || '')}
                             />
                           </SocketContainerDiv>

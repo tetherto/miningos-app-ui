@@ -29,6 +29,7 @@ export const COMPLETE_MINER_TYPES = {
   AVALON_AV_a1346: 'miner-av-a1346',
   ANTMINER_AM_S21: 'miner-am-s21',
   ANTMINER_AM_S21PRO: 'miner-am-s21pro',
+  ACME_M1: 'miner-acme-m1',
 } as const
 
 export const MINER_TYPES_COLOR_MAP = {
@@ -91,6 +92,7 @@ export const MINER_TYPE_NAME_MAP = {
   [COMPLETE_MINER_TYPES.AVALON_AV_a1346]: 'Avalon A1346',
   [COMPLETE_MINER_TYPES.ANTMINER_AM_S21]: 'Antminer S21',
   [COMPLETE_MINER_TYPES.ANTMINER_AM_S21PRO]: 'Antminer S21pro',
+  [COMPLETE_MINER_TYPES.ACME_M1]: 'Acme M1',
 } as const
 
 export const ALERT_TYPE_POOL_VALUE = {

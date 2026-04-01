@@ -204,7 +204,7 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
                   </Section>
                   <Section>
                     <SectionHeader>
-                      <FormSectionHeader>Choose pool group</FormSectionHeader>
+                      <FormSectionHeader>Choose pool</FormSectionHeader>
                     </SectionHeader>
                     <FormikSelect name="pool" options={poolOptions} />
                     {!_isNil(formik.values.pool) && (

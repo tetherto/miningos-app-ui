@@ -98,7 +98,7 @@ export const MENU_LABELS = {
   REPAIR_HISTORY: 'Repair History',
   HISTORICAL_MOVEMENTS: 'Historical Movements',
   POOL_MANAGER: 'Pool Manager',
-  POOL_ENDPOINTS: 'Pool Endpoints',
+  POOL_ENDPOINTS: 'Pools',
   MINER_EXPLORER: 'Miner Explorer',
   SITES_OVERVIEW: 'Sites Overview',
   SETTINGS: 'Settings',

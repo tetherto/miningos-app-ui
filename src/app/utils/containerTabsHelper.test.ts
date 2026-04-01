@@ -17,19 +17,23 @@ vi.mock('@/Views/Container/Tabs/BitMainImmersion/ControlsTab/ControlsTab', () =>
 vi.mock('@/Views/Container/Tabs/SettingsTab/SettingsTab', () => ({ SettingsTab: () => null }))
 vi.mock('@/Views/Container/Tabs/ChartsTab/ChartsTab', () => ({ ChartsTab: () => null }))
 vi.mock('@/Views/Container/Tabs/HeatmapTab/HeatmapTab', () => ({ HeatmapTab: () => null }))
+vi.mock('@/Views/Container/Tabs/PowerAdjustmentTab/PowerAdjustmentTab', () => ({
+  PowerAdjustmentTab: () => null,
+}))
 
 import { getAllContainerTabs, getSupportedTabs } from './containerTabsHelper'
 
-const BITDEER_TYPE = 'container-bd-d40-m30' // isBitdeer
+const BITDEER_WHATSMINER_TYPE = 'container-bd-d40-m30' // isBitdeer + isWhatsminerContainer
+const BITDEER_ANTMINER_TYPE = 'container-bd-d40-s19xp' // isBitdeer only
 const HYDRO_TYPE = 'container-as-hk3' // isAntspaceHydro
 const IMMERSION_TYPE = 'container-as-immersion-v2' // isAntspaceImmersion
-const MICROBT_TYPE = 'container-mbt-wm30s' // isMicroBT
+const MICROBT_TYPE = 'container-mbt-wm30s' // isMicroBT + isWhatsminerContainer
 const UNKNOWN_TYPE = 'container-unknown-xyz'
 
 describe('getAllContainerTabs', () => {
-  it('returns all 8 tab configurations', () => {
+  it('returns all 9 tab configurations', () => {
     const tabs = getAllContainerTabs()
-    expect(Object.keys(tabs)).toHaveLength(8)
+    expect(Object.keys(tabs)).toHaveLength(9)
     expect(tabs).toHaveProperty('HOME')
     expect(tabs).toHaveProperty('PDU')
     expect(tabs).toHaveProperty('PARAMETERS')
@@ -38,6 +42,7 @@ describe('getAllContainerTabs', () => {
     expect(tabs).toHaveProperty('SETTINGS')
     expect(tabs).toHaveProperty('CHARTS')
     expect(tabs).toHaveProperty('HEATMAP')
+    expect(tabs).toHaveProperty('POWER_ADJUSTMENT')
   })
 
   it('each tab has key, label, and children', () => {
@@ -57,9 +62,24 @@ describe('getAllContainerTabs', () => {
 })
 
 describe('getSupportedTabs', () => {
-  describe('Bitdeer container', () => {
+  describe('Bitdeer container with Whatsminers', () => {
+    it('returns 6 tabs: HOME, PDU, POWER_ADJUSTMENT, SETTINGS, CHARTS, HEATMAP', () => {
+      const tabs = getSupportedTabs(BITDEER_WHATSMINER_TYPE)
+      const keys = tabs.map((t) => t.key)
+      expect(keys).toHaveLength(6)
+      expect(keys).toContain('home')
+      expect(keys).toContain('pdu')
+      expect(keys).toContain('power-adjustment')
+      expect(keys).toContain('settings')
+      expect(keys).toContain('charts')
+      expect(keys).toContain('heatmap')
+      expect(keys).not.toContain('alarm')
+    })
+  })
+
+  describe('Bitdeer container with Antminers', () => {
     it('returns 5 tabs: HOME, PDU, SETTINGS, CHARTS, HEATMAP', () => {
-      const tabs = getSupportedTabs(BITDEER_TYPE)
+      const tabs = getSupportedTabs(BITDEER_ANTMINER_TYPE)
       const keys = tabs.map((t) => t.key)
       expect(keys).toHaveLength(5)
       expect(keys).toContain('home')
@@ -67,8 +87,7 @@ describe('getSupportedTabs', () => {
       expect(keys).toContain('settings')
       expect(keys).toContain('charts')
       expect(keys).toContain('heatmap')
-      expect(keys).not.toContain('alarm')
-      expect(keys).not.toContain('parameters')
+      expect(keys).not.toContain('power-adjustment')
     })
   })
 
@@ -102,16 +121,27 @@ describe('getSupportedTabs', () => {
   })
 
   describe('MicroBT container', () => {
-    it('returns 5 tabs: HOME, PDU, SETTINGS, CHARTS, HEATMAP', () => {
+    it('returns 6 tabs: HOME, PDU, POWER_ADJUSTMENT, SETTINGS, CHARTS, HEATMAP', () => {
       const tabs = getSupportedTabs(MICROBT_TYPE)
       const keys = tabs.map((t) => t.key)
-      expect(keys).toHaveLength(5)
+      expect(keys).toHaveLength(6)
       expect(keys).toContain('home')
       expect(keys).toContain('pdu')
+      expect(keys).toContain('power-adjustment')
       expect(keys).toContain('settings')
       expect(keys).toContain('charts')
       expect(keys).toContain('heatmap')
       expect(keys).not.toContain('alarm')
+    })
+  })
+
+  describe('Power Adjustment tab ordering', () => {
+    it('places Power Adjustment tab right after PDU Layout', () => {
+      const tabs = getSupportedTabs(BITDEER_WHATSMINER_TYPE)
+      const keys = tabs.map((t) => t.key)
+      const pduIndex = keys.indexOf('pdu')
+      const powerIndex = keys.indexOf('power-adjustment')
+      expect(powerIndex).toBe(pduIndex + 1)
     })
   })
 
@@ -125,7 +155,7 @@ describe('getSupportedTabs', () => {
   describe('with optional data argument', () => {
     it('passes data to tabs for Bitdeer', () => {
       const data = { someKey: 'someValue' }
-      const tabs = getSupportedTabs(BITDEER_TYPE, data)
+      const tabs = getSupportedTabs(BITDEER_ANTMINER_TYPE, data)
       expect(tabs).toHaveLength(5)
     })
   })

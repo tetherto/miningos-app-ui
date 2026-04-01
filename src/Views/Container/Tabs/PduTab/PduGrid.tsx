@@ -8,7 +8,7 @@ import _min from 'lodash/minBy'
 import _noop from 'lodash/noop'
 import _split from 'lodash/split'
 import _values from 'lodash/values'
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { type ReactNode, useEffect, useState, useRef, useCallback } from 'react'
 import { useDispatch } from 'react-redux'
 import Selecto from 'react-selecto'
 
@@ -49,6 +49,8 @@ interface PduGridProps {
   mobileSelectionEnabled?: boolean
   detailsLoading?: boolean
   onRangesChange?: (ranges: Record<string, { min?: number; max?: number }>) => void
+  additionalToolbarControls?: ReactNode
+  isSocketSelectable?: (miner: UnknownRecord | undefined) => boolean
 }
 
 const PduGrid = ({
@@ -67,6 +69,8 @@ const PduGrid = ({
   mobileSelectionEnabled,
   detailsLoading,
   onRangesChange,
+  additionalToolbarControls,
+  isSocketSelectable,
 }: PduGridProps) => {
   const selectablesContainerRef = useRef<HTMLElement | null>(null)
   const [showSelecto, setShowSelecto] = useState<boolean>(false)
@@ -291,14 +295,21 @@ const PduGrid = ({
       }
 
       const shouldFilterByMiner = (addedElements?.length ?? 0) > 1
-      const filteredAddedElements = shouldFilterByMiner
-        ? _filter(addedElements, (socketElement) => {
-            const { dataset } = socketElement as unknown as {
-              dataset: { pduIndex?: string; socketIndex?: string }
-            }
-            return hasConnectedMiner(dataset.pduIndex, dataset.socketIndex)
-          })
-        : addedElements
+      const filteredAddedElements = _filter(addedElements, (socketElement) => {
+        const { dataset } = socketElement as unknown as {
+          dataset: { pduIndex?: string; socketIndex?: string }
+        }
+        if (isSocketSelectable) {
+          const miner = minersHashmap?.[`${dataset.pduIndex}_${dataset.socketIndex}`] as
+            | UnknownRecord
+            | undefined
+          if (!isSocketSelectable(miner)) return false
+        }
+        if (shouldFilterByMiner) {
+          return hasConnectedMiner(dataset.pduIndex, dataset.socketIndex)
+        }
+        return true
+      })
 
       _forEach(filteredAddedElements, (socketElement: HTMLElement) => {
         const { dataset } = socketElement as unknown as {
@@ -378,6 +389,8 @@ const PduGrid = ({
             }
             ranges={ranges}
             detailsLoading={detailsLoading}
+            additionalToolbarControls={additionalToolbarControls}
+            isSocketSelectable={isSocketSelectable}
           />
         ))}
       </SectionsList>
