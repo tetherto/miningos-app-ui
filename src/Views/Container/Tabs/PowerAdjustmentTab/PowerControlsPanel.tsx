@@ -101,10 +101,11 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
     validationSchema: powerPercentageSchema,
     validateOnChange: true,
     validateOnBlur: true,
-    onSubmit: (values) => {
+    onSubmit: (values, { setSubmitting }) => {
       if (values.powerPercentage !== null && hasSelection) {
         onApply(values.powerPercentage, selectedSockets)
       }
+      setSubmitting(false)
     },
   })
 
@@ -180,8 +181,6 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
             <StyledInputNumber
               value={formik.values.powerPercentage}
               onChange={handlePercentageChange}
-              min={MIN_POWER_PERCENTAGE}
-              max={MAX_POWER_PERCENTAGE}
               placeholder="Mixed"
               addonAfter={UNITS.PERCENT}
               status={
