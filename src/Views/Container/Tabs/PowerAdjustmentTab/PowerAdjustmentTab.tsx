@@ -143,6 +143,7 @@ const PowerAdjustmentTab = ({ data }: PowerAdjustmentTabProps) => {
           detailsLoading={false}
           additionalToolbarControls={additionalToolbarControls}
           isSocketSelectable={isWhatsminerSocket}
+          showPowerPercentage
         />
         <SocketsLegendsList />
       </SocketSelectionContainer>

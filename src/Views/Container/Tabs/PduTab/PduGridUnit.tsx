@@ -69,6 +69,7 @@ interface PduGridUnitProps {
   detailsLoading?: boolean
   additionalToolbarControls?: ReactNode
   isSocketSelectable?: (miner: UnknownRecord | undefined) => boolean
+  showPowerPercentage?: boolean
 }
 
 const LAYOUT_RESET_DELAY_MS = 250
@@ -91,6 +92,7 @@ const PduGridUnit = ({
   ranges,
   additionalToolbarControls,
   isSocketSelectable,
+  showPowerPercentage,
 }: PduGridUnitProps) => {
   const minersFormattedJson = getMinersFormattedJson(connectedMiners as Device[])
   const isAltDown = useKeyDown('Alt')
@@ -377,6 +379,7 @@ const PduGridUnit = ({
                               isEditFlow={isEditFlow}
                               clickDisabled={isDisabled}
                               isEmptyPowerDashed={isMicroBT(type || '')}
+                              showPowerPercentage={showPowerPercentage}
                             />
                           </SocketContainerDiv>
                         </CursorNotAllowedDiv>

@@ -51,6 +51,7 @@ interface PduGridProps {
   onRangesChange?: (ranges: Record<string, { min?: number; max?: number }>) => void
   additionalToolbarControls?: ReactNode
   isSocketSelectable?: (miner: UnknownRecord | undefined) => boolean
+  showPowerPercentage?: boolean
 }
 
 const PduGrid = ({
@@ -71,6 +72,7 @@ const PduGrid = ({
   onRangesChange,
   additionalToolbarControls,
   isSocketSelectable,
+  showPowerPercentage,
 }: PduGridProps) => {
   const selectablesContainerRef = useRef<HTMLElement | null>(null)
   const [showSelecto, setShowSelecto] = useState<boolean>(false)
@@ -391,6 +393,7 @@ const PduGrid = ({
             detailsLoading={detailsLoading}
             additionalToolbarControls={additionalToolbarControls}
             isSocketSelectable={isSocketSelectable}
+            showPowerPercentage={showPowerPercentage}
           />
         ))}
       </SectionsList>
