@@ -94,7 +94,9 @@ export interface Device {
   last?: {
     err?: string
     snap?: {
-      stats?: Record<string, unknown>
+      stats?: Record<string, unknown> & {
+        miner_specific?: { power_pct?: number }
+      }
       config?: Record<string, unknown>
     }
     alerts?: unknown[]

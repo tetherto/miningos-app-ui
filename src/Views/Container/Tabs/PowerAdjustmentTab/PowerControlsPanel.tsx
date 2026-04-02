@@ -3,9 +3,11 @@ import _compact from 'lodash/compact'
 import _groupBy from 'lodash/groupBy'
 import _head from 'lodash/head'
 import _isEmpty from 'lodash/isEmpty'
+import _isNil from 'lodash/isNil'
 import _join from 'lodash/join'
 import _keys from 'lodash/keys'
 import _map from 'lodash/map'
+import _round from 'lodash/round'
 import _size from 'lodash/size'
 import _sortBy from 'lodash/sortBy'
 import _uniq from 'lodash/uniq'
@@ -129,10 +131,9 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
           (connectedMiners || []) as Device[],
           socket.pduIndex,
           socket.socketIndex,
-        ) as
-          | { last?: { snap?: { stats?: { miner_specific?: { power_pct?: number } } } } }
-          | undefined
-        return miner?.last?.snap?.stats?.miner_specific?.power_pct
+        ) as Device | undefined
+        const raw = miner?.last?.snap?.stats?.miner_specific?.power_pct
+        return _isNil(raw) ? undefined : _round(raw)
       }),
     )
 
