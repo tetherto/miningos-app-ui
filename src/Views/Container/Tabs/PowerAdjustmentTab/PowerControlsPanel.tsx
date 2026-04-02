@@ -22,8 +22,6 @@ import {
   ModelTitle,
   PanelContainer,
   PanelHeader,
-  PercentageButton,
-  PercentageButtonsRow,
   RackGroup,
   RackGroupTitle,
   RacksLabel,
@@ -32,6 +30,7 @@ import {
   SocketBadge,
   SocketBadgesRow,
   StyledInputNumber,
+  StyledSlider,
   SummaryTitle,
 } from './PowerControlsPanel.styles'
 
@@ -59,7 +58,14 @@ interface PowerControlsPanelProps {
 
 const MIN_POWER_PERCENTAGE = 0
 const MAX_POWER_PERCENTAGE = 200
-const PERCENTAGE_PRESETS = [0, 25, 50, 75, 100]
+const SLIDER_MARKS: Record<number, string> = {
+  0: '0%',
+  25: '25%',
+  50: '50%',
+  75: '75%',
+  100: '100%',
+  180: '180%',
+}
 
 const powerPercentageSchema = yup.object({
   powerPercentage: yup
@@ -140,8 +146,8 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
     formik.setFieldTouched('powerPercentage', true, false)
   }
 
-  const handlePresetClick = (preset: number) => {
-    formik.setFieldValue('powerPercentage', preset)
+  const handleSliderChange = (value: number) => {
+    formik.setFieldValue('powerPercentage', value)
     formik.setFieldTouched('powerPercentage', true, false)
   }
 
@@ -192,18 +198,14 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
             <ErrorMessage name="powerPercentage" />
           </ErrorMessageWrapper>
 
-          <PercentageButtonsRow>
-            {_map(PERCENTAGE_PRESETS, (preset) => (
-              <PercentageButton
-                key={preset}
-                $isActive={formik.values.powerPercentage === preset}
-                onClick={() => handlePresetClick(preset)}
-              >
-                {preset}
-                {UNITS.PERCENT}
-              </PercentageButton>
-            ))}
-          </PercentageButtonsRow>
+          <StyledSlider
+            min={MIN_POWER_PERCENTAGE}
+            max={MAX_POWER_PERCENTAGE}
+            marks={SLIDER_MARKS}
+            value={formik.values.powerPercentage ?? 0}
+            onChange={handleSliderChange}
+            tooltip={{ formatter: (value) => `${value}${UNITS.PERCENT}` }}
+          />
 
           <ApplyButton onClick={() => formik.handleSubmit()} disabled={isApplyDisabled}>
             Apply
