@@ -34,6 +34,7 @@ import {
   SummaryTitle,
 } from './PowerControlsPanel.styles'
 
+import { getConnectedMinerForSocket } from '@/app/utils/containerUtils'
 import { NoMinersSelectedContainer } from '@/Components/Explorer/DetailsView/DetailsView.styles'
 import NoDataSelected from '@/Components/Explorer/DetailsView/NoDataSelected/NoDataSelected'
 import { UNITS } from '@/constants/units'
@@ -115,12 +116,30 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
     },
   })
 
-  // Reset percentage when selection is cleared
+  // Pre-fill percentage from selected miners or reset when cleared
   useEffect(() => {
     if (!hasSelection) {
       formik.resetForm()
+      return
     }
-  }, [hasSelection])
+
+    const powerPctValues = _compact(
+      _map(selectedSockets, (socket) => {
+        const miner = getConnectedMinerForSocket(
+          (connectedMiners || []) as Device[],
+          socket.pduIndex,
+          socket.socketIndex,
+        ) as { last?: { snap?: { stats?: { miner_specific?: { power_pct?: number } } } } } | undefined
+        return miner?.last?.snap?.stats?.miner_specific?.power_pct
+      }),
+    )
+
+    if (powerPctValues.length > 0 && _uniq(powerPctValues).length === 1) {
+      formik.setFieldValue('powerPercentage', powerPctValues[0])
+    } else {
+      formik.setFieldValue('powerPercentage', null)
+    }
+  }, [selectedItems])
 
   // Get unique racks from selection
   const getSelectedRacks = (): string[] => {
