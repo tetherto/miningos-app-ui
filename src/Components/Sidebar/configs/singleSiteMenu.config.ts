@@ -260,6 +260,11 @@ export const SIDEBAR_MENU_ITEMS: SidebarItem[] = [
         label: MENU_LABELS.DASHBOARD,
       },
       {
+        id: MENU_IDS.POOL_MANAGER_DATUM_VIEWER,
+        to: ROUTE.POOL_MANAGER_DATUM_VIEWER,
+        label: MENU_LABELS.DATUM_VIEWER,
+      },
+      {
         id: MENU_IDS.POOL_MANAGER_ENDPOINTS,
         to: ROUTE.POOL_MANAGER_POOL_ENDPOINTS,
         label: MENU_LABELS.POOL_ENDPOINTS,

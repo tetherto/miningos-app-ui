@@ -13,6 +13,7 @@ export const ROUTE = {
   POOL_MANAGER_POOL_ENDPOINTS: '/pool-manager/pool-endpoints',
   POOL_MANAGER_SITES_OVERVIEW: '/pool-manager/sites-overview',
   POOL_MANAGER_MINER_EXPLORER: '/pool-manager/miner-explorer',
+  POOL_MANAGER_DATUM_VIEWER: '/pool-manager/datum-viewer',
   // O&M Section Routes
   OPERATIONS: '/operations',
   OPERATIONS_ENERGY: '/operations/energy',
@@ -103,6 +104,7 @@ export const ROUTE_TITLES_MAP = {
   [ROUTE.SETTINGS_DASHBOARD]: 'Dashboard',
   [ROUTE.SETTINGS_USERS]: 'User Management',
   [ROUTE.POOL_MANAGER]: 'Pool Manager',
+  [ROUTE.POOL_MANAGER_MINER_EXPLORER]: 'DATUM Gateway viewer',
   [ROUTE.POOL_MANAGER_DASHBOARD]: 'Dashboard',
 }
 

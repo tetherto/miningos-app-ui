@@ -44,6 +44,7 @@ const InventoryHistoricalMovements = lazy(
 const PoolManagerLayout = lazy(() => import('@/Views/PoolManager/PoolManagerLayout'))
 const PoolManagerDashboard = lazy(() => import('@/Views/PoolManager/PoolManagerDashboard'))
 const PoolManagerPools = lazy(() => import('@/Views/PoolManager/Pools/PoolManagerPools'))
+const DatumViewer = lazy(() => import('@/Views/PoolManager/Datum/DatumViewer'))
 const ContainerWidgets = lazy(() => import('@/Views/ContainerWidgets/ContainerWidgets'))
 const ContainerCharts = lazy(() => import('@/Views/ContainersChart/ContainerCharts'))
 const Cabinet = lazy(() => import('@/Views/Cabinet/Cabinet'))
@@ -229,6 +230,10 @@ export const getSingleSiteRouter = () =>
                   {
                     path: 'pool-endpoints',
                     element: <SuspenseWrapper component={PoolManagerPools} />,
+                  },
+                  {
+                    path: 'datum-viewer',
+                    element: <SuspenseWrapper component={DatumViewer} />,
                   },
                   {
                     path: 'sites-overview',

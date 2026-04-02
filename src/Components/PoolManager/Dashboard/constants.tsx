@@ -1,5 +1,6 @@
 import { ReactNode } from 'react'
 
+import { DatumIcon } from '../icons/DatumIcon'
 import { MinerOverviewIcon } from '../icons/MinerExplorerIcon'
 import { PoolsIcon } from '../icons/PoolsIcon'
 import { SiteOverviewIcon } from '../icons/SiteOverviewIcon'
@@ -23,6 +24,13 @@ export const navigationBlocks: NavigationBlockItem[] = [
     description: 'Manage pool configurations',
     navText: 'Configure Pools',
     url: ROUTE.POOL_MANAGER_POOL_ENDPOINTS,
+  },
+  {
+    icon: <DatumIcon />,
+    title: 'DATUM Gateway viewer',
+    description: 'View statistics about DATUM Gateway',
+    navText: 'DATUM Gateway viewer',
+    url: ROUTE.POOL_MANAGER_DATUM_VIEWER,
   },
   {
     icon: <SiteOverviewIcon />,
