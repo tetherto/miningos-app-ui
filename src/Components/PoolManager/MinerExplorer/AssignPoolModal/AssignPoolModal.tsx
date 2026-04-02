@@ -20,8 +20,15 @@ import {
   ModalBody,
   ModalTitle,
   StyledModal,
+  StatusLabel,
 } from '../../PoolManager.common.styles'
-import { POOL_ENDPOINT_ROLES_LABELS, SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
+import {
+  MINER_IN_POOL_STATUS_COLORS,
+  MINER_IN_POOL_STATUSES,
+  MINER_STATUS_TO_IN_POOL_STATUS,
+  POOL_ENDPOINT_ROLES_LABELS,
+  SHOW_CREDENTIAL_TEMPLATE,
+} from '../../PoolManager.constants'
 import { usePoolConfigs } from '../../Pools/PoolManager.hooks'
 
 import {
@@ -40,7 +47,9 @@ import {
 
 import { useGetListThingsQuery } from '@/app/services/api'
 import { getMinerShortCode } from '@/app/utils/deviceUtils'
+import { MinerStatus } from '@/app/utils/statusUtils'
 import AppTable from '@/Components/AppTable/AppTable'
+import { getTableDeviceData } from '@/Components/Explorer/List/ListView.util'
 import { FormikSelect } from '@/Components/FormInputs'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { PoolSummary } from '@/Views/PoolManager/types'
@@ -53,6 +62,7 @@ interface MinerRow {
   code?: string
   unit?: string
   pool?: string
+  status?: string
   [key: string]: unknown
 }
 
@@ -84,6 +94,30 @@ const minersTableColumns = [
     key: 'pool',
     title: 'Current Pool',
     sorter: (a: MinerRow, b: MinerRow) => (a.pool || '').localeCompare(b.pool || ''),
+  },
+  {
+    dataIndex: 'status',
+    key: 'status',
+    title: 'Status',
+    sorter: (a: MinerRow, b: MinerRow) => (a.status || '').localeCompare(b.status || ''),
+    render: (status: MinerStatus) => {
+      const minerStatus = status as keyof typeof MINER_STATUS_TO_IN_POOL_STATUS
+
+      const inPoolStatus =
+        MINER_STATUS_TO_IN_POOL_STATUS[minerStatus] || MINER_IN_POOL_STATUSES.INACTIVE
+
+      const inPoolColor = MINER_IN_POOL_STATUS_COLORS[inPoolStatus]
+
+      if (!inPoolColor) {
+        return null
+      }
+
+      return (
+        <StatusLabel $textCapitalized $textColor={inPoolColor}>
+          {inPoolStatus}
+        </StatusLabel>
+      )
+    },
   },
 ]
 
@@ -118,8 +152,12 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
       info: 1,
       code: 1,
       type: 1,
+      rack: 1,
       containerId: 1,
       tags: 1,
+      'last.ts': 1,
+      'last.snap.stats.status': 1,
+      'last.snap.stats.hashrate_mhs': 1,
     }),
     query: JSON.stringify({
       id: {
@@ -131,11 +169,16 @@ export const AssignPoolModal: FC<AssignPoolModalProps> = ({
   const miners = _map(_head(minersData as MinerDataRow[][]), (minerData) => {
     const { code, tags, id, info } = minerData
     const shortCode = getMinerShortCode(code, tags || [])
+    const deviceData = getTableDeviceData(minerData)
+    const stats = deviceData.stats as
+      | { status?: string; hashrate_mhs?: { t_5m?: number } }
+      | undefined
     return {
       id,
       code: shortCode,
       pool: info?.poolConfig ? (poolIdMap[info?.poolConfig]?.name ?? '-') : '-',
       unit: info?.container ?? '-',
+      status: stats?.status,
     }
   })
 
