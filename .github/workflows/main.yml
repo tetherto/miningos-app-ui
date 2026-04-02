@@ -1,11 +1,9 @@
 name: MiningOS App CI Pipeline
-on: 
- # pull_request:
-    #types: [opened, synchronize, reopened]
+on:
   push:
-    branches: [main, develop]
+    branches: [main, staging, develop]
 
-  pull_request_target:
+  pull_request:
     branches: [main, staging, develop]
     types: [opened, reopened, synchronize]
 
