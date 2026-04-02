@@ -219,7 +219,8 @@ const Socket = ({
                   !(status === SOCKET_STATUSES.MINER_DISCONNECTED && enabled) &&
                   (showPowerPercentage ? (
                     <Value $status={status} $enabled={enabled}>
-                      {powerPct ?? 0}{UNITS.PERCENT}
+                      {powerPct ?? 0}
+                      {UNITS.PERCENT}
                     </Value>
                   ) : (
                     <>

@@ -129,7 +129,9 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
           (connectedMiners || []) as Device[],
           socket.pduIndex,
           socket.socketIndex,
-        ) as { last?: { snap?: { stats?: { miner_specific?: { power_pct?: number } } } } } | undefined
+        ) as
+          | { last?: { snap?: { stats?: { miner_specific?: { power_pct?: number } } } } }
+          | undefined
         return miner?.last?.snap?.stats?.miner_specific?.power_pct
       }),
     )
