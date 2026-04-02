@@ -75,14 +75,25 @@ export const StyledInputNumber = styled(InputNumber)`
 
 export const StyledSlider = styled(Slider)`
   width: 100%;
-  margin: 4px 0 12px;
+  margin: 0 0 16px;
 
   .ant-slider-rail {
     background: ${COLOR.WHITE_ALPHA_01};
+    height: 6px;
   }
 
   .ant-slider-track {
     background: ${COLOR.COLD_ORANGE};
+    height: 6px;
+  }
+
+  .ant-slider-handle {
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  &:hover .ant-slider-handle {
+    opacity: 1;
   }
 
   .ant-slider-handle::after {
@@ -95,6 +106,10 @@ export const StyledSlider = styled(Slider)`
     box-shadow: 0 0 0 4px ${COLOR.COLD_ORANGE};
   }
 
+  .ant-slider-mark {
+    top: 18px;
+  }
+
   .ant-slider-mark-text {
     color: ${COLOR.WHITE_ALPHA_07};
     font-size: 11px;
@@ -102,6 +117,14 @@ export const StyledSlider = styled(Slider)`
 
   .ant-slider-mark-text-active {
     color: ${COLOR.WHITE};
+  }
+
+  .ant-slider-mark-text:first-child {
+    transform: translateX(0%) !important;
+  }
+
+  .ant-slider-mark-text:last-child {
+    transform: translateX(-100%) !important;
   }
 
   .ant-slider-dot {
@@ -187,6 +210,6 @@ export const ErrorMessageWrapper = styled.div`
   color: ${COLOR.RED};
   font-size: 12px;
   line-height: 12px;
-  min-height: 15px;
+  min-height: 0;
   padding-top: 3px;
 `

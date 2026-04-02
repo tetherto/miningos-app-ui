@@ -61,11 +61,11 @@ const MIN_POWER_PERCENTAGE = 0
 const MAX_POWER_PERCENTAGE = 200
 const SLIDER_MARKS: Record<number, string> = {
   0: '0%',
-  25: '25%',
-  50: '50%',
-  75: '75%',
-  100: '100%',
-  180: '180%',
+  40: '40%',
+  80: '80%',
+  120: '120%',
+  160: '160%',
+  200: '200%',
 }
 
 const powerPercentageSchema = yup.object({
@@ -213,9 +213,11 @@ const PowerControlsPanel: FC<PowerControlsPanelProps> = ({
               }
             />
           </ManualInputRow>
-          <ErrorMessageWrapper>
-            <ErrorMessage name="powerPercentage" />
-          </ErrorMessageWrapper>
+          {formik.touched.powerPercentage && formik.errors.powerPercentage && (
+            <ErrorMessageWrapper>
+              <ErrorMessage name="powerPercentage" />
+            </ErrorMessageWrapper>
+          )}
 
           <StyledSlider
             min={MIN_POWER_PERCENTAGE}
