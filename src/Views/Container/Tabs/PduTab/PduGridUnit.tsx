@@ -71,7 +71,7 @@ interface PduGridUnitProps {
   additionalToolbarControls?: ReactNode
   isSocketSelectable?: (miner: UnknownRecord | undefined) => boolean
   showPowerPercentage?: boolean
-  title?: string
+  title?: ReactNode
 }
 
 const LAYOUT_RESET_DELAY_MS = 250
