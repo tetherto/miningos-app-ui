@@ -26,7 +26,11 @@ const { setAddPendingSubmissionAction } = actionsSlice.actions
 
 const FLOW_OPTIONS = ['edit']
 
-const Thing = () => {
+export type ThingProps = {
+  showContainerComments?: boolean
+}
+
+const Thing = ({ showContainerComments = true }: ThingProps) => {
   const smartPolling20s = useSmartPolling(POLLING_20s)
   const { id, flow } = useParams()
   const dispatch = useDispatch()
@@ -109,6 +113,7 @@ const Thing = () => {
         <Container
           refetch={refetch}
           data={item as unknown as Parameters<typeof Container>[0]['data']}
+          showComments={showContainerComments}
         />
       ) : (
         <>
