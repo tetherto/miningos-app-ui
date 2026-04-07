@@ -41,6 +41,7 @@ import { useInfiniteViewer } from '@/hooks/useInfiniteViewer'
 import { useKeyDown } from '@/hooks/useKeyDown'
 import usePlatform from '@/hooks/usePlatform'
 import type { Device } from '@/types/api'
+import { DEFAULT_PDU_GRID_UNIT_TITLE } from './PduTab.constants'
 
 const { switchLayout } = pduSlice.actions
 
@@ -94,7 +95,7 @@ const PduGridUnit = ({
   additionalToolbarControls,
   isSocketSelectable,
   showPowerPercentage,
-  title = 'Racks',
+  title = DEFAULT_PDU_GRID_UNIT_TITLE,
 }: PduGridUnitProps) => {
   const minersFormattedJson = getMinersFormattedJson(connectedMiners as Device[])
   const isAltDown = useKeyDown('Alt')
