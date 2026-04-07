@@ -42,13 +42,14 @@ interface ContainerData extends DevicePayload {
 interface ContainerProps {
   data: ContainerData
   refetch?: VoidFunction
+  showComments?: boolean
 }
 
 const { setResetSelections, selectContainer, setFilterTags } = devicesSlice.actions
 
 const HOME_TAB_KEY = 'home'
 
-const Container = ({ data, refetch = _noop }: ContainerProps) => {
+const Container = ({ data, refetch = _noop, showComments = true }: ContainerProps) => {
   const smartPolling20s = useSmartPolling(POLLING_20s)
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -129,9 +130,11 @@ const Container = ({ data, refetch = _noop }: ContainerProps) => {
         </ContainerStyledButton>
       </ContainerHeader>
       <ContainerTabsWrapper>
-        <CommentButtonWrapper>
-          <CommentsPopover device={data} onAddCommentSuccess={refetch} />
-        </CommentButtonWrapper>
+        {showComments && (
+          <CommentButtonWrapper>
+            <CommentsPopover device={data} onAddCommentSuccess={refetch} />
+          </CommentButtonWrapper>
+        )}
         <StyledAntdTabs
           size="small"
           type="card"
