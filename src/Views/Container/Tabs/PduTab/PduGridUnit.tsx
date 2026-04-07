@@ -70,6 +70,7 @@ interface PduGridUnitProps {
   additionalToolbarControls?: ReactNode
   isSocketSelectable?: (miner: UnknownRecord | undefined) => boolean
   showPowerPercentage?: boolean
+  title?: string
 }
 
 const LAYOUT_RESET_DELAY_MS = 250
@@ -93,6 +94,7 @@ const PduGridUnit = ({
   additionalToolbarControls,
   isSocketSelectable,
   showPowerPercentage,
+  title = 'Racks',
 }: PduGridUnitProps) => {
   const minersFormattedJson = getMinersFormattedJson(connectedMiners as Device[])
   const isAltDown = useKeyDown('Alt')
@@ -245,7 +247,7 @@ const PduGridUnit = ({
       )}
       {showInfiniteViewerControls && (
         <PduControls>
-          <PduControlsTitle>Racks</PduControlsTitle>
+          <PduControlsTitle>{title}</PduControlsTitle>
           <PduControlsSection $expand>
             <Button onClick={handleZoomIn}>Zoom in</Button>
             <Button onClick={handleZoomOut}>Zoom out</Button>
