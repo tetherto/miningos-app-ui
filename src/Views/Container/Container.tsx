@@ -43,13 +43,19 @@ interface ContainerProps {
   data: ContainerData
   refetch?: VoidFunction
   showComments?: boolean
+  basePath?: string
 }
 
 const { setResetSelections, selectContainer, setFilterTags } = devicesSlice.actions
 
 const HOME_TAB_KEY = 'home'
 
-const Container = ({ data, refetch = _noop, showComments = true }: ContainerProps) => {
+const Container = ({
+  data,
+  refetch = _noop,
+  showComments = true,
+  basePath = ROUTE.OPERATIONS_MINING_EXPLORER,
+}: ContainerProps) => {
   const smartPolling20s = useSmartPolling(POLLING_20s)
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -95,7 +101,7 @@ const Container = ({ data, refetch = _noop, showComments = true }: ContainerProp
 
   const onChange = (key: string) => {
     navigate(
-      `${ROUTE.OPERATIONS_MINING_EXPLORER}/containers/${appendContainerToTag(info?.container ?? '')}/${key}${paramBackUrl ? `?backUrl=${paramBackUrl}` : ''}`,
+      `${basePath}/containers/${appendContainerToTag(info?.container ?? '')}/${key}${paramBackUrl ? `?backUrl=${paramBackUrl}` : ''}`,
     )
   }
 

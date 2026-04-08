@@ -106,6 +106,7 @@ const DetailsViewContent: FC<DetailsViewContentProps> = ({
   const containerTab = useParams().tab
   const isTabPdu = containerTab === CONTAINER_TAB.PDU
   const isTabHeatmap = containerTab === CONTAINER_TAB.HEATMAP
+  const isTabLayout = true // containerTab === CONTAINER_TAB.LAYOUT // TODO: Fix tab routing through url
 
   const { getFormattedDate } = useTimezone()
 
@@ -252,7 +253,7 @@ const DetailsViewContent: FC<DetailsViewContentProps> = ({
   const allowMinerControl = useCheckPerm({ perm: actionsWritePermission })
   const showMinerControls =
     !isDeviceSelectionEmpty &&
-    (isTabPdu || isTabHeatmap || isContainerSelectionEmpty) &&
+    (isTabPdu || isTabHeatmap || isContainerSelectionEmpty || isTabLayout) &&
     minersSelected > 0 &&
     allowMinerControl
 
@@ -269,7 +270,7 @@ const DetailsViewContent: FC<DetailsViewContentProps> = ({
 
   return (
     <DetailsViewContainer>
-      {!isTabPdu && !isTabHeatmap && !isContainerSelectionEmpty && (
+      {!isTabPdu && !isTabHeatmap && !isContainerSelectionEmpty && !isTabLayout && (
         <BatchContainerControlsCard
           isBatch={allowContainerControl}
           connectedMiners={connectedMiners}
