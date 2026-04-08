@@ -351,7 +351,7 @@ const DetailsView: FC<DetailsViewProps> = ({
       return
     }
 
-    if (isTabPdu || isTabHeatmap) {
+    if (isTabPdu || isTabHeatmap || isTabLayout) {
       dispatch(setSelectedDevices((allDevices || []) as Device[]))
     }
 
