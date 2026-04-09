@@ -168,7 +168,6 @@ const DetailsView: FC<DetailsViewProps> = ({
   const containerTab = useParams().tab
   const isTabPdu = containerTab === CONTAINER_TAB.PDU
   const isTabHeatmap = containerTab === CONTAINER_TAB.HEATMAP
-  const isTabLayout = true // containerTab === CONTAINER_TAB.LAYOUT // TODO: Fix tab routing through url
 
   const { search, pathname } = useLocation()
   const currentTab = _capitalize(new URLSearchParams(search).get(TAB) || '')
@@ -178,7 +177,7 @@ const DetailsView: FC<DetailsViewProps> = ({
   const selectedDeviceTags = useSelector(selectSelectedDeviceTags)
   // On PDU/Heatmap tabs, only count selected miners (not the parent container)
   const selectedDevices: Device[] =
-    isTabPdu || isTabHeatmap || isTabLayout
+    isTabPdu || isTabHeatmap
       ? (selectedMiners as Device[])
       : ([...selectedMiners, ..._values(selectedContainers)] as Device[])
   const numberOfSelectedDevices = selectedDevices?.length
@@ -351,7 +350,7 @@ const DetailsView: FC<DetailsViewProps> = ({
       return
     }
 
-    if (isTabPdu || isTabHeatmap || isTabLayout) {
+    if (isTabPdu || isTabHeatmap) {
       dispatch(setSelectedDevices((allDevices || []) as Device[]))
     }
 

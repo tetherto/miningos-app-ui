@@ -11,7 +11,6 @@ import InfiniteViewer from 'react-infinite-viewer'
 import { useDispatch, useSelector } from 'react-redux'
 
 import { downloadCsv, downloadJson, getMinersFormattedJson } from './ExportPduData.helper'
-import { DEFAULT_PDU_GRID_UNIT_TITLE } from './PduTab.constants'
 import {
   ButtonWrapper,
   CursorNotAllowedDiv,
@@ -95,7 +94,7 @@ const PduGridUnit = ({
   additionalToolbarControls,
   isSocketSelectable,
   showPowerPercentage,
-  title = DEFAULT_PDU_GRID_UNIT_TITLE,
+  title = 'Racks',
 }: PduGridUnitProps) => {
   const minersFormattedJson = getMinersFormattedJson(connectedMiners as Device[])
   const isAltDown = useKeyDown('Alt')
