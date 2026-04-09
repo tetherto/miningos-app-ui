@@ -71,6 +71,8 @@ interface PduGridUnitProps {
   isSocketSelectable?: (miner: UnknownRecord | undefined) => boolean
   showPowerPercentage?: boolean
   title?: ReactNode
+  isSocketListColumn?: boolean
+  isSectionColumn?: boolean
 }
 
 const LAYOUT_RESET_DELAY_MS = 250
@@ -95,6 +97,8 @@ const PduGridUnit = ({
   isSocketSelectable,
   showPowerPercentage,
   title = 'Racks',
+  isSectionColumn = false,
+  isSocketListColumn = false,
 }: PduGridUnitProps) => {
   const minersFormattedJson = getMinersFormattedJson(connectedMiners as Device[])
   const isAltDown = useKeyDown('Alt')
@@ -308,7 +312,11 @@ const PduGridUnit = ({
         <Section
           $gridType={type}
           $isHeatmapMode={isHeatmapMode}
-          $isColumn={!isAntspaceHydro(type || '') && !isMicroBT(type || '')}
+          $isColumn={
+            _isNil(isSectionColumn)
+              ? !isAntspaceHydro(type || '') && !isMicroBT(type || '')
+              : isSectionColumn
+          }
           $isPduLayout={isPduLayout}
           key={`section-${sectionKey}`}
           className="viewport"
@@ -337,7 +345,9 @@ const PduGridUnit = ({
                     $gridType={type}
                     $pduIndex={pduRecord?.pdu as string}
                     $isHeatmapMode={isHeatmapMode}
-                    $isColumn={isAntspaceHydro(type || '') || isMicroBT(type || '')}
+                    $isColumn={
+                      isAntspaceHydro(type || '') || isMicroBT(type || '') || isSocketListColumn
+                    }
                     $isPduLayout={isPduLayout}
                   >
                     {_map(pduRecord?.sockets as UnknownRecord[] | undefined, (socket) => {
