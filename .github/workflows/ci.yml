@@ -2,9 +2,9 @@ name: PR - Test & Validate (Local)
 
 on:
   push:
-    branches: [main, staging, dev, develop]
+    branches: [main, dev, develop]
   pull_request:
-    branches: [main, staging, dev, develop]
+    branches: [main, dev, develop]
     types: [opened, reopened, synchronize]
   workflow_dispatch:
 
