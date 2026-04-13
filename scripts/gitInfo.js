@@ -10,12 +10,13 @@ export const getGitInfo = () => {
     const hash = _.trim(execSync('git rev-parse HEAD').toString())
     const date = _.trim(execSync('git log -1 --format=%cd').toString())
 
-    return { branch, hash, date }
+    return { prefix: 'public', branch, hash, date }
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error generating git info:', error)
     // Return fallback values
     return {
+      prefix: 'public',
       branch: 'unknown',
       hash: 'unknown',
       date: new Date().toString(),
