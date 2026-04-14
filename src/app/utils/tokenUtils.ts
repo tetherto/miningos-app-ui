@@ -1,8 +1,15 @@
-import _compact from 'lodash/compact'
-import _nth from 'lodash/nth'
-import _split from 'lodash/split'
+import { jwtDecode } from 'jwt-decode'
+
+interface AuthTokenPayload {
+  roles?: string[]
+}
 
 export function getRolesFromAuthToken(authToken?: string): string[] {
-  const rolesMatch = authToken?.match(/roles:([a-z_*:]*)/)
-  return _compact(_split(_nth(rolesMatch, 1), ':'))
+  if (!authToken) return []
+  try {
+    const { roles } = jwtDecode<AuthTokenPayload>(authToken)
+    return Array.isArray(roles) ? roles : []
+  } catch {
+    return []
+  }
 }

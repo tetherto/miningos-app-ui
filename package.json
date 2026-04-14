@@ -27,6 +27,7 @@
     "html-to-image": "^1.11.13",
     "html2canvas": "^1.4.1",
     "jspdf": "^4.0.0",
+    "jwt-decode": "^4.0.0",
     "lightweight-charts": "^4.1.7",
     "lodash-es": "^4.17.21",
     "nanoid": "^5.1.5",
