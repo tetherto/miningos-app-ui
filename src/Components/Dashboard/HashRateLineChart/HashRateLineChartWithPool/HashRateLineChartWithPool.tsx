@@ -3,6 +3,8 @@ import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
 import { useEffect, useRef, useState } from 'react'
 
+import { HashRateLogEntry } from '../HashRateLineChart.types'
+
 import {
   CHART_MIN_HEIGHT,
   MINER_AGGR_FIELDS,
@@ -10,7 +12,6 @@ import {
 } from './HashRateLineChartWithPool.const'
 import { StyledRow } from './HashRateLineChartWithPool.styles'
 import { Timeline, MinerPoolDataItem } from './HashRateLineChartWithPool.types'
-import { HashRateLogEntry } from '../HashRateLineChart.types'
 import {
   buildLegends,
   buildChartData,
