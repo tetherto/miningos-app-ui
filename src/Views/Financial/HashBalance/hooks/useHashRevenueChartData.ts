@@ -20,9 +20,12 @@ import {
 
 import { useGetExtDataQuery } from '@/app/services/api'
 import type {
+  HashrateAggregateData,
   MinerHistoricalBlockSizesResponse,
   MinerHistoricalHashRateResponse,
+  MinerTransaction,
   MultiSiteDateRange,
+  MinerHistoricalPrice,
   PeriodValue,
 } from '@/types'
 
@@ -65,11 +68,11 @@ export const useHashRevenueChartData = ({
     period,
   })
 
-  const hashRateData = processTailLogData(tailLogData)
+  const hashRateData = processTailLogData(tailLogData as HashrateAggregateData[][])
 
   const siteHashRevenueData = proceedSiteHashRevenueData(
-    transactionsData,
-    historicalPricesData,
+    transactionsData as MinerTransaction[][],
+    historicalPricesData as MinerHistoricalPrice[][],
     hashRateData,
     dateRange.period as PeriodValue,
   )

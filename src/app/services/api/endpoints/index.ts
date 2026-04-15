@@ -9,6 +9,7 @@ import { globalEndpoints } from './global'
 import { logsEndpoints } from './logs'
 import { minersEndpoints } from './miners'
 import { operationsEndpoints } from './operations'
+import { poolsEndpoints } from './pools'
 import { reportsEndpoints } from './reports'
 import { thingsEndpoints } from './things'
 import { usersEndpoints } from './users'
@@ -26,4 +27,5 @@ export const createEndpoints = (builder: EndpointBuilder<BaseQueryFn, string, st
   ...globalEndpoints(builder),
   ...usersEndpoints(builder),
   ...reportsEndpoints(builder),
+  ...poolsEndpoints(builder),
 })

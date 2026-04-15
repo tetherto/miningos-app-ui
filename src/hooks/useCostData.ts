@@ -85,13 +85,13 @@ export const useCostData = () => {
   if (!isMultiSiteModeEnabled) {
     return {
       data: {
-        costData: {},
-        revenueData: [],
+        costData: {} as unknown,
+        revenueData: [] as unknown[],
         allInCost: 0,
         energyCost: 0,
         operationsCost: 0,
-        btcData: [],
-        metrcis: {},
+        btcData: [] as unknown[],
+        metrcis: {} as unknown,
       },
       isDataLoading: false,
       isRevenueDataLoading: false,
@@ -153,7 +153,7 @@ export const useCostData = () => {
       allInCost,
       energyCost,
       operationsCost,
-      btcData,
+      btcData: btcData as unknown[],
       metrcis,
     },
     isDataLoading,

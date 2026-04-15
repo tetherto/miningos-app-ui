@@ -115,7 +115,10 @@ export const AverageDowntimeChart = ({ dateRange }: AverageDowntimeChartProps) =
     )
   }
 
-  const chartData = transformDowntimeData(downtimeQuery?.log, dateRange?.period === PERIOD.MONTHLY)
+  const chartData = transformDowntimeData(
+    (downtimeQuery as { log?: DowntimeEntry[] } | undefined)?.log,
+    dateRange?.period === PERIOD.MONTHLY,
+  )
   const dataset = getDataset(chartData, dateRange?.period)
 
   const hasNoData = _isEmpty(_keys(dataset))

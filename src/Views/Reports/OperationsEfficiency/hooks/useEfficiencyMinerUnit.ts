@@ -45,14 +45,14 @@ export const useEfficiencyMinerUnit = ({ start, end }: { start: Date; end: Date 
     }),
   })
 
-  const containers = (_head(containerListData) ?? []) as Container[]
+  const containers = (_head(containerListData as Container[][] | undefined) ?? []) as Container[]
 
-  const tailLog = _head(tailLogData) ?? {}
+  const tailLog = (_head(tailLogData as unknown[]) ?? {}) as Record<string, unknown>
 
   const categories = _sortBy(
     _keys(
       _pickBy(
-        _get(tailLog, TAIL_LOG_CONTAINER_KEY, {}),
+        _get(tailLog, TAIL_LOG_CONTAINER_KEY, {}) as Record<string, number>,
         (value, key) => !_includes(key, MAINTENANCE_CONTAINER) && _isNumber(value) && value > 0,
       ),
     ),

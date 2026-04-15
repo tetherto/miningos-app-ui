@@ -1158,7 +1158,9 @@ export const useRevenueSummaryData = () => {
 
   const processedBlockSizes = processHistoricalBlockSizes(finalHistoricalBlockSizesData)
 
-  const processedElectricityData = processElectricityData(electricityData)
+  const processedElectricityData = processElectricityData(
+    electricityData as ElectricityDataEntry[] | undefined,
+  )
 
   const getMempoolCurrentData = () => {
     if (!finalMempoolData) return {} as Partial<MinerPoolData>

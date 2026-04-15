@@ -10,6 +10,7 @@ import {
 } from './HashRateLineChartWithPool.const'
 import { StyledRow } from './HashRateLineChartWithPool.styles'
 import { Timeline, MinerPoolDataItem } from './HashRateLineChartWithPool.types'
+import { HashRateLogEntry } from '../HashRateLineChart.types'
 import {
   buildLegends,
   buildChartData,
@@ -106,9 +107,17 @@ export const HashRateLineChartWithPool = ({ tag = 't-miner' }: HashRateLineChart
     }
   }, [isMinerTailLogFetching, isFetching])
 
-  const hashRateTimeRange = getHashRateTimeRange(minerTailLogData)
-  const minerPoolData = filterAndDownsampleMinerPoolData(minerpoolData, hashRateTimeRange, timeline)
-  const hashRateData = transformHashRateData(minerTailLogData)
+  const hashRateTimeRange = getHashRateTimeRange(
+    minerTailLogData as HashRateLogEntry[] | HashRateLogEntry[][],
+  )
+  const minerPoolData = filterAndDownsampleMinerPoolData(
+    minerpoolData as MinerPoolDataItem[] | undefined,
+    hashRateTimeRange,
+    timeline,
+  )
+  const hashRateData = transformHashRateData(
+    minerTailLogData as HashRateLogEntry[] | HashRateLogEntry[][],
+  )
   const aggrPoolData = calculateAggrPoolData(minerPoolData)
   const hasData = !_isEmpty(hashRateData) || !_isEmpty(minerPoolData)
   const minMaxAvg = calculateMinMaxAvg(hashRateData)

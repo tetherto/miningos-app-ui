@@ -8,8 +8,19 @@ import { POOL_ENDPOINT_INDEX_ROLES } from '../PoolManager.constants'
 import { useGetPoolConfigsQuery } from '@/app/services/api'
 import { PoolSummary } from '@/Views/PoolManager/types'
 
+interface PoolConfigData {
+  poolConfigName: string
+  description: string
+  poolUrls: Array<{ url: string; pool: string; workerName?: string; workerPassword?: string }>
+  id: string
+  miners: number
+  containers: number
+  updatedAt: string | number
+}
+
 export const usePoolConfigs = () => {
-  const { data: poolData, isLoading, error } = useGetPoolConfigsQuery({})
+  const { data: rawPoolData, isLoading, error } = useGetPoolConfigsQuery({})
+  const poolData = rawPoolData as PoolConfigData[] | undefined
   const pools: PoolSummary[] = _map(poolData, (poolConfigData) => {
     const {
       poolConfigName: name,

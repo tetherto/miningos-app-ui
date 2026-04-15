@@ -96,7 +96,10 @@ export const useSitesOverviewData = (): UseSitesOverviewDataResult => {
 
   // Process units data
   const unitsDataArray = Array.isArray(unitsData) ? unitsData : []
-  const tailLogArray = (_head(minerTailLogData) as MinerTailLogItem[] | undefined) || []
+  const tailLogArray =
+    (_head(minerTailLogData as MinerTailLogItem[][] | undefined) as
+      | MinerTailLogItem[]
+      | undefined) || []
   const tailLogItem = _head(tailLogArray) ?? ({} as MinerTailLogItem)
 
   const rawUnits = _map(
