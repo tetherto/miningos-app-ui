@@ -88,6 +88,10 @@ export const {
   useGetPoolConfigsQuery,
   useGetContainerPoolStatsQuery,
   useGetPoolForMinerQuery,
+  useGetHeaderControlsQuery,
+  useUpdateHeaderControlsMutation,
+  useGetExportSettingsQuery,
+  useImportSettingsMutation,
 } = api
 
 export const useGetOperationsMinersQuery = api.useGetOperationsWorkersQuery

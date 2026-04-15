@@ -12,6 +12,7 @@ export const API_TAG_TYPES = [
   'ContainerSettings',
   'RolePermissions',
   'PoolConfigs',
+  'HeaderControls',
 ] as const
 
 export type ApiTagType = (typeof API_TAG_TYPES)[number]

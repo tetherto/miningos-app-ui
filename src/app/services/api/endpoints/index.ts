@@ -11,6 +11,7 @@ import { minersEndpoints } from './miners'
 import { operationsEndpoints } from './operations'
 import { poolsEndpoints } from './pools'
 import { reportsEndpoints } from './reports'
+import { settingsEndpoints } from './settings'
 import { thingsEndpoints } from './things'
 import { usersEndpoints } from './users'
 
@@ -28,4 +29,5 @@ export const createEndpoints = (builder: EndpointBuilder<BaseQueryFn, string, st
   ...usersEndpoints(builder),
   ...reportsEndpoints(builder),
   ...poolsEndpoints(builder),
+  ...settingsEndpoints(builder),
 })
