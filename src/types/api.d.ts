@@ -738,13 +738,13 @@ interface HashrateData {
   nominalHashrate?: number
 }
 
-interface HashpriceLog {
+export interface HashpriceLog {
   ts: number
   hashprice: number
   [key: string]: unknown
 }
 
-interface HashpriceData {
+export interface HashpriceData {
   log?: HashpriceLog[]
 }
 
@@ -774,16 +774,17 @@ type WorkersResponse = ApiResponse<WorkersData>
 // --------------------------------------------
 // ConsumptionData Types
 // ------------------------------
-interface ConsumptionLog {
+export interface ConsumptionLog {
   ts: number
   consumption: number
 }
 
-interface ConsumptionRegion {
+export interface ConsumptionRegion {
   [key: string]: number
 }
 
-interface ConsumptionData {
+export interface ConsumptionData {
+  availablePower?: number
   regions?: ConsumptionRegion[]
   data?: {
     log?: ConsumptionLog[]
@@ -806,4 +807,31 @@ export interface ElectricityDataEnergy {
 export interface ElectricityDataEntry {
   ts: number
   energy: ElectricityDataEnergy
+}
+
+// ============================================================================
+// Cost Operational Energy Types
+// ============================================================================
+
+export interface CostOperationalEntry {
+  allInCostsUSD?: number
+  energyCostsUSD?: number
+  operationalCostsUSD?: number
+  avgAllInCostsUSD?: number
+  avgEnergyCostsUSD?: number
+  avgOperationalCostsUSD?: number
+  [key: string]: number | undefined
+}
+
+export type CostOperationalEnergyData = Record<string, CostOperationalEntry> & {
+  summary?: Record<string, CostOperationalEntry>
+}
+
+// ============================================================================
+// Pool Stats Types
+// ============================================================================
+
+export interface ContainerPoolStat {
+  container: string
+  overriddenConfig: number
 }

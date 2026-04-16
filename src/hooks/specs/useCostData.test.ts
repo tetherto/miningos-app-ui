@@ -128,7 +128,7 @@ describe('useCostData', () => {
       const { result } = renderHook(() => useCostData())
 
       expect(result.current).toHaveProperty('data')
-      expect(result.current).toHaveProperty('metrcis')
+      expect(result.current).toHaveProperty('metrics')
       expect(result.current).toHaveProperty('dateRange')
     })
   })

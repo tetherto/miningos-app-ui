@@ -14,6 +14,7 @@ import { CONTAINER_STATUS, ContainerStatus } from '@/app/utils/statusUtils'
 import { SITE_OVERVIEW_STATUSES } from '@/Components/PoolManager/PoolManager.constants'
 import { STAT_REALTIME } from '@/constants/tailLogStatKeys.constants'
 import { UNITS } from '@/constants/units'
+import type { ContainerPoolStat } from '@/types/api'
 import {
   getContainerMinersChartData,
   MinerTailLogItem,
@@ -57,11 +58,6 @@ export interface ProcessedContainerUnit extends ContainerUnit {
 export interface UseSitesOverviewDataResult {
   units: ProcessedContainerUnit[]
   isLoading: boolean
-}
-
-export interface ContainerPoolStat {
-  container: string
-  overriddenConfig: number
 }
 
 /**
@@ -124,8 +120,9 @@ export const useSitesOverviewData = (): UseSitesOverviewDataResult => {
     return formatValueUnit(hashRatePhs, UNITS.HASHRATE_PH_S)
   }
 
+  const poolStatsList = (containerPoolStats ?? []) as ContainerPoolStat[]
   const containerPoolStatsMap = _fromPairs(
-    _map(containerPoolStats as ContainerPoolStat[], (stat) => [stat.container, stat]),
+    _map(poolStatsList, (stat) => [stat.container, stat]),
   )
 
   // Process units with hash rate and status

@@ -85,7 +85,7 @@ const Ebitda = () => {
 
   // Build chart data
   const { ebitdaChart, btcProducedChart, ebitdaMetrics } = buildEbitdaCharts(
-    ebitdaData as ReportApiResponse,
+    ebitdaData as unknown as ReportApiResponse,
     {
       regionFilter: [siteId as string],
       buckets: 12,

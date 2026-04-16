@@ -2,9 +2,10 @@ import type { EndpointBuilder, BaseQueryFn } from '@reduxjs/toolkit/query/react'
 import qs from 'qs'
 
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
+import type { CostOperationalEnergyData, RevenueData } from '@/types/api'
 
 export const financialEndpoints = (builder: EndpointBuilder<BaseQueryFn, string, string>) => ({
-  getRevenue: builder.query({
+  getRevenue: builder.query<RevenueData, UnknownRecord>({
     query: (payload: UnknownRecord) => `revenue?${qs.stringify(payload, { arrayFormat: 'comma' })}`,
   }),
 
@@ -12,7 +13,7 @@ export const financialEndpoints = (builder: EndpointBuilder<BaseQueryFn, string,
     query: (payload: UnknownRecord) => `costs?${qs.stringify(payload, { arrayFormat: 'comma' })}`,
   }),
 
-  getCostOperationalEnergy: builder.query({
+  getCostOperationalEnergy: builder.query<CostOperationalEnergyData, UnknownRecord>({
     query: (payload: UnknownRecord) =>
       `costs/operational-energy?${qs.stringify(payload, { arrayFormat: 'comma' })}`,
   }),

@@ -1,5 +1,8 @@
 import type { EndpointBuilder, BaseQueryFn } from '@reduxjs/toolkit/query/react'
 
+import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
+import type { ContainerPoolStat } from '@/types/api'
+
 export const poolsEndpoints = (builder: EndpointBuilder<BaseQueryFn, string, string>) => ({
   getPoolConfigs: builder.query({
     query: () => ({ url: 'configs/pool', method: 'GET' }),
@@ -7,7 +10,7 @@ export const poolsEndpoints = (builder: EndpointBuilder<BaseQueryFn, string, str
     extraOptions: { maxRetries: 3 },
   }),
 
-  getContainerPoolStats: builder.query({
+  getContainerPoolStats: builder.query<ContainerPoolStat[], UnknownRecord>({
     query: () => ({ url: 'pools/stats/containers', method: 'GET' }),
     extraOptions: { maxRetries: 3 },
   }),
