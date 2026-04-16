@@ -121,9 +121,7 @@ export const useSitesOverviewData = (): UseSitesOverviewDataResult => {
   }
 
   const poolStatsList = (containerPoolStats ?? []) as ContainerPoolStat[]
-  const containerPoolStatsMap = _fromPairs(
-    _map(poolStatsList, (stat) => [stat.container, stat]),
-  )
+  const containerPoolStatsMap = _fromPairs(_map(poolStatsList, (stat) => [stat.container, stat]))
 
   // Process units with hash rate and status
   const units: ProcessedContainerUnit[] = _map(rawUnits, (unit: ContainerUnit) => ({

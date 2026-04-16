@@ -172,8 +172,7 @@ export const useEnergyCostData = ({ dateRange }: UseEnergyCostDataParams) => {
     for (const key in firstEntry) {
       const values = _map(entries, (obj) => obj[key]) as (number | undefined)[]
       if (_startsWith(key, 'avg')) {
-        costOperationalData[key] =
-          _reduce(values, (sum, val) => (sum ?? 0) + (val ?? 0), 0) / count
+        costOperationalData[key] = _reduce(values, (sum, val) => (sum ?? 0) + (val ?? 0), 0) / count
       } else {
         costOperationalData[key] = _reduce(values, (sum, val) => (sum ?? 0) + (val ?? 0), 0)
       }
@@ -190,7 +189,7 @@ export const useEnergyCostData = ({ dateRange }: UseEnergyCostDataParams) => {
   const avgAllInCost = costOperationalData.avgAllInCostsUSD ?? 0
   const avgEnergyCost = costOperationalData.avgEnergyCostsUSD ?? 0
   const avgOperationsCost = costOperationalData.avgOperationalCostsUSD ?? 0
-  const avgEnergyRevenue = (_get(revenueData, ['summary', 'avg', 'revenueUSD'], 0) as number)
+  const avgEnergyRevenue = _get(revenueData, ['summary', 'avg', 'revenueUSD'], 0) as number
 
   const metrics = getMetrics({
     avgPowerConsumption,

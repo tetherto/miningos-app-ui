@@ -117,8 +117,7 @@ export const useCostData = () => {
     for (const key in firstEntry) {
       const values = _map(entries, (obj) => obj[key]) as (number | undefined)[]
       if (_startsWith(key, 'avg')) {
-        costOperationalData[key] =
-          _reduce(values, (sum, val) => (sum ?? 0) + (val ?? 0), 0) / count
+        costOperationalData[key] = _reduce(values, (sum, val) => (sum ?? 0) + (val ?? 0), 0) / count
       } else {
         costOperationalData[key] = _reduce(values, (sum, val) => (sum ?? 0) + (val ?? 0), 0)
       }
