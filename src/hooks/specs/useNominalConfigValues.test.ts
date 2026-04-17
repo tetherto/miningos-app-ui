@@ -6,11 +6,6 @@ vi.mock('@/app/services/api', () => ({
   useGetGlobalConfigQuery: vi.fn(),
 }))
 
-vi.mock('../Views/Financial/RevenueSummary/hooks/documentationMocks', () => ({
-  USE_DOCUMENTATION_MOCKS: false,
-  mockGlobalConfigFromDoc: null,
-}))
-
 import { useGetGlobalConfigQuery } from '@/app/services/api'
 
 const mockQuery = useGetGlobalConfigQuery as ReturnType<typeof vi.fn>
