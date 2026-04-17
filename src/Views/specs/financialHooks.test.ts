@@ -14,6 +14,11 @@ vi.mock('@/app/services/api', () => ({
     isLoading: false,
     refetch: vi.fn(),
   })),
+  useGetFinanceEbitdaQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
+  useGetFinanceEnergyBalanceQuery: vi.fn(() => ({
+    data: undefined as unknown,
+    isLoading: false,
+  })),
 }))
 
 vi.mock('@/hooks/useTimezone', () => ({
