@@ -835,3 +835,225 @@ export interface ContainerPoolStat {
   container: string
   overriddenConfig: number
 }
+
+// ============================================================================
+// Finance v2 API Types (/auth/finance/*)
+// ============================================================================
+
+export type FinancePeriod = 'daily' | 'weekly' | 'monthly' | 'yearly'
+
+export interface FinanceQueryParams {
+  start: number
+  end: number
+  period?: FinancePeriod
+  overwriteCache?: boolean
+}
+
+export interface FinanceResponse<Log, Summary> {
+  log: Log[]
+  summary: Summary
+}
+
+// Revenue Summary: /auth/finance/revenue-summary
+export interface RevenueSummaryLogEntry {
+  ts: number
+  revenueBTC: number
+  feesBTC: number
+  revenueUSD: number
+  feesUSD: number
+  btcPrice: number
+  powerW: number
+  consumptionMWh: number
+  hashrateMhs: number
+  energyCostsUSD: number
+  operationalCostsUSD: number
+  totalCostsUSD: number
+  ebitdaSelling: number
+  ebitdaHodl: number
+  btcProductionCost: number | null
+  energyRevenuePerMWh: number | null
+  allInCostPerMWh: number | null
+  hashRevenueBTCPerPHsPerDay: number | null
+  hashRevenueUSDPerPHsPerDay: number | null
+  blockReward: number
+  blockTotalFees: number
+  curtailmentMWh: number | null
+  curtailmentRate: number | null
+  operationalIssuesRate: number | null
+  powerUtilization: number | null
+}
+
+export interface RevenueSummaryTotals {
+  totalRevenueBTC: number
+  totalRevenueUSD: number
+  totalFeesBTC: number
+  totalFeesUSD: number
+  totalCostsUSD: number
+  totalConsumptionMWh: number
+  avgCostPerMWh: number | null
+  avgRevenuePerMWh: number | null
+  avgBtcPrice: number | null
+  avgCurtailmentRate: number | null
+  avgPowerUtilization: number | null
+  totalEbitdaSelling: number
+  totalEbitdaHodl: number
+  currentBtcPrice: number
+}
+
+export type RevenueSummaryResponse = FinanceResponse<RevenueSummaryLogEntry, RevenueSummaryTotals>
+
+// EBITDA: /auth/finance/ebitda
+export interface EbitdaLogEntry {
+  ts: number
+  revenueBTC: number
+  revenueUSD: number
+  btcPrice: number
+  powerW: number
+  hashrateMhs: number
+  consumptionMWh: number
+  energyCostsUSD: number
+  operationalCostsUSD: number
+  totalCostsUSD: number
+  ebitdaSelling: number
+  ebitdaHodl: number
+  btcProductionCost: number | null
+}
+
+export interface EbitdaTotals {
+  totalRevenueBTC: number
+  totalRevenueUSD: number
+  totalCostsUSD: number
+  totalEbitdaSelling: number
+  totalEbitdaHodl: number
+  avgBtcProductionCost: number | null
+  currentBtcPrice: number
+}
+
+export type EbitdaResponse = FinanceResponse<EbitdaLogEntry, EbitdaTotals>
+
+// Energy Balance: /auth/finance/energy-balance
+export interface EnergyBalanceLogEntry {
+  ts: number
+  powerW: number
+  consumptionMWh: number
+  revenueBTC: number
+  revenueUSD: number
+  btcPrice: number
+  energyCostUSD: number
+  totalCostUSD: number
+  energyRevenuePerMWh: number | null
+  allInCostPerMWh: number | null
+  profitUSD: number
+  curtailmentMWh: number | null
+  curtailmentRate: number | null
+  operationalIssuesRate: number | null
+  powerUtilization: number | null
+}
+
+export interface EnergyBalanceTotals {
+  totalRevenueBTC: number
+  totalRevenueUSD: number
+  totalCostUSD: number
+  totalProfitUSD: number
+  avgCostPerMWh: number | null
+  avgRevenuePerMWh: number | null
+  totalConsumptionMWh: number
+  avgCurtailmentRate: number | null
+  avgOperationalIssuesRate: number | null
+  avgPowerUtilization: number | null
+}
+
+export type EnergyBalanceResponse = FinanceResponse<EnergyBalanceLogEntry, EnergyBalanceTotals>
+
+// Cost Summary: /auth/finance/cost-summary
+export interface CostSummaryLogEntry {
+  ts: number
+  consumptionMWh: number
+  energyCostsUSD: number
+  operationalCostsUSD: number
+  totalCostsUSD: number
+  allInCostPerMWh: number | null
+  energyCostPerMWh: number | null
+  btcPrice: number
+}
+
+export interface CostSummaryTotals {
+  totalEnergyCostsUSD: number
+  totalOperationalCostsUSD: number
+  totalCostsUSD: number
+  totalConsumptionMWh: number
+  avgAllInCostPerMWh: number | null
+  avgEnergyCostPerMWh: number | null
+  avgBtcPrice: number | null
+}
+
+export type CostSummaryResponse = FinanceResponse<CostSummaryLogEntry, CostSummaryTotals>
+
+// Subsidy & Fees: /auth/finance/subsidy-fees
+export interface SubsidyFeesLogEntry {
+  ts: number
+  blockReward: number
+  blockTotalFees: number
+}
+
+export interface SubsidyFeesTotals {
+  totalBlockReward: number
+  totalBlockTotalFees: number
+  avgBlockReward: number | null
+  avgBlockTotalFees: number | null
+}
+
+export type SubsidyFeesResponse = FinanceResponse<SubsidyFeesLogEntry, SubsidyFeesTotals>
+
+// Revenue: /auth/finance/revenue
+export interface FinanceRevenueQueryParams extends FinanceQueryParams {
+  pool?: string
+}
+
+export interface FinanceRevenueLogEntry {
+  ts: number
+  revenueBTC: number
+  feesBTC: number
+  netRevenueBTC: number
+}
+
+export interface FinanceRevenueTotals {
+  totalRevenueBTC: number
+  totalFeesBTC: number
+  totalNetRevenueBTC: number
+}
+
+export type FinanceRevenueResponse = FinanceResponse<FinanceRevenueLogEntry, FinanceRevenueTotals>
+
+// Hash Revenue & Cost: /auth/finance/hash-revenue
+export interface HashRevenueLogEntry {
+  ts: number
+  revenueBTC: number
+  feesBTC: number
+  revenueUSD: number
+  feesUSD: number
+  btcPrice: number
+  hashrateMhs: number
+  hashRevenueBTCPerPHsPerDay: number | null
+  hashRevenueUSDPerPHsPerDay: number | null
+  hashCostBTCPerPHsPerDay: number | null
+  hashCostUSDPerPHsPerDay: number | null
+  networkHashPriceBTCPerPHsPerDay: number | null
+  networkHashPriceUSDPerPHsPerDay: number | null
+  networkHashrateMhs: number
+}
+
+export interface HashRevenueTotals {
+  avgHashRevenueBTCPerPHsPerDay: number | null
+  avgHashRevenueUSDPerPHsPerDay: number | null
+  avgHashCostBTCPerPHsPerDay: number | null
+  avgHashCostUSDPerPHsPerDay: number | null
+  avgNetworkHashPriceBTCPerPHsPerDay: number | null
+  avgNetworkHashPriceUSDPerPHsPerDay: number | null
+  totalRevenueBTC: number
+  totalRevenueUSD: number
+  totalFeesBTC: number
+  totalFeesUSD: number
+}
+
+export type HashRevenueResponse = FinanceResponse<HashRevenueLogEntry, HashRevenueTotals>
