@@ -26,7 +26,7 @@ import { calculateTransactionSum } from '@/app/utils/transactionUtils'
 import { PERIOD } from '@/constants/ranges'
 import { useMultiSiteDateRange } from '@/hooks/useMultiSiteDateRange'
 import { useMultiSiteMode } from '@/hooks/useMultiSiteMode'
-import { getStartOfDay } from '@/Views/Financial/RevenueSummary/hooks/revenueSummaryHelpers'
+import { getStartOfDay } from '@/Views/Financial/common/financial.helpers'
 
 // Flag to enable/disable mocks - set to true to use mock data
 export const USE_MOCKS = false
