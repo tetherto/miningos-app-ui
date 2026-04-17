@@ -1,4 +1,6 @@
 import { format } from 'date-fns/format'
+import _every from 'lodash/every'
+import _isEmpty from 'lodash/isEmpty'
 
 import { PeriodType } from './financial.types'
 
@@ -38,4 +40,14 @@ export const getPeriodType = (dateRange: DateRange | null): PeriodType => {
     return days <= 7 ? 'day' : 'week'
   }
   return 'month'
+}
+
+export const checkIfAllValuesAreZero = (
+  data: { series?: { values?: number[] }[] } | null | undefined,
+): boolean => {
+  if (!data?.series || _isEmpty(data.series)) return true
+  return _every(data.series, ({ values }) => {
+    if (!values || _isEmpty(values)) return true
+    return _every(values, (value) => value === 0)
+  })
 }
