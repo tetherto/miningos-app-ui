@@ -83,10 +83,7 @@ export const useRevenueSummaryData = () => {
     { skip: !hasValidDateRange, refetchOnMountOrArgChange: true },
   )
 
-  const {
-    nominalHashrateMHS,
-    isLoading: isNominalConfigValuesLoading,
-  } = useNominalConfigValues()
+  const { nominalHashrateMHS, isLoading: isNominalConfigValuesLoading } = useNominalConfigValues()
 
   const isLoading = isSiteLoading || isRevenueLoading || isNominalConfigValuesLoading
 
@@ -122,15 +119,17 @@ export const useRevenueSummaryData = () => {
   const { start, end } = dateRange ?? {}
   const hoursInPeriod = start && end ? (end - start) / MS_PER_HOUR : 0
 
-  const avgPowerW = hoursInPeriod > 0 && summary
-    ? (summary.totalConsumptionMWh * 1e6) / hoursInPeriod
-    : 0
+  const avgPowerW =
+    hoursInPeriod > 0 && summary ? (summary.totalConsumptionMWh * 1e6) / hoursInPeriod : 0
   const avgHashrateMHS = log.length ? _mean(_map(log, 'hashrateMhs')) : 0
 
   const avgHashRevenueUSDPerPHsPerDay = _reduce(
     log,
     (acc, entry) => {
-      if (entry.hashRevenueUSDPerPHsPerDay !== null && entry.hashRevenueUSDPerPHsPerDay !== undefined) {
+      if (
+        entry.hashRevenueUSDPerPHsPerDay !== null &&
+        entry.hashRevenueUSDPerPHsPerDay !== undefined
+      ) {
         acc.sum += entry.hashRevenueUSDPerPHsPerDay
         acc.count += 1
       }
@@ -149,8 +148,7 @@ export const useRevenueSummaryData = () => {
   const totalMWh = summary?.totalConsumptionMWh ?? 0
   const currentBtcPrice = summary?.currentBtcPrice ?? 0
 
-  const avgEnergyRevenueSatsPerMWh =
-    totalMWh > 0 ? (totalBTC / totalMWh) * BTC_SATS : 0
+  const avgEnergyRevenueSatsPerMWh = totalMWh > 0 ? (totalBTC / totalMWh) * BTC_SATS : 0
   const avgHashRevenueSatsPerPHS =
     avgHashRevenuePerPHsPerDay > 0 && currentBtcPrice > 0
       ? (avgHashRevenuePerPHsPerDay / currentBtcPrice) * BTC_SATS
@@ -175,7 +173,9 @@ export const useRevenueSummaryData = () => {
     avgHashRevenueAtProdDateSats: formatNumber(avgHashRevenueSatsPerPHS, {
       maximumFractionDigits: 0,
     }),
-    avgPowerConsumption: formatNumber(powerConsumptionUnit.value || 0, { maximumFractionDigits: 3 }),
+    avgPowerConsumption: formatNumber(powerConsumptionUnit.value || 0, {
+      maximumFractionDigits: 3,
+    }),
     avgPowerConsumptionUnit: powerConsumptionUnit.unit || '',
     avgHashrate: formatNumber(hashrateUnit.value || 0, { maximumFractionDigits: 3 }),
     avgHashrateUnit: hashrateUnit.unit || '',

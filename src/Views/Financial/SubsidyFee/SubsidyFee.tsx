@@ -38,11 +38,7 @@ const SubsidyFee = () => {
   const { dateRange, handleRangeChange } = useFinancialDateRange()
   const periodType = getPeriodType(dateRange)
 
-  const {
-    data,
-    isLoading,
-    isError,
-  } = useGetFinanceSubsidyFeesQuery(
+  const { data, isLoading, isError } = useGetFinanceSubsidyFeesQuery(
     {
       start: dateRange?.start ?? 0,
       end: dateRange?.end ?? 0,

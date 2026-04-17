@@ -55,19 +55,20 @@ const useEBITDA = () => {
 
   const hasData = Boolean(dateRange && summary && log.length > 0)
 
-  const metrics: EbitdaMetrics | null = hasData && summary
-    ? {
-        bitcoinProductionCost: summary.avgBtcProductionCost ?? 0,
-        bitcoinPrice:
-          log.length > 0
-            ? log.reduce((sum, entry) => sum + (entry.btcPrice || 0), 0) / log.length
-            : currentBTCPrice,
-        bitcoinProduced: summary.totalRevenueBTC,
-        ebitdaSellingBTC: summary.totalEbitdaSelling,
-        actualEbitda: summary.totalEbitdaSelling,
-        ebitdaNotSellingBTC: summary.totalEbitdaHodl,
-      }
-    : null
+  const metrics: EbitdaMetrics | null =
+    hasData && summary
+      ? {
+          bitcoinProductionCost: summary.avgBtcProductionCost ?? 0,
+          bitcoinPrice:
+            log.length > 0
+              ? log.reduce((sum, entry) => sum + (entry.btcPrice || 0), 0) / log.length
+              : currentBTCPrice,
+          bitcoinProduced: summary.totalRevenueBTC,
+          ebitdaSellingBTC: summary.totalEbitdaSelling,
+          actualEbitda: summary.totalEbitdaSelling,
+          ebitdaNotSellingBTC: summary.totalEbitdaHodl,
+        }
+      : null
 
   const labels = _map(log, (entry) => getPeriodKey(entry.ts, periodType))
 

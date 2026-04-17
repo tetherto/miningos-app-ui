@@ -206,6 +206,5 @@ describe('transactionUtils', () => {
         expect(result.feesBTC).toBeCloseTo(0.000000001, 9)
       })
     })
-
   })
 })

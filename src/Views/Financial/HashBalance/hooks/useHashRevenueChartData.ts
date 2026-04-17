@@ -51,8 +51,8 @@ export const useHashRevenueChartData = ({
 
   const avgHashRevenue =
     currency === 'BTC'
-      ? summary?.avgHashRevenueBTCPerPHsPerDay ?? 0
-      : summary?.avgHashRevenueUSDPerPHsPerDay ?? 0
+      ? (summary?.avgHashRevenueBTCPerPHsPerDay ?? 0)
+      : (summary?.avgHashRevenueUSDPerPHsPerDay ?? 0)
 
   const avgNetworkHashprice = summary?.avgNetworkHashPriceUSDPerPHsPerDay ?? 0
 

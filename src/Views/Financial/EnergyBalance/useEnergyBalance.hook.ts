@@ -192,9 +192,7 @@ const useEnergyBalance = () => {
 
   const powerPoints = _map(rows, (r) => ({ ts: r.ts, value: r.sitePowerMW }))
   const powerChartData = {
-    series: [
-      { label: 'Power Consumption', points: powerPoints, color: CHART_COLORS.orange },
-    ],
+    series: [{ label: 'Power Consumption', points: powerPoints, color: CHART_COLORS.orange }],
     constants: [
       {
         label: 'Power Availability',
@@ -206,9 +204,7 @@ const useEnergyBalance = () => {
   }
 
   const powerChartDataCostTab = {
-    series: [
-      { label: 'Power Consumption', points: powerPoints, color: CHART_COLORS.blue },
-    ],
+    series: [{ label: 'Power Consumption', points: powerPoints, color: CHART_COLORS.blue }],
     constants: [
       {
         label: 'Power Availability',
@@ -255,8 +251,12 @@ const useEnergyBalance = () => {
 
     const maxSatsValue = Math.max(0, ...revenueValuesSats, ...allInCostValuesSats)
     const useBTC = maxSatsValue >= SATS_THRESHOLD
-    const revenueValuesOut = useBTC ? _map(revenueValuesSats, (v) => v / BTC_SATS) : revenueValuesSats
-    const costValuesOut = useBTC ? _map(allInCostValuesSats, (v) => v / BTC_SATS) : allInCostValuesSats
+    const revenueValuesOut = useBTC
+      ? _map(revenueValuesSats, (v) => v / BTC_SATS)
+      : revenueValuesSats
+    const costValuesOut = useBTC
+      ? _map(allInCostValuesSats, (v) => v / BTC_SATS)
+      : allInCostValuesSats
     const formatter = useBTC ? btcBarLabelFormatter : barLabelFormatter
 
     return {

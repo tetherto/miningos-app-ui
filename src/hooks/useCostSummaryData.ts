@@ -87,13 +87,14 @@ export const useCostSummaryData = () => {
 
   const metrics = getMetrics({ allInCost, energyCost, operationsCost })
 
-  const costData = log.length > 0
-    ? {
-        summary: _map(log, (entry) => ({ ts: entry.ts, totalCost: entry.totalCostsUSD })),
-        energyCostsUSD: summary?.totalEnergyCostsUSD ?? 0,
-        operationalCostsUSD: summary?.totalOperationalCostsUSD ?? 0,
-      }
-    : {}
+  const costData =
+    log.length > 0
+      ? {
+          summary: _map(log, (entry) => ({ ts: entry.ts, totalCost: entry.totalCostsUSD })),
+          energyCostsUSD: summary?.totalEnergyCostsUSD ?? 0,
+          operationalCostsUSD: summary?.totalOperationalCostsUSD ?? 0,
+        }
+      : {}
 
   const btcPriceChartData = {
     log: _map(log, (entry) => ({ ts: entry.ts, priceUSD: entry.btcPrice })),
