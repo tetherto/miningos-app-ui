@@ -289,6 +289,7 @@ export interface Metric {
 // Global declarations
 declare global {
   const GIT_INFO: {
+    prefix: string
     branch: string
     commit: string
     date: string

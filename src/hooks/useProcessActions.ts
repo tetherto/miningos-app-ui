@@ -3,7 +3,7 @@ import _isFunction from 'lodash/isFunction'
 import _map from 'lodash/map'
 
 import { useVoteForActionMutation } from '../app/services/api'
-import { getErrorMessage } from '../app/utils/actionUtils'
+import { getErrorMessage, type ActionData } from '../app/utils/actionUtils'
 
 import { useActionsContext } from '@/contexts/ActionsContext'
 import { useNotification } from '@/hooks/useNotification'
@@ -51,7 +51,8 @@ export const useProcessActions = ({ actionIDs }: UseProcessActionsParams) => {
       } else {
         notifyError(
           message.error,
-          getErrorMessage(data, error as ApiError | undefined) || 'Unknown error',
+          getErrorMessage(data as ActionData | ActionData[], error as ApiError | undefined) ||
+            'Unknown error',
         )
       }
 

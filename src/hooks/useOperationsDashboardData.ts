@@ -234,9 +234,9 @@ export const useOperationsDashboardData = (dateRange: DateRange): OperationsDash
   // ----- miners -----
   let minersChartData: MinersChartData | null = null
 
-  const minersDataHead = _head(rawMinersData)
+  const minersDataHead = _head(rawMinersData as unknown[])
 
-  const minersData = _isArray(minersDataHead) ? minersDataHead : rawMinersData
+  const minersData = _isArray(minersDataHead) ? minersDataHead : (rawMinersData as unknown[])
 
   if (_isArray(minersData) && !_isEmpty(minersData)) {
     const processed = _map(minersData as TailLogItem[], (item: TailLogItem) => ({

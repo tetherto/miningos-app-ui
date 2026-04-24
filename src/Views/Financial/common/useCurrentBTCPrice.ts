@@ -58,7 +58,7 @@ export function useCurrentBTCPrice() {
 
   // Current BTC price
   const res = useGetExtDataQuery(buildCurrentBtcParams(), queryOptions)
-  const currentBTCPrice = getCurrentBTCPrice(res.data)
+  const currentBTCPrice = getCurrentBTCPrice(res.data as CurrentBTCData[])
 
   return { ...res, currentBTCPrice }
 }

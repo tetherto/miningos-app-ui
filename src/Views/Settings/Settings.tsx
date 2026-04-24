@@ -82,7 +82,7 @@ const Settings = () => {
         isAutoSleepAllowed: isAllowed,
       },
     })
-    if (data?.success) {
+    if ((data as { success?: boolean } | undefined)?.success) {
       notifySuccess(`Container automation ${isAllowed ? 'enabled' : 'disabled'}`, '')
     } else {
       notifyError(

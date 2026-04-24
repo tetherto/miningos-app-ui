@@ -50,7 +50,7 @@ const CostSingleSite = () => {
     onTableDateRangeChange,
     isDataLoading,
     isRevenueDataLoading,
-    metrcis,
+    metrics,
   } = useCostSummaryData()
 
   const handleReset = () => {
@@ -102,7 +102,7 @@ const CostSingleSite = () => {
         onTableDateRangeChange={onTableDateRangeChange}
         isDataLoading={isDataLoading ?? false}
         isRevenueDataLoading={isRevenueDataLoading ?? false}
-        metrcis={metrcis}
+        metrics={metrics}
         showHeader={false}
       />
     </PageRoot>

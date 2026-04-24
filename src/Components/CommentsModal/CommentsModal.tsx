@@ -8,7 +8,7 @@ import { useEffect, useState, FC } from 'react'
 import * as yup from 'yup'
 
 import { useAddThingCommentMutation } from '../../app/services/api'
-import { getErrorMessage } from '../../app/utils/actionUtils'
+import { getErrorMessage, type ActionData } from '../../app/utils/actionUtils'
 import { notifyError, notifySuccess } from '../../app/utils/NotificationService'
 import { AUTH_LEVELS, AUTH_PERMISSIONS } from '../../constants/permissions.constants'
 import { useCheckPerm } from '../../hooks/usePermissions'
@@ -111,7 +111,8 @@ export const CommentsModal: FC<CommentsModalProps> = ({
       notifySuccess('Submitted Comment', 'Message sent successfully')
     } else {
       const apiError = error as { data?: { message?: string }; [key: string]: unknown } | undefined
-      const errorMessage = getErrorMessage(data, apiError) || 'Unknown error'
+      const errorMessage =
+        getErrorMessage(data as ActionData | ActionData[], apiError) || 'Unknown error'
       notifyError('Error occurred while submission', errorMessage)
     }
 

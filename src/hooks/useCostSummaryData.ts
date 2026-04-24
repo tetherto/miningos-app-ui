@@ -236,11 +236,11 @@ export const useCostSummaryData = () => {
         energyCost: 0,
         operationsCost: 0,
         btcData: [],
-        metrcis: {},
+        metrics: {},
       },
       isDataLoading: false,
       isRevenueDataLoading: false,
-      metrcis: {},
+      metrics: {},
       dateRange,
       onTableDateRangeChange,
       onDateRangeReset,
@@ -294,7 +294,7 @@ export const useCostSummaryData = () => {
         hoursInPeriod,
       )
 
-  const metrcis = getMetrics({
+  const metrics = getMetrics({
     allInCost,
     energyCost,
     operationsCost,
@@ -336,11 +336,11 @@ export const useCostSummaryData = () => {
       energyCost,
       operationsCost,
       btcData: btcPriceChartData,
-      metrcis,
+      metrics,
     },
     isDataLoading,
     isRevenueDataLoading: isRevenueDataLoading || false,
-    metrcis,
+    metrics,
     dateRange,
     onTableDateRangeChange,
     onDateRangeReset,

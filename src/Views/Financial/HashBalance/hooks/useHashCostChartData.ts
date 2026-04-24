@@ -25,7 +25,9 @@ import { useGetExtDataQuery, useGetSiteQuery } from '@/app/services/api'
 import { TIMEFRAME_TYPE } from '@/constants/ranges'
 import {
   TimeframeType,
+  type HashrateAggregateData,
   type MinerHistoricalBlockSizesResponse,
+  type MinerTransaction,
   type MultiSiteDateRange,
   type PeriodValue,
 } from '@/types'
@@ -73,8 +75,8 @@ export const useHashCostChartData = ({ dateRange, timeFrameType }: UseHashCostCh
     }
   }
 
-  const tailLogData = processTailLogData(tailLogRangeAggrRes)
-  const processedTransactionData = processTransactionData(transactionsData)
+  const tailLogData = processTailLogData(tailLogRangeAggrRes as HashrateAggregateData[][])
+  const processedTransactionData = processTransactionData(transactionsData as MinerTransaction[][])
   const currentSite = _get(siteData, ['site']) as string | undefined
 
   const mergedData = mergeDataSources(tailLogData, processedTransactionData)

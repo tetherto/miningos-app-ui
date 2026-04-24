@@ -250,7 +250,11 @@ export const useAvgAllInPowerCostData = (): UseAvgAllInPowerCostDataReturn => {
     const btcPricesByDay: Record<number, number> = {}
     if (finalBtcPricesData) {
       // Handle ApiResponse format: { data: [...], success: true }
-      const pricesData = 'data' in finalBtcPricesData ? finalBtcPricesData.data : finalBtcPricesData
+      const typedBtcPricesData = finalBtcPricesData as Record<string, unknown> | unknown[]
+      const pricesData =
+        !Array.isArray(typedBtcPricesData) && 'data' in typedBtcPricesData
+          ? typedBtcPricesData.data
+          : typedBtcPricesData
       if (_isArray(pricesData)) {
         const pricesArray = _head(pricesData) as
           | Array<{ ts?: number; priceUSD?: number }>

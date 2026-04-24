@@ -26,7 +26,7 @@ export default defineConfig({
     // Reduce isolation overhead while maintaining test safety
     isolate: true, // Enable isolation to prevent module loading issues in CI
     // Optimize test file discovery
-    include: ['src/**/*.{test,spec}.{js,jsx,ts,tsx}'],
+    include: ['src/**/*.{test,spec}.{js,jsx,ts,tsx}', 'scripts/**/*.{test,spec}.{js,ts}'],
     exclude: ['node_modules', 'dist', '.git', '.cache'],
     // Optimize setup
     setupFiles: ['./src/setupTests.ts'],

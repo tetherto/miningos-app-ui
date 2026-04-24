@@ -115,7 +115,9 @@ const Dashboard = () => {
     (minersAmount?.majorErrors ?? 0) +
     (minersAmount.offlineOrSleep ?? 0)
 
-  const numConfiguredMiners = _size(_head(configuredMinersData))
+  const numConfiguredMiners = _size(
+    _head(configuredMinersData as unknown[]) as string | object | null | undefined,
+  )
   const pctConfiguredMiners = numConfiguredMiners / totalMiners
 
   const stats: StatItem[] = [

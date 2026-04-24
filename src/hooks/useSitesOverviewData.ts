@@ -14,6 +14,7 @@ import { CONTAINER_STATUS, ContainerStatus } from '@/app/utils/statusUtils'
 import { SITE_OVERVIEW_STATUSES } from '@/Components/PoolManager/PoolManager.constants'
 import { STAT_REALTIME } from '@/constants/tailLogStatKeys.constants'
 import { UNITS } from '@/constants/units'
+import type { ContainerPoolStat } from '@/types/api'
 import {
   getContainerMinersChartData,
   MinerTailLogItem,
@@ -59,11 +60,6 @@ export interface UseSitesOverviewDataResult {
   isLoading: boolean
 }
 
-export interface ContainerPoolStat {
-  container: string
-  overriddenConfig: number
-}
-
 /**
  * Custom hook to fetch and process all data for Sites Overview
  * Extracts all data fetching and processing logic from the component
@@ -96,7 +92,10 @@ export const useSitesOverviewData = (): UseSitesOverviewDataResult => {
 
   // Process units data
   const unitsDataArray = Array.isArray(unitsData) ? unitsData : []
-  const tailLogArray = (_head(minerTailLogData) as MinerTailLogItem[] | undefined) || []
+  const tailLogArray =
+    (_head(minerTailLogData as MinerTailLogItem[][] | undefined) as
+      | MinerTailLogItem[]
+      | undefined) || []
   const tailLogItem = _head(tailLogArray) ?? ({} as MinerTailLogItem)
 
   const rawUnits = _map(
@@ -121,9 +120,8 @@ export const useSitesOverviewData = (): UseSitesOverviewDataResult => {
     return formatValueUnit(hashRatePhs, UNITS.HASHRATE_PH_S)
   }
 
-  const containerPoolStatsMap = _fromPairs(
-    _map(containerPoolStats as ContainerPoolStat[], (stat) => [stat.container, stat]),
-  )
+  const poolStatsList = (containerPoolStats ?? []) as ContainerPoolStat[]
+  const containerPoolStatsMap = _fromPairs(_map(poolStatsList, (stat) => [stat.container, stat]))
 
   // Process units with hash rate and status
   const units: ProcessedContainerUnit[] = _map(rawUnits, (unit: ContainerUnit) => ({

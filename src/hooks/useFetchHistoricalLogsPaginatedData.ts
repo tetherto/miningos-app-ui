@@ -70,7 +70,7 @@ export const useFetchHistoricalLogsPaginatedData = ({
             logType,
           }).unwrap()
 
-          const newData = _head(response) as HistoricalLogData[]
+          const newData = _head(response as HistoricalLogData[][]) as HistoricalLogData[]
 
           // Only update state if this fetch is still active
           if (active) {

@@ -23,7 +23,7 @@ export const useEfficiencyMinerType = ({ start, end }: { start: Date; end: Date 
     end: end.valueOf(),
   })
 
-  const tailLog = _head(tailLogData) ?? {}
+  const tailLog = (_head(tailLogData as unknown[]) ?? {}) as Record<string, unknown>
 
   const categories = _sortBy(_keys(_get(tailLog, TAIL_LOG_MINER_TYPE_KEY, {})))
 

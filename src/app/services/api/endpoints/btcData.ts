@@ -2,6 +2,7 @@ import type { EndpointBuilder, BaseQueryFn } from '@reduxjs/toolkit/query/react'
 import qs from 'qs'
 
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
+import type { HashpriceData } from '@/types/api'
 
 export const btcDataEndpoints = (builder: EndpointBuilder<BaseQueryFn, string, string>) => ({
   getBTCDataHashrate: builder.query({
@@ -24,7 +25,7 @@ export const btcDataEndpoints = (builder: EndpointBuilder<BaseQueryFn, string, s
       `btcData/hashrate?${qs.stringify(payload, { arrayFormat: 'comma' })}`,
   }),
 
-  getBtcDataHashPrice: builder.query({
+  getBtcDataHashPrice: builder.query<HashpriceData, UnknownRecord>({
     query: (payload: UnknownRecord = {}) =>
       `btcData/hashprice?${qs.stringify(payload, { arrayFormat: 'comma' })}`,
   }),

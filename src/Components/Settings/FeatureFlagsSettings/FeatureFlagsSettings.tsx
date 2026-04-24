@@ -15,7 +15,7 @@ import React, { useEffect, useState } from 'react'
 
 import { useGetFeaturesQuery } from '../../../app/services/api'
 import { useAddFeatureFlagsMutation } from '../../../app/services/api'
-import { getErrorMessage } from '../../../app/utils/actionUtils'
+import { getErrorMessage, type ActionData } from '../../../app/utils/actionUtils'
 import { notifyError, notifySuccess } from '../../../app/utils/NotificationService'
 import { useIsFeatureEditingEnabled } from '../../../hooks/usePermissions'
 import { PrimaryButton } from '../../ActionsSidebar/ActionCard/ActionCard.styles'
@@ -61,7 +61,7 @@ const FeatureFlagsSettings = () => {
       refetch()
     } else {
       const errorMessage = getErrorMessage(
-        data,
+        data as ActionData | ActionData[],
         error as { data?: { message?: string }; message?: string } | undefined,
       )
       notifyError('Error occurred while submission', errorMessage || 'Unknown error')

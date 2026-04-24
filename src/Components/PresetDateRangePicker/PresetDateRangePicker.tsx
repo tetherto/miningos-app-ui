@@ -169,7 +169,8 @@ const PresetDateRangePicker = withErrorBoundary(
             open
             title="Select Date Range"
             getContainer={() =>
-              document.querySelector('.ant-picker-date-panel-container') || document.body
+              (document.querySelector('.ant-picker-date-panel-container') ||
+                document.body) as HTMLElement
             }
             maskClosable={false}
             cancelText="Clear Selection"

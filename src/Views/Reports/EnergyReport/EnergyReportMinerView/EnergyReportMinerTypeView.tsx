@@ -54,14 +54,14 @@ const EnergyReportMinerView = ({
     }),
   })
 
-  const containers = (_head(containerListData) ?? []) as Array<{
+  const containers = (_head(containerListData as unknown[][]) ?? []) as Array<{
     type?: string
     info?: { container?: string }
   }>
 
   const { title, key: tailLogField, getLabelName, filterCategory } = sliceConfig[slice]
 
-  const tailLogEntry = _head(_head(tailLogData)) as
+  const tailLogEntry = _head(_head(tailLogData as unknown[][])) as
     | Record<string, Record<string, number>>
     | undefined
 

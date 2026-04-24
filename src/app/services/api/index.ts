@@ -85,4 +85,13 @@ export const {
   useGetFeaturesQuery,
   useGetReportsQuery,
   useLazyGetReportsQuery,
+  useGetPoolConfigsQuery,
+  useGetContainerPoolStatsQuery,
+  useGetPoolForMinerQuery,
+  useGetHeaderControlsQuery,
+  useUpdateHeaderControlsMutation,
+  useGetExportSettingsQuery,
+  useImportSettingsMutation,
 } = api
+
+export const useGetOperationsMinersQuery = api.useGetOperationsWorkersQuery
