@@ -55,7 +55,7 @@ const Container = ({
   data,
   refetch = _noop,
   showComments = true,
-  basePath = ROUTE.OPERATIONS_MINING_EXPLORER,
+  basePath = `${ROUTE.OPERATIONS_MINING_EXPLORER}/containers`,
 }: ContainerProps) => {
   const smartPolling20s = useSmartPolling(POLLING_20s)
   const dispatch = useDispatch()
@@ -113,7 +113,7 @@ const Container = ({
 
   const onChange = (key: string) => {
     navigate(
-      `${basePath}/containers/${appendContainerToTag(info?.container ?? '')}/${key}${paramBackUrl ? `?backUrl=${paramBackUrl}` : ''}`,
+      `${basePath}/${appendContainerToTag(info?.container ?? '')}/${key}${paramBackUrl ? `?backUrl=${paramBackUrl}` : ''}`,
     )
   }
 
