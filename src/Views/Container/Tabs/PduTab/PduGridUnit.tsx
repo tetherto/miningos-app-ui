@@ -96,8 +96,8 @@ const PduGridUnit = ({
   additionalToolbarControls,
   isSocketSelectable,
   showPowerPercentage,
+  isSectionColumn,
   title = 'Racks',
-  isSectionColumn = false,
   isSocketListColumn = false,
 }: PduGridUnitProps) => {
   const minersFormattedJson = getMinersFormattedJson(connectedMiners as Device[])
