@@ -118,13 +118,7 @@ const Thing = ({ showContainerComments = true }: ThingProps) => {
           refetch={refetch}
           data={item as unknown as Parameters<typeof Container>[0]['data']}
           showComments={showContainerComments}
-          onSubHeadingClick={({
-            tab,
-            containerInfo,
-          }: {
-            tab?: string
-            containerInfo?: Record<string, unknown>
-          }) => {
+          onSubHeadingClick={({ containerInfo }: { containerInfo?: Record<string, unknown> }) => {
             navigate(
               `${ROUTE.OPERATIONS_MINING_EXPLORER}?tab=${CROSS_THING_TYPES.MINER}&containerMiners=${containerInfo?.container}`,
             )
