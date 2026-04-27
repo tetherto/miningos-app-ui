@@ -12,7 +12,6 @@ import {
   TabContent,
   UnitLabel,
 } from '../Hashrate.styles'
-import type { HashrateApiDataPoint } from '../Hashrate.types'
 import { getMiningUnitOptionsFromApi, transformToMiningUnitBarData } from '../Hashrate.utils'
 import { useHashrateData } from '../hooks/useHashrateData'
 
@@ -37,27 +36,18 @@ const MiningUnitView = () => {
   const reportTimeFrameState = useReportTimeFrameSelectorState()
   const { start, end } = reportTimeFrameState
 
-  // Fetch hashrate data from API with date range
   const { data: apiData, isLoading } = useHashrateData({
     dateRange: {
       start: start.getTime(),
       end: end.getTime(),
     },
+    groupBy: 'container',
   })
 
-  // Generate filter options from API data
-  const miningUnitOptions = useMemo(
-    () => getMiningUnitOptionsFromApi(apiData as HashrateApiDataPoint[] | undefined),
-    [apiData],
-  )
+  const miningUnitOptions = useMemo(() => getMiningUnitOptionsFromApi(apiData?.log), [apiData])
 
-  // Transform API data to chart format with filters applied
   const chartData = useMemo(
-    () =>
-      transformToMiningUnitBarData(
-        apiData as HashrateApiDataPoint[] | undefined,
-        filters.miningUnit,
-      ),
+    () => transformToMiningUnitBarData(apiData?.log, filters.miningUnit),
     [apiData, filters.miningUnit],
   )
 
