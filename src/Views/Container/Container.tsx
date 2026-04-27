@@ -104,17 +104,6 @@ const Container = ({
     getSupportedTabs(type, {
       ...data,
       connectedMiners: _filter(containerMinersResponse, (device) => isMiner(device.type as string)),
-      // TODO: Remove this. Just for testing, we are overriding position
-      // connectedMiners: _map(
-      //   _filter(containerMinersResponse, (device) => isMiner(device.type as string)),
-      //   (val, index) => ({
-      //     ...val,
-      //     info: {
-      //       ...val.info,
-      //       pos: `1_${index + 1}`,
-      //     },
-      //   }),
-      // ),
       isConnectedMinersLoading,
     }))()
 
