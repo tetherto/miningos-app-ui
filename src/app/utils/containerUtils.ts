@@ -591,6 +591,8 @@ const enhancedPduData = (pdus: unknown[], type: string): unknown[] =>
 export const getContainerPduData = (
   type: string,
   last: Record<string, unknown>,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  info?: Record<string, unknown>,
 ): unknown[] | undefined => {
   if (isBitdeer(type) || isMicroBT(type)) {
     const pduData = getPduData(last) as unknown[]
