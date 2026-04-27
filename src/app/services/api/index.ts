@@ -92,6 +92,14 @@ export const {
   useUpdateHeaderControlsMutation,
   useGetExportSettingsQuery,
   useImportSettingsMutation,
+  useGetMetricsHashrateQuery,
+  useGetMetricsHashrateGroupedQuery,
+  useGetMetricsConsumptionQuery,
+  useGetMetricsEfficiencyQuery,
+  useGetMetricsMinerStatusQuery,
+  useGetMetricsPowerModeQuery,
+  useGetMetricsPowerModeTimelineQuery,
+  useGetMetricsTemperatureQuery,
 } = api
 
 export const useGetOperationsMinersQuery = api.useGetOperationsWorkersQuery
