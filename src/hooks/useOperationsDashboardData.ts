@@ -1,4 +1,3 @@
-import _find from 'lodash/find'
 import _get from 'lodash/get'
 import _head from 'lodash/head'
 import _isArray from 'lodash/isArray'
@@ -7,8 +6,10 @@ import _map from 'lodash/map'
 
 import {
   useGetGlobalConfigQuery,
+  useGetMetricsConsumptionQuery,
+  useGetMetricsEfficiencyQuery,
+  useGetMetricsHashrateQuery,
   useGetTailLogQuery,
-  useGetTailLogRangeAggrQuery,
 } from '@/app/services/api'
 import { isDemoMode } from '@/app/services/api.utils'
 import {
@@ -41,14 +42,6 @@ interface GlobalConfig {
   nominalSiteMinerCapacity?: number
 }
 
-interface RangeAggrResponse {
-  type: string
-  data: Array<{
-    ts: number
-    val: Record<string, number>
-  }>
-}
-
 interface ChartData<T> {
   data: T
   nominalValue?: number | null
@@ -73,87 +66,44 @@ interface OperationsDashboardData {
   miners: Omit<ChartData<MinersChartData | null>, 'nominalValue'>
 }
 
-interface DataPoint {
-  ts: number
-  val: Record<string, number>
-}
-
-/**
- * Custom hook to fetch and process all operations dashboard data
- * Uses backend daily aggregation APIs for better performance
- */
 export const useOperationsDashboardData = (dateRange: DateRange): OperationsDashboardData => {
   // In demo mode, always use the fixed date range from when mock data was captured
   // This ensures charts display data regardless of the selected date range
   const fixedDateRange = isDemoMode
     ? {
-        start: 1769025600000, // Jan 21, 2026 20:00:00 UTC (Jan 22 00:00 UTC+4)
-        end: 1769630399999, // Jan 28, 2026 19:59:59 UTC (Jan 28 23:59:59 UTC+4)
+        start: 1769025600000,
+        end: 1769630399999,
       }
     : dateRange
 
-  // Convert timestamps to ISO date strings
-  const startDate = new Date(fixedDateRange.start).toISOString()
-  const endDate = new Date(fixedDateRange.end).toISOString()
+  const { start, end } = fixedDateRange
 
-  // Fetch global config for nominal values
   const { data: globalConfig, isLoading: isLoadingNominalValues } = useGetGlobalConfigQuery({})
 
-  // Fetch hashrate data - daily aggregation from backend
   const {
     data: hashrateResponse,
     isLoading: isLoadingHashrate,
     isFetching: isFetchingHashrate,
     error: hashrateError,
-  } = useGetTailLogRangeAggrQuery({
-    keys: JSON.stringify([
-      {
-        type: 'miner',
-        startDate,
-        endDate,
-        fields: { hashrate_mhs_5m_sum_aggr: 1 },
-        shouldReturnDailyData: 1,
-      },
-    ]),
-  })
+  } = useGetMetricsHashrateQuery({ start, end })
 
-  // Fetch miner efficiency data - daily aggregation from backend
   const {
     data: efficiencyResponse,
     isLoading: isLoadingEfficiency,
     isFetching: isFetchingEfficiency,
     error: efficiencyError,
-  } = useGetTailLogRangeAggrQuery({
-    keys: JSON.stringify([
-      {
-        type: 'miner',
-        startDate,
-        endDate,
-        fields: { efficiency_w_ths_avg_aggr: 1 },
-        shouldReturnDailyData: 1,
-      },
-    ]),
-  })
+  } = useGetMetricsEfficiencyQuery({ start, end })
 
-  // Fetch site power consumption data - daily aggregation from backend
   const {
     data: consumptionResponse,
     isLoading: isLoadingConsumption,
     isFetching: isFetchingConsumption,
     error: consumptionError,
-  } = useGetTailLogRangeAggrQuery({
-    keys: JSON.stringify([
-      {
-        type: 'powermeter',
-        startDate,
-        endDate,
-        fields: { site_power_w: 1 },
-        shouldReturnDailyData: 1,
-      },
-    ]),
-  })
+  } = useGetMetricsConsumptionQuery({ start, end })
 
-  // Fetch miners count data - daily aggregation with average from backend
+  // TODO: migrate to /auth/metrics/miner-status once BE adds `error` + `notMining`
+  // counts. Current handler folds those into "online", which would collapse the
+  // chart's Error stack.
   const {
     data: rawMinersData,
     isLoading: isLoadingMiners,
@@ -163,8 +113,8 @@ export const useOperationsDashboardData = (dateRange: DateRange): OperationsDash
     key: 'stat-3h',
     type: 'miner',
     tag: 't-miner',
-    start: fixedDateRange.start,
-    end: fixedDateRange.end,
+    start,
+    end,
     aggrFields: JSON.stringify({
       online_or_minor_error_miners_amount_aggr: 1,
       error_miners_amount_aggr: 1,
@@ -177,65 +127,23 @@ export const useOperationsDashboardData = (dateRange: DateRange): OperationsDash
     shouldCalculateAvg: true,
   })
 
-  // ----- hashrate -----
-  let hashrateChartData: { ts: number; hashrate: number }[] = []
+  const hashrateChartData = _map(hashrateResponse?.log ?? [], ({ ts, hashrateMhs }) => ({
+    ts,
+    hashrate: hashrateMhs,
+  }))
 
-  if (hashrateResponse) {
-    const arr = _isArray(hashrateResponse) ? _head(hashrateResponse) : hashrateResponse
+  const efficiencyChartData = _map(efficiencyResponse?.log ?? [], ({ ts, efficiencyWThs }) => ({
+    ts,
+    efficiency: efficiencyWThs,
+  }))
 
-    if (_isArray(arr) && !_isEmpty(arr)) {
-      const minerData = _find(arr, (item: RangeAggrResponse) => item.type === 'miner')
+  const consumptionChartData = _map(consumptionResponse?.log ?? [], ({ ts, powerW }) => ({
+    ts,
+    consumption: powerW,
+  }))
 
-      if (minerData?.data) {
-        hashrateChartData = _map(minerData.data, ({ ts, val }: DataPoint) => ({
-          ts,
-          hashrate: _get(val, 'hashrate_mhs_5m_sum_aggr', 0),
-        }))
-      }
-    }
-  }
-
-  // ----- efficiency -----
-  let efficiencyChartData: { ts: number; efficiency: number }[] = []
-
-  if (efficiencyResponse) {
-    const arr = _isArray(efficiencyResponse) ? _head(efficiencyResponse) : efficiencyResponse
-
-    if (_isArray(arr) && !_isEmpty(arr)) {
-      const minerData = _find(arr, (item: RangeAggrResponse) => item.type === 'miner')
-
-      if (minerData?.data) {
-        efficiencyChartData = _map(minerData.data, ({ ts, val }: DataPoint) => ({
-          ts,
-          efficiency: _get(val, 'efficiency_w_ths_avg_aggr', 0),
-        }))
-      }
-    }
-  }
-
-  // ----- consumption -----
-  let consumptionChartData: { ts: number; consumption: number }[] = []
-
-  if (consumptionResponse) {
-    const arr = _isArray(consumptionResponse) ? _head(consumptionResponse) : consumptionResponse
-
-    if (_isArray(arr) && !_isEmpty(arr)) {
-      const powermeter = _find(arr, (item: RangeAggrResponse) => item.type === 'powermeter')
-
-      if (powermeter?.data) {
-        consumptionChartData = _map(powermeter.data, ({ ts, val }: DataPoint) => ({
-          ts,
-          consumption: _get(val, 'site_power_w', 0),
-        }))
-      }
-    }
-  }
-
-  // ----- miners -----
   let minersChartData: MinersChartData | null = null
-
   const minersDataHead = _head(rawMinersData as unknown[])
-
   const minersData = _isArray(minersDataHead) ? minersDataHead : (rawMinersData as unknown[])
 
   if (_isArray(minersData) && !_isEmpty(minersData)) {
@@ -277,7 +185,7 @@ export const useOperationsDashboardData = (dateRange: DateRange): OperationsDash
       data: consumptionChartData,
       nominalValue: isLoadingNominalValues
         ? null
-        : (_head(globalConfig as GlobalConfig[])?.nominalPowerAvailability_MW ?? 0) * 1_000_000, // Convert MW to W
+        : (_head(globalConfig as GlobalConfig[])?.nominalPowerAvailability_MW ?? 0) * 1_000_000,
       isLoading: isLoadingConsumption || isFetchingConsumption,
       error: consumptionError,
     },
