@@ -8,6 +8,12 @@ vi.mock('@/app/services/api', () => ({
   useGetExtDataQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
   useGetTailLogRangeAggrQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
   useGetGlobalConfigQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
+  useGetMetricsConsumptionQuery: vi.fn(() => ({
+    data: { log: [] },
+    isLoading: false,
+    isFetching: false,
+    error: null,
+  })),
   useGetListThingsQuery: vi.fn(() => ({ data: undefined as unknown, isLoading: false })),
   useGetTailLogQuery: vi.fn(() => ({
     data: undefined as unknown,
