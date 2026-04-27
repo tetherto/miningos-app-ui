@@ -42,6 +42,7 @@ import { TAB } from '../List/ListView.const'
 import DetailsViewContent from './DetailsViewContent'
 import DetailsViewMobileModal from './DetailsViewMobileModal'
 
+import { isContainerTabPdu } from '@/app/utils/containerTabsHelper'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { CONTAINER_TAB, MAINTENANCE_CONTAINER } from '@/constants/containerConstants'
 import { ROUTE } from '@/constants/routes'
@@ -166,7 +167,7 @@ const DetailsView: FC<DetailsViewProps> = ({
   connectedMiners,
 }) => {
   const containerTab = useParams().tab
-  const isTabPdu = containerTab === CONTAINER_TAB.PDU
+  const isTabPdu = isContainerTabPdu(containerTab)
   const isTabHeatmap = containerTab === CONTAINER_TAB.HEATMAP
 
   const { search, pathname } = useLocation()

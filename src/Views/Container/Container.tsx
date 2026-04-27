@@ -49,11 +49,10 @@ interface ContainerProps {
   basePath?: string
   subHeading?: string
   onSubHeadingClick: (params: OnSubHeadingClickParams) => void
+  homeTabKey?: string
 }
 
 const { setResetSelections, selectContainer, setFilterTags } = devicesSlice.actions
-
-const HOME_TAB_KEY = 'home'
 
 const Container = ({
   data,
@@ -62,6 +61,7 @@ const Container = ({
   basePath = `${ROUTE.OPERATIONS_MINING_EXPLORER}/containers`,
   subHeading = 'View miners of container',
   onSubHeadingClick,
+  homeTabKey = 'home',
 }: ContainerProps) => {
   const smartPolling20s = useSmartPolling(POLLING_20s)
   const dispatch = useDispatch()
@@ -70,6 +70,7 @@ const Container = ({
   const { tab } = useParams<{ tab?: string }>()
   const paramBackUrl = getBackUrlParam()
   const { info, type } = data
+  const HOME_TAB_KEY = homeTabKey
 
   const { thingsData: containerMinersResponse, isLoading: isConnectedMinersLoading } =
     useFetchListThingsPaginatedData({
