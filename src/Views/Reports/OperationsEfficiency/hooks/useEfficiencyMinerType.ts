@@ -9,6 +9,7 @@ import { TAIL_LOG_MINER_TYPE_KEY } from '../constants'
 import { useGetTailLogQuery } from '@/app/services/api'
 import { MINER_TYPE_NAME_MAP } from '@/constants/deviceConstants'
 
+// TODO: migrate to /auth/metrics/efficiency once BE ships groupBy=miner.
 export const useEfficiencyMinerType = ({ start, end }: { start: Date; end: Date }) => {
   const {
     data: tailLogData,

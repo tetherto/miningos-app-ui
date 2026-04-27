@@ -23,6 +23,7 @@ const getLabelName = (category: string, containers?: Container[]) => {
   return _isNil(type) ? category : getContainerName(category, type)
 }
 
+// TODO: migrate to /auth/metrics/efficiency once BE ships groupBy=container.
 export const useEfficiencyMinerUnit = ({ start, end }: { start: Date; end: Date }) => {
   const {
     data: tailLogData,
