@@ -835,3 +835,192 @@ export interface ContainerPoolStat {
   container: string
   overriddenConfig: number
 }
+
+// ============================================================================
+// v2 Operational Metrics Types — /auth/metrics/*
+// ============================================================================
+
+export interface MetricsQueryParams {
+  start: number
+  end: number
+  overwriteCache?: boolean
+}
+
+export interface MetricsResponse<Log, Summary> {
+  log: Log[]
+  summary: Summary
+}
+
+// /auth/metrics/hashrate
+export type MetricsHashrateGroupBy = 'container' | 'miner'
+
+export interface MetricsHashrateQueryParams extends MetricsQueryParams {
+  groupBy?: MetricsHashrateGroupBy
+}
+
+export interface MetricsHashrateLogEntry {
+  ts: number
+  hashrateMhs: number
+}
+
+export interface MetricsHashrateGroupedLogEntry {
+  ts: number
+  hashrateMhs: Record<string, number>
+}
+
+export interface MetricsHashrateSummary {
+  avgHashrateMhs: number | null
+  totalHashrateMhs: number
+}
+
+export type MetricsHashrateResponse = MetricsResponse<MetricsHashrateLogEntry, MetricsHashrateSummary>
+
+// BE currently returns summary as {} on grouped variants — type loose for now,
+// widen when BE populates per-group / site-wide totals on the grouped path.
+export type MetricsHashrateGroupedResponse = MetricsResponse<
+  MetricsHashrateGroupedLogEntry,
+  Record<string, never>
+>
+
+// /auth/metrics/consumption
+export interface MetricsConsumptionLogEntry {
+  ts: number
+  powerW: number
+  consumptionMWh: number
+}
+
+export interface MetricsConsumptionSummary {
+  avgPowerW: number | null
+  totalConsumptionMWh: number
+}
+
+export type MetricsConsumptionResponse = MetricsResponse<
+  MetricsConsumptionLogEntry,
+  MetricsConsumptionSummary
+>
+
+// /auth/metrics/efficiency
+export interface MetricsEfficiencyLogEntry {
+  ts: number
+  efficiencyWThs: number
+}
+
+export interface MetricsEfficiencySummary {
+  avgEfficiencyWThs: number | null
+}
+
+export type MetricsEfficiencyResponse = MetricsResponse<
+  MetricsEfficiencyLogEntry,
+  MetricsEfficiencySummary
+>
+
+// /auth/metrics/miner-status
+export interface MetricsMinerStatusLogEntry {
+  ts: number
+  online: number
+  offline: number
+  sleep: number
+  maintenance: number
+}
+
+export interface MetricsMinerStatusSummary {
+  avgOnline: number | null
+  avgOffline: number | null
+  avgSleep: number | null
+  avgMaintenance: number | null
+}
+
+export type MetricsMinerStatusResponse = MetricsResponse<
+  MetricsMinerStatusLogEntry,
+  MetricsMinerStatusSummary
+>
+
+// /auth/metrics/power-mode
+export type MetricsInterval = '1h' | '1d' | '1w'
+
+export interface MetricsPowerModeQueryParams extends MetricsQueryParams {
+  interval?: MetricsInterval
+}
+
+export interface MetricsPowerModeLogEntry {
+  ts: number
+  low: number
+  normal: number
+  high: number
+  sleep: number
+  offline: number
+  notMining: number
+  maintenance: number
+  error: number
+}
+
+export interface MetricsPowerModeSummary {
+  avgLow: number | null
+  avgNormal: number | null
+  avgHigh: number | null
+  avgSleep: number | null
+  avgOffline: number | null
+  avgNotMining: number | null
+  avgMaintenance: number | null
+  avgError: number | null
+}
+
+export type MetricsPowerModeResponse = MetricsResponse<
+  MetricsPowerModeLogEntry,
+  MetricsPowerModeSummary
+>
+
+// /auth/metrics/power-mode/timeline
+export interface MetricsPowerModeTimelineQueryParams {
+  start?: number
+  end?: number
+  container?: string
+  overwriteCache?: boolean
+}
+
+export interface MetricsPowerModeTimelineSegment {
+  from: number
+  to: number
+  powerMode: string
+  status: string
+}
+
+export interface MetricsPowerModeTimelineLogEntry {
+  minerId: string
+  container: string
+  segments: MetricsPowerModeTimelineSegment[]
+}
+
+export interface MetricsPowerModeTimelineResponse {
+  log: MetricsPowerModeTimelineLogEntry[]
+}
+
+// /auth/metrics/temperature
+export interface MetricsTemperatureQueryParams extends MetricsQueryParams {
+  interval?: MetricsInterval
+  container?: string
+}
+
+export interface MetricsTemperatureContainerStats {
+  maxC: number
+  avgC: number
+}
+
+export interface MetricsTemperatureLogEntry {
+  ts: number
+  containers: Record<string, MetricsTemperatureContainerStats>
+  siteMaxC: number | null
+  siteAvgC: number | null
+}
+
+export interface MetricsTemperatureSummary {
+  avgMaxTemp: number | null
+  avgAvgTemp: number | null
+  peakTemp: number | null
+}
+
+export type MetricsTemperatureResponse = MetricsResponse<
+  MetricsTemperatureLogEntry,
+  MetricsTemperatureSummary
+>
+
