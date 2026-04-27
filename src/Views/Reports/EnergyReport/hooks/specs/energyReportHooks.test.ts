@@ -2,7 +2,7 @@ import { renderHook, act } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 
 const mockFns = vi.hoisted(() => ({
-  tailLogRangeAggr: vi.fn(() => ({
+  metricsConsumption: vi.fn(() => ({
     data: undefined as unknown,
     isLoading: false,
     isFetching: false,
@@ -14,7 +14,7 @@ const mockFns = vi.hoisted(() => ({
 }))
 
 vi.mock('@/app/services/api', () => ({
-  useGetTailLogRangeAggrQuery: mockFns.tailLogRangeAggr,
+  useGetMetricsConsumptionQuery: mockFns.metricsConsumption,
   useGetGlobalConfigQuery: mockFns.globalConfig,
   useGetListThingsQuery: mockFns.listThings,
   useGetTailLogQuery: mockFns.tailLog,
@@ -42,46 +42,28 @@ describe('useEnergyReportData', () => {
     expect(result.current.nominalValue).toBeNull()
   })
 
-  it('processes array response with powermeter data', () => {
-    const powermeterData = {
-      type: 'powermeter',
-      data: [{ ts: 1000, val: { site_power_w: 5000 } }],
-    }
-    mockFns.tailLogRangeAggr.mockReturnValueOnce({
-      data: [[powermeterData]],
+  it('maps v2 consumption log entries to chart data', () => {
+    mockFns.metricsConsumption.mockReturnValueOnce({
+      data: {
+        log: [{ ts: 1000, powerW: 5000, consumptionMWh: 0.12 }],
+        summary: { avgPowerW: 5000, totalConsumptionMWh: 0.12 },
+      },
       isLoading: false,
       isFetching: false,
       error: null,
     })
     const { result } = renderHook(() => useEnergyReportData(defaultDateRange))
-    expect(result.current.data).toHaveLength(1)
-    expect(result.current.data[0].consumption).toBe(5000)
+    expect(result.current.data).toEqual([{ ts: 1000, consumption: 5000 }])
   })
 
-  it('handles missing site_power_w in val (falls back to 0)', () => {
-    const powermeterData = {
-      type: 'powermeter',
-      data: [{ ts: 1000, val: {} }],
-    }
-    mockFns.tailLogRangeAggr.mockReturnValueOnce({
-      data: [[powermeterData]],
+  it('returns empty data when v2 response has no log', () => {
+    mockFns.metricsConsumption.mockReturnValueOnce({
+      data: { log: [], summary: {} },
       isLoading: false,
       isFetching: false,
       error: null,
     })
     const { result } = renderHook(() => useEnergyReportData(defaultDateRange))
-    expect(result.current.data[0].consumption).toBe(0)
-  })
-
-  it('handles non-array consumptionResponse', () => {
-    mockFns.tailLogRangeAggr.mockReturnValueOnce({
-      data: { type: 'powermeter', data: [] },
-      isLoading: false,
-      isFetching: false,
-      error: null,
-    })
-    const { result } = renderHook(() => useEnergyReportData(defaultDateRange))
-    // Non-array responseData → empty data
     expect(result.current.data).toEqual([])
   })
 
@@ -95,8 +77,8 @@ describe('useEnergyReportData', () => {
     expect(result.current.nominalValue).toBe(2000000)
   })
 
-  it('shows isLoading=true when tailLog is fetching', () => {
-    mockFns.tailLogRangeAggr.mockReturnValueOnce({
+  it('shows isLoading=true when consumption query is fetching', () => {
+    mockFns.metricsConsumption.mockReturnValueOnce({
       data: undefined as unknown,
       isLoading: false,
       isFetching: true,
