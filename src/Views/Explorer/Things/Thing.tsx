@@ -126,7 +126,7 @@ const Thing = ({ showContainerComments = true }: ThingProps) => {
             containerInfo?: Record<string, unknown>
           }) => {
             navigate(
-              `${ROUTE.OPERATIONS_MINING_EXPLORER}?${tab}=${CROSS_THING_TYPES.MINER}&containerMiners=${containerInfo?.container}`,
+              `${ROUTE.OPERATIONS_MINING_EXPLORER}?tab=${CROSS_THING_TYPES.MINER}&containerMiners=${containerInfo?.container}`,
             )
           }}
         />
