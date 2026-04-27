@@ -13,8 +13,14 @@ import type { MetricsHashrateGroupedResponse } from '@/types/api'
 type Log = MetricsHashrateGroupedResponse['log']
 
 const minerLog: Log = [
-  { ts: 1701388800000, hashrateMhs: { 'miner-am-s19xp': 5_000_000, 'miner-wm-m56s': 3_000_000, 'miner-av-a1346': 0 } },
-  { ts: 1701475200000, hashrateMhs: { 'miner-am-s19xp': 5_500_000, 'miner-wm-m56s': 3_200_000, 'miner-av-a1346': 0 } },
+  {
+    ts: 1701388800000,
+    hashrateMhs: { 'miner-am-s19xp': 5_000_000, 'miner-wm-m56s': 3_000_000, 'miner-av-a1346': 0 },
+  },
+  {
+    ts: 1701475200000,
+    hashrateMhs: { 'miner-am-s19xp': 5_500_000, 'miner-wm-m56s': 3_200_000, 'miner-av-a1346': 0 },
+  },
 ]
 
 const containerLog: Log = [

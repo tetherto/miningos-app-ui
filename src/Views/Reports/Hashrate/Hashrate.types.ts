@@ -91,4 +91,3 @@ export interface MinerTypeViewFilters {
 export interface MiningUnitViewFilters {
   minerType: string[]
 }
-

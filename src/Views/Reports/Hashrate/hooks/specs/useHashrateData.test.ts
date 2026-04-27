@@ -28,7 +28,10 @@ describe('useHashrateData', () => {
     const { result } = renderHook(() =>
       useHashrateData({ dateRange: { start: 1, end: 2 }, groupBy: 'miner' }),
     )
-    expect(mockedQuery).toHaveBeenCalledWith({ start: 1, end: 2, groupBy: 'miner' }, { skip: false })
+    expect(mockedQuery).toHaveBeenCalledWith(
+      { start: 1, end: 2, groupBy: 'miner' },
+      { skip: false },
+    )
     expect(result.current.data).toBe(okResponse.data)
   })
 

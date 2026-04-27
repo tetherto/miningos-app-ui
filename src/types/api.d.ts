@@ -873,7 +873,10 @@ export interface MetricsHashrateSummary {
   totalHashrateMhs: number
 }
 
-export type MetricsHashrateResponse = MetricsResponse<MetricsHashrateLogEntry, MetricsHashrateSummary>
+export type MetricsHashrateResponse = MetricsResponse<
+  MetricsHashrateLogEntry,
+  MetricsHashrateSummary
+>
 
 // BE currently returns summary as {} on grouped variants — type loose for now,
 // widen when BE populates per-group / site-wide totals on the grouped path.
@@ -1023,4 +1026,3 @@ export type MetricsTemperatureResponse = MetricsResponse<
   MetricsTemperatureLogEntry,
   MetricsTemperatureSummary
 >
-

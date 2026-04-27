@@ -69,7 +69,9 @@ const mockMinersData = [
 
 const mockedUseGetGlobalConfigQuery = vi.mocked(useGetGlobalConfigQuery) as unknown as Mock
 const mockedUseGetMetricsHashrateQuery = vi.mocked(useGetMetricsHashrateQuery) as unknown as Mock
-const mockedUseGetMetricsEfficiencyQuery = vi.mocked(useGetMetricsEfficiencyQuery) as unknown as Mock
+const mockedUseGetMetricsEfficiencyQuery = vi.mocked(
+  useGetMetricsEfficiencyQuery,
+) as unknown as Mock
 const mockedUseGetMetricsConsumptionQuery = vi.mocked(
   useGetMetricsConsumptionQuery,
 ) as unknown as Mock
