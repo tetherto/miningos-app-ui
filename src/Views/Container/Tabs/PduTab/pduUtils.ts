@@ -8,7 +8,7 @@ interface Socket {
   enabled: boolean
 }
 
-interface PduUnit {
+export interface PduUnit {
   pdu: string
   sockets: Socket[]
 }

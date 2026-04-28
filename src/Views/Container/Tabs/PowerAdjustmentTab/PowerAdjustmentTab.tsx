@@ -56,7 +56,7 @@ const PowerAdjustmentTab = ({ data }: PowerAdjustmentTabProps) => {
   const { last, connectedMiners, type, info } = data || {}
   const { updateExistedActions } = useUpdateExistedActions()
 
-  const pdus = getContainerPduData(type || '', last ?? {}) as PduData[] | undefined
+  const pdus = getContainerPduData(type || '', last ?? {}, info) as PduData[] | undefined
 
   const handleSelectAll = () => {
     const allSockets = new Set<string>()

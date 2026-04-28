@@ -87,6 +87,7 @@ export const CONTAINER_TAB = {
   SETTINGS: 'settings',
   CHARTS: 'charts',
   HEATMAP: 'heatmap',
+  LAYOUT: 'layout',
 } as const
 
 // Type exports
