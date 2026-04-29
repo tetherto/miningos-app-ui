@@ -3,7 +3,7 @@ import { useFinancialDateRange } from '../common/useFinancialDateRange'
 import { PageTitle } from '../FinancialShared.styles'
 
 import {
-  aggregateBlocksByPeriod,
+  mapLogToPeriodData,
   transformToAverageFeesChartData,
   transformToSubsidyFeesChartData,
 } from './SubsidyFee.helpers'
@@ -17,52 +17,37 @@ import {
   PeriodSelectLabel,
   SetCostButton,
 } from './SubsidyFee.styles'
-import type { MempoolBlockData } from './SubsidyFee.types'
 
-import { useGetExtDataQuery } from '@/app/services/api'
+import { useGetFinanceSubsidyFeesQuery } from '@/app/services/api'
 import { isDemoMode } from '@/app/services/api.utils'
 import { formatValueUnit } from '@/app/utils/format'
 import { Spinner } from '@/Components/Spinner/Spinner'
+import { PERIOD } from '@/constants/ranges'
 import ThresholdBarChart from '@/MultiSiteViews/Charts/ThresholdBarChart/ThresholdBarChart'
 import { DurationButtonsWrapper } from '@/MultiSiteViews/Common.style'
 import { TimeframeControls } from '@/MultiSiteViews/SharedComponents/Header/TimeframeControls'
+import type { FinancePeriod } from '@/types'
+
+const toFinancePeriod = (period?: string): FinancePeriod => {
+  if (period === PERIOD.WEEKLY) return 'weekly'
+  if (period === PERIOD.MONTHLY) return 'monthly'
+  return 'daily'
+}
 
 const SubsidyFee = () => {
   const { dateRange, handleRangeChange } = useFinancialDateRange()
   const periodType = getPeriodType(dateRange)
 
-  const queryParams = dateRange
-    ? {
-        type: 'mempool',
-        query: JSON.stringify({
-          key: 'HISTORICAL_BLOCKSIZES',
-          start: dateRange.start,
-          end: dateRange.end,
-        }),
-      }
-    : undefined
+  const { data, isLoading, isError } = useGetFinanceSubsidyFeesQuery(
+    {
+      start: dateRange?.start ?? 0,
+      end: dateRange?.end ?? 0,
+      period: toFinancePeriod(dateRange?.period),
+    },
+    { skip: !dateRange?.start || !dateRange?.end, refetchOnMountOrArgChange: true },
+  )
 
-  const {
-    data: blockData,
-    isLoading,
-    isError,
-  } = useGetExtDataQuery(queryParams!, {
-    skip: !queryParams,
-    refetchOnMountOrArgChange: true,
-  })
-
-  // Process and aggregate data
-  const getAggregatedData = () => {
-    if (!dateRange || !blockData) return []
-
-    const blocks = (
-      Array.isArray(blockData) && blockData[0] ? blockData[0] : []
-    ) as MempoolBlockData[]
-
-    return aggregateBlocksByPeriod(blocks, periodType)
-  }
-
-  const aggregatedData = getAggregatedData()
+  const aggregatedData = dateRange ? mapLogToPeriodData(data?.log ?? [], periodType) : []
 
   // Transform for charts
   const subsidyFeesChartData = transformToSubsidyFeesChartData(aggregatedData)

@@ -23,9 +23,7 @@ import { getContainerName } from '@/app/utils/containerUtils'
 import { appendContainerToTag, isMiner } from '@/app/utils/deviceUtils'
 import { getContainerMinersByContainerTagsQuery } from '@/app/utils/queryUtils'
 import { CommentsPopover } from '@/Components/CommentsPopover/CommentsPopover'
-import { TAB } from '@/Components/Explorer/List/ListView.const'
 import type { DevicePayload } from '@/Components/Explorer/List/ListView.types'
-import { CROSS_THING_TYPES } from '@/constants/devices'
 import { POLLING_20s } from '@/constants/pollingIntervalConstants'
 import { ROUTE } from '@/constants/routes'
 import { useFetchListThingsPaginatedData } from '@/hooks/useFetchListThingsPaginatedData'
@@ -39,16 +37,32 @@ interface ContainerData extends DevicePayload {
   [key: string]: unknown
 }
 
+export type OnSubHeadingClickParams = {
+  tab?: string
+  containerInfo?: Record<string, unknown>
+}
+
 interface ContainerProps {
   data: ContainerData
   refetch?: VoidFunction
+  showComments?: boolean
+  basePath?: string
+  subHeading?: string
+  onSubHeadingClick: (params: OnSubHeadingClickParams) => void
+  homeTabKey?: string
 }
 
 const { setResetSelections, selectContainer, setFilterTags } = devicesSlice.actions
 
-const HOME_TAB_KEY = 'home'
-
-const Container = ({ data, refetch = _noop }: ContainerProps) => {
+const Container = ({
+  data,
+  refetch = _noop,
+  showComments = true,
+  basePath = `${ROUTE.OPERATIONS_MINING_EXPLORER}/containers`,
+  subHeading = 'View miners of container',
+  onSubHeadingClick,
+  homeTabKey = 'home',
+}: ContainerProps) => {
   const smartPolling20s = useSmartPolling(POLLING_20s)
   const dispatch = useDispatch()
   const navigate = useNavigate()
@@ -56,6 +70,7 @@ const Container = ({ data, refetch = _noop }: ContainerProps) => {
   const { tab } = useParams<{ tab?: string }>()
   const paramBackUrl = getBackUrlParam()
   const { info, type } = data
+  const HOME_TAB_KEY = homeTabKey
 
   const { thingsData: containerMinersResponse, isLoading: isConnectedMinersLoading } =
     useFetchListThingsPaginatedData({
@@ -94,7 +109,7 @@ const Container = ({ data, refetch = _noop }: ContainerProps) => {
 
   const onChange = (key: string) => {
     navigate(
-      `${ROUTE.OPERATIONS_MINING_EXPLORER}/containers/${appendContainerToTag(info?.container ?? '')}/${key}${paramBackUrl ? `?backUrl=${paramBackUrl}` : ''}`,
+      `${basePath}/${appendContainerToTag(info?.container ?? '')}/${key}${paramBackUrl ? `?backUrl=${paramBackUrl}` : ''}`,
     )
   }
 
@@ -115,23 +130,24 @@ const Container = ({ data, refetch = _noop }: ContainerProps) => {
 
   const handleClick = () => {
     dispatch(setFilterTags([]))
-    navigate(
-      `${ROUTE.OPERATIONS_MINING_EXPLORER}?${TAB}=${CROSS_THING_TYPES.MINER}&containerMiners=${info?.container}`,
-    )
+    onSubHeadingClick({
+      tab,
+      containerInfo: info,
+    })
   }
 
   return (
     <ContainerRoot>
       <ContainerHeader>
         <ContainerName>{getContainerName(info?.container, type)}</ContainerName>
-        <ContainerStyledButton onClick={handleClick}>
-          View miners of container
-        </ContainerStyledButton>
+        <ContainerStyledButton onClick={handleClick}>{subHeading}</ContainerStyledButton>
       </ContainerHeader>
       <ContainerTabsWrapper>
-        <CommentButtonWrapper>
-          <CommentsPopover device={data} onAddCommentSuccess={refetch} />
-        </CommentButtonWrapper>
+        {showComments && (
+          <CommentButtonWrapper>
+            <CommentsPopover device={data} onAddCommentSuccess={refetch} />
+          </CommentButtonWrapper>
+        )}
         <StyledAntdTabs
           size="small"
           type="card"

@@ -92,6 +92,13 @@ export const {
   useUpdateHeaderControlsMutation,
   useGetExportSettingsQuery,
   useImportSettingsMutation,
+  useGetFinanceRevenueSummaryQuery,
+  useGetFinanceEbitdaQuery,
+  useGetFinanceEnergyBalanceQuery,
+  useGetFinanceCostSummaryQuery,
+  useGetFinanceSubsidyFeesQuery,
+  useGetFinanceRevenueQuery,
+  useGetFinanceHashRevenueQuery,
 } = api
 
 export const useGetOperationsMinersQuery = api.useGetOperationsWorkersQuery

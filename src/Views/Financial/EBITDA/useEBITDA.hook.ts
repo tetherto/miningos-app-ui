@@ -1,129 +1,124 @@
-import _compact from 'lodash/compact'
-import _every from 'lodash/every'
-import _isArray from 'lodash/isArray'
+import _isNil from 'lodash/isNil'
 import _map from 'lodash/map'
-import _some from 'lodash/some'
 
-import { getPeriodType } from '../common/financial.helpers'
-import { useCurrentBTCPrice } from '../common/useCurrentBTCPrice'
+import { getPeriodKey, getPeriodType } from '../common/financial.helpers'
 import { useFinancialDateRange } from '../common/useFinancialDateRange'
-import { useHistoricalBTCPrices } from '../common/useHistoricalBTCPrices'
-import { useMinerpoolTransactions } from '../common/useMinerpoolTransactions'
-import { useProductionCosts } from '../common/useProductionCosts'
-import { useTailLog } from '../common/useTailLog'
 
-import {
-  aggregateByPeriod,
-  calculateEbitdaMetrics,
-  mergeDailyData,
-  transformToBtcProducedChartData,
-  transformToEbitdaChartData,
-} from './EBITDA.helpers'
-import type { MinerpoolTransactionData, TailLogAggrData } from './EBITDA.types'
+import type { EbitdaMetrics } from './EBITDA.types'
 
-import type { MinerHistoricalPrice, ProductionCostData } from '@/types'
+import { useGetFinanceEbitdaQuery } from '@/app/services/api'
+import { formatNumber } from '@/app/utils/format'
+import { CHART_COLORS } from '@/constants/colors'
+import { PERIOD } from '@/constants/ranges'
+import type { EbitdaLogEntry, FinancePeriod } from '@/types'
+
+const toFinancePeriod = (period?: string): FinancePeriod => {
+  if (period === PERIOD.WEEKLY) return 'weekly'
+  if (period === PERIOD.YEARLY) return 'yearly'
+  if (period === PERIOD.DAILY) return 'daily'
+  return 'monthly'
+}
+
+const formatCurrency = (number: number) => {
+  const abs = Math.abs(number)
+  const [prefix, suffix] = number < 0 ? ['($', ')'] : ['$', '']
+  return `${prefix}${formatNumber(abs, { compactDisplay: 'short', notation: 'compact' })}${suffix}`
+}
+
+const ebitdaBarFormatter = (value: number) => {
+  if (_isNil(value)) return ''
+  if (value === 0) return '$0'
+  return formatCurrency(value)
+}
+
+const btcProducedFormatter = (value: number) => {
+  if (_isNil(value)) return ''
+  if (value === 0) return '0 \u20BF'
+  const formatted = formatNumber(value, { minimumFractionDigits: 2, maximumFractionDigits: 3 })
+  return `${formatted} \u20BF`
+}
 
 const useEBITDA = () => {
   const { dateRange, handleRangeChange } = useFinancialDateRange()
   const periodType = getPeriodType(dateRange)
+  const period = toFinancePeriod(dateRange?.period)
 
-  // Minerpool transactions (revenue data)
-  const transactionsResponse = useMinerpoolTransactions(dateRange!)
-
-  // Historical BTC prices
-  const pricesResponse = useHistoricalBTCPrices(dateRange!)
-
-  // Current BTC price
-  const currentBTCResponse = useCurrentBTCPrice()
-
-  // Production costs
-  const productionCostsResponse = useProductionCosts()
-
-  // Tail log range aggregation (hashrate + power)
-  const tailLogResponse = useTailLog(dateRange!)
-
-  const isLoading = _some(
-    [
-      transactionsResponse,
-      pricesResponse,
-      currentBTCResponse,
-      productionCostsResponse,
-      tailLogResponse,
-    ],
-    ({ isLoading }) => isLoading,
+  const { data, isLoading, error } = useGetFinanceEbitdaQuery(
+    { start: dateRange?.start ?? 0, end: dateRange?.end ?? 0, period },
+    { skip: !dateRange?.start || !dateRange?.end, refetchOnMountOrArgChange: true },
   )
 
-  const errors = _compact(
-    _map(
-      [
-        [transactionsResponse.error, 'Transactions data failed'],
-        [pricesResponse.error, 'Price data failed'],
-        [currentBTCResponse.error, 'Current BTC data failed'],
-        [productionCostsResponse.error, 'Production costs data failed'],
-        [tailLogResponse.error, 'Tail log data failed'],
-      ],
-      ([error, message]) => error && message,
-    ),
-  )
+  const errors = error ? ['EBITDA data failed'] : []
+  const log: EbitdaLogEntry[] = data?.log ?? []
+  const summary = data?.summary
+  const currentBTCPrice = summary?.currentBtcPrice ?? 0
 
-  const hasData = _every(
-    [
-      transactionsResponse,
-      pricesResponse,
-      currentBTCResponse,
-      productionCostsResponse,
-      tailLogResponse,
-    ],
-    ({ data }) => data,
-  )
+  const hasData = Boolean(dateRange && summary && log.length > 0)
 
-  const { data: transactionsData } = transactionsResponse
-  const { data: pricesData } = pricesResponse
-  const { data: productionCostsData } = productionCostsResponse
-  const { data: tailLogData } = tailLogResponse
-  const { currentBTCPrice } = currentBTCResponse
+  const metrics: EbitdaMetrics | null =
+    hasData && summary
+      ? {
+          bitcoinProductionCost: summary.avgBtcProductionCost ?? 0,
+          bitcoinPrice:
+            log.length > 0
+              ? log.reduce((sum, entry) => sum + (entry.btcPrice || 0), 0) / log.length
+              : currentBTCPrice,
+          bitcoinProduced: summary.totalRevenueBTC,
+          ebitdaSellingBTC: summary.totalEbitdaSelling,
+          actualEbitda: summary.totalEbitdaSelling,
+          ebitdaNotSellingBTC: summary.totalEbitdaHodl,
+        }
+      : null
 
-  // process and aggregate data
-  const processData = () => {
-    if (!hasData || !dateRange || currentBTCPrice === 0) {
-      return {
-        metrics: null,
-        ebitdaChartData: null,
-        btcProducedChartData: null,
+  const labels = _map(log, (entry) => getPeriodKey(entry.ts, periodType))
+
+  const ebitdaChartData = hasData
+    ? {
+        labels,
+        series: [
+          {
+            label: 'Sell scenario',
+            values: _map(log, 'ebitdaSelling'),
+            color: CHART_COLORS.blue,
+            datalabels: {
+              formatter: ebitdaBarFormatter,
+              anchor: 'end',
+              align: 'top',
+              offset: 2,
+              font: { size: 9 },
+              padding: { right: 30 },
+            },
+          },
+          {
+            label: 'HODL scenario',
+            values: _map(log, 'ebitdaHodl'),
+            color: CHART_COLORS.green,
+            datalabels: {
+              formatter: ebitdaBarFormatter,
+              anchor: 'end',
+              align: 'top',
+              offset: 2,
+              font: { size: 9 },
+              padding: { left: 30 },
+            },
+          },
+        ],
       }
-    }
+    : null
 
-    // extract nested array data
-    const transactions = (_isArray(transactionsData) && transactionsData[0]) || []
-    const prices = (_isArray(pricesData) && pricesData[0]) || ([] as MinerHistoricalPrice[])
-    const costs = _isArray(productionCostsData) ? productionCostsData : []
-    const tailLog = _isArray(tailLogData) ? tailLogData : []
-
-    // merge all data sources into daily data
-    const dailyData = mergeDailyData(
-      transactions as MinerpoolTransactionData[],
-      prices as MinerHistoricalPrice[],
-      costs as ProductionCostData[],
-      tailLog as TailLogAggrData[],
-    )
-
-    // aggregate by period
-    const aggregatedData = aggregateByPeriod(dailyData, periodType, currentBTCPrice)
-
-    // calculate metrics
-    const calculatedMetrics = calculateEbitdaMetrics(aggregatedData, currentBTCPrice)
-
-    // transform to chart data
-    const ebitdaChart = transformToEbitdaChartData(aggregatedData)
-    const btcProducedChart = transformToBtcProducedChartData(aggregatedData)
-
-    return {
-      metrics: calculatedMetrics,
-      ebitdaChartData: ebitdaChart,
-      btcProducedChartData: btcProducedChart,
-    }
-  }
-  const { metrics, ebitdaChartData, btcProducedChartData } = processData()
+  const btcProducedChartData = hasData
+    ? {
+        labels,
+        series: [
+          {
+            label: 'Bitcoin Produced',
+            values: _map(log, 'revenueBTC'),
+            color: CHART_COLORS.orange,
+            datalabels: { formatter: btcProducedFormatter },
+          },
+        ],
+      }
+    : null
 
   return {
     metrics,

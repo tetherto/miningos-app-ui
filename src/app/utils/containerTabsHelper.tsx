@@ -9,6 +9,7 @@ import {
 } from '@/app/utils/containerUtils'
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
 import { LazyTabWrapper } from '@/Components/LazyTabWrapper/LazyTabWrapper'
+import { CONTAINER_TAB } from '@/constants/containerConstants'
 
 const HomeTab = lazy(() =>
   import('@/Views/Container/Tabs/HomeTab/HomeTab').then((m: unknown) => ({
@@ -173,3 +174,6 @@ export const getSupportedTabs = (type: string, data?: UnknownRecord): TabConfig[
 
   return tabs
 }
+
+export const isContainerTabPdu = (containerTab: string | undefined) =>
+  containerTab === CONTAINER_TAB.PDU

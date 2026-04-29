@@ -1,8 +1,8 @@
 import _isEmpty from 'lodash/isEmpty'
 
+import { checkIfAllValuesAreZero } from '../common/financial.helpers'
 import { PageTitle } from '../FinancialShared.styles'
 
-import { checkIfAllValuesAreZero } from './EBITDA.helpers'
 import {
   ChartsContainer,
   ErrorMessage,

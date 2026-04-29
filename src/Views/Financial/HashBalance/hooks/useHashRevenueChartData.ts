@@ -1,33 +1,17 @@
-import _get from 'lodash/get'
-import _head from 'lodash/head'
 import _map from 'lodash/map'
 
-import { getStartOfDay } from '../../common/financial.helpers'
-import { useHistoricalBTCPrices } from '../../common/useHistoricalBTCPrices'
-import { useMinerpoolTransactions } from '../../common/useMinerpoolTransactions'
-import { useTailLog } from '../../common/useTailLog'
-import {
-  getLogSummary,
-  proceedSiteHashRevenueData,
-  processHashPricesData,
-  processTailLogData,
-} from '../utils/hashRevenueCost.utils'
-import {
-  buildHistoricalBlockSizesParams,
-  buildHistoricalHashRateParams,
-  getHashRevenueMetrics,
-} from '../utils/hashRevenueCostHelpers'
+import { getHashRevenueMetrics } from '../utils/hashRevenueCostHelpers'
 
-import { useGetExtDataQuery } from '@/app/services/api'
-import type {
-  HashrateAggregateData,
-  MinerHistoricalBlockSizesResponse,
-  MinerHistoricalHashRateResponse,
-  MinerTransaction,
-  MultiSiteDateRange,
-  MinerHistoricalPrice,
-  PeriodValue,
-} from '@/types'
+import { useGetFinanceHashRevenueQuery } from '@/app/services/api'
+import { PERIOD } from '@/constants/ranges'
+import type { FinancePeriod, MultiSiteDateRange } from '@/types'
+
+const toFinancePeriod = (period?: string): FinancePeriod => {
+  if (period === PERIOD.WEEKLY) return 'weekly'
+  if (period === PERIOD.YEARLY) return 'yearly'
+  if (period === PERIOD.DAILY) return 'daily'
+  return 'monthly'
+}
 
 export const useHashRevenueChartData = ({
   dateRange,
@@ -39,63 +23,38 @@ export const useHashRevenueChartData = ({
   'use no memo'
   const { start, end, period } = dateRange ?? {}
 
-  const { data: transactionsData, isLoading: isTransactionsLoading } = useMinerpoolTransactions({
-    start,
-    end,
-    period,
-  })
-
-  const { data: historicalPricesData, isLoading: isHistoricalPricesLoading } =
-    useHistoricalBTCPrices({
-      start,
-      end,
-      period,
-    })
-
-  const { data: historicalHashRateData, isLoading: isHistoricalHashRateLoading } =
-    useGetExtDataQuery<MinerHistoricalHashRateResponse>(
-      buildHistoricalHashRateParams({ start, end }),
-    )
-
-  const { data: historicalBlockSizes, isLoading: isHistoricalBlockSizesLoading } =
-    useGetExtDataQuery<MinerHistoricalBlockSizesResponse>(
-      buildHistoricalBlockSizesParams({ start, end }),
-    )
-
-  const { data: tailLogData, isLoading: isTaiLogDataLoading } = useTailLog({
-    start,
-    end,
-    period,
-  })
-
-  const hashRateData = processTailLogData(tailLogData as HashrateAggregateData[][])
-
-  const siteHashRevenueData = proceedSiteHashRevenueData(
-    transactionsData as MinerTransaction[][],
-    historicalPricesData as MinerHistoricalPrice[][],
-    hashRateData,
-    dateRange.period as PeriodValue,
+  const { data, isLoading } = useGetFinanceHashRevenueQuery(
+    { start: start ?? 0, end: end ?? 0, period: toFinancePeriod(period) },
+    { skip: !start || !end, refetchOnMountOrArgChange: true },
   )
 
-  const proceedHistoricalHashRateData = _map(
-    _head(historicalHashRateData || []),
-    ({ ts, avgHashrateMHs }) => ({
-      ts: getStartOfDay(ts),
-      avgHashrateMHs,
-    }),
-  )
+  const log = data?.log ?? []
+  const summary = data?.summary
 
-  const proceedHashPricesData = processHashPricesData(
-    historicalBlockSizes,
-    historicalPricesData,
-    hashRateData,
-  )
+  const hashRevueData = _map(log, (entry) => ({
+    ts: entry.ts,
+    hashRevenueUSD_PHS_d: entry.hashRevenueUSDPerPHsPerDay ?? 0,
+    hashRevenueBTC_PHS_d: entry.hashRevenueBTCPerPHsPerDay ?? 0,
+  }))
 
-  const hasRevenueSummary = getLogSummary(siteHashRevenueData)
-  const hashPriceSummary = getLogSummary(proceedHashPricesData)
+  const historicalHashRateData = _map(log, (entry) => ({
+    ts: entry.ts,
+    avgHashrateMHs: entry.networkHashrateMhs,
+  }))
 
-  const avgHashRevenue = _get(hasRevenueSummary, ['avg', `hashRevenue${currency}_PHS_d`], 0) || 0
-  const avgNetworkHashprice = _get(hashPriceSummary, ['avg', 'hashprice'], 0) || 0
+  const historicalHashPriceData = _map(log, (entry) => ({
+    ts: entry.ts,
+    hashprice: entry.networkHashPriceUSDPerPHsPerDay ?? 0,
+    dailyRevenueUSD: entry.revenueUSD,
+    priceUSD: entry.btcPrice,
+  }))
+
+  const avgHashRevenue =
+    currency === 'BTC'
+      ? (summary?.avgHashRevenueBTCPerPHsPerDay ?? 0)
+      : (summary?.avgHashRevenueUSDPerPHsPerDay ?? 0)
+
+  const avgNetworkHashprice = summary?.avgNetworkHashPriceUSDPerPHsPerDay ?? 0
 
   const metrics = getHashRevenueMetrics({
     currency,
@@ -104,13 +63,12 @@ export const useHashRevenueChartData = ({
   })
 
   return {
-    isHashRevenueLoading: isTransactionsLoading && isHistoricalPricesLoading && isTaiLogDataLoading,
-    hashRevueData: siteHashRevenueData,
-    historicalHashRateData: proceedHistoricalHashRateData,
-    historicalHashPriceData: proceedHashPricesData,
-    isHistoricalPriceLoading:
-      isHistoricalBlockSizesLoading && isHistoricalPricesLoading && isTaiLogDataLoading,
-    isHistoricalHashRateLoading,
+    isHashRevenueLoading: isLoading,
+    hashRevueData,
+    historicalHashRateData,
+    historicalHashPriceData,
+    isHistoricalPriceLoading: isLoading,
+    isHistoricalHashRateLoading: isLoading,
     metrics,
   }
 }

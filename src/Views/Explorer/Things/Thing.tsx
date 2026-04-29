@@ -5,7 +5,7 @@ import _head from 'lodash/head'
 import _includes from 'lodash/includes'
 import _map from 'lodash/map'
 import { useDispatch } from 'react-redux'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import { SetPowerModeValues } from '../Explorer.constants'
 import { ErrorBannerWrapper } from '../Explorer.styles'
@@ -16,7 +16,9 @@ import { appendIdToTag, isContainer, isContainerTag } from '@/app/utils/deviceUt
 import { getByIdsQuery, getContainerByContainerTagsQuery } from '@/app/utils/queryUtils'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { ACTION_TYPES } from '@/constants/actions'
+import { CROSS_THING_TYPES } from '@/constants/devices'
 import { POLLING_20s } from '@/constants/pollingIntervalConstants'
+import { ROUTE } from '@/constants/routes'
 import { useSmartPolling } from '@/hooks/useSmartPolling'
 import { Device } from '@/types'
 import { Container } from '@/Views/Container/Container'
@@ -26,10 +28,16 @@ const { setAddPendingSubmissionAction } = actionsSlice.actions
 
 const FLOW_OPTIONS = ['edit']
 
-const Thing = () => {
+export type ThingProps = {
+  showContainerComments?: boolean
+}
+
+const Thing = ({ showContainerComments = true }: ThingProps) => {
   const smartPolling20s = useSmartPolling(POLLING_20s)
   const { id, flow } = useParams()
   const dispatch = useDispatch()
+  const navigate = useNavigate()
+
   const listThingsQuery = useGetListThingsQuery(
     {
       query:
@@ -109,6 +117,12 @@ const Thing = () => {
         <Container
           refetch={refetch}
           data={item as unknown as Parameters<typeof Container>[0]['data']}
+          showComments={showContainerComments}
+          onSubHeadingClick={({ containerInfo }: { containerInfo?: Record<string, unknown> }) => {
+            navigate(
+              `${ROUTE.OPERATIONS_MINING_EXPLORER}?tab=${CROSS_THING_TYPES.MINER}&containerMiners=${containerInfo?.container}`,
+            )
+          }}
         />
       ) : (
         <>

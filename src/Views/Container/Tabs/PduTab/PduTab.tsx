@@ -221,7 +221,7 @@ const PduTab = ({ data, isHeatmapMode = false }: PduTabProps) => {
             onSocketClick={onSocketClicked}
             disableMinerSelect={!!selectedSocketToReplace}
             pdus={
-              getContainerPduData(type || '', last ?? {}) as
+              getContainerPduData(type || '', last ?? {}, info) as
                 | import('@/app/utils/containerUtils/containerPdu').PduData[]
                 | undefined
             }

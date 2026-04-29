@@ -1,7 +1,5 @@
 import { calculateTransactionSum } from '../transactionUtils'
 
-import { mockTransactionsDataFromDoc } from '@/Views/Financial/RevenueSummary/hooks/documentationMocks'
-
 describe('transactionUtils', () => {
   describe('calculateTransactionSum', () => {
     test('returns zero values for empty array', () => {
@@ -206,43 +204,6 @@ describe('transactionUtils', () => {
         const result = calculateTransactionSum(transactions)
         expect(result.revenueBTC).toBeCloseTo(0.123456789, 9)
         expect(result.feesBTC).toBeCloseTo(0.000000001, 9)
-      })
-    })
-
-    describe('documentation mocks', () => {
-      test('calculates sum for a few transactions from documentation mock', () => {
-        // Extract first 3 transactions from mock data
-        const transactions = mockTransactionsDataFromDoc.data[0]
-          .slice(0, 3)
-          .flatMap((day) => day.transactions) as Parameters<typeof calculateTransactionSum>[0]
-
-        const result = calculateTransactionSum(transactions)
-
-        // Each transaction has changed_balance: 0.0007894665835364325
-        // Expected revenue: 3 * 0.0007894665835364325 = 0.0023683997506092975
-        expect(result.revenueBTC).toBeCloseTo(0.002368399750609298, 15)
-
-        // Each transaction has tx_fee: 0.000007680034141740668
-        // Expected fees: 3 * 0.000007680034141740668 = 0.000023040102425222004
-        expect(result.feesBTC).toBeCloseTo(0.000023040102425222004, 15)
-      })
-
-      test('calculates sum for all transactions from documentation mock', () => {
-        // Extract all transactions from mock data
-        const transactions = mockTransactionsDataFromDoc.data[0].flatMap(
-          (day) => day.transactions,
-        ) as Parameters<typeof calculateTransactionSum>[0]
-
-        const result = calculateTransactionSum(transactions)
-
-        // According to documentation: Total Bitcoin: 0.02368399750609298 BTC
-        // There are 30 transactions, each with changed_balance: 0.0007894665835364325
-        // 30 * 0.0007894665835364325 = 0.023683997506092975
-        expect(result.revenueBTC).toBeCloseTo(0.02368399750609298, 15)
-
-        // Each transaction has tx_fee: 0.000007680034141740668
-        // 30 * 0.000007680034141740668 = 0.00023040102425222004
-        expect(result.feesBTC).toBeCloseTo(0.00023040102425222, 15)
       })
     })
   })
