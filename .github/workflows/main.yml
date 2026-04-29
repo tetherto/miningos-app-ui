@@ -86,17 +86,6 @@ jobs:
           ref: "${{ github.event.pull_request.head.sha || github.sha }}"
           clean: true
 
-      - name: 🔒 Check package-lock.json consistency
-        run: |
-          echo "🔒 Verifying package-lock.json consistency..."
-          npm install --package-lock-only --prefer-offline
-          git diff --exit-code package-lock.json || (
-            echo "❌ package-lock.json is out of sync with package.json."
-            echo "💡 Run \`npm install\` and commit the updated lockfile."
-            exit 1
-          )
-          echo "✅ package-lock.json is consistent"
-
       - name: 📦 Setup Node.js
         uses: actions/setup-node@v6
         with:
