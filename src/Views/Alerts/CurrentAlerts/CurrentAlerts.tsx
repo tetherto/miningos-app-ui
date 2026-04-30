@@ -1,16 +1,15 @@
-import { Howl, Howler } from 'howler'
 import _castArray from 'lodash/castArray'
 import _head from 'lodash/head'
 import _isEmpty from 'lodash/isEmpty'
-import React, { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import { useSelector } from 'react-redux'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { useGetListThingsQuery } from '../../../app/services/api'
 import { selectFilterTags } from '../../../app/slices/devicesSlice'
-import { getIsAlertEnabled } from '../../../app/slices/themeSlice'
 import { POLLING_20s } from '../../../constants/pollingIntervalConstants'
 import useAlerts from '../../../hooks/useAlerts'
+import { useBeepSound } from '../../../hooks/useBeep'
 import useDeviceResolution from '../../../hooks/useDeviceResolution'
 import { useSmartPolling } from '../../../hooks/useSmartPolling'
 import useTimezone from '../../../hooks/useTimezone'
@@ -27,12 +26,6 @@ import AppTable from '@/Components/AppTable/AppTable'
 import { SEVERITY } from '@/constants/alerts'
 import { ROUTE } from '@/constants/routes'
 import type { Device } from '@/hooks/hooks.types'
-
-const ALARM = {
-  PATH: '/audios/beep.mp3',
-  VOLUME: 0.5,
-  TIMEOUT: 1000,
-}
 
 const ALERT_CONFIRMATION_KEY = 'alertsPageAlertConfirmed'
 
@@ -67,7 +60,6 @@ export const CurrentAlerts = ({
   const [confirmed, setConfirmed] = useState(
     () => sessionStorage.getItem(ALERT_CONFIRMATION_KEY) === 'true',
   )
-  const isAlertEnabled = useSelector(getIsAlertEnabled)
   const { isLoading: alertsLoading, data: alertsData } = useAlerts()
   const hasCriticalAlerts = !alertsLoading && !_isEmpty(_head(alertsData as unknown[]))
 
@@ -75,65 +67,9 @@ export const CurrentAlerts = ({
   const isCriticalFilter =
     _isEmpty(localFilters.severity) || _castArray(localFilters.severity).includes(SEVERITY.CRITICAL)
 
-  const isAlertPlaying = !isDemoMode && isAlertEnabled && hasCriticalAlerts && isCriticalFilter
-  const alarm = useRef<Howl | null>(null)
+  const shouldBeep = !isDemoMode && hasCriticalAlerts && isCriticalFilter
 
-  useEffect(() => {
-    if (confirmed && !alarm.current) {
-      alarm.current = new Howl({
-        src: [ALARM.PATH],
-        loop: true,
-        volume: ALARM.VOLUME,
-      })
-    }
-
-    return () => {
-      if (alarm.current) {
-        alarm.current.stop()
-        alarm.current.unload()
-        alarm.current = null
-      }
-    }
-  }, [confirmed])
-
-  useEffect(() => {
-    let timeoutId: ReturnType<typeof setTimeout>
-    let unlockHandler: (() => void) | null = null
-    const shouldPlay = confirmed && isAlertPlaying
-
-    if (shouldPlay && alarm.current) {
-      const tryPlay = () => {
-        // Resume AudioContext if browser suspended it (autoplay policy)
-        if (Howler.ctx?.state === 'suspended') {
-          Howler.ctx.resume()
-        }
-        if (alarm.current && !alarm.current.playing()) {
-          alarm.current.play()
-        }
-      }
-
-      timeoutId = setTimeout(tryPlay, ALARM.TIMEOUT)
-
-      // Fallback: on user gesture, resume AudioContext so queued sound starts
-      unlockHandler = () => {
-        if (Howler.ctx?.state === 'suspended') {
-          Howler.ctx.resume()
-        }
-      }
-      document.addEventListener('click', unlockHandler)
-      document.addEventListener('touchstart', unlockHandler)
-    } else if (alarm.current?.playing()) {
-      alarm.current.pause()
-    }
-
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId)
-      if (unlockHandler) {
-        document.removeEventListener('click', unlockHandler)
-        document.removeEventListener('touchstart', unlockHandler)
-      }
-    }
-  }, [isAlertPlaying, confirmed])
+  useBeepSound({ isAllowed: confirmed && shouldBeep })
 
   const { data: alertsThingsData, isLoading } = useGetListThingsQuery(
     {

@@ -1,7 +1,5 @@
-import { Howl } from 'howler'
-import _head from 'lodash/head'
 import _isEmpty from 'lodash/isEmpty'
-import { useEffect, useRef } from 'react'
+import { useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 import { useLocation } from 'react-router-dom'
 
@@ -17,37 +15,13 @@ import useTimezone from '../../../hooks/useTimezone'
 import { AlarmsHeaderOuterContainer, BellIconContainer } from './AlarmsHeader.styles'
 import { VolumeIconComponent } from './VolumeIconComponent'
 
-const ALARM = {
-  PATH: '/audios/beep.mp3',
-  VOLUME: 0.5,
-  TIMEOUT: 1000,
-}
-
 const AlarmsHeader = () => {
   const dispatch = useDispatch()
   const location = useLocation()
   const { getFormattedDate } = useTimezone()
-  const { isLoading, data, newAlertsData, resetNewAlerts } = useAlerts()
-  const headerAlertsEnabled = () => false
+  const { newAlertsData, resetNewAlerts } = useAlerts()
   const isAlertEnabled = useSelector(getIsAlertEnabled)
   const isAlertsTab = location.pathname === ROUTE.ALERTS
-  const dataArray = Array.isArray(data) ? data : []
-  const isAlertPlaying = isAlertEnabled && !isLoading && !_isEmpty(_head(dataArray))
-  const alarm = useRef<Howl | null>(null)
-
-  useEffect(() => {
-    if (!alarm.current && headerAlertsEnabled()) {
-      alarm.current = new Howl({
-        src: [ALARM.PATH],
-        volume: ALARM.VOLUME,
-      })
-    }
-
-    return () => {
-      alarm.current?.stop()
-      alarm.current?.unload()
-    }
-  }, [headerAlertsEnabled])
 
   useEffect(() => {
     if (!_isEmpty(newAlertsData) && isAlertsTab) {
@@ -80,20 +54,6 @@ const AlarmsHeader = () => {
       })
     }
   }, [newAlertsData, location, isAlertsTab, getFormattedDate])
-
-  useEffect(() => {
-    if (isAlertPlaying) {
-      setTimeout(function () {
-        alarm.current?.play()
-      }, ALARM.TIMEOUT)
-    } else {
-      alarm.current?.pause()
-    }
-    return () => {
-      alarm.current?.pause()
-      alarm.current?.unload()
-    }
-  }, [isAlertPlaying])
 
   const onBellIconClicked = () => {
     if (isAlertEnabled) {
