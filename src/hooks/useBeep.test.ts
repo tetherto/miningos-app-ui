@@ -77,9 +77,9 @@ describe('useBeepSound', () => {
       createGain = factory.createGainMock
       close = factory.close
     }
-    AudioContextMock = vi.fn().mockImplementation(
-      (...args: unknown[]) => new FakeAudioContext(...(args as [])),
-    )
+    AudioContextMock = vi
+      .fn()
+      .mockImplementation((...args: unknown[]) => new FakeAudioContext(...(args as [])))
     vi.stubGlobal('AudioContext', AudioContextMock)
   })
 

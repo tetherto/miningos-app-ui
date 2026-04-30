@@ -79,8 +79,7 @@ export const useBeepSound = ({
         // environments (and test mocks) that may return undefined.
         const result = ctx.close() as Promise<void> | undefined
         result?.catch?.(() => {})
-      }
-      catch {
+      } catch {
         // ignore close() errors — we're tearing down anyway
       }
       audioContextRef.current = null
