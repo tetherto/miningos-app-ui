@@ -935,12 +935,15 @@ export type EbitdaResponse = FinanceResponse<EbitdaLogEntry, EbitdaTotals>
 export interface EnergyBalanceLogEntry {
   ts: number
   powerW: number
+  sitePowerMW: number
   consumptionMWh: number
   revenueBTC: number
   revenueUSD: number
   btcPrice: number
   energyCostUSD: number
   totalCostUSD: number
+  energyRevenueBTC_MW: number
+  energyRevenueUSD_MW: number
   energyRevenuePerMWh: number | null
   allInCostPerMWh: number | null
   profitUSD: number
@@ -956,7 +959,10 @@ export interface EnergyBalanceTotals {
   totalCostUSD: number
   totalProfitUSD: number
   avgCostPerMWh: number | null
+  avgEnergyCostPerMWh: number | null
+  avgOperationalCostPerMWh: number | null
   avgRevenuePerMWh: number | null
+  avgPowerConsumption: number
   totalConsumptionMWh: number
   avgCurtailmentRate: number | null
   avgOperationalIssuesRate: number | null

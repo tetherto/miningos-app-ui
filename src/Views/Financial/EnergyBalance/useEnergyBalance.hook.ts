@@ -1,10 +1,9 @@
 import _isNil from 'lodash/isNil'
 import _map from 'lodash/map'
-import _meanBy from 'lodash/meanBy'
-import _sumBy from 'lodash/sumBy'
 import { useState } from 'react'
 
 import { getPeriodKey, getPeriodType } from '../common/financial.helpers'
+import { PeriodType } from '../common/financial.types'
 import { useFinancialDateRange } from '../common/useFinancialDateRange'
 
 import type {
@@ -16,7 +15,6 @@ import type {
 import { useGetFinanceEnergyBalanceQuery } from '@/app/services/api'
 import { formatNumber } from '@/app/utils/format'
 import { CHART_COLORS } from '@/constants/colors'
-import { PERIOD } from '@/constants/ranges'
 import { CURRENCY } from '@/constants/units'
 import type { EnergyBalanceLogEntry, FinancePeriod } from '@/types'
 
@@ -26,11 +24,10 @@ const AVAILABLE_POWER_MW = 22.5
 const BTC_SATS = 100_000_000
 const SATS_THRESHOLD = 100_000
 
-const toFinancePeriod = (period?: string): FinancePeriod => {
-  if (period === PERIOD.WEEKLY) return 'weekly'
-  if (period === PERIOD.YEARLY) return 'yearly'
-  if (period === PERIOD.DAILY) return 'daily'
-  return 'monthly'
+const PERIOD_TYPE_TO_BE: Record<PeriodType, FinancePeriod> = {
+  day: 'daily',
+  week: 'weekly',
+  month: 'monthly',
 }
 
 const barLabelFormatter = (value: number) => {
@@ -56,26 +53,9 @@ const btcBarLabelFormatter = (value: number) => {
   return formatNumber(value, { minimumFractionDigits: 0, maximumFractionDigits: 6 })
 }
 
-interface PeriodRow {
-  ts: number
-  period: string
-  sitePowerMW: number
-  consumptionMWh: number
-  revenueBTC: number
-  revenueUSD: number
-  energyRevenueUSD_MW: number
-  energyRevenueBTC_MW: number
-  totalCostsUSD: number
-  energyCostsUSD: number
-  operationalCostsUSD: number
-  curtailmentRate: number
-  operationalIssuesRate: number
-}
-
 const useEnergyBalance = () => {
   const { dateRange, handleRangeChange } = useFinancialDateRange()
   const periodType = getPeriodType(dateRange)
-  const period = toFinancePeriod(dateRange?.period)
   const [activeTab, setActiveTab] = useState<EnergyBalanceTab>('revenue')
   const [revenueDisplayMode, setRevenueDisplayMode] = useState<RevenueDisplayMode>(
     CURRENCY.USD_LABEL,
@@ -83,42 +63,18 @@ const useEnergyBalance = () => {
   const [costDisplayMode, setCostDisplayMode] = useState<RevenueDisplayMode>(CURRENCY.USD_LABEL)
 
   const { data, isLoading, error } = useGetFinanceEnergyBalanceQuery(
-    { start: dateRange?.start ?? 0, end: dateRange?.end ?? 0, period },
+    {
+      start: dateRange?.start ?? 0,
+      end: dateRange?.end ?? 0,
+      period: PERIOD_TYPE_TO_BE[periodType],
+    },
     { skip: !dateRange?.start || !dateRange?.end, refetchOnMountOrArgChange: true },
   )
 
   const errors = error ? ['Energy Balance data failed'] : []
   const log: EnergyBalanceLogEntry[] = data?.log ?? []
   const summary = data?.summary
-  const currentBTCPrice = 0
-
-  const rows: PeriodRow[] = _map(log, (entry) => {
-    const sitePowerMW = (entry.powerW || 0) / 1e6
-    const energyCostsUSD = entry.energyCostUSD || 0
-    const totalCostsUSD = entry.totalCostUSD || 0
-    const operationalCostsUSD = Math.max(totalCostsUSD - energyCostsUSD, 0)
-    const energyRevenueUSD_MW = entry.energyRevenuePerMWh ?? 0
-    const energyRevenueBTC_MW =
-      entry.consumptionMWh > 0 ? entry.revenueBTC / entry.consumptionMWh : 0
-
-    return {
-      ts: entry.ts,
-      period: getPeriodKey(entry.ts, periodType),
-      sitePowerMW,
-      consumptionMWh: entry.consumptionMWh || 0,
-      revenueBTC: entry.revenueBTC || 0,
-      revenueUSD: entry.revenueUSD || 0,
-      energyRevenueUSD_MW,
-      energyRevenueBTC_MW,
-      totalCostsUSD,
-      energyCostsUSD,
-      operationalCostsUSD,
-      curtailmentRate: entry.curtailmentRate ?? 0,
-      operationalIssuesRate: entry.operationalIssuesRate ?? 0,
-    }
-  })
-
-  const hasData = rows.length > 0
+  const hasData = log.length > 0
 
   const revenueMetrics: EnergyRevenueMetrics | null = hasData
     ? {
@@ -128,27 +84,19 @@ const useEnergyBalance = () => {
     : null
 
   const costMetrics: EnergyCostMetrics | null = hasData
-    ? (() => {
-        const avgPowerConsumption = _meanBy(rows, 'sitePowerMW') || 0
-        const totalEnergyCosts = _sumBy(rows, 'energyCostsUSD') || 0
-        const totalOperationalCosts = _sumBy(rows, 'operationalCostsUSD') || 0
-        const totalRevenue = _sumBy(rows, 'revenueUSD') || 0
-        const totalPower = _sumBy(rows, 'sitePowerMW') || 1
-        return {
-          avgPowerConsumption,
-          avgEnergyCost: totalEnergyCosts / totalPower,
-          avgAllInCost: (totalEnergyCosts + totalOperationalCosts) / totalPower,
-          avgPowerAvailability: AVAILABLE_POWER_MW,
-          avgOperationsCost: totalOperationalCosts / totalPower,
-          avgEnergyRevenue: totalRevenue / totalPower,
-        }
-      })()
+    ? {
+        avgPowerConsumption: summary?.avgPowerConsumption ?? 0,
+        avgEnergyCost: summary?.avgEnergyCostPerMWh ?? 0,
+        avgAllInCost: summary?.avgCostPerMWh ?? 0,
+        avgPowerAvailability: AVAILABLE_POWER_MW,
+        avgOperationsCost: summary?.avgOperationalCostPerMWh ?? 0,
+        avgEnergyRevenue: summary?.avgRevenuePerMWh ?? 0,
+      }
     : null
 
-  const labels = _map(rows, 'period')
-
-  const revenueValuesUSD = _map(rows, 'energyRevenueUSD_MW')
-  const revenueValuesBTC = _map(rows, 'energyRevenueBTC_MW')
+  const labels = _map(log, (entry) => getPeriodKey(entry.ts, periodType))
+  const revenueValuesUSD = _map(log, 'energyRevenueUSD_MW')
+  const revenueValuesBTC = _map(log, 'energyRevenueBTC_MW')
 
   const energyRevenueChartData = {
     labels,
@@ -175,14 +123,14 @@ const useEnergyBalance = () => {
     series: [
       {
         label: 'Curtailment',
-        values: _map(rows, 'curtailmentRate'),
+        values: _map(log, (entry) => entry.curtailmentRate ?? 0),
         color: CHART_COLORS.purple,
         stack: 'stack1',
         datalabels: { formatter: rateLabelFormatter },
       },
       {
         label: 'Op. Issues',
-        values: _map(rows, 'operationalIssuesRate'),
+        values: _map(log, (entry) => entry.operationalIssuesRate ?? 0),
         color: CHART_COLORS.blue,
         stack: 'stack1',
         datalabels: { formatter: rateLabelFormatter },
@@ -190,7 +138,7 @@ const useEnergyBalance = () => {
     ],
   }
 
-  const powerPoints = _map(rows, (r) => ({ ts: r.ts, value: r.sitePowerMW }))
+  const powerPoints = _map(log, (entry) => ({ ts: entry.ts, value: entry.sitePowerMW }))
   const powerChartData = {
     series: [{ label: 'Power Consumption', points: powerPoints, color: CHART_COLORS.orange }],
     constants: [
@@ -215,15 +163,14 @@ const useEnergyBalance = () => {
     ],
   }
 
-  // Energy Cost chart (revenue vs all-in cost)
-  const allInCostValuesUSD = _map(rows, (r) =>
-    r.sitePowerMW > 0 ? r.totalCostsUSD / r.sitePowerMW : 0,
+  const allInCostValuesUSD = _map(log, (entry) =>
+    entry.sitePowerMW > 0 ? entry.totalCostUSD / entry.sitePowerMW : 0,
   )
-  const revenueValuesSats = _map(rows, (r) => r.energyRevenueBTC_MW * BTC_SATS)
-  const allInCostValuesSats = _map(rows, (r) => {
-    if (r.sitePowerMW <= 0 || r.revenueBTC <= 0) return 0
-    const derivedPriceUSD = r.revenueUSD / r.revenueBTC
-    const costPerMW = r.totalCostsUSD / r.sitePowerMW
+  const revenueValuesSats = _map(log, (entry) => entry.energyRevenueBTC_MW * BTC_SATS)
+  const allInCostValuesSats = _map(log, (entry) => {
+    if (entry.sitePowerMW <= 0 || entry.revenueBTC <= 0) return 0
+    const derivedPriceUSD = entry.revenueUSD / entry.revenueBTC
+    const costPerMW = entry.totalCostUSD / entry.sitePowerMW
     return (costPerMW / derivedPriceUSD) * BTC_SATS
   })
 
@@ -282,7 +229,7 @@ const useEnergyBalance = () => {
   const energyCostChartData = buildEnergyCostChart()
 
   return {
-    aggregatedData: rows,
+    aggregatedData: log,
     revenueMetrics,
     costMetrics,
     energyRevenueChartData,
@@ -296,7 +243,6 @@ const useEnergyBalance = () => {
     dateRange,
     periodType,
     errors,
-    currentBTCPrice,
     activeTab,
     revenueDisplayMode,
     costDisplayMode,
