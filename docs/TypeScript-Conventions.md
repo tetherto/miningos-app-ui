@@ -517,7 +517,7 @@ Many modern libraries ship with TypeScript types. **Do not install `@types/*` pa
 - `chart.js` v4+
 - `styled-components` v6+
 - `react-router-dom` v6+
-- `jspdf` v3+
+- `jspdf` v4+
 - `html2canvas`
 
 ```typescript

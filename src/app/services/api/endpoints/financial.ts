@@ -2,7 +2,19 @@ import type { EndpointBuilder, BaseQueryFn } from '@reduxjs/toolkit/query/react'
 import qs from 'qs'
 
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
-import type { CostOperationalEnergyData, RevenueData } from '@/types/api'
+import type {
+  CostOperationalEnergyData,
+  CostSummaryResponse,
+  EbitdaResponse,
+  EnergyBalanceResponse,
+  FinanceQueryParams,
+  FinanceRevenueQueryParams,
+  FinanceRevenueResponse,
+  HashRevenueResponse,
+  RevenueData,
+  RevenueSummaryResponse,
+  SubsidyFeesResponse,
+} from '@/types/api'
 
 export const financialEndpoints = (builder: EndpointBuilder<BaseQueryFn, string, string>) => ({
   getRevenue: builder.query<RevenueData, UnknownRecord>({
@@ -41,5 +53,33 @@ export const financialEndpoints = (builder: EndpointBuilder<BaseQueryFn, string,
       body: payload,
     }),
     invalidatesTags: ['ProductionCosts'],
+  }),
+
+  getFinanceRevenueSummary: builder.query<RevenueSummaryResponse, FinanceQueryParams>({
+    query: (payload) => `finance/revenue-summary?${qs.stringify(payload)}`,
+  }),
+
+  getFinanceEbitda: builder.query<EbitdaResponse, FinanceQueryParams>({
+    query: (payload) => `finance/ebitda?${qs.stringify(payload)}`,
+  }),
+
+  getFinanceEnergyBalance: builder.query<EnergyBalanceResponse, FinanceQueryParams>({
+    query: (payload) => `finance/energy-balance?${qs.stringify(payload)}`,
+  }),
+
+  getFinanceCostSummary: builder.query<CostSummaryResponse, FinanceQueryParams>({
+    query: (payload) => `finance/cost-summary?${qs.stringify(payload)}`,
+  }),
+
+  getFinanceSubsidyFees: builder.query<SubsidyFeesResponse, FinanceQueryParams>({
+    query: (payload) => `finance/subsidy-fees?${qs.stringify(payload)}`,
+  }),
+
+  getFinanceRevenue: builder.query<FinanceRevenueResponse, FinanceRevenueQueryParams>({
+    query: (payload) => `finance/revenue?${qs.stringify(payload)}`,
+  }),
+
+  getFinanceHashRevenue: builder.query<HashRevenueResponse, FinanceQueryParams>({
+    query: (payload) => `finance/hash-revenue?${qs.stringify(payload)}`,
   }),
 })

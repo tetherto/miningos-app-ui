@@ -1,36 +1,17 @@
-import _filter from 'lodash/filter'
-import _get from 'lodash/get'
-import _head from 'lodash/head'
-import _sortBy from 'lodash/sortBy'
+import _map from 'lodash/map'
 
-import { useHistoricalBTCPrices } from '../../common/useHistoricalBTCPrices'
-import { useMinerpoolTransactions } from '../../common/useMinerpoolTransactions'
-import { useProductionCosts } from '../../common/useProductionCosts'
-import { useTailLog } from '../../common/useTailLog'
-import { generateLogEntries, getCombinedHashpriceData } from '../utils/hashCost.utils'
-import {
-  getLogSummary,
-  processHashPricesData,
-  processTailLogData,
-  processTransactionData,
-} from '../utils/hashRevenueCost.utils'
-import {
-  aggregateByPeriod,
-  buildHistoricalBlockSizesParams,
-  getHashCostMetrics,
-  mergeDataSources,
-} from '../utils/hashRevenueCostHelpers'
+import { getHashCostMetrics } from '../utils/hashRevenueCostHelpers'
 
-import { useGetExtDataQuery, useGetSiteQuery } from '@/app/services/api'
-import { TIMEFRAME_TYPE } from '@/constants/ranges'
-import {
-  TimeframeType,
-  type HashrateAggregateData,
-  type MinerHistoricalBlockSizesResponse,
-  type MinerTransaction,
-  type MultiSiteDateRange,
-  type PeriodValue,
-} from '@/types'
+import { useGetFinanceHashRevenueQuery } from '@/app/services/api'
+import { PERIOD, TIMEFRAME_TYPE } from '@/constants/ranges'
+import type { FinancePeriod, MultiSiteDateRange, TimeframeType } from '@/types'
+
+const toFinancePeriod = (period?: string): FinancePeriod => {
+  if (period === PERIOD.WEEKLY) return 'weekly'
+  if (period === PERIOD.YEARLY) return 'yearly'
+  if (period === PERIOD.DAILY) return 'daily'
+  return 'monthly'
+}
 
 interface UseHashCostChartDataParams {
   dateRange: MultiSiteDateRange
@@ -40,91 +21,40 @@ interface UseHashCostChartDataParams {
 export const useHashCostChartData = ({ dateRange, timeFrameType }: UseHashCostChartDataParams) => {
   const { start, end, period } = dateRange ?? {}
 
-  const { data: siteData } = useGetSiteQuery(undefined)
-
-  const { data: transactionsData, isLoading: isTransactionsLoading } = useMinerpoolTransactions({
-    start,
-    end,
-    period,
-  })
-
-  const { data: tailLogRangeAggrRes, isLoading: isTaiLogDataLoading } = useTailLog({
-    start,
-    end,
-    period,
-  })
-
-  const { data: historicalPricesData, isLoading: isHistoricalPricesLoading } =
-    useHistoricalBTCPrices({
-      start,
-      end,
-      period,
-    })
-
-  const { data: historicalBlockSizes, isLoading: isHistoricalBlockSizesLoading } =
-    useGetExtDataQuery<MinerHistoricalBlockSizesResponse>(
-      buildHistoricalBlockSizesParams({ start, end }),
-    )
-  const { data: costsData, isLoading: isCostsDataLoading } = useProductionCosts()
-
-  if (timeFrameType === TIMEFRAME_TYPE.WEEK) {
-    return {
-      isLoading: false,
-      data: [],
-      metrics: {},
-    }
-  }
-
-  const tailLogData = processTailLogData(tailLogRangeAggrRes as HashrateAggregateData[][])
-  const processedTransactionData = processTransactionData(transactionsData as MinerTransaction[][])
-  const currentSite = _get(siteData, ['site']) as string | undefined
-
-  const mergedData = mergeDataSources(tailLogData, processedTransactionData)
-  const aggregatedData = aggregateByPeriod(mergedData, period as PeriodValue)
-  const btcPricesData = _head(historicalPricesData) || []
-  const currentSiteCostsData = _filter(costsData, ({ site }) => site === currentSite)
-
-  const revenueLog = generateLogEntries({
-    data: aggregatedData,
-    period: period as PeriodValue,
-    timeFrameType,
-    costsData: currentSiteCostsData,
-    btcPricesData,
-  })
-  const revenueLogSortedByTs = _sortBy(revenueLog, ['ts'])
-
-  const proceedHashPricesData = processHashPricesData(
-    historicalBlockSizes,
-    historicalPricesData,
-    tailLogData,
+  const { data, isLoading } = useGetFinanceHashRevenueQuery(
+    { start: start ?? 0, end: end ?? 0, period: toFinancePeriod(period) },
+    {
+      skip: !start || !end || timeFrameType === TIMEFRAME_TYPE.WEEK,
+      refetchOnMountOrArgChange: true,
+    },
   )
 
-  const summary = getLogSummary(revenueLogSortedByTs)
-  const hashPriceSummary = getLogSummary(proceedHashPricesData)
+  if (timeFrameType === TIMEFRAME_TYPE.WEEK) {
+    return { isLoading: false, data: [], metrics: {} }
+  }
 
-  const avgHashCost = _get(summary, ['avg', 'hashCostUSD_PHS_d'], 0) || 0
-  const avgHashRevenue = _get(summary, ['avg', 'hashRevenueUSD_PHS_d'], 0) || 0
-  const avgNetworkHashprice = _get(hashPriceSummary, ['avg', 'hashprice'], 0) || 0
+  const log = data?.log ?? []
+  const summary = data?.summary
 
-  const data =
+  const chartData =
     timeFrameType === TIMEFRAME_TYPE.YEAR
-      ? getCombinedHashpriceData(revenueLogSortedByTs, proceedHashPricesData)
+      ? _map(log, (entry) => ({
+          date: entry.ts,
+          cost: entry.hashCostUSDPerPHsPerDay ?? 0,
+          revenue: entry.hashRevenueUSDPerPHsPerDay ?? 0,
+          networkHashprice: entry.networkHashPriceUSDPerPHsPerDay ?? 0,
+        }))
       : []
 
   const metrics = getHashCostMetrics({
-    avgHashCost,
-    avgHashRevenue,
-    avgNetworkHashprice,
+    avgHashCost: summary?.avgHashCostUSDPerPHsPerDay ?? 0,
+    avgHashRevenue: summary?.avgHashRevenueUSDPerPHsPerDay ?? 0,
+    avgNetworkHashprice: summary?.avgNetworkHashPriceUSDPerPHsPerDay ?? 0,
   })
 
   return {
-    isLoading:
-      isTransactionsLoading ||
-      isTaiLogDataLoading ||
-      isHistoricalPricesLoading ||
-      isCostsDataLoading ||
-      isHistoricalBlockSizesLoading,
-    data,
+    isLoading,
+    data: chartData,
     metrics,
   }
 }

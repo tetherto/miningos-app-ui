@@ -100,6 +100,13 @@ export const {
   useGetMetricsPowerModeQuery,
   useGetMetricsPowerModeTimelineQuery,
   useGetMetricsTemperatureQuery,
+  useGetFinanceRevenueSummaryQuery,
+  useGetFinanceEbitdaQuery,
+  useGetFinanceEnergyBalanceQuery,
+  useGetFinanceCostSummaryQuery,
+  useGetFinanceSubsidyFeesQuery,
+  useGetFinanceRevenueQuery,
+  useGetFinanceHashRevenueQuery,
 } = api
 
 export const useGetOperationsMinersQuery = api.useGetOperationsWorkersQuery

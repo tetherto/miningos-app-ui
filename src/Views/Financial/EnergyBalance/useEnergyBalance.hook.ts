@@ -1,211 +1,288 @@
-import _compact from 'lodash/compact'
-import _every from 'lodash/every'
-import _isArray from 'lodash/isArray'
-import _isEmpty from 'lodash/isEmpty'
+import _isNil from 'lodash/isNil'
 import _map from 'lodash/map'
-import _some from 'lodash/some'
+import _meanBy from 'lodash/meanBy'
+import _sumBy from 'lodash/sumBy'
 import { useState } from 'react'
 
-import { getPeriodType } from '../common/financial.helpers'
-import { useCurrentBTCPrice } from '../common/useCurrentBTCPrice'
-import { useElectricityCurtailmentData } from '../common/useElectricityCurtailmentData'
+import { getPeriodKey, getPeriodType } from '../common/financial.helpers'
 import { useFinancialDateRange } from '../common/useFinancialDateRange'
-import { useHistoricalBTCPrices } from '../common/useHistoricalBTCPrices'
-import { useMinerpoolTransactions } from '../common/useMinerpoolTransactions'
-import { usePowerConsumption } from '../common/usePowerConsumption'
-import { useProductionCosts } from '../common/useProductionCosts'
 
-import {
-  aggregateByPeriod,
-  calculateEnergyCostMetrics,
-  calculateEnergyRevenueMetrics,
-  mergeDailyData,
-  transformToDowntimeChartData,
-  transformToEnergyCostChartData,
-  transformToEnergyRevenueChartData,
-  transformToPowerChartData,
-  transformToPowerChartDataCostTab,
-} from './EnergyBalance.helpers'
 import type {
   EnergyBalanceTab,
-  MinerpoolTransactionData,
-  PowerMeterData,
+  EnergyCostMetrics,
+  EnergyRevenueMetrics,
 } from './EnergyBalance.types'
 
-import { MS_PER_HOUR } from '@/app/utils/electricityUtils'
+import { useGetFinanceEnergyBalanceQuery } from '@/app/services/api'
+import { formatNumber } from '@/app/utils/format'
+import { CHART_COLORS } from '@/constants/colors'
+import { PERIOD } from '@/constants/ranges'
 import { CURRENCY } from '@/constants/units'
-import { useNominalConfigValues } from '@/hooks/useNominalConfigValues'
-import type { ElectricityDataEntry } from '@/types'
+import type { EnergyBalanceLogEntry, FinancePeriod } from '@/types'
 
 type RevenueDisplayMode = typeof CURRENCY.USD_LABEL | typeof CURRENCY.BTC_LABEL
 
+const AVAILABLE_POWER_MW = 22.5
+const BTC_SATS = 100_000_000
+const SATS_THRESHOLD = 100_000
+
+const toFinancePeriod = (period?: string): FinancePeriod => {
+  if (period === PERIOD.WEEKLY) return 'weekly'
+  if (period === PERIOD.YEARLY) return 'yearly'
+  if (period === PERIOD.DAILY) return 'daily'
+  return 'monthly'
+}
+
+const barLabelFormatter = (value: number) => {
+  if (_isNil(value)) return ''
+  if (value === 0) return '0'
+  return formatNumber(value)
+}
+const usdBarLabelFormatter = (value: number) => {
+  if (_isNil(value)) return ''
+  if (value === 0) return '0'
+  return formatNumber(value, { maximumFractionDigits: 0 })
+}
+const usdBarLabelFormatterWithDecimals = (value: number) => {
+  if (_isNil(value)) return ''
+  if (value === 0) return '0'
+  return formatNumber(value, { minimumFractionDigits: 0, maximumFractionDigits: 2 })
+}
+const rateLabelFormatter = (value: number) =>
+  formatNumber(value, { minimumFractionDigits: 0, maximumFractionDigits: 4 })
+const btcBarLabelFormatter = (value: number) => {
+  if (_isNil(value)) return ''
+  if (value === 0) return '0'
+  return formatNumber(value, { minimumFractionDigits: 0, maximumFractionDigits: 6 })
+}
+
+interface PeriodRow {
+  ts: number
+  period: string
+  sitePowerMW: number
+  consumptionMWh: number
+  revenueBTC: number
+  revenueUSD: number
+  energyRevenueUSD_MW: number
+  energyRevenueBTC_MW: number
+  totalCostsUSD: number
+  energyCostsUSD: number
+  operationalCostsUSD: number
+  curtailmentRate: number
+  operationalIssuesRate: number
+}
+
 const useEnergyBalance = () => {
   const { dateRange, handleRangeChange } = useFinancialDateRange()
+  const periodType = getPeriodType(dateRange)
+  const period = toFinancePeriod(dateRange?.period)
   const [activeTab, setActiveTab] = useState<EnergyBalanceTab>('revenue')
   const [revenueDisplayMode, setRevenueDisplayMode] = useState<RevenueDisplayMode>(
     CURRENCY.USD_LABEL,
   )
   const [costDisplayMode, setCostDisplayMode] = useState<RevenueDisplayMode>(CURRENCY.USD_LABEL)
-  const periodType = getPeriodType(dateRange)
 
-  const { start, end } = dateRange || {}
-  const hoursInPeriod = start && end ? (end - start) / MS_PER_HOUR : 0
-
-  // Minerpool transactions (revenue data)
-  const transactionsResponse = useMinerpoolTransactions(dateRange!)
-
-  // Historical BTC prices
-  const pricesResponse = useHistoricalBTCPrices(dateRange!)
-
-  // Current BTC price
-  const currentBTCResponse = useCurrentBTCPrice()
-
-  // Production costs
-  const productionCostsResponse = useProductionCosts()
-
-  // Power consumption (tail log range aggr)
-  const powerResponse = usePowerConsumption(dateRange!)
-
-  // Electricity/Curtailment data
-  const electricityResponse = useElectricityCurtailmentData(dateRange!)
-
-  const { nominalAvailablePowerMWh, isLoading: isNominalConfigValuesLoading } =
-    useNominalConfigValues()
-
-  const isLoading =
-    _some(
-      [
-        transactionsResponse,
-        pricesResponse,
-        currentBTCResponse,
-        productionCostsResponse,
-        powerResponse,
-        electricityResponse,
-      ],
-      ({ isLoading }) => isLoading,
-    ) || isNominalConfigValuesLoading
-
-  const errors = _compact(
-    _map(
-      [
-        [transactionsResponse.error, 'Transactions data failed'],
-        [pricesResponse.error, 'Price data failed'],
-        [currentBTCResponse.error, 'Current BTC data failed'],
-        [productionCostsResponse.error, 'Production costs data failed'],
-        [powerResponse.error, 'Power data failed'],
-        [electricityResponse.error, 'Electricity data failed'],
-      ],
-      ([error, message]) => error && message,
-    ),
+  const { data, isLoading, error } = useGetFinanceEnergyBalanceQuery(
+    { start: dateRange?.start ?? 0, end: dateRange?.end ?? 0, period },
+    { skip: !dateRange?.start || !dateRange?.end, refetchOnMountOrArgChange: true },
   )
 
-  const hasEveryData = _every(
-    [
-      transactionsResponse,
-      pricesResponse,
-      currentBTCResponse,
-      productionCostsResponse,
-      powerResponse,
-      electricityResponse,
-    ],
-    ({ data }) => data,
-  )
+  const errors = error ? ['Energy Balance data failed'] : []
+  const log: EnergyBalanceLogEntry[] = data?.log ?? []
+  const summary = data?.summary
+  const currentBTCPrice = 0
 
-  const { data: transactionsData } = transactionsResponse
-  const { data: pricesData } = pricesResponse
-  const { data: productionCostsData } = productionCostsResponse
-  const { data: powerData } = powerResponse
-  const { data: electricityData } = electricityResponse
-  const { currentBTCPrice } = currentBTCResponse
-
-  // Process and aggregate data
-  const processData = () => {
-    if (!hasEveryData || !dateRange || currentBTCPrice === 0) {
-      return {
-        aggregatedData: [],
-        revenueMetrics: null,
-        costMetrics: null,
-      }
-    }
-
-    // Extract nested array data
-    const transactions = (_isArray(transactionsData) && transactionsData[0]) || []
-    const prices = (_isArray(pricesData) && pricesData[0]) || []
-    const costs = _isArray(productionCostsData) ? productionCostsData : []
-
-    // Extract power data - it's nested: powerData[0][0] contains { type: 'powermeter', data: [...] }
-    let powerMeterData: PowerMeterData | null = null
-    if (_isArray(powerData)) {
-      for (const item of powerData) {
-        if (_isArray(item)) {
-          const found = item.find((d: { type?: string }) => d?.type === 'powermeter')
-          if (found) {
-            powerMeterData = found as PowerMeterData
-            break
-          }
-        } else if (item?.type === 'powermeter') {
-          powerMeterData = item as PowerMeterData
-          break
-        }
-      }
-    }
-
-    // Extract electricity data
-    const electricity = (_isArray(electricityData) && electricityData[0]) || []
-
-    // Merge all data sources into daily data
-    const dailyData = mergeDailyData(
-      transactions as MinerpoolTransactionData[],
-      prices,
-      costs,
-      powerMeterData || null,
-      electricity as ElectricityDataEntry[],
-      nominalAvailablePowerMWh,
-      hoursInPeriod,
-    )
-
-    // Aggregate by period
-    const aggregatedData = aggregateByPeriod(dailyData, periodType, currentBTCPrice)
-
-    // Calculate metrics
-    const revenueMetrics = calculateEnergyRevenueMetrics(aggregatedData)
-    const costMetrics = calculateEnergyCostMetrics(aggregatedData)
+  const rows: PeriodRow[] = _map(log, (entry) => {
+    const sitePowerMW = (entry.powerW || 0) / 1e6
+    const energyCostsUSD = entry.energyCostUSD || 0
+    const totalCostsUSD = entry.totalCostUSD || 0
+    const operationalCostsUSD = Math.max(totalCostsUSD - energyCostsUSD, 0)
+    const energyRevenueUSD_MW = entry.energyRevenuePerMWh ?? 0
+    const energyRevenueBTC_MW =
+      entry.consumptionMWh > 0 ? entry.revenueBTC / entry.consumptionMWh : 0
 
     return {
-      aggregatedData,
-      revenueMetrics,
-      costMetrics,
+      ts: entry.ts,
+      period: getPeriodKey(entry.ts, periodType),
+      sitePowerMW,
+      consumptionMWh: entry.consumptionMWh || 0,
+      revenueBTC: entry.revenueBTC || 0,
+      revenueUSD: entry.revenueUSD || 0,
+      energyRevenueUSD_MW,
+      energyRevenueBTC_MW,
+      totalCostsUSD,
+      energyCostsUSD,
+      operationalCostsUSD,
+      curtailmentRate: entry.curtailmentRate ?? 0,
+      operationalIssuesRate: entry.operationalIssuesRate ?? 0,
+    }
+  })
+
+  const hasData = rows.length > 0
+
+  const revenueMetrics: EnergyRevenueMetrics | null = hasData
+    ? {
+        curtailmentRate: (summary?.avgCurtailmentRate ?? 0) * 100,
+        operationalIssuesRate: (summary?.avgOperationalIssuesRate ?? 0) * 100,
+      }
+    : null
+
+  const costMetrics: EnergyCostMetrics | null = hasData
+    ? (() => {
+        const avgPowerConsumption = _meanBy(rows, 'sitePowerMW') || 0
+        const totalEnergyCosts = _sumBy(rows, 'energyCostsUSD') || 0
+        const totalOperationalCosts = _sumBy(rows, 'operationalCostsUSD') || 0
+        const totalRevenue = _sumBy(rows, 'revenueUSD') || 0
+        const totalPower = _sumBy(rows, 'sitePowerMW') || 1
+        return {
+          avgPowerConsumption,
+          avgEnergyCost: totalEnergyCosts / totalPower,
+          avgAllInCost: (totalEnergyCosts + totalOperationalCosts) / totalPower,
+          avgPowerAvailability: AVAILABLE_POWER_MW,
+          avgOperationsCost: totalOperationalCosts / totalPower,
+          avgEnergyRevenue: totalRevenue / totalPower,
+        }
+      })()
+    : null
+
+  const labels = _map(rows, 'period')
+
+  const revenueValuesUSD = _map(rows, 'energyRevenueUSD_MW')
+  const revenueValuesBTC = _map(rows, 'energyRevenueBTC_MW')
+
+  const energyRevenueChartData = {
+    labels,
+    series: [
+      {
+        label:
+          revenueDisplayMode === CURRENCY.USD_LABEL
+            ? 'Revenue (USD/MWh)'
+            : `Revenue (${CURRENCY.BTC_LABEL}/MWh)`,
+        values: revenueDisplayMode === CURRENCY.USD_LABEL ? revenueValuesUSD : revenueValuesBTC,
+        color: CHART_COLORS.red,
+        datalabels: {
+          formatter:
+            revenueDisplayMode === CURRENCY.USD_LABEL
+              ? usdBarLabelFormatterWithDecimals
+              : btcBarLabelFormatter,
+        },
+      },
+    ],
+  }
+
+  const downtimeChartData = {
+    labels,
+    series: [
+      {
+        label: 'Curtailment',
+        values: _map(rows, 'curtailmentRate'),
+        color: CHART_COLORS.purple,
+        stack: 'stack1',
+        datalabels: { formatter: rateLabelFormatter },
+      },
+      {
+        label: 'Op. Issues',
+        values: _map(rows, 'operationalIssuesRate'),
+        color: CHART_COLORS.blue,
+        stack: 'stack1',
+        datalabels: { formatter: rateLabelFormatter },
+      },
+    ],
+  }
+
+  const powerPoints = _map(rows, (r) => ({ ts: r.ts, value: r.sitePowerMW }))
+  const powerChartData = {
+    series: [{ label: 'Power Consumption', points: powerPoints, color: CHART_COLORS.orange }],
+    constants: [
+      {
+        label: 'Power Availability',
+        value: AVAILABLE_POWER_MW,
+        color: CHART_COLORS.green,
+        style: { borderDash: [5, 5] },
+      },
+    ],
+  }
+
+  const powerChartDataCostTab = {
+    series: [{ label: 'Power Consumption', points: powerPoints, color: CHART_COLORS.blue }],
+    constants: [
+      {
+        label: 'Power Availability',
+        value: AVAILABLE_POWER_MW,
+        color: CHART_COLORS.red,
+        style: { borderDash: [5, 5] },
+      },
+    ],
+  }
+
+  // Energy Cost chart (revenue vs all-in cost)
+  const allInCostValuesUSD = _map(rows, (r) =>
+    r.sitePowerMW > 0 ? r.totalCostsUSD / r.sitePowerMW : 0,
+  )
+  const revenueValuesSats = _map(rows, (r) => r.energyRevenueBTC_MW * BTC_SATS)
+  const allInCostValuesSats = _map(rows, (r) => {
+    if (r.sitePowerMW <= 0 || r.revenueBTC <= 0) return 0
+    const derivedPriceUSD = r.revenueUSD / r.revenueBTC
+    const costPerMW = r.totalCostsUSD / r.sitePowerMW
+    return (costPerMW / derivedPriceUSD) * BTC_SATS
+  })
+
+  const buildEnergyCostChart = () => {
+    if (costDisplayMode === CURRENCY.USD_LABEL) {
+      return {
+        labels,
+        series: [
+          {
+            label: 'All-In Cost',
+            values: allInCostValuesUSD,
+            color: CHART_COLORS.orange,
+            datalabels: { formatter: usdBarLabelFormatter },
+          },
+          {
+            label: 'Revenue',
+            values: revenueValuesUSD,
+            color: CHART_COLORS.SKY_BLUE,
+            datalabels: { formatter: usdBarLabelFormatter },
+          },
+        ],
+        btcUnit: null as string | null,
+      }
+    }
+
+    const maxSatsValue = Math.max(0, ...revenueValuesSats, ...allInCostValuesSats)
+    const useBTC = maxSatsValue >= SATS_THRESHOLD
+    const revenueValuesOut = useBTC
+      ? _map(revenueValuesSats, (v) => v / BTC_SATS)
+      : revenueValuesSats
+    const costValuesOut = useBTC
+      ? _map(allInCostValuesSats, (v) => v / BTC_SATS)
+      : allInCostValuesSats
+    const formatter = useBTC ? btcBarLabelFormatter : barLabelFormatter
+
+    return {
+      labels,
+      series: [
+        {
+          label: 'All-In Cost',
+          values: costValuesOut,
+          color: CHART_COLORS.orange,
+          datalabels: { formatter },
+        },
+        {
+          label: 'Revenue',
+          values: revenueValuesOut,
+          color: CHART_COLORS.SKY_BLUE,
+          datalabels: { formatter },
+        },
+      ],
+      btcUnit: useBTC ? CURRENCY.BTC_LABEL : CURRENCY.SATS,
     }
   }
 
-  const { aggregatedData, revenueMetrics, costMetrics } = processData()
-
-  // Transform to chart data
-  const energyRevenueChartData = transformToEnergyRevenueChartData(
-    aggregatedData,
-    revenueDisplayMode,
-  )
-  const downtimeChartData = transformToDowntimeChartData(aggregatedData)
-  const powerChartData = transformToPowerChartData(aggregatedData)
-  const powerChartDataCostTab = transformToPowerChartDataCostTab(aggregatedData)
-  const energyCostChartData = transformToEnergyCostChartData(
-    aggregatedData,
-    costDisplayMode === CURRENCY.USD_LABEL ? 'USD' : 'BTC',
-  )
-
-  const hasData = !_isEmpty(aggregatedData)
-
-  // Toggle revenue display mode
-  const handleRevenueDisplayToggle = (mode: RevenueDisplayMode) => {
-    setRevenueDisplayMode(mode)
-  }
-
-  const handleTabChange = (key: string) => {
-    setActiveTab(key as EnergyBalanceTab)
-  }
+  const energyCostChartData = buildEnergyCostChart()
 
   return {
-    aggregatedData,
+    aggregatedData: rows,
     revenueMetrics,
     costMetrics,
     energyRevenueChartData,
@@ -214,8 +291,6 @@ const useEnergyBalance = () => {
     powerChartDataCostTab,
     energyCostChartData,
     hasData,
-    handleRevenueDisplayToggle,
-    handleTabChange,
     isLoading,
     handleRangeChange,
     dateRange,
