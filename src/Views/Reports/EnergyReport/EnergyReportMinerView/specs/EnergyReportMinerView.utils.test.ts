@@ -1,6 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
-import { ENERGY_REPORT_MINER_VIEW_SLICES, sliceConfig } from '../EnergyReportMinerView.utils'
+import {
+  ENERGY_REPORT_MINER_VIEW_SLICES,
+  sliceConfig,
+  transformToBarData,
+} from '../EnergyReportMinerView.utils'
+
+import type { MetricsConsumptionGroupedResponse } from '@/types/api'
 
 describe('EnergyReportMinerView.utils', () => {
   describe('ENERGY_REPORT_MINER_VIEW_SLICES', () => {
@@ -11,18 +17,26 @@ describe('EnergyReportMinerView.utils', () => {
   })
 
   describe('sliceConfig', () => {
-    it('MINER_TYPE slice has key and getLabelName', () => {
+    it('MINER_TYPE slice groups by miner type', () => {
       const config = sliceConfig[ENERGY_REPORT_MINER_VIEW_SLICES.MINER_TYPE]
-      expect(config.key).toBe('power_w_type_group_sum_aggr')
+      expect(config.groupBy).toBe('miner')
       expect(config.title).toBe('Power Consumption')
       expect(config.getLabelName('miner-wm-m56')).toBeDefined()
     })
 
-    it('MINER_UNIT slice filterCategory excludes maintenance', () => {
+    it('MINER_UNIT slice groups by container', () => {
       const config = sliceConfig[ENERGY_REPORT_MINER_VIEW_SLICES.MINER_UNIT]
-      expect(config.filterCategory).toBeDefined()
-      expect(config.filterCategory!('maintenance')).toBe(false)
-      expect(config.filterCategory!('bitdeer-1')).toBe(true)
+      expect(config.groupBy).toBe('container')
+      expect(config.title).toBe('Power Consumption')
+    })
+
+    it('MINER_UNIT filterCategory drops leaked rollup keys', () => {
+      const { filterCategory } = sliceConfig[ENERGY_REPORT_MINER_VIEW_SLICES.MINER_UNIT]
+      expect(filterCategory).toBeDefined()
+      expect(filterCategory!('maintenance')).toBe(false)
+      expect(filterCategory!('group-1')).toBe(false)
+      expect(filterCategory!('group-12')).toBe(false)
+      expect(filterCategory!('bitdeer-1')).toBe(true)
     })
 
     it('MINER_UNIT getLabelName returns category when container has no type', () => {
@@ -37,6 +51,62 @@ describe('EnergyReportMinerView.utils', () => {
       const label = config.getLabelName('bitdeer-1', containers)
       expect(label).toBeDefined()
       expect(typeof label).toBe('string')
+    })
+  })
+
+  describe('transformToBarData', () => {
+    const mockResponse = (
+      log: MetricsConsumptionGroupedResponse['log'],
+    ): MetricsConsumptionGroupedResponse => ({
+      log,
+      summary: { avgPowerW: null, totalConsumptionMWh: 0 },
+    })
+
+    it('returns empty chart data when response is undefined', () => {
+      const chart = transformToBarData(undefined, ENERGY_REPORT_MINER_VIEW_SLICES.MINER_TYPE, [])
+      expect(chart.labels).toEqual([])
+      expect(chart.dataSet1.data).toEqual([])
+    })
+
+    it('returns empty chart data when log is empty', () => {
+      const chart = transformToBarData(
+        mockResponse([]),
+        ENERGY_REPORT_MINER_VIEW_SLICES.MINER_TYPE,
+        [],
+      )
+      expect(chart.labels).toEqual([])
+      expect(chart.dataSet1.data).toEqual([])
+    })
+
+    it('uses the latest log entry for the bar values', () => {
+      const response = mockResponse([
+        { ts: 1, powerW: { 'miner-wm-m56': 100 }, consumptionMWh: { 'miner-wm-m56': 0.0024 } },
+        { ts: 2, powerW: { 'miner-wm-m56': 250 }, consumptionMWh: { 'miner-wm-m56': 0.006 } },
+      ])
+      const chart = transformToBarData(response, ENERGY_REPORT_MINER_VIEW_SLICES.MINER_TYPE, [])
+      expect(chart.dataSet1.data).toEqual([250])
+      expect(chart.labels).toHaveLength(1)
+    })
+
+    it('drops leaked rollup keys for MINER_UNIT', () => {
+      const response = mockResponse([
+        {
+          ts: 1,
+          powerW: { 'bitdeer-1': 100, 'group-1': 50, maintenance: 25 },
+          consumptionMWh: null,
+        },
+      ])
+      const chart = transformToBarData(response, ENERGY_REPORT_MINER_VIEW_SLICES.MINER_UNIT, [])
+      expect(chart.dataSet1.data).toEqual([100])
+      expect(chart.labels).toEqual(['bitdeer-1'])
+    })
+
+    it('keeps all keys for MINER_TYPE (no filter)', () => {
+      const response = mockResponse([
+        { ts: 1, powerW: { 'miner-a': 100, 'miner-b': 200 }, consumptionMWh: null },
+      ])
+      const chart = transformToBarData(response, ENERGY_REPORT_MINER_VIEW_SLICES.MINER_TYPE, [])
+      expect(chart.dataSet1.data).toEqual([100, 200])
     })
   })
 })
