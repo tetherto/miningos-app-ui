@@ -896,18 +896,34 @@ export type MetricsHashrateResponse = MetricsResponse<
   MetricsHashrateSummary
 >
 
-// BE currently returns summary as {} on grouped variants — type loose for now,
-// widen when BE populates per-group / site-wide totals on the grouped path.
+export interface MetricsHashrateGroupedSummary {
+  avgHashrateMhs: number | null
+  totalHashrateMhs: number
+  groupedBy?: Record<string, MetricsHashrateSummary>
+}
+
 export type MetricsHashrateGroupedResponse = MetricsResponse<
   MetricsHashrateGroupedLogEntry,
-  Record<string, never>
+  MetricsHashrateGroupedSummary
 >
 
 // /auth/metrics/consumption
+export type MetricsConsumptionGroupBy = 'container' | 'miner'
+
+export interface MetricsConsumptionQueryParams extends MetricsQueryParams {
+  groupBy?: MetricsConsumptionGroupBy
+}
+
 export interface MetricsConsumptionLogEntry {
   ts: number
   powerW: number
   consumptionMWh: number
+}
+
+export interface MetricsConsumptionGroupedLogEntry {
+  ts: number
+  powerW: Record<string, number>
+  consumptionMWh: Record<string, number> | null
 }
 
 export interface MetricsConsumptionSummary {
@@ -915,9 +931,25 @@ export interface MetricsConsumptionSummary {
   totalConsumptionMWh: number
 }
 
+export interface MetricsConsumptionGroupSummary {
+  avgPowerW: number | null
+  totalConsumptionMWh: number
+}
+
+export interface MetricsConsumptionGroupedSummary {
+  avgPowerW: number | null
+  totalConsumptionMWh: number
+  groupedBy?: Record<string, MetricsConsumptionGroupSummary>
+}
+
 export type MetricsConsumptionResponse = MetricsResponse<
   MetricsConsumptionLogEntry,
   MetricsConsumptionSummary
+>
+
+export type MetricsConsumptionGroupedResponse = MetricsResponse<
+  MetricsConsumptionGroupedLogEntry,
+  MetricsConsumptionGroupedSummary
 >
 
 // /auth/metrics/efficiency

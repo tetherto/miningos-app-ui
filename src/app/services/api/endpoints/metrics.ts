@@ -2,6 +2,8 @@ import type { EndpointBuilder, BaseQueryFn } from '@reduxjs/toolkit/query/react'
 import qs from 'qs'
 
 import type {
+  MetricsConsumptionGroupedResponse,
+  MetricsConsumptionQueryParams,
   MetricsConsumptionResponse,
   MetricsEfficiencyResponse,
   MetricsHashrateGroupedResponse,
@@ -30,6 +32,13 @@ export const metricsEndpoints = (builder: EndpointBuilder<BaseQueryFn, string, s
   }),
 
   getMetricsConsumption: builder.query<MetricsConsumptionResponse, MetricsQueryParams>({
+    query: (payload) => `metrics/consumption?${qs.stringify(payload)}`,
+  }),
+
+  getMetricsConsumptionGrouped: builder.query<
+    MetricsConsumptionGroupedResponse,
+    MetricsConsumptionQueryParams & { groupBy: NonNullable<MetricsConsumptionQueryParams['groupBy']> }
+  >({
     query: (payload) => `metrics/consumption?${qs.stringify(payload)}`,
   }),
 

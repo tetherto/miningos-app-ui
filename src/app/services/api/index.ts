@@ -95,6 +95,7 @@ export const {
   useGetMetricsHashrateQuery,
   useGetMetricsHashrateGroupedQuery,
   useGetMetricsConsumptionQuery,
+  useGetMetricsConsumptionGroupedQuery,
   useGetMetricsEfficiencyQuery,
   useGetMetricsMinerStatusQuery,
   useGetMetricsPowerModeQuery,
