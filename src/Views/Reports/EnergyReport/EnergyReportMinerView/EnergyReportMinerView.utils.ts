@@ -8,10 +8,7 @@ import _toPairs from 'lodash/toPairs'
 
 import { getContainerName } from '@/app/utils/containerUtils'
 import { MINER_TYPE_NAME_MAP } from '@/constants/deviceConstants'
-import type {
-  MetricsConsumptionGroupBy,
-  MetricsConsumptionGroupedResponse,
-} from '@/types/api'
+import type { MetricsConsumptionGroupBy, MetricsConsumptionGroupedResponse } from '@/types/api'
 
 export const ENERGY_REPORT_MINER_VIEW_SLICES = {
   MINER_TYPE: 'MINER_TYPE',

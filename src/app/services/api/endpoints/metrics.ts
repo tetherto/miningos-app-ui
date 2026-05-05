@@ -37,7 +37,9 @@ export const metricsEndpoints = (builder: EndpointBuilder<BaseQueryFn, string, s
 
   getMetricsConsumptionGrouped: builder.query<
     MetricsConsumptionGroupedResponse,
-    MetricsConsumptionQueryParams & { groupBy: NonNullable<MetricsConsumptionQueryParams['groupBy']> }
+    MetricsConsumptionQueryParams & {
+      groupBy: NonNullable<MetricsConsumptionQueryParams['groupBy']>
+    }
   >({
     query: (payload) => `metrics/consumption?${qs.stringify(payload)}`,
   }),

@@ -13,10 +13,7 @@ import {
   transformToBarData,
 } from './EnergyReportMinerView.utils'
 
-import {
-  useGetListThingsQuery,
-  useGetMetricsConsumptionGroupedQuery,
-} from '@/app/services/api'
+import { useGetListThingsQuery, useGetMetricsConsumptionGroupedQuery } from '@/app/services/api'
 import { formatPowerConsumption } from '@/app/utils/deviceUtils'
 import { formatUnit } from '@/app/utils/format'
 import { BarSteppedLineChart } from '@/Components/BarSteppedLineChart/BarSteppedLineChart'
