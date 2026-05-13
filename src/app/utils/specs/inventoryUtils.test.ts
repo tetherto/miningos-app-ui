@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { MINER_LOCATIONS } from '@/constants/minerLocations'
-
 import { getLocationLabel, getMajorLocation, getMinorLocation } from '../inventoryUtils'
+
+import { MINER_LOCATIONS } from '@/constants/minerLocations'
 
 describe('inventoryUtils', () => {
   describe('getLocationLabel', () => {
@@ -31,17 +31,10 @@ describe('inventoryUtils', () => {
     })
 
     it('preserves the canonical "ACME Container" casing instead of mangling it through startCase', () => {
-      // Regression: _startCase('acme container') yields 'Acme Container'.
-      // The named-lookup branch in getLocationLabel exists specifically to
-      // dodge that — pin the behaviour here.
       expect(getLocationLabel(MINER_LOCATIONS.ACME_CONTAINER)).toBe('ACME Container')
     })
 
     it('falls through to startCase for values that are not in the canonical map', () => {
-      // site.container is referenced by the PduTab racking flow and is
-      // present in MINER_LOCATIONS but intentionally has no entry in
-      // MINER_LOCATION_NAMES (not user-facing), so it should fall back to
-      // _startCase.
       expect(getLocationLabel('site.container')).toBe('Site Container')
     })
   })
