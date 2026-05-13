@@ -66,7 +66,8 @@ describe('minerLocations', () => {
   describe('MINER_REPAIR_LOCATIONS', () => {
     it('contains only SITE_LAB now that WORKSHOP_LAB is no longer in the Ivinhema set', () => {
       expect(MINER_REPAIR_LOCATIONS.has(MINER_LOCATIONS.SITE_LAB)).toBe(true)
-      expect(MINER_REPAIR_LOCATIONS.size).toBe(1)
+      expect(MINER_REPAIR_LOCATIONS.has(MINER_LOCATIONS.WORKSHOP_LAB)).toBe(true)
+      expect(MINER_REPAIR_LOCATIONS.size).toBe(2)
     })
 
     it('does not flag non-repair locations as repair-eligible', () => {
