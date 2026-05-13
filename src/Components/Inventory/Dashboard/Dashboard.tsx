@@ -26,9 +26,11 @@ const Dashboard: FC = () => {
     return <Spinner />
   }
 
+  console.log(inventoryClassification)
+
   return (
     <InventoryDashboardContentRoot>
-      <Accordion title="Current Site" unpadded isOpened solidBackground>
+      <Accordion title="Site Overview" unpadded isOpened solidBackground>
         <DoughnutChartCardWrapper>
           {_map(inventoryClassification, (card: UnknownRecord) => (
             <DoughnutChartCard

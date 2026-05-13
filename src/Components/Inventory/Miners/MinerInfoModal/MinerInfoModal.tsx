@@ -15,7 +15,7 @@ import { useInventoryActionSubmitHandlers } from '../../hooks/useInventoryAction
 import { executeAction } from '../../Inventory.utils'
 import { SparePartNames } from '../../SpareParts/SpareParts.constants'
 import AttachSparePartModal from '../AttachSparePartModal/AttachSparePartModal'
-import { MINER_LOCATIONS, MINER_REPAIR_LOCATIONS } from '../Miners.constants'
+import { MINER_REPAIR_LOCATIONS } from '../Miners.constants'
 
 import { getAttachedPartsListColumns, getChangedParts, getMinerMACUpdates } from './MinerInfo.utils'
 import type { AttachedPartRecord } from './MinerInfo.utils'
@@ -315,9 +315,7 @@ const MinerInfoModal = ({ isOpen, onClose, miner }: MinerInfoModalProps) => {
   }
 
   const allowRepair = miner.location
-    ? MINER_REPAIR_LOCATIONS.has(
-        miner.location as typeof MINER_LOCATIONS.WORKSHOP_LAB | typeof MINER_LOCATIONS.SITE_LAB,
-      )
+    ? MINER_REPAIR_LOCATIONS.has(miner.location as string)
     : false
 
   const registerRepairControls = (

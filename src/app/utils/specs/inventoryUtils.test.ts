@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { MINER_LOCATIONS } from '@/constants/minerLocations'
+
 import { getLocationLabel, getMajorLocation, getMinorLocation } from '../inventoryUtils'
 
 describe('inventoryUtils', () => {
@@ -19,6 +21,28 @@ describe('inventoryUtils', () => {
 
     it('handles single segment location', () => {
       expect(getLocationLabel('warehouse')).toBe('Warehouse')
+    })
+
+    it('returns the canonical label from MINER_LOCATION_NAMES for known Ivinhema locations', () => {
+      expect(getLocationLabel(MINER_LOCATIONS.MINER_ROOM)).toBe('Miner Room')
+      expect(getLocationLabel(MINER_LOCATIONS.VENDOR)).toBe('Vendor')
+      expect(getLocationLabel(MINER_LOCATIONS.SCRAPPED)).toBe('Scrapped')
+      expect(getLocationLabel(MINER_LOCATIONS.DISPOSED)).toBe('Disposed')
+    })
+
+    it('preserves the canonical "ACME Container" casing instead of mangling it through startCase', () => {
+      // Regression: _startCase('acme container') yields 'Acme Container'.
+      // The named-lookup branch in getLocationLabel exists specifically to
+      // dodge that — pin the behaviour here.
+      expect(getLocationLabel(MINER_LOCATIONS.ACME_CONTAINER)).toBe('ACME Container')
+    })
+
+    it('falls through to startCase for values that are not in the canonical map', () => {
+      // site.container is referenced by the PduTab racking flow and is
+      // present in MINER_LOCATIONS but intentionally has no entry in
+      // MINER_LOCATION_NAMES (not user-facing), so it should fall back to
+      // _startCase.
+      expect(getLocationLabel('site.container')).toBe('Site Container')
     })
   })
 

@@ -3,9 +3,15 @@ import _isNil from 'lodash/isNil'
 import _split from 'lodash/split'
 import _startCase from 'lodash/startCase'
 
+import { MINER_LOCATION_NAMES } from '@/constants/minerLocations'
+
 export const getLocationLabel = (location: string | null | undefined): string => {
   if (_isNil(location) || location === 'unknown') {
     return 'Unknown'
+  }
+
+  if (MINER_LOCATION_NAMES[location]) {
+    return MINER_LOCATION_NAMES[location]
   }
 
   return _startCase(_split(location, '.').join(' '))

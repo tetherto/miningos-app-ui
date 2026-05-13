@@ -3,6 +3,15 @@ import { SparePartTypes } from '../SpareParts/SpareParts.constants'
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
 import { COLOR } from '@/constants/colors'
 
+export {
+  MINER_LOCATION_BG_COLORS,
+  MINER_LOCATION_BORDER_COLORS,
+  MINER_LOCATION_NAMES,
+  MINER_LOCATIONS,
+  MINER_REPAIR_LOCATIONS,
+} from '@/constants/minerLocations'
+export type { MinerLocation } from '@/constants/minerLocations'
+
 export const MOVE_MINER = 'Move Miner'
 export const REPAIR = 'Repair'
 export const GO_TO_EXPLORER_ACTION = 'Go To Explorer'
@@ -40,44 +49,6 @@ export interface Miner {
   brand?: string
   raw?: UnknownRecord
   [key: string]: unknown
-}
-
-export const MINER_LOCATIONS = {
-  WORKSHOP_WAREHOUSE: 'workshop.warehouse',
-  WORKSHOP_LAB: 'workshop.lab',
-  SITE_WAREHOUSE: 'site.warehouse',
-  SITE_LAB: 'site.lab',
-  SITE_CONTAINER: 'site.container',
-  DISPOSED: 'disposed',
-  VENDOR: 'vendor',
-  UNKNOWN: 'unknown',
-} as const
-
-export const MINER_REPAIR_LOCATIONS = new Set([
-  MINER_LOCATIONS.WORKSHOP_LAB,
-  MINER_LOCATIONS.SITE_LAB,
-])
-
-export const MINER_LOCATION_BG_COLORS = {
-  [MINER_LOCATIONS.SITE_WAREHOUSE]: `${COLOR.LIGHT_BLUE}33`,
-  [MINER_LOCATIONS.SITE_LAB]: `${COLOR.LIGHT_BLUE}33`,
-  [MINER_LOCATIONS.SITE_CONTAINER]: `${COLOR.LIGHT_BLUE}33`,
-  [MINER_LOCATIONS.WORKSHOP_WAREHOUSE]: `${COLOR.YELLOW}33`,
-  [MINER_LOCATIONS.WORKSHOP_LAB]: `${COLOR.YELLOW}33`,
-  [MINER_LOCATIONS.DISPOSED]: `${COLOR.BRICK_RED}33`,
-  [MINER_LOCATIONS.UNKNOWN]: `${COLOR.BRICK_RED}33`,
-  [MINER_LOCATIONS.VENDOR]: `${COLOR.DARK_GREEN}33`,
-}
-
-export const MINER_LOCATION_BORDER_COLORS = {
-  [MINER_LOCATIONS.SITE_WAREHOUSE]: COLOR.LIGHT_BLUE,
-  [MINER_LOCATIONS.SITE_LAB]: COLOR.LIGHT_BLUE,
-  [MINER_LOCATIONS.SITE_CONTAINER]: COLOR.LIGHT_BLUE,
-  [MINER_LOCATIONS.WORKSHOP_WAREHOUSE]: COLOR.YELLOW,
-  [MINER_LOCATIONS.WORKSHOP_LAB]: COLOR.YELLOW,
-  [MINER_LOCATIONS.DISPOSED]: COLOR.BRICK_RED,
-  [MINER_LOCATIONS.UNKNOWN]: COLOR.BRICK_RED,
-  [MINER_LOCATIONS.VENDOR]: COLOR.DARK_GREEN,
 }
 
 export const MINER_STATUSES = {
