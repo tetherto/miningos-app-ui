@@ -26,8 +26,6 @@ const Dashboard: FC = () => {
     return <Spinner />
   }
 
-  console.log(inventoryClassification)
-
   return (
     <InventoryDashboardContentRoot>
       <Accordion title="Site Overview" unpadded isOpened solidBackground>
