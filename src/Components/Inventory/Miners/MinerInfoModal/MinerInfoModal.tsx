@@ -17,8 +17,8 @@ import { SparePartNames } from '../../SpareParts/SpareParts.constants'
 import AttachSparePartModal from '../AttachSparePartModal/AttachSparePartModal'
 import { MINER_REPAIR_LOCATIONS } from '../Miners.constants'
 
-import { getAttachedPartsListColumns, getChangedParts, getMinerMACUpdates } from './MinerInfo.utils'
 import type { AttachedPartRecord } from './MinerInfo.utils'
+import { getAttachedPartsListColumns, getChangedParts, getMinerMACUpdates } from './MinerInfo.utils'
 import {
   AttributeName,
   AttributeRow,
@@ -314,9 +314,7 @@ const MinerInfoModal = ({ isOpen, onClose, miner }: MinerInfoModalProps) => {
     setAreChangesMade(true)
   }
 
-  const allowRepair = miner.location
-    ? MINER_REPAIR_LOCATIONS.has(miner.location as string)
-    : false
+  const allowRepair = miner.location ? MINER_REPAIR_LOCATIONS.has(miner.location as string) : false
 
   const registerRepairControls = (
     <FormikProvider value={formik}>
