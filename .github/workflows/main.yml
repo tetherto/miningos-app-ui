@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 env:
-  NODE_VERSION: '20'
+  NODE_VERSION: "lts/*"
 
 jobs:
   # 🔐 Supply Chain Security (Runs first)
@@ -25,13 +25,14 @@ jobs:
 
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: "${{ github.event.pull_request.head.sha || github.sha }}"
+          persist-credentials: false
           clean: true
 
       - name: 📦 Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -81,13 +82,25 @@ jobs:
 
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: "${{ github.event.pull_request.head.sha || github.sha }}"
+          persist-credentials: false
           clean: true
 
+      - name: 🔒 Check package-lock.json consistency
+        run: |
+          echo "🔒 Verifying package-lock.json consistency..."
+          npm install --package-lock-only --prefer-offline
+          git diff --exit-code package-lock.json || (
+            echo "❌ package-lock.json is out of sync with package.json."
+            echo "💡 Run \`npm install\` and commit the updated lockfile."
+            exit 1
+          )
+          echo "✅ package-lock.json is consistent"
+
       - name: 📦 Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -123,13 +136,14 @@ jobs:
 
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: "${{ github.event.pull_request.head.sha || github.sha }}"
+          persist-credentials: false
           clean: true
 
       - name: 📦 Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -145,7 +159,7 @@ jobs:
           CI: true
 
       - name: 📈 Upload Coverage to Codecov
-        uses: codecov/codecov-action@v5
+        uses: codecov/codecov-action@75cd11691c0faa626561e295848008c8a7dddffe # v5
         with:
           file: ./coverage/lcov.info
           flags: unittests
@@ -163,13 +177,14 @@ jobs:
 
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: "${{ github.event.pull_request.head.sha || github.sha }}"
+          persist-credentials: false
           clean: true
 
       - name: 📦 Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
@@ -183,11 +198,7 @@ jobs:
           time npm run build
 
       - name: 📊 Bundle Size Analysis
-        run: |
-          echo "📊 Analyzing bundle size..."
-          du -sh build/
-          echo "📁 Build artifacts:"
-          find build/ -type f -name "*.js" -o -name "*.css" | head -5 | xargs ls -lh
+        run: npm run size
 
   # 📋 Summary & Performance Stats (Runs after all parallel jobs complete)
   summary:
@@ -200,9 +211,10 @@ jobs:
 
     steps:
       - name: 📥 Checkout code for summary
-        uses: actions/checkout@v6
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
           ref: "${{ github.event.pull_request.head.sha || github.sha }}"
+          persist-credentials: false
           clean: true
 
       - name: 📊 Performance Summary
