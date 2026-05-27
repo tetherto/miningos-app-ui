@@ -78,7 +78,8 @@
     "verify-build": "node scripts/verifyBuild.js",
     "verify-build:staging": "node scripts/verifyBuild.js staging",
     "verify-build:production": "node scripts/verifyBuild.js production",
-    "sanitize-mockdata": "node scripts/sanitizeMockdata.cjs"
+    "sanitize-mockdata": "node scripts/sanitizeMockdata.cjs",
+    "size": "node scripts/bundle-size.mjs"
   },
   "browserslist": {
     "production": [
