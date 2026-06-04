@@ -19,10 +19,6 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'jsdom',
-    // Optimize parallelism - use all available CPU cores
-    threads: true,
-    maxThreads: 0, // Use all available cores
-    minThreads: 1,
     // Reduce isolation overhead while maintaining test safety
     isolate: true, // Enable isolation to prevent module loading issues in CI
     // Optimize test file discovery
@@ -100,12 +96,7 @@ export default defineConfig({
       },
     },
     // Add performance optimizations
-    pool: 'threads', // Use thread pool for better parallelism
-    poolOptions: {
-      threads: {
-        singleThread: false, // Allow multiple threads
-      },
-    },
+    pool: 'threads', // Use thread pool for better parallelism (uses all cores by default)
   },
 
   resolve: {

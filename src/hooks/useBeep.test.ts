@@ -77,9 +77,8 @@ describe('useBeepSound', () => {
       createGain = factory.createGainMock
       close = factory.close
     }
-    AudioContextMock = vi
-      .fn()
-      .mockImplementation((...args: unknown[]) => new FakeAudioContext(...(args as [])))
+    // Pass the class directly so vitest 4 treats the mock as constructable via `new`.
+    AudioContextMock = vi.fn(FakeAudioContext)
     vi.stubGlobal('AudioContext', AudioContextMock)
   })
 

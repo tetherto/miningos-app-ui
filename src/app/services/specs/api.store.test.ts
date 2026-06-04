@@ -16,9 +16,12 @@ vi.mock('@reduxjs/toolkit/query/react', async (importOriginal) => {
 })
 
 vi.mock('p-queue', () => ({
-  default: vi.fn().mockImplementation(() => ({
-    add: vi.fn((fn: () => unknown) => fn()),
-  })),
+  // Vitest 4 requires a `function`/`class` impl for constructor mocks (`new PQueue()`).
+  default: vi.fn().mockImplementation(function () {
+    return {
+      add: vi.fn((fn: () => unknown) => fn()),
+    }
+  }),
 }))
 
 vi.mock('@/app/services/api.utils', () => ({

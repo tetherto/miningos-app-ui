@@ -11,11 +11,14 @@ vi.mock('@/hooks/useNotification', () => ({
 const mockSave = vi.fn()
 const mockAddImage = vi.fn()
 const mockAddPage = vi.fn()
-const MockJsPDF = vi.fn(() => ({
-  save: mockSave,
-  addImage: mockAddImage,
-  addPage: mockAddPage,
-}))
+// Vitest 4 requires a `function`/`class` impl for constructor mocks (`new jsPDF()`).
+const MockJsPDF = vi.fn(function () {
+  return {
+    save: mockSave,
+    addImage: mockAddImage,
+    addPage: mockAddPage,
+  }
+})
 const mockToPng = vi.fn().mockResolvedValue('data:image/png;base64,abc')
 
 const mockLoadJsPDF = vi.fn()

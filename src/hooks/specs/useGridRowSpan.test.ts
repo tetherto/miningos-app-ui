@@ -13,7 +13,8 @@ describe('useGridRowSpan', () => {
 
     vi.stubGlobal(
       'ResizeObserver',
-      vi.fn((cb: ResizeObserverCallback) => {
+      // Vitest 4 requires a `function`/`class` impl for constructor mocks (`new ResizeObserver`).
+      vi.fn(function (cb: ResizeObserverCallback) {
         resizeObserverCallback = cb
         return {
           observe: observeMock,

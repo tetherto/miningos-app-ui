@@ -1,21 +1,24 @@
 import type { Chart } from 'chart.js'
 import _constant from 'lodash/constant'
+import type { Mock } from 'vitest'
 
 import { yAxisTooltipPlugin } from './BarChart.helper'
 import { wrapText } from './BarChart.util'
 
 import { MINER_TYPE_MESSAGE } from '@/constants/deviceConstants'
 
+// Explicit call signatures: vitest 4's bare Mock type carries a construct signature,
+// which is no longer assignable to the plain method types on CanvasRenderingContext2D.
 interface MockCanvasContext extends Partial<CanvasRenderingContext2D> {
-  measureText: ReturnType<typeof vi.fn>
-  save?: ReturnType<typeof vi.fn>
-  restore?: ReturnType<typeof vi.fn>
+  measureText: Mock<(text: string) => TextMetrics>
+  save?: Mock<() => void>
+  restore?: Mock<() => void>
   fillStyle?: string
-  beginPath?: ReturnType<typeof vi.fn>
-  roundRect?: ReturnType<typeof vi.fn>
-  rect?: ReturnType<typeof vi.fn>
-  fill?: ReturnType<typeof vi.fn>
-  fillText?: ReturnType<typeof vi.fn>
+  beginPath?: Mock<() => void>
+  roundRect?: Mock<() => void>
+  rect?: Mock<() => void>
+  fill?: Mock<() => void>
+  fillText?: Mock<() => void>
   font?: string
   textAlign?: CanvasTextAlign
   textBaseline?: CanvasTextBaseline
@@ -68,15 +71,15 @@ describe('wrapText', () => {
   })
 
   it('returns single line when text fits within maxWidth', () => {
-    mockCtx.measureText.mockReturnValue({ width: 50 })
+    mockCtx.measureText.mockReturnValue({ width: 50 } as TextMetrics)
     const result = wrapText(mockCtx as unknown as CanvasRenderingContext2D, 'Short text', 100)
     expect(result).toEqual(['Short text'])
   })
 
   it('wraps text into multiple lines when exceeding maxWidth', () => {
-    mockCtx.measureText.mockImplementation((text: unknown) => ({
-      width: (text as string).length * 10,
-    }))
+    mockCtx.measureText.mockImplementation(
+      (text: string) => ({ width: text.length * 10 }) as TextMetrics,
+    )
     const result = wrapText(
       mockCtx as unknown as CanvasRenderingContext2D,
       'This is a long text that needs wrapping',
@@ -201,7 +204,7 @@ describe('yAxisTooltipPlugin', () => {
         rect: vi.fn(),
         fill: vi.fn(),
         fillText: vi.fn(),
-        measureText: vi.fn((text) => ({ width: text.length * 8 })),
+        measureText: vi.fn((text: string) => ({ width: text.length * 8 }) as TextMetrics),
         font: '',
         textAlign: 'left',
         textBaseline: 'top',

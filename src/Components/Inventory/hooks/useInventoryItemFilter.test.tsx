@@ -1,5 +1,5 @@
 import { renderHook } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { beforeEach, describe, expect, it, vi, type Mock } from 'vitest'
 
 import useInventoryItemFilter from './useInventoryItemFilter'
 
@@ -12,10 +12,10 @@ describe('useInventoryItemFilter', () => {
 
   const attributes = ['code', 'user']
 
-  let setFilteredItems: ReturnType<typeof vi.fn>
+  let setFilteredItems: Mock<(items: unknown[]) => void>
 
   beforeEach(() => {
-    setFilteredItems = vi.fn()
+    setFilteredItems = vi.fn<(items: unknown[]) => void>()
   })
 
   const createEvent = (value: string) =>

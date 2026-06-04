@@ -6,7 +6,7 @@ inputs:
   node-version:
     description: 'Node.js version to use'
     required: false
-    default: '20.x'
+    default: '24.x'
   install-dependencies:
     description: 'Whether to install dependencies on cache miss'
     required: false

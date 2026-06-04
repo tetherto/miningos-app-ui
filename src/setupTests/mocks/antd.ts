@@ -29,5 +29,8 @@ vi.mock('@ant-design/cssinjs', () => ({
   createCache: vi.fn(() => ({})),
   createTheme: vi.fn(() => ({})),
   StyleProvider: vi.fn(({ children }: { children: ReactNode }) => children),
-  Keyframes: vi.fn(() => ({})),
+  // Vitest 4 requires constructor mocks to use `function`/`class` (arrow fns can't be `new`-ed)
+  Keyframes: vi.fn(function () {
+    return {}
+  }),
 }))

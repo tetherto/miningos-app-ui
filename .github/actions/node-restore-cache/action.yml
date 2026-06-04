@@ -17,13 +17,13 @@ runs:
         path: node_modules
         key: ${{ inputs.cache-key }}
         restore-keys: |
-          node-modules-${{ runner.os }}-20.x-
+          node-modules-${{ runner.os }}-24.x-
 
     - name: Setup Node.js
       if: steps.cache-node-modules.outputs.cache-hit != 'true'
       uses: actions/setup-node@v6
       with:
-        node-version: '20.x'
+        node-version: '24.x'
 
     - name: Install Dependencies
       if: steps.cache-node-modules.outputs.cache-hit != 'true'
