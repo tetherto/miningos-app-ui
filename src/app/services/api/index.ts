@@ -108,6 +108,8 @@ export const {
   useGetFinanceSubsidyFeesQuery,
   useGetFinanceRevenueQuery,
   useGetFinanceHashRevenueQuery,
+  useTriggerMinerLogDownloadMutation,
+  useGetMinerLogDownloadStatusQuery,
 } = api
 
 export const useGetOperationsMinersQuery = api.useGetOperationsWorkersQuery

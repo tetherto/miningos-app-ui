@@ -37,6 +37,24 @@ export const downloadFileFromData = (
   document.body.removeChild(link)
 }
 
+export const downloadBinaryFromUrl = async (
+  url: string,
+  token: string,
+  fileName: string,
+): Promise<void> => {
+  const res = await fetch(url, { headers: { Authorization: `Bearer ${token}` } })
+  if (!res.ok) throw new Error(`Download failed: ${res.status}`)
+  const blob = await res.blob()
+  const objectUrl = URL.createObjectURL(blob)
+  const link = document.createElement('a')
+  link.href = objectUrl
+  link.download = fileName
+  document.body.appendChild(link)
+  link.click()
+  URL.revokeObjectURL(objectUrl)
+  document.body.removeChild(link)
+}
+
 const flattenObject = (obj: UnknownRecord, parentKey = ''): UnknownRecord => {
   let result: UnknownRecord = {}
   for (const key in obj) {

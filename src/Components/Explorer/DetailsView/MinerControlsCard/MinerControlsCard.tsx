@@ -8,7 +8,7 @@ import _isString from 'lodash/isString'
 import _join from 'lodash/join'
 import _map from 'lodash/map'
 import _size from 'lodash/size'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
 import AddReplaceMinerDialog from '../../../../Views/Container/Tabs/PduTab/AddReplaceMinerDialog/AddReplaceMinerDialog'
@@ -24,11 +24,16 @@ import { ContentWrapper, LabeledCardWrapper } from './MinerControlsCard.styles'
 import { getLedButtonsStatus } from './MinerControlsCard.util'
 
 import { actionsSlice, selectPendingSubmissions } from '@/app/slices/actionsSlice'
+import { selectToken } from '@/app/slices/authSlice'
 import { selectSelectedDevices } from '@/app/slices/devicesSlice'
+import { useGetMinerLogDownloadStatusQuery, useTriggerMinerLogDownloadMutation } from '@/app/services/api'
 import { getSelectedDevicesTags } from '@/app/utils/actionUtils'
 import { appendIdToTag, getOnOffText, isMiner } from '@/app/utils/deviceUtils'
 import { UnknownRecord } from '@/app/utils/deviceUtils/types'
+import { downloadBinaryFromUrl } from '@/app/utils/downloadUtils'
 import { ACTION_TYPES } from '@/constants/actions'
+import { POLLING_5s } from '@/constants/pollingIntervalConstants'
+import { useSmartPolling } from '@/hooks/useSmartPolling'
 import { MAINTENANCE_CONTAINER } from '@/constants/containerConstants'
 import { COMPLETE_MINER_TYPES } from '@/constants/deviceConstants'
 import { CROSS_THING_TYPES } from '@/constants/devices'
@@ -59,7 +64,7 @@ const MinerControlsCard = ({
   isLoading,
   showPowerModeSelector = true,
 }: MinerControlsCardProps) => {
-  const { notifyInfo } = useNotification()
+  const { notifyInfo, notifyError } = useNotification()
   const dispatch = useDispatch()
   interface DeviceWithType {
     type: string
@@ -122,6 +127,53 @@ const MinerControlsCard = ({
   const [minerDialogFlow, setMinerDialogFlow] = useState<unknown | null>(null)
 
   const pendingSubmissions = useSelector(selectPendingSubmissions)
+  const token = useSelector(selectToken)
+
+  const [downloadJobId, setDownloadJobId] = useState<string | null>(null)
+  const [isDownloadingLogs, setIsDownloadingLogs] = useState(false)
+  const pollingInterval = useSmartPolling(POLLING_5s)
+
+  const [triggerDownload] = useTriggerMinerLogDownloadMutation()
+  const { data: downloadStatus } = useGetMinerLogDownloadStatusQuery(
+    { minerId: headDevice?.id ?? '', jobId: downloadJobId ?? '' },
+    { skip: !downloadJobId || !headDevice, pollingInterval },
+  )
+
+  useEffect(() => {
+    if (!downloadStatus) return
+
+    if (downloadStatus.status === 'ready') {
+      setDownloadJobId(null)
+      // fileUrl is '/auth/miners/...'. The RTK baseQuery uses `${VITE_API_BASE_URL}auth`
+      // as its base, so we must mirror that: strip the leading '/auth' from fileUrl
+      // and prefix with the same base to avoid 'http://auth/...' being produced.
+      const apiBase = `${import.meta.env.VITE_API_BASE_URL ?? ''}auth`
+      const relativeFileUrl = downloadStatus.fileUrl.replace(/^\/auth/, '')
+      downloadBinaryFromUrl(
+        `${apiBase}${relativeFileUrl}`,
+        token ?? '',
+        `miner-logs-${headDevice?.id}.tar.gz`,
+      )
+        .catch((e: Error) => notifyError('Download failed', e.message))
+        .finally(() => setIsDownloadingLogs(false))
+    } else if (downloadStatus.status === 'failed' || downloadStatus.status === 'expired') {
+      setDownloadJobId(null)
+      setIsDownloadingLogs(false)
+      notifyError('Download failed', downloadStatus.error)
+    }
+  }, [downloadStatus])
+
+  const handleDownloadLogs = async () => {
+    if (!headDevice) return
+    setIsDownloadingLogs(true)
+    try {
+      const result = await triggerDownload(headDevice.id).unwrap()
+      setDownloadJobId(result.jobId)
+    } catch (e) {
+      setIsDownloadingLogs(false)
+      notifyError('Download failed', (e as Error).message)
+    }
+  }
 
   const { updateExistedActions } = useUpdateExistedActions()
 
@@ -379,6 +431,12 @@ const MinerControlsCard = ({
                     }
                   >
                     Change position
+                  </SecondaryButton>
+                  <SecondaryButton
+                    disabled={isLoading || isDownloadingLogs}
+                    onClick={handleDownloadLogs}
+                  >
+                    {isDownloadingLogs ? 'Downloading...' : 'Download Logs'}
                   </SecondaryButton>
                 </>
               )}
