@@ -95,6 +95,7 @@ const files = listFiles(process.argv.slice(2).length ? process.argv.slice(2) : [
 const findings = []
 const expired = []
 const oversize = []
+const binary = []
 
 for (const file of files) {
   const abs = join(REPO_ROOT, file)
@@ -111,7 +112,14 @@ for (const file of files) {
   }
 
   const buf = readFileSync(abs)
-  if (buf.includes(0)) continue // binary
+  // A NUL byte means "binary" and there is nothing useful to tokenise — but skipping
+  // silently is how this scanner once stopped scanning its own source: a stray NUL in a
+  // constant made a .mjs file look binary, and the terms in its comments went unreported.
+  // Anything we decline to read is now named in the output, so a blind spot is visible.
+  if (buf.includes(0)) {
+    binary.push(file)
+    continue
+  }
 
   const lines = buf.toString('utf8').split('\n')
   for (let i = 0; i < lines.length; i++) {
@@ -182,9 +190,19 @@ if (oversize.length > 0) {
   console.warn('')
 }
 
+if (binary.length > 0) {
+  console.warn(`note: skipped ${binary.length} binary file(s) — unscanned, so verify by hand`)
+  console.warn('      that none is a text file made binary by a stray NUL byte:')
+  for (const f of binary) console.warn(`    ${f}`)
+  console.warn('')
+}
+
 if (findings.length > 0 || expired.length > 0) process.exit(1)
 
-console.log(`Content scan passed — ${files.length} files, ${denylist.size} denylist entries.`)
+console.log(
+  `Content scan passed — ${files.length - binary.length - oversize.length} of ` +
+    `${files.length} files scanned, ${denylist.size} denylist entries.`,
+)
 if (exemptions.size > 0) {
   console.log(`${exemptions.size} active exemption(s); the scan fails when one expires.`)
 }

@@ -517,10 +517,12 @@ Run the self-test after touching the scanner. It exists because an earlier proto
 `git grep -E '\b…'`, which matches nothing — POSIX ERE has no `\b` — and reported a
 clean tree that was not clean. A check that fails open is worse than no check.
 
-`.github/security/exemptions.tsv` suppresses a small number of findings that cannot be
-fixed from this repository: backend-defined identifiers that the UI must match verbatim.
-Every entry carries an expiry date, and the scan **fails** once it passes — they are
-deadlines, not opt-outs.
+There are currently **no exemptions** — the scan passes on the tree as-is. The mechanism
+exists for the case where a term genuinely cannot be removed: add a row to
+`.github/security/exemptions.tsv` via `.github/scripts/hash-exemption.mjs`. Every row
+carries a mandatory expiry and the scan **fails** once it passes, so an exemption is a
+deadline, not a way to switch the check off. Prefer that over adding a term to the
+denylist, which would disable it everywhere.
 
 ### Reporting
 

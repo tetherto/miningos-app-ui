@@ -16,7 +16,7 @@
 
 import { spawnSync } from 'node:child_process'
 import assert from 'node:assert/strict'
-import { mkdtempSync, mkdirSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { dirname, join, resolve } from 'node:path'
 import { after, describe, it } from 'node:test'
@@ -137,6 +137,54 @@ describe('no false positives on legitimate content', () => {
   it('skips the denylist itself', () => {
     const { code, out } = runScan({ files: {} })
     assert.equal(code, 0, out)
+  })
+})
+
+describe('blind spots must be reported, never silent', () => {
+  // This case is here because it actually happened. A stray NUL byte in a constant made
+  // one of the scanner's own source files read as binary; the scan skipped it without
+  // saying so, and terms sitting in that file's comments went unreported for several
+  // commits. Skipping is fine — skipping quietly is not.
+  it('names a file it declined to read as binary', () => {
+    const { code, out } = runScan({
+      files: { 'src/looks-binary.ts': `const x = 'ok'\u0000\n` },
+    })
+    assert.equal(code, 0, out)
+    assert.match(out, /binary/i)
+    assert.match(out, /src\/looks-binary\.ts/)
+  })
+
+  it('names a file it declined to read as oversize', () => {
+    const { code, out } = runScan({
+      files: { 'data/huge.json': `{"pad":"${'x'.repeat(9 * 1024 * 1024)}"}` },
+    })
+    assert.equal(code, 0, out)
+    assert.match(out, /data\/huge\.json/)
+  })
+
+  it('reports how many files it actually scanned, not how many it listed', () => {
+    const { out } = runScan({
+      files: { 'src/a.ts': 'const a = 1', 'src/bin.ts': 'x\u0000' },
+    })
+    assert.match(out, /\d+ of \d+ files scanned/)
+  })
+})
+
+describe('this repo stays scannable', () => {
+  // The scanner must be able to read its own sources. If any of them turns binary again,
+  // the terms in its comments stop being checked.
+  it('none of the scanner sources reads as binary', () => {
+    const dir = HERE
+    for (const name of [
+      'scan-content.mjs',
+      'scan-content.test.mjs',
+      'hash-terms.mjs',
+      'hash-exemption.mjs',
+      'lib/content-scan.mjs',
+    ]) {
+      const buf = readFileSync(join(dir, name))
+      assert.ok(!buf.includes(0), `${name} contains a NUL byte and would be skipped`)
+    }
   })
 })
 

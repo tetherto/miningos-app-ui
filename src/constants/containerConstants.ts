@@ -35,16 +35,16 @@ export const CONTAINER_TYPE = {
 /**
  * Container types as the backend reports them.
  *
- * The MicroBT keys read ALPHA/BETA while their values still name the hardware partner.
- * That mismatch is deliberate: the values are wire identifiers — they travel in
- * `global/data?model=`, in `setContainerSettings` bodies and in `listThings`
- * `type:{$in:[…]}` filters, and the UI matches them by *substring* (`isMicroBT` looks
- * for `mbt`). Changing one here without a matching backend change silently breaks
- * container detection, PDU layouts and settings resolution, with no type error.
+ * These are wire identifiers: they travel in `global/data?model=`, in
+ * `setContainerSettings` bodies and in `listThings` `type:{$in:[…]}` filters, and the UI
+ * matches several of them by *substring* — `isMicroBT` and `getContainerSettingsModel`
+ * look for `mbt`, which every MicroBT value must therefore still contain. A value that
+ * disagrees with the backend breaks container detection, PDU layouts and settings
+ * resolution silently, with no type error to catch it.
  *
- * The keys were renamed so the partner name stops propagating through the rest of the
- * codebase, and the display labels below no longer carry it either. Only these values
- * remain, tracked in `.github/security/exemptions.tsv` until a backend rename lands.
+ * The MicroBT variants use `alpha`/`beta` rather than vendor names, matching the
+ * vocabulary `@tetherto/mdk` already ships in `ui-foundation`. **This requires the
+ * backend to speak the same vocabulary** — see the note in the PR that introduced it.
  */
 export const COMPLETE_CONTAINER_TYPE = {
   BITDEER_M30: 'container-bd-d40-m30',
@@ -53,8 +53,8 @@ export const COMPLETE_CONTAINER_TYPE = {
   BITDEER_S19XP: 'container-bd-d40-s19xp',
   BITMAIN_HYDRO: 'container-as-hk3',
   BITMAIN_IMMERSION: 'container-as-immersion',
-  MICROBT_BETA: 'container-mbt-wonderint',
-  MICROBT_ALPHA: 'container-mbt-kehua',
+  MICROBT_BETA: 'container-mbt-beta',
+  MICROBT_ALPHA: 'container-mbt-alpha',
 } as const
 
 /**

@@ -109,8 +109,9 @@ hardware-partner names, internal codenames/hostnames, production credentials).
   public.
 - Run it locally: `node .github/scripts/scan-content.mjs`
 - After touching the scanner: `node --test .github/scripts/scan-content.test.mjs`
-- `.github/security/exemptions.tsv` covers backend-defined identifiers the UI must match
-  verbatim. Entries expire and then fail the build.
+- There are no exemptions today. If a term truly cannot be removed, add a dated row to
+  `.github/security/exemptions.tsv` (`hash-exemption.mjs`) rather than deleting the term
+  from the denylist — exemptions expire and then fail the build; a denylist edit is silent.
 
 ## Documentation
 
