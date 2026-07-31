@@ -23,7 +23,7 @@ const MINER_TYPE_LABELS: Record<string, string> = {
   'miner-wm-m30sp': 'WhatsMiner M30SP',
   'miner-wm-m53s': 'WhatsMiner M53S',
   'miner-wm-m56s': 'WhatsMiner M56S',
-  'miner-acme-m1': 'Acme M1',
+  'miner-acme-m1': 'Alpha M1',
 }
 
 const CONTAINER_LABELS: Record<string, string> = {

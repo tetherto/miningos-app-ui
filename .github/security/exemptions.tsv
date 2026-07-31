@@ -15,12 +15,13 @@
 # request bodies and list filters, and the UI matches them by substring — renaming
 # them here alone silently breaks container detection, PDU layouts and settings
 # lookup, with no type error to catch it. Clearing them needs a coordinated backend
-# change, and the user-facing display labels in the same files need a product call.
+# change.
 #
 # Everything reachable from the UI side has already been fixed: the identifiers that
-# propagated these names through the rest of the codebase were renamed, and the tests
-# now reference the constants instead of hardcoding the strings. What is left is the
-# four declaration sites and nothing else.
+# propagated these names through the rest of the codebase were renamed, the tests now
+# reference the constants instead of hardcoding the strings, and the user-facing
+# display labels were changed. What is left is four string values on the wire and
+# nothing else.
 
 e4da6786fe0ea06d9275158dfb7ff28cf7659edd49d67f5db6256d25c1187967	2027-01-31	backend-rename-required
 0a36e6b1ba7aa612d21b07faf883b7deb2779a9db4cf3d55e7c62ed39ca97947	2027-01-31	backend-rename-required

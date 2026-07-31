@@ -43,9 +43,8 @@ export const CONTAINER_TYPE = {
  * container detection, PDU layouts and settings resolution, with no type error.
  *
  * The keys were renamed so the partner name stops propagating through the rest of the
- * codebase. Renaming the values, and the display labels below, needs a coordinated
- * backend change and a product decision respectively — tracked in
- * `.github/security/exemptions.tsv`.
+ * codebase, and the display labels below no longer carry it either. Only these values
+ * remain, tracked in `.github/security/exemptions.tsv` until a backend rename lands.
  */
 export const COMPLETE_CONTAINER_TYPE = {
   BITDEER_M30: 'container-bd-d40-m30',
@@ -58,6 +57,11 @@ export const COMPLETE_CONTAINER_TYPE = {
   MICROBT_ALPHA: 'container-mbt-kehua',
 } as const
 
+/**
+ * Display labels. Each must stay exactly two space-separated words — `getContainerName`
+ * splits on that space and rebuilds the result as `<vendor> <id> <model>`, so a one- or
+ * three-word label silently produces a broken name rather than a type error.
+ */
 export const CONTAINER_TYPE_NAME_MAP = {
   [COMPLETE_CONTAINER_TYPE.BITDEER_M30]: 'Bitdeer M30',
   [COMPLETE_CONTAINER_TYPE.BITDEER_A1346]: 'Bitdeer A1346',
@@ -65,8 +69,8 @@ export const CONTAINER_TYPE_NAME_MAP = {
   [COMPLETE_CONTAINER_TYPE.BITDEER_S19XP]: 'Bitdeer S19XP',
   [COMPLETE_CONTAINER_TYPE.BITMAIN_HYDRO]: 'Bitmain Hydro',
   [COMPLETE_CONTAINER_TYPE.BITMAIN_IMMERSION]: 'Bitmain Imm',
-  [COMPLETE_CONTAINER_TYPE.MICROBT_BETA]: 'MicroBT Wonder',
-  [COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA]: 'MicroBT Kehua',
+  [COMPLETE_CONTAINER_TYPE.MICROBT_BETA]: 'MicroBT Beta',
+  [COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA]: 'MicroBT Alpha',
 } as const
 
 export const CONTAINER_TACTICS_TYPE = {
