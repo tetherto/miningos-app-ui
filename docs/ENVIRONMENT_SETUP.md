@@ -194,7 +194,7 @@ const enableBetaFeatures = isStaging() || isDevelopment()
 
 ```dockerfile
 # Build for staging
-FROM node:20 AS builder
+FROM node:24 AS builder
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci

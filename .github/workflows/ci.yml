@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  NODE_VERSION: "lts/*"
+  NODE_VERSION: "24"
 
 jobs:
   security_checks:
@@ -40,6 +40,8 @@ jobs:
           fail-on-severity: moderate
           vulnerability-check: true
           license-check: true
+          # See .github/scripts/audit-ci.jsonc for the rationale behind each ID.
+          allow-ghsas: GHSA-wvh9-3hgj-7f22, GHSA-mh99-v99m-4gvg, GHSA-qwww-vcr4-c8h2
 
       - name: Restore dependencies
         uses: ./.github/actions/node-restore-cache
