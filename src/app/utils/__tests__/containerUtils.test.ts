@@ -56,14 +56,14 @@ describe('getContainerSettingsModel', () => {
       )
     })
 
-    it('should return "mbt" for COMPLETE_CONTAINER_TYPE.MICROBT_WONDERINT', () => {
-      expect(getContainerSettingsModel(COMPLETE_CONTAINER_TYPE.MICROBT_WONDERINT)).toBe(
+    it('should return "mbt" for COMPLETE_CONTAINER_TYPE.MICROBT_BETA', () => {
+      expect(getContainerSettingsModel(COMPLETE_CONTAINER_TYPE.MICROBT_BETA)).toBe(
         CONTAINER_SETTINGS_MODEL.MICROBT,
       )
     })
 
-    it('should return "mbt" for COMPLETE_CONTAINER_TYPE.MICROBT_KEHUA', () => {
-      expect(getContainerSettingsModel(COMPLETE_CONTAINER_TYPE.MICROBT_KEHUA)).toBe(
+    it('should return "mbt" for COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA', () => {
+      expect(getContainerSettingsModel(COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA)).toBe(
         CONTAINER_SETTINGS_MODEL.MICROBT,
       )
     })

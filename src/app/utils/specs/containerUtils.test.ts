@@ -5,16 +5,20 @@ import {
   getPduData,
   getTotalSockets,
   isBitmainImmersion,
-  isMicroBTKehua,
+  isMicroBTAlpha,
   sortAlphanumeric,
 } from '../containerUtils'
 import type { UnknownRecord } from '../deviceUtils/types'
+
+import { COMPLETE_CONTAINER_TYPE, CONTAINER_TYPE_NAME_MAP } from '@/constants/containerConstants'
+
+const MICROBT_LABEL = CONTAINER_TYPE_NAME_MAP[COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA]
 
 const GET_CONTAINER_NAME_TEST_ARGS = {
   bitdeer: { type: 'container-bd-d40-m56', container: 'bitdeer-5a' },
   bitmainImmersion: { type: 'container-as-immersion', container: 'antspace-immersion-2' },
   bitmainHydro: { type: 'container-as-hk3', container: 'bitmain-hydro-1' },
-  microBT: { type: 'container-mbt-kehua', container: 'microbt-1' },
+  microBT: { type: COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA, container: 'microbt-1' },
 }
 
 describe('Container Utils', () => {
@@ -45,7 +49,10 @@ describe('Container Utils', () => {
         GET_CONTAINER_NAME_TEST_ARGS.microBT.container,
         GET_CONTAINER_NAME_TEST_ARGS.microBT.type,
       ),
-    ).toBe('MicroBT 1 Kehua')
+      // getContainerName splits the mapped label on its single space and rebuilds it as
+      // `<vendor> <id> <model>`, so the expectation is derived rather than written out.
+      // A one- or three-word label would break that assembly; this asserts it stays two.
+    ).toBe(MICROBT_LABEL.replace(' ', ' 1 '))
   })
 
   describe('getTotalSockets', () => {
@@ -135,13 +142,13 @@ describe('Container Utils', () => {
     })
   })
 
-  describe('isMicroBTKehua', () => {
-    it('returns true for mbt-kehua type', () => {
-      expect(isMicroBTKehua('container-mbt-kehua')).toBe(true)
+  describe('isMicroBTAlpha', () => {
+    it('returns true for microbt alpha type', () => {
+      expect(isMicroBTAlpha(COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA)).toBe(true)
     })
 
-    it('returns false for non-kehua mbt type', () => {
-      expect(isMicroBTKehua('container-mbt-other')).toBe(false)
+    it('returns false for non-alpha mbt type', () => {
+      expect(isMicroBTAlpha('container-mbt-other')).toBe(false)
     })
   })
 
@@ -155,7 +162,7 @@ describe('Container Utils', () => {
     })
 
     it('returns microbt model for microbt container', () => {
-      expect(getContainerSettingsModel('container-mbt-kehua')).toBe('mbt')
+      expect(getContainerSettingsModel(COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA)).toBe('mbt')
     })
 
     it('returns hydro model for antspace hydro container', () => {

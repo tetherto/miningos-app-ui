@@ -16,6 +16,7 @@ import * as BitdeerUtils from '@/Components/Explorer/Containers/Bitdeer/Settings
 import * as HydroUtils from '@/Components/Explorer/Containers/BitMainHydro/HydroSettings.utils'
 import * as ImmersionUtils from '@/Components/Explorer/Containers/BitMainImmersion/ImmersionSettings.utils'
 import * as MicroBTUtils from '@/Components/Explorer/Containers/MicroBT/MicroBTSettings/MicorBTSettingsUtils'
+import { COMPLETE_CONTAINER_TYPE } from '@/constants/containerConstants'
 
 vi.mock('@/Components/Explorer/Containers/Bitdeer/Settings/BitdeerSettings.utils')
 vi.mock('@/Components/Explorer/Containers/BitMainHydro/HydroSettings.utils')
@@ -272,7 +273,7 @@ describe('getWidgetAlarmState', () => {
     it('should use default thresholds when containerSettings is null', () => {
       const container: Container = {
         id: 'container-321',
-        type: 'container-mbt-kehua',
+        type: COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA,
         info: { container: 'microbt-1' },
       }
       vi.mocked(deviceUtils.getContainerSpecificStats).mockReturnValue({
@@ -294,11 +295,11 @@ describe('getWidgetAlarmState', () => {
     it('should use custom thresholds when containerSettings is provided', () => {
       const container: Container = {
         id: 'container-321',
-        type: 'container-mbt-kehua',
+        type: COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA,
         info: { container: 'microbt-1' },
       }
       const containerSettings: ContainerSettings = {
-        model: 'container-mbt-kehua-001',
+        model: `${COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA}-001`,
         thresholds: {
           waterTemperature: {
             criticalLow: 20,

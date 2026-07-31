@@ -51,7 +51,6 @@
     "start": "vite",
     "start:staging": "vite --mode staging",
     "start:demo": "cross-env VITE_USE_MOCKDATA=true vite",
-    "start:demo-capture": "cross-env VITE_SAVE_MOCKDATA=true vite",
     "build": "vite build",
     "build:demo": "VITE_USE_MOCKDATA=true vite build",
     "fullcheck": "npm run prettier:fix && npm run lint && npm run typecheck && npm run test",
@@ -70,14 +69,13 @@
     "prettier": "prettier ./src --check",
     "prettier:fix": "prettier ./src --write",
     "eject": "react-scripts eject",
-    "sentry:sourcemaps": "sentry-cli sourcemaps inject --org tether-5r --project miningos-javascript-react ./build && sentry-cli sourcemaps upload --org tether-5r --project miningos-javascript-react ./build",
+    "sentry:sourcemaps": "sentry-cli sourcemaps inject ./build && sentry-cli sourcemaps upload ./build",
     "sentry:create-config": "node ./scripts/createSentryConfig.js",
     "analyze": "BUNDLE_ANALYZE=true vite build",
     "check-deps": "madge --circular --extensions js,jsx,ts,tsx ./src",
     "verify-build": "node scripts/verifyBuild.js",
     "verify-build:staging": "node scripts/verifyBuild.js staging",
     "verify-build:production": "node scripts/verifyBuild.js production",
-    "sanitize-mockdata": "node scripts/sanitizeMockdata.cjs",
     "size": "node scripts/bundle-size.mjs"
   },
   "browserslist": {

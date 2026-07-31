@@ -14,8 +14,9 @@
 10. [Code Quality](#code-quality)
 11. [Architecture Documentation](#architecture-documentation)
 12. [Project Structure](#project-structure)
-13. [Key Technologies](key-technologies)
+13. [Key Technologies](#key-technologies)
 14. [Environment Variables](#environment-variables)
+15. [Security](#security)
 
 ## Overview
 
@@ -74,6 +75,20 @@ This application is a **data consumer and control interface** in a distributed m
 ### API Gateway
 
 - Base path: `${VITE_API_BASE_URL}auth` (typically `/auth/*` in production)
+
+### Routing — single-site and multi-site
+
+`App.tsx` picks one of two routers at runtime from the `isMultiSiteModeEnabled`
+[feature config](#feature-configs):
+
+- `src/router/singleSiteRouter.tsx` — the default. One facility; no cross-site routes.
+- `src/router/multiSiteRouter.tsx` — adds the `src/MultiSiteViews/` tree (`/dashboard`,
+  `/revenue-and-cost`, per-site routes under `/sites/:siteId`).
+
+Each router is instantiated once and cached, not rebuilt per render — a browser router
+owns its navigation state, and handing `RouterProvider` a fresh instance breaks
+`useNavigate`. Every route is `React.lazy` behind a `<SuspenseWrapper>`; follow that
+pattern when adding one.
 
 ## Feature Flags
 
@@ -302,8 +317,11 @@ The mempool worker provides all 9 time periods for block reward averages (`'24h'
 
 ### Prerequisites
 
-- Node.js >= 20
-- npm >= 10
+- Node.js >= 24
+- npm >= 11
+
+`engineStrict` is enabled, so these are a hard gate — `npm install` refuses to run on an
+older Node. The repo ships an `.nvmrc`, so `nvm use` picks the right version up.
 
 ### Installation
 
@@ -321,14 +339,9 @@ Application will be available at `http://localhost:3030`
 
 ### Demo Mode
 
-Run the application using mock data (no backend required):
-
 ```bash
-# Start in demo mode with mock data
+# Start in demo mode
 npm run start:demo
-
-# Capture mock data while using the app
-npm run start:demo-capture
 
 # Build for demo/offline deployment
 npm run build:demo
@@ -336,6 +349,16 @@ npm run build:demo
 # Preview demo build
 npm run preview:demo
 ```
+
+Demo mode (`VITE_USE_MOCKDATA=true`) suppresses behaviour that needs a live backend —
+exports, alert sounds, error banners — and pins the financial views to a fixed date
+range.
+
+> **It ships no fixtures.** The recorded API responses that used to live in
+> `src/mockdata/` were captured from production and have been removed, and the XHR
+> interceptor that produced them was already gone. Demo mode currently renders empty.
+> Restoring it needs synthetic fixtures generated from scratch — do not re-record live
+> traffic. See [Security](#security).
 
 ### Building for Production
 
@@ -352,6 +375,16 @@ npm run sentry:create-config
 ```
 
 Add your Sentry auth token to the configuration file.
+
+Uploading source maps (`npm run sentry:sourcemaps`) additionally needs the organisation
+and project, which `sentry-cli` reads from the environment:
+
+```bash
+export SENTRY_ORG=<org-slug>
+export SENTRY_PROJECT=<project-slug>
+```
+
+In CI, set these as secrets. They are intentionally not hardcoded in `package.json`.
 
 ## Logger Service
 
@@ -435,151 +468,66 @@ src/
 ```bash
 VITE_API_BASE_URL=http://localhost:8080/  # API gateway URL
 ```
-
-### Mock Data System
-
-The application includes a mock data system for development and testing purposes, allowing you to capture and replay API responses without requiring a live backend.
-
-#### `VITE_SAVE_MOCKDATA`
-
-Enables capturing of all XHR request arguments and their corresponding responses. When enabled, all API interactions are stored in `window.__mockdata` for later use.
-
-**_Setup_**
-
-1. Start the application normally (`npm run start`) and login
-2. Stop the application. This would save the credentials in your browser which will be later used by the demo capture
-
-**Quick Start:**
-
-```bash
-# 1. Start capture mode
-npm run start:demo-capture
-
-# 2. Navigate through the app (click pages you want to capture)
-#    - Visit all containers, tabs, reports, etc.
-#    - Avoid full page refreshes (clears captured data)
-
-# 3. Open browser DevTools console (F12) and copy the data:
-copy(window.__mockdata)
-
-# 4. Create a new file called mockdata-raw.json in the project root
-#    and paste the copied JSON data into it
-
-# 5. Run the sanitization script (uses mockdata-raw.json by default):
-npm run sanitize-mockdata
-
-# 6. Test with mock data:
-npm run start:demo
-```
-
-**What happens automatically:**
-
-- ✅ Sanitizes sensitive data (tokens, emails, JWT)
-- ✅ Splits data by feature into organized files:
-  - `src/mockdata/base.json` - Feature config, user info
-  - `src/mockdata/containers.json` - Container data
-  - `src/mockdata/financial.json` - Financial reports
-  - `src/mockdata/operations.json` - Mining operations
-  - `src/mockdata/other.json` - Everything else
-- ✅ Merges with existing files (keeps old data, adds/updates new)
-- ✅ Auto-generates `src/mockdata/index.ts` to merge all files
-
-**Advanced Options:**
-
-```bash
-# Use custom input file
-npm run sanitize-mockdata my-capture.json
-
-# Save to single file instead of splitting (legacy)
-npm run sanitize-mockdata -- --no-split
-
-# Save to specific split file
-npm run sanitize-mockdata -- --split containers
-```
-
-**Incremental Updates:**
-
-When you fix a bug and only need to update specific pages:
-
-```bash
-# 1. Start capture mode
-npm run start:demo-capture
-
-# 2. Visit ONLY the pages you fixed (e.g., Energy Balance)
-
-# 3. Copy and save to mockdata-raw.json
-copy(window.__mockdata)
-
-# 4. Run sanitization (merges automatically, keeps all old data)
-npm run sanitize-mockdata
-```
-
-**How Auto-Split Works:**
-
-The script automatically categorizes data by URL patterns:
-
-- `base.json` - Feature config, user, auth
-- `containers.json` - Any key with "container"
-- `financial.json` - Keys with "financial", "revenue", "cost", "energy"
-- `operations.json` - Keys with "operations", "mining", "miner"
-- `alerts.json` - Keys with "alert"
-- `inventory.json` - Keys with "inventory"
-- `pools.json` - Keys with "pool"
-- `comments.json` - Keys with "comment"
-- `settings.json` - Keys with "setting"
-- `other.json` - Everything else
-
-**Troubleshooting:**
-
-- **"No data" on a page in demo mode**: The page wasn't visited during capture. Visit it with `npm run start:demo-capture` and run sanitization again.
-- **Data seems old after merge**: The merge keeps old data for keys you didn't update. Visit the specific page again to update its data.
-- **Want to start fresh**: Delete `src/mockdata/` folder and do a full capture.
-- **If the demo or demo capture mode infinitely loops**: Follow the setup steps again before running the demo or demo capture again
-
-**Security Note:**
-
-The sanitization script automatically removes:
-
-- **API tokens**: `pub:api:TOKEN-123-roles:*` → `pub:api:SANITIZED_TOKEN-123-roles:*`
-- **Email addresses** → `mail@example.com`
-- **JWT Bearer tokens** → `Bearer SANITIZED_JWT_TOKEN`
-- **API keys** → `SANITIZED_API_KEY`
-- **Location/Site names**: `Test-1`, `Test-2`, etc. → `Site A`, `Country A`
-- **IP addresses**: `10.0.1.5` → `192.168.1.1`
-- **MAC addresses**: `00:1A:2B:3C:4D:5E` → `00:00:00:00:00:00`
-- **Phone numbers** (in phone/tel/mobile fields) → `+1-555-0100`
-
-⚠️ Always review sanitized files before committing to ensure no sensitive data remains.
+### Demo Mode Flag
 
 #### `VITE_USE_MOCKDATA`
 
-Enables the application to use mock data from `src/mockdata.ts` instead of making real XHR requests to the backend.
-
-**Usage:**
+Enables demo mode. See [Demo Mode](#demo-mode) — it suppresses behaviour that needs a
+live backend and pins the financial views to a fixed date range. It no longer loads
+fixtures; the recorded responses it used to read were captured from production and have
+been removed.
 
 ```bash
 VITE_USE_MOCKDATA=true npm start
 ```
 
-This is useful for:
-
-- Frontend development without backend dependencies
-- Consistent testing scenarios
-- Demo environments
-- Offline development
-
-#### Using Mock Data Flags in Code
-
-Import the constants from `api.utils`:
+#### Using the flag in code
 
 ```typescript
-import { isUseMockdataEnabled, isSaveMockdataEnabled, isDemoMode } from '@/app/services/api.utils'
+import { isDemoMode } from '@/app/services/api.utils'
 
 // Disable features in demo mode
 <Button disabled={isDemoMode}>Export Data</Button>
-
-// Check specific flags
-if (isUseMockdataEnabled) {
-  // Using mock data
-}
 ```
+
+`isUseMockdataEnabled` is exported from the same module and is currently an alias of
+`isDemoMode`.
+
+## Security
+
+This repository is intended to be public. A CI job (`🔒 Content Scan` in
+`.github/workflows/ci.yml`) blocks a list of terms that must not be published: real site
+names, geography, hardware-partner names, internal codenames and hostnames, and
+production-derived credentials.
+
+The term list is **not stored here in plaintext** — publishing it would publish exactly
+what it protects. `.github/security/denylist.sha256` holds SHA-256 digests only, and the
+scanner reports `file:line` plus a category, never the matched text, because CI logs are
+as public as the code.
+
+```bash
+# Scan the working tree the way CI does
+node .github/scripts/scan-content.mjs
+
+# Verify the scanner still detects what it should
+node --test .github/scripts/scan-content.test.mjs
+```
+
+Run the self-test after touching the scanner. It exists because an earlier prototype used
+`git grep -E '\b…'`, which matches nothing — POSIX ERE has no `\b` — and reported a
+clean tree that was not clean. A check that fails open is worse than no check.
+
+`.github/security/exemptions.tsv` suppresses a small number of findings that cannot be
+fixed from this repository: backend-defined identifiers that the UI must match verbatim.
+Every entry carries an expiry date, and the scan **fails** once it passes — they are
+deadlines, not opt-outs.
+
+### Reporting
+
+Do not open a public issue for a suspected leak or vulnerability. Contact the
+maintainers privately.
+
+### Do not commit recorded API traffic
+
+If demo fixtures are ever restored, generate them synthetically. Recorded production
+responses have leaked real site names, pool credentials and payout addresses here before.

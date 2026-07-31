@@ -47,7 +47,6 @@ export default defineConfig({
         '**/*.config.{js,ts}',
         'src/**/index.{ts,tsx}',
         'src/types/**',
-        'src/mockdata/**',
         'src/router/**',
         'src/styles/**',
         'src/App.tsx',

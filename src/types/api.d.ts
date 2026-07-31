@@ -2,10 +2,6 @@
 
 import { UnknownRecord } from '@/app/utils/deviceUtils'
 
-declare global {
-  var __mockdata: Record<string, unknown>
-}
-
 // ============================================================================
 // Logger Service Types
 // ============================================================================

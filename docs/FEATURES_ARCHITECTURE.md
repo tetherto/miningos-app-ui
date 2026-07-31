@@ -36,7 +36,8 @@ src/Components/Dashboard/
 ├── HashRateLineChart/              # Real-time hashrate visualization
 ├── ConsumptionLineChart/           # Power consumption charts
 ├── ActiveIncidentsCard/            # Live incident monitoring
-├── GabbaniTotalSystemConsumptionChart/  # System-wide consumption
+├── PoolDetailsCard/                # Pool connection details
+├── PoolDetailsPopover/             # Pool details in a popover
 └── PowerModeTimelineChart/         # Power mode tracking
 
 src/hooks/

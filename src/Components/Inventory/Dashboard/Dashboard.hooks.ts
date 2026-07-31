@@ -70,7 +70,7 @@ const getInstalledMinerTypeFromContainer = (container: Container): string | unde
   }
 
   // Pattern: container_miner-{container-type}_{miner-manufacturer}-{miner-model}
-  // e.g. container_miner-mbt-kehua_wm-m53s -> miner-wm-m53s
+  // e.g. container_miner-mbt-alpha_wm-m53s -> miner-wm-m53s
   // e.g. container_miner-as-immersion_am-s19xp -> miner-am-s19xp
   const minerTagRegex = /container_miner-[^_]+_(.+)/
   const match = minerTag.match(minerTagRegex)

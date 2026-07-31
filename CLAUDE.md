@@ -13,7 +13,6 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm start                # Dev server at http://localhost:3030 (proxies /api, /auth, /ws to localhost:3000)
 npm run start:staging    # Dev server in staging mode
 npm start:demo           # Dev with mock data (no backend required)
-npm run start:demo-capture  # Dev while capturing live API responses into mock files
 
 # Build
 npm run build            # Production build (output: build/)
@@ -38,7 +37,6 @@ npx vitest run src/path/to/file.test.ts
 # Other
 npm run check-deps       # Detect circular dependencies
 npm run analyze          # Bundle analysis (opens stats.html)
-npm run sanitize-mockdata  # Manually strip PII from captured mock data
 ```
 
 ## Architecture
@@ -70,8 +68,8 @@ RTK Query handles all API calls. Endpoint modules live in `src/app/services/api/
 
 These are intentionally separate: flags are developer/demo toggles; configs are environment-level settings.
 
-### Mock Data System
-Set `VITE_USE_MOCKDATA=true` (or use `npm start:demo`) to run fully offline using `src/mockdata/`. Set `VITE_SAVE_MOCKDATA=true` (or `npm run start:demo-capture`) to capture live API responses into mock files — it auto-sanitizes PII (tokens, emails, IPs, MACs, location names). Run `npm run sanitize-mockdata` to re-sanitize manually.
+### Demo Mode
+`VITE_USE_MOCKDATA=true` (or `npm run start:demo`) enables demo mode, which suppresses behaviour needing a live backend — exports, alert sounds, error banners — and pins the financial views to a fixed date range. It ships **no fixtures**: `src/mockdata/` held recorded production traffic and was removed, along with the capture script. If demo fixtures are needed, generate them synthetically — never re-record live traffic.
 
 ### Real-Time Data
 - WebSocket service at `src/app/services/websocket.js`
@@ -96,7 +94,23 @@ Strict mode is enabled (`noImplicitAny`, `noImplicitReturns`, `strict: true`). P
 - `console.*` is banned everywhere except `src/app/services/logger.ts`; use the logger service instead
 
 ### Testing
-Tests live alongside source files (`.test.ts` / `.spec.ts`). Vitest runs in jsdom with `TZ=UTC`. Global mocks set up in `src/setupTests/mocks/` (antd, DOM, react). Coverage excludes `Components/`, `Views/`, `MultiSiteViews/`, `router/`, `styles/`, `contexts/`, `types/`, and `mockdata/` — only utilities, hooks, and services are measured.
+Tests live alongside source files (`.test.ts` / `.spec.ts`). Vitest runs in jsdom with `TZ=UTC`. Global mocks set up in `src/setupTests/mocks/` (antd, DOM, react). Coverage excludes `Components/`, `Views/`, `MultiSiteViews/`, `router/`, `styles/`, `contexts/`, and `types/` — only utilities, hooks, and services are measured.
+
+## Content security
+
+This repo is going public. `.github/workflows/ci.yml` runs a blocking `🔒 Content Scan`
+that rejects terms which must not be published (real site names, geography,
+hardware-partner names, internal codenames/hostnames, production credentials).
+
+- The denylist is **hashed**, not plaintext: `.github/security/denylist.sha256`. Never
+  add a term in the clear anywhere in this repo, including CI config, comments and PR
+  descriptions.
+- The scanner reports `file:line` and a category, never the matched text — CI logs are
+  public.
+- Run it locally: `node .github/scripts/scan-content.mjs`
+- After touching the scanner: `node --test .github/scripts/scan-content.test.mjs`
+- `.github/security/exemptions.tsv` covers backend-defined identifiers the UI must match
+  verbatim. Entries expire and then fail the build.
 
 ## Documentation
 

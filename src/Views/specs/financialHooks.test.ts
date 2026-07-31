@@ -34,7 +34,6 @@ vi.mock('@/hooks/useTimezone', () => ({
 vi.mock('@/app/services/api.utils', () => ({
   isDemoMode: false,
   isUseMockdataEnabled: false,
-  isSaveMockdataEnabled: false,
 }))
 
 // Mock Redux for financial hooks that depend on it

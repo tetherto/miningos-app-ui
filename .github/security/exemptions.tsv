@@ -1,0 +1,28 @@
+# Content-scan exemptions.
+#
+# Each row is  <sha256(path + ' ' + category)>  <expires YYYY-MM-DD>  <ticket>
+# — no plaintext, so this file is safe in a public repo.
+#
+# An exemption suppresses findings for one path/category pair until its expiry date,
+# then the scan FAILS. That is deliberate: these are deadlines, not opt-outs. To add
+# one, run the scan, then:
+#
+#   node .github/scripts/hash-exemption.mjs <path> <category> <YYYY-MM-DD> <ticket>
+#
+# Why these four exist
+# --------------------
+# They hold identifiers that the backend defines. The values travel in query params,
+# request bodies and list filters, and the UI matches them by substring — renaming
+# them here alone silently breaks container detection, PDU layouts and settings
+# lookup, with no type error to catch it. Clearing them needs a coordinated backend
+# change, and the user-facing display labels in the same files need a product call.
+#
+# Everything reachable from the UI side has already been fixed: the identifiers that
+# propagated these names through the rest of the codebase were renamed, and the tests
+# now reference the constants instead of hardcoding the strings. What is left is the
+# four declaration sites and nothing else.
+
+e4da6786fe0ea06d9275158dfb7ff28cf7659edd49d67f5db6256d25c1187967	2027-01-31	backend-rename-required
+0a36e6b1ba7aa612d21b07faf883b7deb2779a9db4cf3d55e7c62ed39ca97947	2027-01-31	backend-rename-required
+e50d48adb36f91f35796fa6e3205061700824f4eeea44c3eaab271ff48a8a074	2027-01-31	backend-rename-required
+3aa802d29f61ef1d95f68ae99096fa09f4b1bb4666d9512f7b2498639fd33754	2027-01-31	backend-rename-required

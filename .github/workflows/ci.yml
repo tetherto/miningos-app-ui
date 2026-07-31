@@ -18,6 +18,37 @@ env:
   NODE_VERSION: "24"
 
 jobs:
+  # Blocks terms that must not appear in a public repository. Runs on every event and
+  # depends on nothing — it needs no dependencies, so it reports in seconds and cannot
+  # be masked by an install failure elsewhere.
+  content_scan:
+    name: 🔒 Content Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 1
+          persist-credentials: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      # Runs first, and on purpose. An earlier prototype used `git grep -E '\b…'`, which
+      # matches nothing because POSIX ERE has no \b — it reported a clean tree that was
+      # not clean. These tests assert the scanner still detects what it must, so a
+      # regression fails loudly here instead of going quiet in the step below.
+      - name: Self-test scanner
+        run: node --test .github/scripts/scan-content.test.mjs
+
+      - name: Scan tracked content
+        run: node .github/scripts/scan-content.mjs
+
   security_checks:
     name: 🔐 Security Checks
     if: github.event_name == 'pull_request'
@@ -318,7 +349,7 @@ jobs:
     name: 📋 CI Summary
     runs-on: ubuntu-latest
     timeout-minutes: 5
-    needs: [security_checks, setup, lint, typecheck, test, build]
+    needs: [content_scan, security_checks, setup, lint, typecheck, test, build]
     if: always() && !cancelled()
     permissions:
       contents: read
@@ -331,6 +362,7 @@ jobs:
 
       - name: Write job summary
         env:
+          R_CONTENT: ${{ needs.content_scan.result }}
           R_SECURITY: ${{ needs.security_checks.result }}
           R_SETUP: ${{ needs.setup.result }}
           R_LINT: ${{ needs.lint.result }}
@@ -388,6 +420,7 @@ jobs:
             echo "| Job | Result |"
             echo "|-----|--------|"
             echo "| 📦 Setup | $(ic "${R_SETUP}") \`${R_SETUP}\` |"
+            echo "| 🔒 Content scan | $(ic "${R_CONTENT}") \`${R_CONTENT}\` |"
             echo "| 🔐 Security checks | $(ic "${R_SECURITY}") \`${R_SECURITY}\` |"
             echo "| ✨ Lint | $(ic "${R_LINT}") \`${R_LINT}\` |"
             echo "| 🔎 Typecheck | $(ic "${R_TYPECHECK}") \`${R_TYPECHECK}\` |"

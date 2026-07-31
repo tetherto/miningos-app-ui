@@ -14,7 +14,6 @@ import { PERIOD } from '@/constants/ranges'
 vi.mock('@/app/services/api.utils', () => ({
   isDemoMode: false,
   isUseMockdataEnabled: false,
-  isSaveMockdataEnabled: false,
 }))
 
 vi.mock('@/hooks/useTimezone', () => ({
@@ -148,7 +147,6 @@ describe('useFinancialDateRange — demo mode', () => {
     vi.doMock('@/app/services/api.utils', () => ({
       isDemoMode: true,
       isUseMockdataEnabled: true,
-      isSaveMockdataEnabled: false,
     }))
 
     vi.doMock('@/hooks/useTimezone', () => ({

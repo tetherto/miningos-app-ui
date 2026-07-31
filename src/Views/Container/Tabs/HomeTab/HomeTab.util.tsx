@@ -14,7 +14,7 @@ import {
   isAntspaceHydro,
   isAntspaceImmersion,
   isMicroBT,
-  isMicroBTKehua,
+  isMicroBTAlpha,
 } from '@/app/utils/containerUtils'
 import {
   getConfig,
@@ -657,7 +657,7 @@ export const getMicroBTTemperatureAndHumidityBoxData = (
     },
   ]
 
-  if (!isMicroBTKehua(data?.type as string)) {
+  if (!isMicroBTAlpha(data?.type as string)) {
     temperatureHumidityBoxData.push({
       label: 'Unit Outlet Temp (T3)',
       value: cdu?.unit_outlet_temp_t3,
@@ -853,7 +853,7 @@ export const getUpsInformationBoxData = (data: UnknownRecord = {}) => {
   ]
 }
 
-export const getGabbaniPowerBoxData = (data: UnknownRecord, powerType: string) => {
+export const getPowerBoxData = (data: UnknownRecord, powerType: string) => {
   const { power_meters } = getContainerSpecificStats(data as Device)
   const powerData = _get(power_meters, powerType) || {}
   const { current_w, previous_w, ultimate_w } = powerData

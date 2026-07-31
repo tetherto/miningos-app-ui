@@ -80,8 +80,8 @@ export const isMicroBT = (type: string | undefined): boolean =>
   _includes(_toLower(type), CONTAINER_TYPE.MICROBT) ||
   _includes(_toLower(type), CONTAINER_MODEL.MICROBT)
 
-export const isMicroBTKehua = (type: string): boolean =>
-  _includes(_toLower(type), COMPLETE_CONTAINER_TYPE.MICROBT_KEHUA)
+export const isMicroBTAlpha = (type: string): boolean =>
+  _includes(_toLower(type), COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA)
 
 export const isAntspaceImmersion = (type: string): boolean =>
   _includes(_toLower(type), CONTAINER_TYPE.ANTSPACE_IMMERSION) ||
@@ -484,10 +484,10 @@ export const getContainerName = (container: string | undefined, type?: string): 
     if (isMicroBTContainer) {
       let typeKey
 
-      if (_includes(COMPLETE_CONTAINER_TYPE.MICROBT_KEHUA, containerModel)) {
-        typeKey = COMPLETE_CONTAINER_TYPE.MICROBT_KEHUA
-      } else if (_includes(COMPLETE_CONTAINER_TYPE.MICROBT_WONDERINT, containerModel)) {
-        typeKey = COMPLETE_CONTAINER_TYPE.MICROBT_WONDERINT
+      if (_includes(COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA, containerModel)) {
+        typeKey = COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA
+      } else if (_includes(COMPLETE_CONTAINER_TYPE.MICROBT_BETA, containerModel)) {
+        typeKey = COMPLETE_CONTAINER_TYPE.MICROBT_BETA
       }
 
       if (!typeKey) {
@@ -527,8 +527,8 @@ export const getSupportedContainerTypesFromMinerType = (type: string): string[] 
   if (isWhatsminer(type)) {
     return [
       COMPLETE_CONTAINER_TYPE.BITDEER_M56,
-      COMPLETE_CONTAINER_TYPE.MICROBT_WONDERINT,
-      COMPLETE_CONTAINER_TYPE.MICROBT_KEHUA,
+      COMPLETE_CONTAINER_TYPE.MICROBT_BETA,
+      COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA,
       COMPLETE_CONTAINER_TYPE.BITDEER_M30,
     ]
   }

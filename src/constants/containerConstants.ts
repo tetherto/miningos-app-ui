@@ -32,6 +32,21 @@ export const CONTAINER_TYPE = {
   MICROBT: 'mbt',
 } as const
 
+/**
+ * Container types as the backend reports them.
+ *
+ * The MicroBT keys read ALPHA/BETA while their values still name the hardware partner.
+ * That mismatch is deliberate: the values are wire identifiers — they travel in
+ * `global/data?model=`, in `setContainerSettings` bodies and in `listThings`
+ * `type:{$in:[…]}` filters, and the UI matches them by *substring* (`isMicroBT` looks
+ * for `mbt`). Changing one here without a matching backend change silently breaks
+ * container detection, PDU layouts and settings resolution, with no type error.
+ *
+ * The keys were renamed so the partner name stops propagating through the rest of the
+ * codebase. Renaming the values, and the display labels below, needs a coordinated
+ * backend change and a product decision respectively — tracked in
+ * `.github/security/exemptions.tsv`.
+ */
 export const COMPLETE_CONTAINER_TYPE = {
   BITDEER_M30: 'container-bd-d40-m30',
   BITDEER_A1346: 'container-bd-d40-a1346',
@@ -39,8 +54,8 @@ export const COMPLETE_CONTAINER_TYPE = {
   BITDEER_S19XP: 'container-bd-d40-s19xp',
   BITMAIN_HYDRO: 'container-as-hk3',
   BITMAIN_IMMERSION: 'container-as-immersion',
-  MICROBT_WONDERINT: 'container-mbt-wonderint',
-  MICROBT_KEHUA: 'container-mbt-kehua',
+  MICROBT_BETA: 'container-mbt-wonderint',
+  MICROBT_ALPHA: 'container-mbt-kehua',
 } as const
 
 export const CONTAINER_TYPE_NAME_MAP = {
@@ -50,8 +65,8 @@ export const CONTAINER_TYPE_NAME_MAP = {
   [COMPLETE_CONTAINER_TYPE.BITDEER_S19XP]: 'Bitdeer S19XP',
   [COMPLETE_CONTAINER_TYPE.BITMAIN_HYDRO]: 'Bitmain Hydro',
   [COMPLETE_CONTAINER_TYPE.BITMAIN_IMMERSION]: 'Bitmain Imm',
-  [COMPLETE_CONTAINER_TYPE.MICROBT_WONDERINT]: 'MicroBT Wonder',
-  [COMPLETE_CONTAINER_TYPE.MICROBT_KEHUA]: 'MicroBT Kehua',
+  [COMPLETE_CONTAINER_TYPE.MICROBT_BETA]: 'MicroBT Wonder',
+  [COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA]: 'MicroBT Kehua',
 } as const
 
 export const CONTAINER_TACTICS_TYPE = {

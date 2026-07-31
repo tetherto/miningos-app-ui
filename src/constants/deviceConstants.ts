@@ -18,6 +18,12 @@ export const MINER_BRAND_NAMES = {
   [MINER_TYPE.WHATSMINER]: 'Whatsminer',
 } as const
 
+/**
+ * Miner types as the backend reports them. `VENDOR_ALPHA_M1`'s key and value disagree
+ * for the same reason as the MicroBT entries in `containerConstants.ts`: the value is a
+ * wire identifier (a `hashrateMhs` response key and a `type` filter we send back), so it
+ * cannot be renamed without a backend change. See `.github/security/exemptions.tsv`.
+ */
 export const COMPLETE_MINER_TYPES = {
   WHATSMINER_WM_63: 'miner-wm-m63',
   WHATSMINER_WM_56: 'miner-wm-m56s',
@@ -29,7 +35,7 @@ export const COMPLETE_MINER_TYPES = {
   AVALON_AV_a1346: 'miner-av-a1346',
   ANTMINER_AM_S21: 'miner-am-s21',
   ANTMINER_AM_S21PRO: 'miner-am-s21pro',
-  ACME_M1: 'miner-acme-m1',
+  VENDOR_ALPHA_M1: 'miner-acme-m1',
 } as const
 
 export const MINER_TYPES_COLOR_MAP = {
@@ -92,7 +98,7 @@ export const MINER_TYPE_NAME_MAP = {
   [COMPLETE_MINER_TYPES.AVALON_AV_a1346]: 'Avalon A1346',
   [COMPLETE_MINER_TYPES.ANTMINER_AM_S21]: 'Antminer S21',
   [COMPLETE_MINER_TYPES.ANTMINER_AM_S21PRO]: 'Antminer S21pro',
-  [COMPLETE_MINER_TYPES.ACME_M1]: 'Acme M1',
+  [COMPLETE_MINER_TYPES.VENDOR_ALPHA_M1]: 'Acme M1',
 } as const
 
 export const ALERT_TYPE_POOL_VALUE = {
