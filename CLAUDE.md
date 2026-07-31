@@ -98,20 +98,18 @@ Tests live alongside source files (`.test.ts` / `.spec.ts`). Vitest runs in jsdo
 
 ## Content security
 
-This repo is going public. `.github/workflows/ci.yml` runs a blocking `🔒 Content Scan`
-that rejects terms which must not be published (real site names, geography,
-hardware-partner names, internal codenames/hostnames, production credentials).
+This repo is going public. Restricted terms — real site names, geography,
+hardware-partner names, internal codenames/hostnames, and production-derived credentials
+— must never appear in it, in any form: values, identifiers, comments, docs, fixtures or
+commit messages. Watch for near-miss spellings too; a one-character variant is still a
+leak.
 
-- The denylist is **hashed**, not plaintext: `.github/security/denylist.sha256`. Never
-  add a term in the clear anywhere in this repo, including CI config, comments and PR
-  descriptions.
-- The scanner reports `file:line` and a category, never the matched text — CI logs are
-  public.
-- Run it locally: `node .github/scripts/scan-content.mjs`
-- After touching the scanner: `node --test .github/scripts/scan-content.test.mjs`
-- There are no exemptions today. If a term truly cannot be removed, add a dated row to
-  `.github/security/exemptions.tsv` (`hash-exemption.mjs`) rather than deleting the term
-  from the denylist — exemptions expire and then fail the build; a denylist edit is silent.
+Device type strings are backend wire identifiers. They use vendor-neutral `alpha`/`beta`
+names matching what `@tetherto/mdk` ships; several are matched by *substring*
+(`isMicroBT` looks for `mbt`), so changing one silently breaks container detection.
+
+Never commit recorded API traffic. `src/mockdata/` previously held captured production
+responses and leaked real site names, pool credentials and a payout address.
 
 ## Documentation
 

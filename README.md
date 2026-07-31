@@ -496,34 +496,10 @@ import { isDemoMode } from '@/app/services/api.utils'
 
 ## Security
 
-This repository is intended to be public. A CI job (`🔒 Content Scan` in
-`.github/workflows/ci.yml`) blocks a list of terms that must not be published: real site
-names, geography, hardware-partner names, internal codenames and hostnames, and
-production-derived credentials.
-
-The term list is **not stored here in plaintext** — publishing it would publish exactly
-what it protects. `.github/security/denylist.sha256` holds SHA-256 digests only, and the
-scanner reports `file:line` plus a category, never the matched text, because CI logs are
-as public as the code.
-
-```bash
-# Scan the working tree the way CI does
-node .github/scripts/scan-content.mjs
-
-# Verify the scanner still detects what it should
-node --test .github/scripts/scan-content.test.mjs
-```
-
-Run the self-test after touching the scanner. It exists because an earlier prototype used
-`git grep -E '\b…'`, which matches nothing — POSIX ERE has no `\b` — and reported a
-clean tree that was not clean. A check that fails open is worse than no check.
-
-There are currently **no exemptions** — the scan passes on the tree as-is. The mechanism
-exists for the case where a term genuinely cannot be removed: add a row to
-`.github/security/exemptions.tsv` via `.github/scripts/hash-exemption.mjs`. Every row
-carries a mandatory expiry and the scan **fails** once it passes, so an exemption is a
-deadline, not a way to switch the check off. Prefer that over adding a term to the
-denylist, which would disable it everywhere.
+This repository is intended to be public. Restricted terms — real site names, geography,
+hardware-partner names, internal codenames and hostnames, and production-derived
+credentials — must not appear anywhere in it, including comments, docs, test fixtures and
+commit messages.
 
 ### Reporting
 
