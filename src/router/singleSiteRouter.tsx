@@ -72,7 +72,7 @@ const CostInput = lazy(() => import('@/Views/Financial/CostInput/CostInput'))
 const EnergyBalance = lazy(() => import('@/Views/Financial/EnergyBalance/EnergyBalance'))
 const Hashrate = lazy(() => import('@/Views/Reports/Hashrate/Hashrate'))
 
-export const getSingleSiteRouter = () =>
+const createRouter = () =>
   createBrowserRouter(
     [
       {
@@ -364,3 +364,13 @@ export const getSingleSiteRouter = () =>
     ],
     { basename: import.meta.env.VITE_BASE_URL ?? '/' },
   )
+
+let cachedRouter: ReturnType<typeof createRouter> | undefined
+
+/**
+ * A browser router owns its navigation state, so exactly one instance may exist
+ * per mode. Calling `createBrowserRouter` on every `App` render would hand
+ * `RouterProvider` a fresh router whose state is unsubscribed from the previous
+ * one, which makes `useNavigate` change the URL without re-rendering the tree.
+ */
+export const getSingleSiteRouter = () => (cachedRouter ??= createRouter())

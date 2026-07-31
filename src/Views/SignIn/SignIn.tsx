@@ -28,6 +28,9 @@ const SignIn = () => {
       const lastUrl = getLastVisitedUrl()
 
       if (lastUrl) {
+        // Consumed here, in the same effect that reads it, so the read and the
+        // clear cannot be split across a discarded render.
+        clearLastVisitedUrl()
         setRedirectPath(lastUrl)
       } else {
         setRedirectPath(getSignInRedirectUrl(authToken))
@@ -36,7 +39,6 @@ const SignIn = () => {
   }, [authToken])
 
   if (redirectPath) {
-    clearLastVisitedUrl()
     return <Navigate to={redirectPath} />
   }
 

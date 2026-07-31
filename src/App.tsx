@@ -27,7 +27,6 @@ const App = () => {
       <AntdApp>
         <ThemeProvider theme={DarkTheme}>
           <GlobalStyle />
-          {/* Don't add future={{ v7_startTransition: true }} !!! it breaks the useNavigate hook!!! */}
           {isLoading ? <Spinner /> : <RouterProvider router={router} />}
           <CloseAllNotifications />
         </ThemeProvider>
