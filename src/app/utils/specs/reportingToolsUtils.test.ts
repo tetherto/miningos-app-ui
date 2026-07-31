@@ -336,7 +336,7 @@ describe('reportingToolsUtils', () => {
               },
               config: {},
             },
-            haven7347: {
+            pooluser2: {
               success: true,
               raw_errors: ['error2'],
               stats: {

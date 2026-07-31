@@ -112,15 +112,16 @@ http://localhost:3030/?features=reporting,poolStats
 
 #### Current Feature Flags
 
+The authoritative list is the `FeatureFlags` interface in `src/types/api.d.ts`. Flags the
+code actually reads:
+
 - `userManagement` - User administration interface
-- `energyProvision` - Energy provisioning controls
-- `admeStatsEnabled` - Advanced mining efficiency statistics
-- `minersOverview` - Comprehensive miner fleet view
 - `inventory` - Inventory management system
 - `alertsHistoricalLogEnabled` - Historical alert analysis
-- `spotPriceSettings` - Spot price configuration
-- `weeklyForecast` - Predictive analytics dashboard
-- `oceanLuck` - Mining luck indicator
+- `isDevelopment` - Development-only affordances
+
+The type carries an index signature, so the backend may send others; anything not listed
+above is not consulted by this app.
 
 ## Feature Configs
 
