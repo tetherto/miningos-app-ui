@@ -7,23 +7,27 @@ export const FEATURES_GET_API_ENDPOINT = 'features'
 export const FEATURE_CONFIG_GET_API_ENDPOINT = 'featureConfig'
 
 /**
- * Mock data mode flags for development and testing.
+ * Demo mode flag.
  *
- * @constant {boolean} isUseMockdataEnabled - When true, app uses mock data from src/mockdata.ts instead of real API calls
- * @constant {boolean} isSaveMockdataEnabled - When true, app captures all XHR requests/responses to window.__mockdata
- * @constant {boolean} isDemoMode - Convenience flag, true when either mock data flag is enabled
+ * Demo mode suppresses behaviour that needs a live backend — exports, alert sounds,
+ * error banners — and pins the financial views to a fixed date range. It no longer
+ * ships fixtures: the recorded API responses under `src/mockdata/` were removed
+ * because they were captured from production, and the XHR interceptor that produced
+ * them had already been dropped in an earlier API-layer refactor.
+ *
+ * @constant {boolean} isUseMockdataEnabled - True when VITE_USE_MOCKDATA=true
+ * @constant {boolean} isDemoMode - Alias kept for the many call sites that read it
  *
  * @example
  * ```tsx
- * import { isUseMockdataEnabled, isDemoMode } from '@/app/services/api.utils'
+ * import { isDemoMode } from '@/app/services/api.utils'
  *
  * // Disable features in demo mode
  * <Button disabled={isDemoMode}>Export Data</Button>
  * ```
  */
 export const isUseMockdataEnabled = import.meta.env.VITE_USE_MOCKDATA === 'true'
-export const isSaveMockdataEnabled = import.meta.env.VITE_SAVE_MOCKDATA === 'true'
-export const isDemoMode = isUseMockdataEnabled || isSaveMockdataEnabled
+export const isDemoMode = isUseMockdataEnabled
 
 export const HISTORICAL_LOG_TYPES = {
   ALERTS: 'alerts',

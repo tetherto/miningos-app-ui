@@ -24,7 +24,7 @@ describe('containerFormatters', () => {
       expect(result).toContain('5a')
     })
     it('returns formatted name for microbt container', () => {
-      const result = getContainerName('microbt-1', 'container-mbt-kehua')
+      const result = getContainerName('microbt-1', COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA)
       expect(result).toContain('MicroBT')
     })
   })

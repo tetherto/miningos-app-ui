@@ -5,9 +5,11 @@ import {
   getDefaultThresholdStructure,
 } from './containerSettingsUtils'
 
+import { COMPLETE_CONTAINER_TYPE } from '@/constants/containerConstants'
+
 // Container type strings that trigger each branch
 const BITDEER_TYPE = 'container-bd-d40-m30' // isBitdeer → true
-const MICROBT_TYPE = 'container-mbt-wonderint' // isMicroBT → true
+const MICROBT_TYPE = COMPLETE_CONTAINER_TYPE.MICROBT_BETA // isMicroBT → true
 const HYDRO_TYPE = 'container-as-hk3' // isAntspaceHydro → true
 const IMMERSION_TYPE = 'container-as-immersion' // isAntspaceImmersion → true
 const UNKNOWN_TYPE = 'container-unknown'

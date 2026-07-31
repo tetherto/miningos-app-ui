@@ -78,7 +78,10 @@ describe('containerPdu', () => {
     })
     it('returns device when microbt pos matches', () => {
       const devices = [
-        { type: 'miner-wm', info: { container: 'container-mbt-kehua', pos: 'pdu1_s1' } },
+        {
+          type: 'miner-wm',
+          info: { container: COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA, pos: 'pdu1_s1' },
+        },
       ]
       expect(getConnectedMinerForSocket(devices as never, 'pdu1', 's1')).toBeDefined()
     })

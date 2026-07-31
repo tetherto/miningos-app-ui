@@ -7,7 +7,7 @@ import {
   isBitdeer,
   isBitmainImmersion,
   isMicroBT,
-  isMicroBTKehua,
+  isMicroBTAlpha,
   isM30,
   isS19XP,
   isWhatsminerContainer,
@@ -27,9 +27,10 @@ describe('containerTypes', () => {
       expect(isBitdeer('container-bd-d40')).toBe(true)
       expect(isBitdeer('bitdeer-1')).toBe(true)
     })
-    it('isMicroBT', () => expect(isMicroBT('container-mbt-kehua')).toBe(true))
+    it('isMicroBT', () => expect(isMicroBT(COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA)).toBe(true))
     it('isAntspaceHydro', () => expect(isAntspaceHydro('container-as-hk3')).toBe(true))
-    it('isMicroBTKehua', () => expect(isMicroBTKehua('container-mbt-kehua')).toBe(true))
+    it('isMicroBTAlpha', () =>
+      expect(isMicroBTAlpha(COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA)).toBe(true))
     it('isAntspaceImmersion', () =>
       expect(isAntspaceImmersion('container-as-immersion')).toBe(true))
     it('isBitmainImmersion', () => expect(isBitmainImmersion('bitmain-immersion')).toBe(true))
@@ -38,7 +39,7 @@ describe('containerTypes', () => {
     it('isAvalonContainer', () => expect(isAvalonContainer('container-bd-d40-a1346')).toBe(true))
     it('isWhatsminerContainer', () => {
       expect(isWhatsminerContainer('container-bd-d40-m56')).toBe(true)
-      expect(isWhatsminerContainer('container-mbt-kehua')).toBe(true)
+      expect(isWhatsminerContainer(COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA)).toBe(true)
     })
     it('isAntminerContainer', () => {
       expect(isAntminerContainer('container-bd-d40-s19xp')).toBe(true)

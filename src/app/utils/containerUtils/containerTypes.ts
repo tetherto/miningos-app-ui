@@ -32,8 +32,8 @@ export const isMicroBT = (type: string): boolean =>
   _includes(_toLower(type), CONTAINER_TYPE.MICROBT) ||
   _includes(_toLower(type), CONTAINER_MODEL.MICROBT)
 
-export const isMicroBTKehua = (type: string): boolean =>
-  _includes(_toLower(type), COMPLETE_CONTAINER_TYPE.MICROBT_KEHUA)
+export const isMicroBTAlpha = (type: string): boolean =>
+  _includes(_toLower(type), COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA)
 
 export const isAntspaceImmersion = (type: string): boolean =>
   _includes(_toLower(type), CONTAINER_TYPE.ANTSPACE_IMMERSION) ||

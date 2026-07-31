@@ -459,7 +459,7 @@ const bitdeerShelvesType3 = `
 `
 
 export const DEVICE_TEMPLATE_AREAS = {
-  [COMPLETE_CONTAINER_TYPE.MICROBT_WONDERINT]: {
+  [COMPLETE_CONTAINER_TYPE.MICROBT_BETA]: {
     1: microBtShelves,
     2: microBtShelves,
     3: microBtShelves,
@@ -473,7 +473,7 @@ export const DEVICE_TEMPLATE_AREAS = {
     11: microBtShelves,
     12: microBtShelves,
   },
-  [COMPLETE_CONTAINER_TYPE.MICROBT_KEHUA]: {
+  [COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA]: {
     1: microBtShelves,
     2: microBtShelves,
     3: microBtShelves,

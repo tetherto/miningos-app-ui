@@ -31,6 +31,7 @@ import {
 } from '../useContainerSettings'
 
 import type { Device } from '@/app/utils/deviceUtils'
+import { COMPLETE_CONTAINER_TYPE } from '@/constants/containerConstants'
 
 const TestWrapper = ({ children }: { children: ReactNode }) => (
   <Provider store={store}>{children}</Provider>
@@ -98,7 +99,7 @@ describe('useContainerSettings', () => {
       const container: Device = {
         id: 'container-123',
         type: '', // Empty type, will use info.container
-        info: { container: 'container-mbt-kehua-001' },
+        info: { container: `${COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA}-001` },
       }
 
       const mockSettings: ContainerSettingsResult[] = []
@@ -116,12 +117,12 @@ describe('useContainerSettings', () => {
       })
 
       expect(mockUseGetContainerSettingsQuery).toHaveBeenCalledWith(
-        { model: 'container-mbt-kehua-001' },
+        { model: `${COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA}-001` },
         { skip: false },
       )
       expect(mockFindMatchingContainer).toHaveBeenCalledWith(
         mockSettings,
-        'container-mbt-kehua-001',
+        `${COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA}-001`,
       )
       expect(result.current.containerSettings).toBeNull()
     })
@@ -332,7 +333,7 @@ describe('useContainerSettings', () => {
       const container: Device = {
         id: 'container-123',
         type: 'container-bd-d40-a1346',
-        info: { container: 'container-mbt-kehua-001' },
+        info: { container: `${COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA}-001` },
       }
 
       mockUseGetContainerSettingsQuery.mockReturnValue({

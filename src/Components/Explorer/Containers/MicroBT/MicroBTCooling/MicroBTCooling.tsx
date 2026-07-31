@@ -1,7 +1,7 @@
 import Divider from 'antd/es/divider'
 import { FC } from 'react'
 
-import { isMicroBTKehua } from '../../../../../app/utils/containerUtils'
+import { isMicroBTAlpha } from '../../../../../app/utils/containerUtils'
 import { getContainerSpecificStats } from '../../../../../app/utils/deviceUtils'
 import { DEVICE_STATUS } from '../../../../../app/utils/statusUtils'
 import { UNITS } from '../../../../../constants/units'
@@ -60,7 +60,7 @@ const MicroBTCooling: FC<MicroBTCoolingProps> = ({ data }) => {
             <RightOptionsButtonsContainer>
               <DeviceStatus title="Speed" secondary>
                 {cduTyped?.circulation_pump_speed}{' '}
-                {isMicroBTKehua(data?.type as string) ? UNITS.PERCENT : UNITS.FREQUENCY_HERTZ}
+                {isMicroBTAlpha(data?.type as string) ? UNITS.PERCENT : UNITS.FREQUENCY_HERTZ}
               </DeviceStatus>
             </RightOptionsButtonsContainer>
           </CoolingContainerRow>
@@ -73,7 +73,7 @@ const MicroBTCooling: FC<MicroBTCoolingProps> = ({ data }) => {
               status={cduTyped?.cooling_fan_control ? DEVICE_STATUS.RUNNING : DEVICE_STATUS.OFF}
             />
           </RightOptionsButtonsContainer>
-          {isMicroBTKehua(data?.type as string) ? (
+          {isMicroBTAlpha(data?.type as string) ? (
             <RightOptionsButtonsContainer>
               <DeviceStatus title={'Speed'} secondary>
                 <span>{cduTyped?.cooling_system_status}</span>

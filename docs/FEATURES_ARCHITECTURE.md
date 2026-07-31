@@ -36,7 +36,8 @@ src/Components/Dashboard/
 ├── HashRateLineChart/              # Real-time hashrate visualization
 ├── ConsumptionLineChart/           # Power consumption charts
 ├── ActiveIncidentsCard/            # Live incident monitoring
-├── GabbaniTotalSystemConsumptionChart/  # System-wide consumption
+├── PoolDetailsCard/                # Pool connection details
+├── PoolDetailsPopover/             # Pool details in a popover
 └── PowerModeTimelineChart/         # Power mode tracking
 
 src/hooks/
@@ -527,13 +528,13 @@ const { data: featureFlags } = useGetFeaturesQuery()
 **Current Feature Flags**:
 
 ```javascript
+// See the FeatureFlags interface in src/types/api.d.ts — the source of truth.
 {
+  isDevelopment: boolean,
   userManagement: boolean,
-  energyProvision: boolean,
-  admeStatsEnabled: boolean,
-  minersOverview: boolean,
   inventory: boolean,
-  alertsHistoricalLogEnabled: boolean
+  alertsHistoricalLogEnabled: boolean,
+  // index signature: the backend may send more, but the app reads only the above
 }
 ```
 

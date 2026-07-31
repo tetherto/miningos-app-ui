@@ -19,6 +19,7 @@ import {
 import { getContainerSettingsModel } from '../containerUtils'
 
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
+import { COMPLETE_CONTAINER_TYPE } from '@/constants/containerConstants'
 import { CONTAINER_SETTINGS_MODEL } from '@/constants/containerConstants'
 
 type ContainerSetting = {
@@ -177,9 +178,14 @@ describe('containerThresholdsHelpers', () => {
       it('should match MicroBT containers using fallback', () => {
         mockGetContainerSettingsModel.mockReturnValue(CONTAINER_SETTINGS_MODEL.MICROBT)
 
-        const result = findMatchingContainer(mockContainerSettings, 'container-mbt-kehua-001')
+        const result = findMatchingContainer(
+          mockContainerSettings,
+          `${COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA}-001`,
+        )
 
-        expect(mockGetContainerSettingsModel).toHaveBeenCalledWith('container-mbt-kehua-001')
+        expect(mockGetContainerSettingsModel).toHaveBeenCalledWith(
+          `${COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA}-001`,
+        )
         expect(result).toEqual(mockContainerSettings[3]) // Should match 'mbt' model
       })
 

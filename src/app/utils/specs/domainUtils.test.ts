@@ -1,37 +1,25 @@
-import { afterEach, beforeEach, describe, expect, it } from 'vitest'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getBackUrl, isStagingEnv } from '../domainUtils'
 
 describe('domainUtils', () => {
   describe('isStagingEnv', () => {
-    const originalLocation = window.location
-
-    beforeEach(() => {
-      Object.defineProperty(window, 'location', {
-        value: { hostname: 'localhost' },
-        writable: true,
-        configurable: true,
-      })
-    })
-
     afterEach(() => {
-      Object.defineProperty(window, 'location', {
-        value: originalLocation,
-        writable: true,
-        configurable: true,
-      })
+      vi.unstubAllEnvs()
     })
 
-    it('returns true when hostname is in staging URLs', () => {
+    it('returns true on staging', () => {
+      vi.stubEnv('VITE_APP_ENV', 'staging')
       expect(isStagingEnv()).toBe(true)
     })
 
-    it('returns false when hostname is not in staging URLs', () => {
-      Object.defineProperty(window, 'location', {
-        value: { hostname: 'production.example.com' },
-        writable: true,
-        configurable: true,
-      })
+    it('returns true in development', () => {
+      vi.stubEnv('VITE_APP_ENV', 'development')
+      expect(isStagingEnv()).toBe(true)
+    })
+
+    it('returns false in production', () => {
+      vi.stubEnv('VITE_APP_ENV', 'production')
       expect(isStagingEnv()).toBe(false)
     })
   })

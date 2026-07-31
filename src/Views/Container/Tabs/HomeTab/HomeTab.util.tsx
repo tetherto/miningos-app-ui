@@ -14,15 +14,9 @@ import {
   isAntspaceHydro,
   isAntspaceImmersion,
   isMicroBT,
-  isMicroBTKehua,
+  isMicroBTAlpha,
 } from '@/app/utils/containerUtils'
-import {
-  getConfig,
-  getContainerSpecificStats,
-  getStats,
-  unitToKilo,
-  formatPowerConsumption,
-} from '@/app/utils/deviceUtils'
+import { getConfig, getContainerSpecificStats, getStats, unitToKilo } from '@/app/utils/deviceUtils'
 import type { Device, UnknownRecord } from '@/app/utils/deviceUtils/types'
 import { convertMpaToBar } from '@/app/utils/format'
 import { formatNumber } from '@/app/utils/format'
@@ -657,7 +651,7 @@ export const getMicroBTTemperatureAndHumidityBoxData = (
     },
   ]
 
-  if (!isMicroBTKehua(data?.type as string)) {
+  if (!isMicroBTAlpha(data?.type as string)) {
     temperatureHumidityBoxData.push({
       label: 'Unit Outlet Temp (T3)',
       value: cdu?.unit_outlet_temp_t3,
@@ -850,17 +844,6 @@ export const getUpsInformationBoxData = (data: UnknownRecord = {}) => {
     { label: 'Output Frequency', value: ups?.output?.freq_hz, units: 'Hz' },
     { label: 'Temperature', value: ups?.temp_c, units: UNITS.TEMPERATURE_C },
     { label: 'Battery Status', value: ups?.battery_percent, units: '%' },
-  ]
-}
-
-export const getGabbaniPowerBoxData = (data: UnknownRecord, powerType: string) => {
-  const { power_meters } = getContainerSpecificStats(data as Device)
-  const powerData = _get(power_meters, powerType) || {}
-  const { current_w, previous_w, ultimate_w } = powerData
-  return [
-    { label: 'Current', ...formatPowerConsumption(current_w) },
-    { label: 'Previous', ...formatPowerConsumption(previous_w) },
-    { label: 'Penultimate', ...formatPowerConsumption(ultimate_w) },
   ]
 }
 

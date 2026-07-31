@@ -26,7 +26,6 @@ vi.mock('@/app/services/api.utils', () => ({
   FEATURES_GET_API_ENDPOINT: 'features',
   FEATURE_CONFIG_GET_API_ENDPOINT: 'featureConfig',
   isDemoMode: false,
-  isSaveMockdataEnabled: false,
   isUseMockdataEnabled: false,
 }))
 
