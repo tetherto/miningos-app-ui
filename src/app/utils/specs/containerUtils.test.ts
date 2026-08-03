@@ -1,16 +1,24 @@
 import {
   getContainerName,
+  getContainerSettingsModel,
+  getMockedPduData,
+  getPduData,
   getTotalSockets,
   isBitmainImmersion,
+  isMicroBTAlpha,
   sortAlphanumeric,
 } from '../containerUtils'
 import type { UnknownRecord } from '../deviceUtils/types'
+
+import { COMPLETE_CONTAINER_TYPE, CONTAINER_TYPE_NAME_MAP } from '@/constants/containerConstants'
+
+const MICROBT_LABEL = CONTAINER_TYPE_NAME_MAP[COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA]
 
 const GET_CONTAINER_NAME_TEST_ARGS = {
   bitdeer: { type: 'container-bd-d40-m56', container: 'bitdeer-5a' },
   bitmainImmersion: { type: 'container-as-immersion', container: 'antspace-immersion-2' },
   bitmainHydro: { type: 'container-as-hk3', container: 'bitmain-hydro-1' },
-  microBT: { type: 'container-mbt-kehua', container: 'microbt-1' },
+  microBT: { type: COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA, container: 'microbt-1' },
 }
 
 describe('Container Utils', () => {
@@ -41,7 +49,10 @@ describe('Container Utils', () => {
         GET_CONTAINER_NAME_TEST_ARGS.microBT.container,
         GET_CONTAINER_NAME_TEST_ARGS.microBT.type,
       ),
-    ).toBe('MicroBT 1 Kehua')
+      // getContainerName splits the mapped label on its single space and rebuilds it as
+      // `<vendor> <id> <model>`, so the expectation is derived rather than written out.
+      // A one- or three-word label would break that assembly; this asserts it stays two.
+    ).toBe(MICROBT_LABEL.replace(' ', ' 1 '))
   })
 
   describe('getTotalSockets', () => {
@@ -128,6 +139,80 @@ describe('Container Utils', () => {
 
     it('returns false if container is not bitmain immersion', () => {
       expect(isBitmainImmersion('container-as-hk3')).toBe(false)
+    })
+  })
+
+  describe('isMicroBTAlpha', () => {
+    it('returns true for microbt alpha type', () => {
+      expect(isMicroBTAlpha(COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA)).toBe(true)
+    })
+
+    it('returns false for non-alpha mbt type', () => {
+      expect(isMicroBTAlpha('container-mbt-other')).toBe(false)
+    })
+  })
+
+  describe('getContainerSettingsModel', () => {
+    it('returns null for empty type', () => {
+      expect(getContainerSettingsModel('')).toBeNull()
+    })
+
+    it('returns bitdeer model for bitdeer container', () => {
+      expect(getContainerSettingsModel('container-bd-d40')).toBe('bd')
+    })
+
+    it('returns microbt model for microbt container', () => {
+      expect(getContainerSettingsModel(COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA)).toBe('mbt')
+    })
+
+    it('returns hydro model for antspace hydro container', () => {
+      expect(getContainerSettingsModel('container-as-hk3')).toBe('hydro')
+    })
+
+    it('returns immersion model for bitmain immersion container', () => {
+      expect(getContainerSettingsModel('container-as-immersion')).toBe('immersion')
+    })
+
+    it('returns null for unknown container type', () => {
+      expect(getContainerSettingsModel('container-unknown')).toBeNull()
+    })
+  })
+
+  describe('getPduData', () => {
+    it('returns undefined for undefined last', () => {
+      expect(getPduData(undefined)).toBeUndefined()
+    })
+
+    it('returns pdu_data from deeply nested structure', () => {
+      const last = {
+        snap: {
+          stats: {
+            container_specific: {
+              pdu_data: [{ id: 'pdu1' }],
+            },
+          },
+        },
+      }
+      const result = getPduData(last as never)
+      expect(result).toEqual([{ id: 'pdu1' }])
+    })
+  })
+
+  describe('getMockedPduData', () => {
+    it('returns default mock data for unknown type', () => {
+      const result = getMockedPduData('unknown-type')
+      expect(result).toBeDefined()
+    })
+
+    it('returns type-specific pdu data for known container types', () => {
+      const result1 = getMockedPduData('container-bd-d40-m30')
+      const result2 = getMockedPduData('container-bd-d40-a1346')
+      const result3 = getMockedPduData('container-bd-d40-m56')
+      const result4 = getMockedPduData('container-bd-d40-s19xp')
+      expect(result1).toBeDefined()
+      expect(result2).toBeDefined()
+      expect(result3).toBeDefined()
+      expect(result4).toBeDefined()
     })
   })
 

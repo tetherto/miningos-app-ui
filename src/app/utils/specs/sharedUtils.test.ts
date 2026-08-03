@@ -1,4 +1,4 @@
-import { circularArrayAccess, formatCountTo99Plus } from '../sharedUtils'
+import { circularArrayAccess, formatCountTo99Plus, promisify } from '../sharedUtils'
 
 describe('formatCountTo99Plus', () => {
   it('returns value as string if <= 99', () => {
@@ -36,5 +36,25 @@ describe('circularArrayAccess', () => {
       expectedResult = expectedResult.concat(list)
     }
     expect(result).toEqual(expectedResult)
+  })
+})
+
+describe('promisify', () => {
+  it('resolves with the result when callback is called without error', async () => {
+    const fn = (input: string, cb: (err: null, result?: string) => void) => {
+      cb(null, `result:${input}`)
+    }
+    const promisified = promisify(fn as never)
+    const result = await promisified('input')
+    expect(result).toBe('result:input')
+  })
+
+  it('rejects when callback is called with an error', async () => {
+    const err = new Error('something went wrong')
+    const fn = (_: unknown, cb: (err: Error) => void) => {
+      cb(err)
+    }
+    const promisified = promisify(fn as never)
+    await expect(promisified('x')).rejects.toThrow('something went wrong')
   })
 })

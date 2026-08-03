@@ -67,10 +67,11 @@ interface MinerHashrate {
   realValue?: number
 }
 
-interface MinerData {
+export interface MinerData {
   id: string
   hashrate: MinerHashrate
   error?: string
+  type?: string
   snap?: {
     config?: {
       power_mode: string
@@ -124,7 +125,10 @@ export const useSiteOverviewDetailsData = (unit?: UnitData): UseSiteOverviewDeta
   // Calculate container hash rate
   const getContainerHashRate = (): string => {
     const model = info?.container
-    const tailLogArray = (_head(minerTailLogData) as TailLogDataItem[] | undefined) || []
+    const tailLogArray =
+      (_head(minerTailLogData as TailLogDataItem[][] | undefined) as
+        | TailLogDataItem[]
+        | undefined) || []
     const tailLogItem = _head(tailLogArray) as TailLogDataItem | undefined
     const hashRate = (model && tailLogItem?.hashrate_mhs_1m_group_sum_aggr?.[model]) ?? 0
     const hashRatePhs = convertUnits(
@@ -141,7 +145,8 @@ export const useSiteOverviewDetailsData = (unit?: UnitData): UseSiteOverviewDeta
   const actualMinersCount =
     getContainerMinersChartData(
       (info?.container as string) ?? '',
-      _head(_head(minerTailLogData) as MinerTailLogItem[]) ?? ({} as MinerTailLogItem),
+      _head(_head(minerTailLogData as MinerTailLogItem[][] | undefined)) ??
+        ({} as MinerTailLogItem),
       Number(info?.nominalMinerCapacity) || 0,
     )?.actualMiners ?? 0
 
@@ -258,6 +263,7 @@ export const useSiteOverviewDetailsData = (unit?: UnitData): UseSiteOverviewDeta
           ...(miner || {}),
           id: (miner as Device)?.id || '',
           hashrate: formattedHashrate,
+          type,
           error,
           snap: (miner as Device)?.last?.snap as UnknownRecord,
         } as unknown as MinerData

@@ -28,7 +28,6 @@ const SignIn = lazy(() => import('@/Views/SignIn/SignIn'))
 const SignOut = lazy(() => import('@/Views/SignOut/SignOut'))
 const Explorer = lazy(() => import('@/Views/Explorer/Explorer'))
 const Settings = lazy(() => import('@/Views/Settings/Settings'))
-const UserManagement = lazy(() => import('@/Views/Settings/UserManagement'))
 const Thing = lazy(() => import('@/Views/Explorer/Things/Thing'))
 const Things = lazy(() => import('@/Views/Explorer/Things/Things'))
 const OperationsDashboard = lazy(() => import('@/Views/Reports/OperationsDashboard'))
@@ -73,7 +72,7 @@ const CostInput = lazy(() => import('@/Views/Financial/CostInput/CostInput'))
 const EnergyBalance = lazy(() => import('@/Views/Financial/EnergyBalance/EnergyBalance'))
 const Hashrate = lazy(() => import('@/Views/Reports/Hashrate/Hashrate'))
 
-export const getSingleSiteRouter = () =>
+const createRouter = () =>
   createBrowserRouter(
     [
       {
@@ -345,7 +344,6 @@ export const getSingleSiteRouter = () =>
                           element: <SuspenseWrapper component={Settings} />,
                         },
                       ]),
-                  { path: 'users', element: <SuspenseWrapper component={UserManagement} /> },
                 ],
               },
               {
@@ -366,3 +364,13 @@ export const getSingleSiteRouter = () =>
     ],
     { basename: import.meta.env.VITE_BASE_URL ?? '/' },
   )
+
+let cachedRouter: ReturnType<typeof createRouter> | undefined
+
+/**
+ * A browser router owns its navigation state, so exactly one instance may exist
+ * per mode. Calling `createBrowserRouter` on every `App` render would hand
+ * `RouterProvider` a fresh router whose state is unsubscribed from the previous
+ * one, which makes `useNavigate` change the URL without re-rendering the tree.
+ */
+export const getSingleSiteRouter = () => (cachedRouter ??= createRouter())

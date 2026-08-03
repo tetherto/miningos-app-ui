@@ -24,7 +24,7 @@ export const MinerStatuses = {
 export type MinerStatus = (typeof MinerStatuses)[keyof typeof MinerStatuses]
 
 // Statuses to exclude from filter dropdowns
-const NON_FILTERABLE_MINER_STATUSES = ['MAINTENANCE', 'ALERT'] as const
+const NON_FILTERABLE_MINER_STATUSES = ['NOT_MINING', 'ALERT'] as const
 
 // Filtered statuses without maintenance and alert for filter dropdowns
 export const FilterableMinerStatuses = _omit(MinerStatuses, NON_FILTERABLE_MINER_STATUSES)

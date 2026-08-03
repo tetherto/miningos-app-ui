@@ -9,7 +9,7 @@ import { type ChangeEvent, useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 
 import { useAddThingCommentMutation } from '../../app/services/api'
-import { getErrorMessage } from '../../app/utils/actionUtils'
+import { getErrorMessage, type ActionData } from '../../app/utils/actionUtils'
 import { getDetailedDeviceName } from '../../app/utils/containerUtils'
 import { notifyError, notifySuccess } from '../../app/utils/NotificationService'
 import { AUTH_LEVELS, AUTH_PERMISSIONS } from '../../constants/permissions.constants'
@@ -156,7 +156,8 @@ export const CommentsPopover = ({
       notifySuccess('Submitted Comment', 'Message sent successfully')
     } else {
       const apiError = error as { data?: { message?: string }; [key: string]: unknown } | undefined
-      const errorMessage = getErrorMessage(data, apiError) || 'Unknown error'
+      const errorMessage =
+        getErrorMessage(data as ActionData | ActionData[], apiError) || 'Unknown error'
       notifyError('Error occurred while submission', errorMessage)
     }
 

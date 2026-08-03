@@ -8,6 +8,8 @@ import _head from 'lodash/head'
 import _isArray from 'lodash/isArray'
 import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
+import _round from 'lodash/round'
+import _size from 'lodash/size'
 import _slice from 'lodash/slice'
 import { useNavigate } from 'react-router-dom'
 
@@ -54,7 +56,7 @@ interface StatItem {
 
 const Dashboard = () => {
   const navigate = useNavigate()
-  const { minersAmount, isLoading: isStatsLoading } = useHeaderStats()
+  const { minersAmount, isLoading: isHeaderStatsLoading } = useHeaderStats()
 
   // Fetch recent alerts once without polling (get devices with any alerts)
   const { data: alertThingsData } = useGetListThingsQuery(
@@ -77,6 +79,14 @@ const Dashboard = () => {
       pollingInterval: 0, // Disable polling - fetch once only
     },
   )
+
+  const { data: configuredMinersData, isLoading: isConfiguredMinersDataLoading } =
+    useGetListThingsQuery({
+      query: JSON.stringify({
+        $and: [{ 'info.poolConfig': { $ne: null } }, { tags: { $in: ['t-miner'] } }],
+      }),
+      fields: JSON.stringify({ id: 1 }),
+    })
 
   const alertThingsArray = _isArray(alertThingsData) ? alertThingsData : []
   const things = _head(alertThingsArray) ?? []
@@ -105,10 +115,20 @@ const Dashboard = () => {
     (minersAmount?.majorErrors ?? 0) +
     (minersAmount.offlineOrSleep ?? 0)
 
+  const numConfiguredMiners = _size(
+    _head(configuredMinersData as unknown[]) as string | object | null | undefined,
+  )
+  const pctConfiguredMiners = numConfiguredMiners / totalMiners
+
   const stats: StatItem[] = [
     {
       label: 'Total Miners',
       value: totalMiners,
+    },
+    {
+      label: 'Configured Miners',
+      value: numConfiguredMiners ?? 0,
+      secondaryValue: `${isNaN(pctConfiguredMiners) ? 0 : _round(pctConfiguredMiners * 100, 2)}%`,
     },
     {
       label: 'Errors',
@@ -116,6 +136,8 @@ const Dashboard = () => {
       type: 'ERROR',
     },
   ]
+
+  const isStatsLoading = isConfiguredMinersDataLoading || isHeaderStatsLoading
 
   return (
     <DashboardWrapper>

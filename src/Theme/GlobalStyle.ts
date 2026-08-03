@@ -22,7 +22,7 @@ export const GlobalStyle = createGlobalStyle`
   }
 
   ::-webkit-scrollbar-track {
-    background-color: ${COLOR.BLACK};
+    background-color: ${COLOR.EBONY};
   }
 
   ::-webkit-scrollbar-thumb {
@@ -37,7 +37,7 @@ export const GlobalStyle = createGlobalStyle`
   html, body, #root {
     padding: 0;
     margin: 0;
-    background-color: ${COLOR.BLACK};
+    background-color: ${COLOR.EBONY};
     transition: background-color 0.1s, color 0.1s;
     height: 100%;
   }
@@ -56,8 +56,8 @@ export const GlobalStyle = createGlobalStyle`
     pointer-events: none;
   }
 
-  .ant-picker-date-panel-container > .ant-modal-root,
-  .ant-picker-date-panel-container > .ant-modal-root > .ant-modal-wrap {
+  .ant-picker-panel-container > .ant-modal-root,
+  .ant-picker-panel-container > .ant-modal-root > .ant-modal-wrap {
     overflow: hidden !important;
     background: none !important;
     background-color: none !important;

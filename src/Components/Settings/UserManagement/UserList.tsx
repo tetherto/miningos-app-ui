@@ -21,6 +21,7 @@ import { filterUsers } from './filter'
 import {
   DeleteUserButton,
   FilterWrapper,
+  RoleSelect,
   RoleSelectInput,
   UserListTable,
   UserListTabPane,
@@ -33,6 +34,7 @@ import { useAppUserRoles } from '@/hooks/useUserRole'
 
 interface User {
   id: string
+  name?: string
   email: string
   role: string
   [key: string]: unknown
@@ -85,6 +87,7 @@ const UserList = () => {
       await updateUser({
         data: {
           id: user.id,
+          name: user.name,
           email: user.email,
           role,
         },
@@ -161,28 +164,26 @@ const UserList = () => {
       dataIndex: 'role',
       key: 'role',
       render: (role: string, user: User) => (
-        <Select
+        <RoleSelect
           value={role}
-          onChange={(
-            value: string,
-            option?: { children?: unknown } | Array<{ children?: unknown }>,
-          ) => {
-            const singleOption = Array.isArray(option) ? option[0] : option
+          onChange={(value: unknown, option?: unknown) => {
+            const stringValue = String(value)
+            const optionArray = Array.isArray(option) ? option : [option]
+            const singleOption = optionArray[0] as { children?: unknown } | undefined
             const roleOption: RoleOption = {
-              value,
+              value: stringValue,
               label: (singleOption?.children as string) || '',
             }
             handleRoleChange(roleOption, user)
           }}
           disabled={!allowUpdate}
-          style={{ width: 160 }}
         >
           {_map(userRoles, (item: RoleOption) => (
             <Select.Option key={item.value} value={item.value}>
               {item.label}
             </Select.Option>
           ))}
-        </Select>
+        </RoleSelect>
       ),
     },
     {

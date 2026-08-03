@@ -45,3 +45,7 @@ export const RoleSelectInput = styled(Select)`
   min-width: 200px;
   width: 100%;
 `
+
+export const RoleSelect = styled(Select)`
+  width: 160px;
+`

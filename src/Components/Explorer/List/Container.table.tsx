@@ -165,7 +165,10 @@ export const getContainerTableColumns = (
     width: 130,
     render: (_text: unknown, record: ContainerRecord) => {
       if (!isContainerOffline(record?.last?.snap || {})) {
-        return formatValueUnit(unitToKilo((record?.last?.snap as Snap)?.stats?.power_w ?? 0), 'kW')
+        return formatValueUnit(
+          unitToKilo((record?.last?.snap as Snap)?.stats?.power_w ?? 0),
+          UNITS.POWER_KW,
+        )
       }
       return ''
     },

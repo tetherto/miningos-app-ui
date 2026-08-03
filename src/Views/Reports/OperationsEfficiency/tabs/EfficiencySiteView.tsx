@@ -2,28 +2,32 @@ import Button from 'antd/es/button'
 import { endOfDay } from 'date-fns/endOfDay'
 import { startOfDay } from 'date-fns/startOfDay'
 import { subDays } from 'date-fns/subDays'
-import { useCallback } from 'react'
+import _head from 'lodash/head'
+import _map from 'lodash/map'
+import { useCallback, useMemo } from 'react'
 
 import { SiteEfficiencyChart } from '../../OperationsDashboard/components/SiteEfficiencyChart'
 import { AverageEfficiencyValue, DatePickerContainer } from '../OperationsEfficiency.styles'
 
+import { useGetGlobalConfigQuery, useGetMetricsEfficiencyQuery } from '@/app/services/api'
 import { formatUnit } from '@/app/utils/format'
 import { Spinner } from '@/Components/Spinner/Spinner'
 import { UNITS } from '@/constants/units'
 import { useDateRangePicker } from '@/hooks/useDatePicker'
-import { useOperationsDashboardData } from '@/hooks/useOperationsDashboardData'
 import { Label, Value } from '@/MultiSiteViews/Common.style'
-import { getLogSummary } from '@/Views/Financial/HashBalance/utils/hashRevenueCost.utils'
+
+interface GlobalConfig {
+  nominalSiteWeightedAvgEfficiency?: number
+}
 
 const EfficiencySiteView = () => {
-  // Calculate default date range: 7 days ending yesterday
+  // Default range: 7 days ending yesterday
   const yesterday = subDays(new Date(), 1)
   const defaultDateRange = {
-    start: startOfDay(subDays(yesterday, 6)).getTime(), // 7 days total including yesterday
+    start: startOfDay(subDays(yesterday, 6)).getTime(),
     end: endOfDay(yesterday).getTime(),
   }
 
-  // Date range picker - default range is last 7 days (excluding today)
   const { dateRange, datePicker, onTableDateRangeChange } = useDateRangePicker({
     start: defaultDateRange.start,
     end: defaultDateRange.end,
@@ -31,16 +35,34 @@ const EfficiencySiteView = () => {
     defaultRange: defaultDateRange,
   })
 
-  // Reset to default 7 days range
   const handleReset = useCallback(() => {
     onTableDateRangeChange(null)
   }, [onTableDateRangeChange])
 
-  const { efficiency } = useOperationsDashboardData({
-    start: dateRange.start,
-    end: dateRange.end,
-  })
-  const { avg } = getLogSummary(efficiency.data)
+  const { data: globalConfig, isLoading: isLoadingNominal } = useGetGlobalConfigQuery({})
+
+  const {
+    data: efficiencyResponse,
+    isLoading,
+    isFetching,
+    error,
+  } = useGetMetricsEfficiencyQuery({ start: dateRange.start, end: dateRange.end })
+
+  const chartData = useMemo(
+    () =>
+      _map(efficiencyResponse?.log ?? [], ({ ts, efficiencyWThs }) => ({
+        ts,
+        efficiency: efficiencyWThs,
+      })),
+    [efficiencyResponse],
+  )
+
+  const avgEfficiency = efficiencyResponse?.summary?.avgEfficiencyWThs ?? null
+  const nominalValue = isLoadingNominal
+    ? null
+    : (_head(globalConfig as GlobalConfig[])?.nominalSiteWeightedAvgEfficiency ?? null)
+
+  const isAnyLoading = isLoading || isFetching
 
   return (
     <>
@@ -49,14 +71,14 @@ const EfficiencySiteView = () => {
         <Button onClick={handleReset}>Reset</Button>
       </DatePickerContainer>
 
-      {efficiency.isLoading && <Spinner />}
+      {isAnyLoading && <Spinner />}
 
       <SiteEfficiencyChart
         isExpanded
-        data={efficiency.data}
-        nominalValue={efficiency.nominalValue}
-        isLoading={efficiency.isLoading}
-        error={efficiency.error}
+        data={chartData}
+        nominalValue={nominalValue}
+        isLoading={isAnyLoading}
+        error={error}
         legendPosition="left"
         hasExpandedButton={false}
         onToggleExpand={() => {}}
@@ -64,11 +86,7 @@ const EfficiencySiteView = () => {
           <>
             <Label>Average Efficiency</Label>
             <AverageEfficiencyValue>
-              <Value $isHighlighted>
-                {formatUnit({
-                  value: avg.efficiency,
-                })}
-              </Value>
+              <Value $isHighlighted>{formatUnit({ value: avgEfficiency ?? 0 })}</Value>
               <Value $isTransparentColor $isValueMedium>
                 {UNITS.EFFICIENCY_W_PER_TH_S}
               </Value>

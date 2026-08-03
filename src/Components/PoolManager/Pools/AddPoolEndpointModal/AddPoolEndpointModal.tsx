@@ -1,5 +1,6 @@
 import Button from 'antd/es/button'
 import { FormikProvider, useFormik } from 'formik'
+import _isNil from 'lodash/isNil'
 import type { FC } from 'react'
 import * as yup from 'yup'
 
@@ -18,44 +19,59 @@ import {
 
 import { FormikInput, FormikSelect } from '@/Components/FormInputs'
 import { Spinner } from '@/Components/Spinner/Spinner'
+import { PoolEndpointFormValues } from '@/Views/PoolManager/types'
 
 const validationSchema = yup.object({
-  role: yup.string().required('Role is required'),
+  role: yup.string().nullable(),
   host: yup.string().required('Host is required'),
   port: yup.string().required('Port is required'),
-  region: yup.string().required('Region is required'),
+  pool: yup.string().required('Pool is required'),
+  region: yup.string().nullable(),
 })
 
 interface AddPoolEndpointModalProps {
+  endpoint?: PoolEndpointFormValues
   isOpen: boolean
   onClose: () => void
-  onSubmit: (values: unknown) => void
+  onSubmit: (values: PoolEndpointFormValues) => void
+}
+
+const SHOW_ADDITIONAL_FIELDS = false
+const emptyInitialValues = {
+  role: null,
+  host: '',
+  port: '',
+  pool: '',
+  region: null,
 }
 
 export const AddPoolEndpointModal: FC<AddPoolEndpointModalProps> = ({
+  endpoint,
   isOpen,
   onClose,
   onSubmit,
 }) => {
   const isLoading = false
-
+  const isEditMode = !_isNil(endpoint)
   const formik = useFormik({
-    initialValues: {
-      role: null,
-      host: '',
-      port: '',
-      region: null,
-    },
+    initialValues: !isEditMode
+      ? emptyInitialValues
+      : {
+          role: null,
+          region: null,
+          host: endpoint.host,
+          port: endpoint.port,
+          pool: endpoint.pool,
+        },
     validationSchema,
     onSubmit: (values) => {
       onSubmit(values)
-      onClose()
     },
   })
 
   return (
     <StyledModal
-      title={<ModalTitle>Add Endpoint</ModalTitle>}
+      title={<ModalTitle>{isEditMode ? 'Edit' : 'Add'} Endpoint</ModalTitle>}
       open={isOpen}
       footer={false}
       onCancel={onClose}
@@ -68,10 +84,12 @@ export const AddPoolEndpointModal: FC<AddPoolEndpointModalProps> = ({
         <FormikProvider value={formik}>
           <form onSubmit={formik.handleSubmit}>
             <ModalBody>
-              <FormField>
-                <FieldLabel>Role</FieldLabel>
-                <FormikSelect name="role" options={POOL_ENDPOINT_ROLES_OPTIONS} />
-              </FormField>
+              {SHOW_ADDITIONAL_FIELDS && (
+                <FormField>
+                  <FieldLabel>Role</FieldLabel>
+                  <FormikSelect name="role" options={POOL_ENDPOINT_ROLES_OPTIONS} />
+                </FormField>
+              )}
               <FormField>
                 <FieldLabel>Host</FieldLabel>
                 <FormikInput name="host" />
@@ -81,9 +99,15 @@ export const AddPoolEndpointModal: FC<AddPoolEndpointModalProps> = ({
                 <FormikInput name="port" />
               </FormField>
               <FormField>
-                <FieldLabel>Region</FieldLabel>
-                <FormikSelect name="region" options={POOL_ENDPOINT_REGIONS_OPTIONS} />
+                <FieldLabel>Pool</FieldLabel>
+                <FormikInput name="pool" />
               </FormField>
+              {SHOW_ADDITIONAL_FIELDS && (
+                <FormField>
+                  <FieldLabel>Region</FieldLabel>
+                  <FormikSelect name="region" options={POOL_ENDPOINT_REGIONS_OPTIONS} />
+                </FormField>
+              )}
               <FormActions>
                 <Button type="primary" htmlType="submit" loading={formik.isSubmitting}>
                   Save

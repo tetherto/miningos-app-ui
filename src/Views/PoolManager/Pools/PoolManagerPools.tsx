@@ -1,8 +1,7 @@
 import { ArrowLeftOutlined } from '@ant-design/icons'
+import Alert from 'antd/es/alert'
 import Button from 'antd/es/button'
 import type { CollapseProps } from 'antd/es/collapse'
-import _map from 'lodash/map'
-import _values from 'lodash/values'
 import { useState } from 'react'
 
 import {
@@ -13,46 +12,20 @@ import {
 } from '../PoolManagerDashboard.styles'
 
 import { PoolsCollapse } from './PoolManagerPools.styles'
-import { getPools } from './PoolManagerPools.utils'
 
-import { useGetMultiTailLogQuery, useGetThingConfigQuery } from '@/app/services/api'
 import { ADD_POOL_ENABLED } from '@/Components/PoolManager/PoolManager.constants'
 import { AddPoolModal } from '@/Components/PoolManager/Pools/AddPoolModal/AddPoolModal'
 import PoolCollapseItemBody from '@/Components/PoolManager/Pools/PoolCollapseItemBody/PoolCollapseItemBody'
 import PoolCollapseItemHeader from '@/Components/PoolManager/Pools/PoolCollapseItemHeader/PoolCollapseItemHeader'
+import { usePoolConfigs } from '@/Components/PoolManager/Pools/PoolManager.hooks'
 import { Spinner } from '@/Components/Spinner/Spinner'
-import { COMPLETE_MINER_TYPES } from '@/constants/deviceConstants'
 import { ROUTE } from '@/constants/routes'
-import { STAT_5_MINUTES } from '@/constants/tailLogStatKeys.constants'
 import { useContextualModal } from '@/hooks/useContextualModal'
-
-const minerTypes = _values(COMPLETE_MINER_TYPES)
 
 const PoolManagerPools = () => {
   const [activePoolKey, setActivePoolKey] = useState<CollapseProps['activeKey']>([])
 
-  const poolDataResult = useGetThingConfigQuery({
-    requestType: 'poolConfig',
-    type: 'miner',
-  })
-
-  const tailLogDataResult = useGetMultiTailLogQuery({
-    limit: 1,
-    aggrFields: JSON.stringify({
-      hashrate_mhs_5m_active_container_group_cnt: 1,
-    }),
-    keys: JSON.stringify(
-      _map(minerTypes, (minerType) => ({
-        key: STAT_5_MINUTES,
-        type: 'miner',
-        tag: `t-${minerType}`,
-      })),
-    ),
-  })
-
-  const pools = getPools(poolDataResult.data, tailLogDataResult.data)
-
-  const isLoading = poolDataResult.isLoading || tailLogDataResult.isLoading
+  const { pools, isLoading: isPoolDataLoading, error } = usePoolConfigs()
 
   const {
     modalOpen: addPoolModalOpen,
@@ -75,19 +48,10 @@ const PoolManagerPools = () => {
         }
       />
     ),
-    children: (
-      <PoolCollapseItemBody
-        pool={
-          pool as unknown as {
-            validation?: { status: string }
-            endpoints: Array<{ role: string; host: string; port: string | number }>
-            credentialsTemplate?: { workerName: string; suffixType: string }
-            [key: string]: unknown
-          }
-        }
-      />
-    ),
+    children: <PoolCollapseItemBody pool={pool} />,
   }))
+
+  const isLoading = isPoolDataLoading
 
   return (
     <PoolManagerDashboardRoot>
@@ -109,12 +73,18 @@ const PoolManagerPools = () => {
       {isLoading ? (
         <Spinner />
       ) : (
-        <PoolsCollapse
-          defaultActiveKey={['1']}
-          activeKey={activePoolKey}
-          onChange={(value) => setActivePoolKey(value)}
-          items={collapseItems}
-        />
+        <>
+          {error ? (
+            <Alert type="error" message="Error loading data" />
+          ) : (
+            <PoolsCollapse
+              defaultActiveKey={['1']}
+              activeKey={activePoolKey}
+              onChange={(value) => setActivePoolKey(value)}
+              items={collapseItems}
+            />
+          )}
+        </>
       )}
       {addPoolModalOpen && <AddPoolModal isOpen={addPoolModalOpen} onClose={closeAddPoolModal} />}
     </PoolManagerDashboardRoot>

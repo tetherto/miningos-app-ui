@@ -53,7 +53,10 @@ export const HashRateLineChartDefault = ({
   )
 
   const hashRateGraphDataAdapter = (data: HashRateLogEntry[]) =>
-    getHashRateGraphData(data, _head(realtimeHashrateData))
+    getHashRateGraphData(
+      data,
+      _head(_head(realtimeHashrateData as HashRateLogEntry[][] | undefined)),
+    )
 
   return (
     <LineChartCard

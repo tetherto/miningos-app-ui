@@ -150,7 +150,7 @@ export const useEnergyReportSiteView = (dateRange: DateRange): UseEnergyReportSi
   const minersOnlineWebappHashTable: Record<string, number> = useMemo(
     () =>
       (
-        _head(_head(tailLogData)) as {
+        _head(_head(tailLogData as unknown[][])) as {
           hashrate_mhs_5m_active_container_group_cnt?: Record<string, number>
         }
       )?.hashrate_mhs_5m_active_container_group_cnt ?? {},
@@ -160,7 +160,7 @@ export const useEnergyReportSiteView = (dateRange: DateRange): UseEnergyReportSi
   // Process containers with miner counts
   const containers: ContainerWithMinersCount[] = useMemo(
     () =>
-      _map(_head(containersData) as unknown[], (container: ContainerItem) => ({
+      _map(_head(containersData as unknown[][]) as unknown[], (container: ContainerItem) => ({
         ...container,
         minersCount:
           minersOnlineWebappHashTable[container.containerId || container.info?.container || ''] ||
@@ -180,7 +180,7 @@ export const useEnergyReportSiteView = (dateRange: DateRange): UseEnergyReportSi
     powerConsumptionData,
     powerModeData,
     containers,
-    tailLogData: tailLogData ?? [],
+    tailLogData: (tailLogData as MinerTailLogItem[][] | undefined) ?? [],
     isLoading,
     refetchSnapshotData,
   }

@@ -36,7 +36,8 @@ src/Components/Dashboard/
 ├── HashRateLineChart/              # Real-time hashrate visualization
 ├── ConsumptionLineChart/           # Power consumption charts
 ├── ActiveIncidentsCard/            # Live incident monitoring
-├── GabbaniTotalSystemConsumptionChart/  # System-wide consumption
+├── PoolDetailsCard/                # Pool connection details
+├── PoolDetailsPopover/             # Pool details in a popover
 └── PowerModeTimelineChart/         # Power mode tracking
 
 src/hooks/
@@ -330,9 +331,6 @@ src/Views/Alerts/
 │   └── HistoricalAlerts.js         # Historical alert analysis
 └── Alerts.styles.js                # Alert styling
 
-src/Components/Farms/FarmCard/StatBox/
-└── AlertsBox.js                    # Dashboard alert widget
-
 src/hooks/
 ├── useAlerts.js                    # Alert data management
 └── useAlertFiltering.js            # Alert filtering logic
@@ -495,22 +493,6 @@ AUTH_PERMISSIONS: {
 **Implementation Files**:
 
 ```
-src/Views/MinersOverview/
-├── MinersOverview.js               # Miner fleet overview
-├── MinersOverviewLayout.js         # Navigation wrapper
-└── MinersOverview.styles.js        # Miner styling
-
-src/Views/Farms/
-├── Farms.js                        # Farm management interface
-├── Thing.js                        # Individual device management
-├── Things.js                       # Device collections
-└── Farms.styles.js                 # Farm styling
-
-src/Components/Farms/
-├── FarmCard/                       # Farm status displays
-├── FarmSelector/                   # Farm selection UI
-├── MinerCard/                      # Individual miner widgets
-└── ProductionMetrics/              # Production analytics components
 
 src/hooks/
 ├── useMinerPerformance.js          # Miner performance management
@@ -546,13 +528,13 @@ const { data: featureFlags } = useGetFeaturesQuery()
 **Current Feature Flags**:
 
 ```javascript
+// See the FeatureFlags interface in src/types/api.d.ts — the source of truth.
 {
+  isDevelopment: boolean,
   userManagement: boolean,
-  energyProvision: boolean,
-  admeStatsEnabled: boolean,
-  minersOverview: boolean,
   inventory: boolean,
-  alertsHistoricalLogEnabled: boolean
+  alertsHistoricalLogEnabled: boolean,
+  // index signature: the backend may send more, but the app reads only the above
 }
 ```
 
@@ -748,7 +730,6 @@ src/
 │   ├── Dashboard/                  # Dashboard-specific components
 │   ├── Explorer/                   # Device explorer components
 │   ├── Container/                  # Container management components
-│   ├── Farms/                      # Farm and device components
 │   ├── Charts/                     # Chart and visualization components
 │   ├── Settings/                   # Settings and configuration components
 │   └── Shared/                     # Common shared components

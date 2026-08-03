@@ -75,6 +75,13 @@ describe('useSitesOverviewData', () => {
     ],
   ]
 
+  const mockContainerPoolStatsData = [
+    {
+      container: 'container-bd-d40',
+      overriddenConfig: 2,
+    },
+  ]
+
   beforeEach(() => {
     vi.clearAllMocks()
 
@@ -95,6 +102,14 @@ describe('useSitesOverviewData', () => {
       error: undefined,
       refetch: vi.fn(),
     } as ReturnType<typeof api.useGetTailLogQuery>)
+
+    vi.mocked(api.useGetContainerPoolStatsQuery).mockReturnValue({
+      data: mockContainerPoolStatsData,
+      isLoading: false,
+      isFetching: false,
+      error: undefined,
+      refetch: vi.fn(),
+    } as ReturnType<typeof api.useGetContainerPoolStatsQuery>)
 
     // Mock getContainerMinersChartData
     vi.mocked(containerWidgetUtil.getContainerMinersChartData).mockImplementation(
@@ -176,7 +191,7 @@ describe('useSitesOverviewData', () => {
 
   it('should return loading state correctly when units are loading', () => {
     vi.mocked(api.useGetListThingsQuery).mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: true,
       isFetching: false,
       error: undefined,
@@ -190,7 +205,7 @@ describe('useSitesOverviewData', () => {
 
   it('should return loading state correctly when tail log is loading', () => {
     vi.mocked(api.useGetTailLogQuery).mockReturnValue({
-      data: undefined,
+      data: undefined as unknown,
       isLoading: true,
       isFetching: false,
       error: undefined,

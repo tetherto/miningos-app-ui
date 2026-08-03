@@ -5,9 +5,11 @@ import {
   isAntspaceImmersion,
   isBitdeer,
   isMicroBT,
+  isWhatsminerContainer,
 } from '@/app/utils/containerUtils'
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
 import { LazyTabWrapper } from '@/Components/LazyTabWrapper/LazyTabWrapper'
+import { CONTAINER_TAB } from '@/constants/containerConstants'
 
 const HomeTab = lazy(() =>
   import('@/Views/Container/Tabs/HomeTab/HomeTab').then((m: unknown) => ({
@@ -49,6 +51,11 @@ const HeatmapTab = lazy(() =>
     default: (m as { HeatmapTab: ComponentType<unknown> }).HeatmapTab,
   })),
 )
+const PowerAdjustmentTab = lazy(() =>
+  import('@/Views/Container/Tabs/PowerAdjustmentTab/PowerAdjustmentTab').then((m: unknown) => ({
+    default: (m as { PowerAdjustmentTab: ComponentType<unknown> }).PowerAdjustmentTab,
+  })),
+)
 
 interface TabConfig {
   key: string
@@ -65,6 +72,7 @@ interface AllContainerTabs {
   SETTINGS: TabConfig
   CHARTS: TabConfig
   HEATMAP: TabConfig
+  POWER_ADJUSTMENT: TabConfig
 }
 
 export const getAllContainerTabs = (data?: UnknownRecord): AllContainerTabs => {
@@ -110,33 +118,29 @@ export const getAllContainerTabs = (data?: UnknownRecord): AllContainerTabs => {
       label: 'Heatmap',
       children: <LazyTabWrapper Component={HeatmapTab} data={typedData} />,
     },
+    POWER_ADJUSTMENT: {
+      key: 'power-adjustment',
+      label: 'Power Adjustment',
+      children: <LazyTabWrapper Component={PowerAdjustmentTab} data={typedData} />,
+    },
   }
 }
 
 export const getSupportedTabs = (type: string, data?: UnknownRecord): TabConfig[] => {
   const availableTabs = getAllContainerTabs(data)
 
+  let tabs: TabConfig[] = []
+
   if (isBitdeer(type)) {
-    return [
+    tabs = [
       availableTabs.HOME,
       availableTabs.PDU,
       availableTabs.SETTINGS,
       availableTabs.CHARTS,
       availableTabs.HEATMAP,
     ]
-  }
-  if (isAntspaceHydro(type)) {
-    return [
-      availableTabs.HOME,
-      availableTabs.PDU,
-      availableTabs.ALARM,
-      availableTabs.SETTINGS,
-      availableTabs.CHARTS,
-      availableTabs.HEATMAP,
-    ]
-  }
-  if (isAntspaceImmersion(type)) {
-    return [
+  } else if (isAntspaceHydro(type)) {
+    tabs = [
       availableTabs.HOME,
       availableTabs.PDU,
       availableTabs.ALARM,
@@ -144,9 +148,17 @@ export const getSupportedTabs = (type: string, data?: UnknownRecord): TabConfig[
       availableTabs.CHARTS,
       availableTabs.HEATMAP,
     ]
-  }
-  if (isMicroBT(type)) {
-    return [
+  } else if (isAntspaceImmersion(type)) {
+    tabs = [
+      availableTabs.HOME,
+      availableTabs.PDU,
+      availableTabs.ALARM,
+      availableTabs.SETTINGS,
+      availableTabs.CHARTS,
+      availableTabs.HEATMAP,
+    ]
+  } else if (isMicroBT(type)) {
+    tabs = [
       availableTabs.HOME,
       availableTabs.PDU,
       availableTabs.SETTINGS,
@@ -154,5 +166,14 @@ export const getSupportedTabs = (type: string, data?: UnknownRecord): TabConfig[
       availableTabs.HEATMAP,
     ]
   }
-  return []
+
+  if (isWhatsminerContainer(type)) {
+    const pduIndex = tabs.findIndex((t) => t.key === 'pdu')
+    tabs.splice(pduIndex + 1, 0, availableTabs.POWER_ADJUSTMENT)
+  }
+
+  return tabs
 }
+
+export const isContainerTabPdu = (containerTab: string | undefined) =>
+  containerTab === CONTAINER_TAB.PDU

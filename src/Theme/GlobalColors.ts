@@ -7,7 +7,7 @@ import {
 } from '@/app/utils/statusUtils'
 import { COLOR } from '@/constants/colors'
 
-type StatusColorMap = Record<string | number, string>
+export type StatusColorMap = Record<string | number, string>
 
 export const StatusColors: Record<'normal' | 'warning' | 'fault' | 'unavailable', string> = {
   normal: COLOR.DARK_TEXT_GREEN,

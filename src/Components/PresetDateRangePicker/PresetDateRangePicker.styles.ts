@@ -71,7 +71,7 @@ export const PresetDateRangePickerRoot = styled(DateFnsDatePicker.RangePicker)<S
 `
 
 export const PresetDateRangePickerModal = styled(Modal)<StyledProps>`
-  .ant-picker-date-panel-container > .ant-modal-root > .ant-modal-wrap > &.ant-modal {
+  .ant-picker-panel-container > .ant-modal-root > .ant-modal-wrap > &.ant-modal {
     width: fit-content !important;
     max-width: 90dvw !important;
     border: 1px solid ${COLOR.WHITE_ALPHA_01} !important;
@@ -159,10 +159,6 @@ export const PresetDateRangePickerPanel = styled.div<StyledProps>`
       gap: ${panelModalMajorGap};
 
       .ant-picker-panel {
-        position: relative;
-        border: 1px solid ${COLOR.WHITE_ALPHA_01} !important;
-        background-color: ${COLOR.BLACK_ALPHA_05};
-        padding: ${panelInnerGap} !important;
         margin-top: ${pickerPanelTitleSpace};
 
         &:before {
@@ -185,92 +181,99 @@ export const PresetDateRangePickerPanel = styled.div<StyledProps>`
         &:last-child:before {
           content: 'end date';
         }
+      }
+    }
 
-        .ant-picker-date-panel {
-          width: 256px;
-          gap: 8px;
+    .ant-picker-panel {
+      position: relative;
+      border: 1px solid ${COLOR.WHITE_ALPHA_01} !important;
+      background-color: ${COLOR.BLACK_ALPHA_05};
+      padding: ${panelInnerGap} !important;
 
-          .ant-picker-header {
-            ${flexCenterRow};
-            border-bottom: none !important;
-            padding: 0 !important;
+      .ant-picker-date-panel {
+        width: 256px;
+        gap: 8px;
 
-            .ant-picker-header-view {
-              &,
-              & * {
-                line-height: normal;
-                pointer-events: none !important;
-              }
-            }
+        .ant-picker-header {
+          ${flexCenterRow};
+          border-bottom: none !important;
+          padding: 0 !important;
 
-            .ant-picker-header-prev-btn,
-            .ant-picker-header-next-btn {
-              ${flexCenterRow};
-              width: ${pickerHeaderNavSize};
-              height: ${pickerHeaderNavSize};
-              background-color: ${COLOR.EBONY};
-              border: 1px solid ${COLOR.WHITE_ALPHA_01};
-            }
-
-            .ant-picker-header-prev-btn {
-              padding-left: ${pickerHeaderNavIconOffset};
-            }
-
-            .ant-picker-header-next-btn {
-              padding-right: ${pickerHeaderNavIconOffset};
+          .ant-picker-header-view {
+            &,
+            & * {
+              line-height: normal;
+              pointer-events: none !important;
             }
           }
 
-          .ant-picker-body {
-            padding: 0 !important;
+          .ant-picker-header-prev-btn,
+          .ant-picker-header-next-btn {
+            ${flexCenterRow};
+            width: ${pickerHeaderNavSize};
+            height: ${pickerHeaderNavSize};
+            background-color: ${COLOR.EBONY};
+            border: 1px solid ${COLOR.WHITE_ALPHA_01};
+          }
 
-            .ant-picker-content {
-              border-collapse: separate;
-              border-spacing: 0 4px;
+          .ant-picker-header-prev-btn {
+            padding-left: ${pickerHeaderNavIconOffset};
+          }
 
-              th {
-                font-size: 12px;
-                font-style: normal;
-                font-weight: 400;
-                line-height: normal;
-                color: ${COLOR.WHITE_ALPHA_05};
+          .ant-picker-header-next-btn {
+            padding-right: ${pickerHeaderNavIconOffset};
+          }
+        }
+
+        .ant-picker-body {
+          padding: 0 !important;
+
+          .ant-picker-content {
+            border-collapse: separate;
+            border-spacing: 0 4px;
+
+            th {
+              font-size: 12px;
+              font-style: normal;
+              font-weight: 400;
+              line-height: normal;
+              color: ${COLOR.WHITE_ALPHA_05};
+            }
+
+            .ant-picker-cell {
+              padding: 0 !important;
+              height: 24px !important;
+
+              &:before {
+                height: 100% !important;
               }
 
-              .ant-picker-cell {
-                padding: 0 !important;
-                height: 24px !important;
+              &:after {
+                position: absolute;
+                top: 50%;
+                inset-inline-start: 0;
+                inset-inline-end: 0;
+                z-index: 1;
+                height: 100%;
+                transform: translateY(-50%);
+                content: '';
+                pointer-events: none;
+                box-sizing: border-box;
+                border: 2px solid ${COLOR.OBSIDIAN};
+                border-top: 0;
+                border-bottom: 0;
+              }
+
+              .ant-picker-cell-inner {
+                display: inline-flex;
+                align-items: center;
+                justify-content: center;
+                border-radius: 0 !important;
+                width: 32px !important;
+                height: 100% !important;
 
                 &:before {
-                  height: 100% !important;
-                }
-
-                &:after {
-                  position: absolute;
-                  top: 50%;
-                  inset-inline-start: 0;
-                  inset-inline-end: 0;
-                  z-index: 1;
-                  height: 100%;
-                  transform: translateY(-50%);
-                  content: '';
-                  pointer-events: none;
-                  box-sizing: border-box;
-                  border: 2px solid ${COLOR.OBSIDIAN};
-                  border-top: 0;
-                  border-bottom: 0;
-                }
-
-                .ant-picker-cell-inner {
-                  display: inline-flex;
-                  align-items: center;
-                  justify-content: center;
                   border-radius: 0 !important;
-                  width: 32px !important;
-                  height: 100% !important;
-
-                  &:before {
-                    border-radius: 0 !important;
-                  }
                 }
               }
             }

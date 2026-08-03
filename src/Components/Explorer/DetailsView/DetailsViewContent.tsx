@@ -61,6 +61,7 @@ import SelectedMinersList from './SelectedMinersList/SelectedMinersList'
 import SelectedSocketsList from './SelectedSocketsList/SelectedSocketsList'
 import StatsGroupCard from './StatsGroupCard/StatsGroupCard'
 
+import { isContainerTabPdu } from '@/app/utils/containerTabsHelper'
 import type { DeviceDataResult } from '@/app/utils/deviceUtils/types'
 import { ROUTE } from '@/constants/routes'
 import type { Device } from '@/hooks/hooks.types'
@@ -104,7 +105,7 @@ const DetailsViewContent: FC<DetailsViewContentProps> = ({
   const navigate = useNavigate()
 
   const containerTab = useParams().tab
-  const isTabPdu = containerTab === CONTAINER_TAB.PDU
+  const isTabPdu = isContainerTabPdu(containerTab)
   const isTabHeatmap = containerTab === CONTAINER_TAB.HEATMAP
 
   const { getFormattedDate } = useTimezone()

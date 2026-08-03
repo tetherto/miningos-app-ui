@@ -92,3 +92,7 @@ export const StatusBadge = styled.span<StyledProps>`
   color: ${(props) => props.$textColor};
   background-color: ${(props) => props.$textColor}1A;
 `
+
+export const StatusLabel = styled(StatusBadge)`
+  background: none;
+`

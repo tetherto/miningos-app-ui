@@ -88,6 +88,17 @@ const Layout = () => {
   const userEmail = getUserInfo('email')
   const userPicture = getUserInfo('picture')
   const isGeoLocationRestricted = Boolean(data?.isGeoLocationRestricted)
+  const isSignedOut = !authToken && !isUseMockdataEnabled
+
+  // Remembered here rather than next to the <Navigate> below so the write stays
+  // out of the render phase: under StrictMode and concurrent rendering a render
+  // can be discarded, which would persist a URL we never actually redirected
+  // from and race SignIn's clearLastVisitedUrl().
+  useEffect(() => {
+    if (isSignedOut) {
+      saveLastVisitedUrl(location.pathname + location.search)
+    }
+  }, [isSignedOut, location.pathname, location.search])
 
   useEffect(() => {
     if (data) {
@@ -105,8 +116,7 @@ const Layout = () => {
     }
   }, [isError])
 
-  if (!authToken && !isUseMockdataEnabled) {
-    saveLastVisitedUrl(location.pathname + location.search)
+  if (isSignedOut) {
     const errorQueryParam = searchParams.has('error') ? `/?${searchParams.toString()}` : ''
     return <Navigate to={`/signin${errorQueryParam}`} />
   }

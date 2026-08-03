@@ -1,3 +1,5 @@
+import { describe, expect, it } from 'vitest'
+
 import {
   getMinerTypeOptionsFromApi,
   getMiningUnitOptionsFromApi,
@@ -6,258 +8,121 @@ import {
   transformToSiteViewData,
 } from './Hashrate.utils'
 
-// Mock API data
-const createMockApiDataPoint = (
-  ts: string,
-  typeData: Record<string, number>,
-  containerData: Record<string, number>,
-) => ({
-  hashrate_mhs_5m_type_group_sum_aggr: typeData,
-  hashrate_mhs_5m_container_group_sum_aggr: containerData,
-  ts,
-  aggrTsRange: '1D',
-  aggrCount: 1,
-  aggrIntervals: 288,
-})
+import type { MetricsHashrateGroupedResponse } from '@/types/api'
 
-const mockApiData = [
-  createMockApiDataPoint(
-    '1701388800000-1701475199999',
-    {
-      'miner-am-s19xp': 5000000, // 5 TH/s
-      'miner-wm-m56s': 3000000, // 3 TH/s
-      'miner-av-a1346': 0, // Zero value - should be filtered
-    },
-    {
-      'bitdeer-1a': 4000000, // 4 TH/s
-      'bitdeer-4a': 2000000, // 2 TH/s
-      maintenance: 0, // Zero value
-    },
-  ),
-  createMockApiDataPoint(
-    '1701475200000-1701561599999',
-    {
-      'miner-am-s19xp': 5500000, // 5.5 TH/s
-      'miner-wm-m56s': 3200000, // 3.2 TH/s
-      'miner-av-a1346': 0,
-    },
-    {
-      'bitdeer-1a': 4200000, // 4.2 TH/s
-      'bitdeer-4a': 2100000, // 2.1 TH/s
-      maintenance: 0,
-    },
-  ),
+type Log = MetricsHashrateGroupedResponse['log']
+
+const minerLog: Log = [
+  {
+    ts: 1701388800000,
+    hashrateMhs: { 'miner-am-s19xp': 5_000_000, 'miner-wm-m56s': 3_000_000, 'miner-av-a1346': 0 },
+  },
+  {
+    ts: 1701475200000,
+    hashrateMhs: { 'miner-am-s19xp': 5_500_000, 'miner-wm-m56s': 3_200_000, 'miner-av-a1346': 0 },
+  },
 ]
 
-describe('Hashrate utils', () => {
+const containerLog: Log = [
+  {
+    ts: 1701388800000,
+    hashrateMhs: {
+      'bitdeer-1a': 4_000_000,
+      'bitdeer-4a': 2_000_000,
+      maintenance: 0,
+      'group-1': 1_111_111,
+      'group-7': 99_999_999,
+    },
+  },
+  {
+    ts: 1701475200000,
+    hashrateMhs: {
+      'bitdeer-1a': 4_200_000,
+      'bitdeer-4a': 2_100_000,
+      maintenance: 0,
+      'group-1': 1_111_111,
+      'group-7': 99_999_999,
+    },
+  },
+]
+
+describe('Hashrate utils (v2)', () => {
   describe('transformToSiteViewData', () => {
-    it('should return empty series when data is undefined', () => {
-      const result = transformToSiteViewData(undefined)
-      expect(result).toEqual({ series: [] })
+    it('returns empty series when log is missing or empty', () => {
+      expect(transformToSiteViewData(undefined)).toEqual({ series: [] })
+      expect(transformToSiteViewData([])).toEqual({ series: [] })
     })
 
-    it('should return empty series when data is empty array', () => {
-      const result = transformToSiteViewData([])
-      expect(result).toEqual({ series: [] })
-    })
-
-    it('should transform API data to site view chart data', () => {
-      const result = transformToSiteViewData(mockApiData)
-
-      // Should return a single aggregated series
+    it('sums all miner types per timestamp and converts MH/s → TH/s', () => {
+      const result = transformToSiteViewData(minerLog)
       expect(result.series).toHaveLength(1)
       expect(result.series[0].label).toBe('Site Hashrate')
-      expect(result.series[0].points).toHaveLength(2) // Two time points
+      expect(result.series[0].points[0].value).toBe(8) // 5 + 3 TH/s
+      expect(result.series[0].points[1].value).toBe(8.7) // 5.5 + 3.2 TH/s
     })
 
-    it('should convert MH/s to TH/s correctly', () => {
-      const result = transformToSiteViewData(mockApiData)
-
-      // Aggregated series should sum all miner types (5 + 3 = 8 TH/s, 5.5 + 3.2 = 8.7 TH/s)
-      expect(result.series[0].points[0].value).toBe(8) // 5000000 + 3000000 MH/s = 8 TH/s
-      expect(result.series[0].points[1].value).toBe(8.7) // 5500000 + 3200000 MH/s = 8.7 TH/s
-    })
-
-    it('should filter by selected miner types', () => {
-      const result = transformToSiteViewData(mockApiData, ['miner-am-s19xp'])
-
-      // Should still return a single aggregated series, but only with selected miner type
-      expect(result.series).toHaveLength(1)
-      expect(result.series[0].label).toBe('Site Hashrate')
-      // Values should only include miner-am-s19xp (5 TH/s and 5.5 TH/s)
+    it('filters by selected miner types when provided', () => {
+      const result = transformToSiteViewData(minerLog, ['miner-am-s19xp'])
       expect(result.series[0].points[0].value).toBe(5)
       expect(result.series[0].points[1].value).toBe(5.5)
     })
 
-    it('should deduplicate data points with same timestamp', () => {
-      const duplicateData = [
-        ...mockApiData,
-        createMockApiDataPoint(
-          '1701388800000-1701475199999', // Same ts as first point
-          { 'miner-am-s19xp': 9999999 },
-          { 'bitdeer-1a': 9999999 },
-        ),
-      ]
-
-      const result = transformToSiteViewData(duplicateData)
-
-      // Should only have 2 time points, not 3
-      expect(result.series[0].points).toHaveLength(2)
-    })
-
-    it('should sort data points by timestamp', () => {
-      const unsortedData = [mockApiData[1], mockApiData[0]] // Reversed order
-
-      const result = transformToSiteViewData(unsortedData)
-
-      // First point should have earlier timestamp
-      const firstTs = new Date(result.series[0].points[0].ts).getTime()
-      const secondTs = new Date(result.series[0].points[1].ts).getTime()
-      expect(firstTs).toBeLessThan(secondTs)
+    it('sorts points by timestamp ascending', () => {
+      const reversed = [...minerLog].reverse()
+      const result = transformToSiteViewData(reversed)
+      const t1 = new Date(result.series[0].points[0].ts).getTime()
+      const t2 = new Date(result.series[0].points[1].ts).getTime()
+      expect(t1).toBeLessThan(t2)
     })
   })
 
   describe('transformToMinerTypeBarData', () => {
-    it('should return empty data when API data is undefined', () => {
-      const result = transformToMinerTypeBarData(undefined)
-      expect(result).toEqual({ labels: [], series: [] })
+    it('returns empty data when log is missing or empty', () => {
+      expect(transformToMinerTypeBarData(undefined)).toEqual({ labels: [], series: [] })
+      expect(transformToMinerTypeBarData([])).toEqual({ labels: [], series: [] })
     })
 
-    it('should return empty data when API data is empty', () => {
-      const result = transformToMinerTypeBarData([])
-      expect(result).toEqual({ labels: [], series: [] })
+    it('uses the latest log entry, sorts desc, drops zero values, and maps display names', () => {
+      const result = transformToMinerTypeBarData(minerLog)
+      expect(result.labels).toEqual(['Antminer S19XP', 'WhatsMiner M56S'])
+      expect(result.series[0].values).toEqual([5.5, 3.2])
     })
 
-    it('should transform API data to bar chart format', () => {
-      const result = transformToMinerTypeBarData(mockApiData)
-
-      expect(result.labels).toHaveLength(2)
-      expect(result.series).toHaveLength(1)
-      expect(result.series[0].label).toBe('Hashrate')
-    })
-
-    it('should use latest data point', () => {
-      const result = transformToMinerTypeBarData(mockApiData)
-
-      // Latest point has 5.5 TH/s for miner-am-s19xp
-      expect(result.series[0].values).toContain(5.5)
-    })
-
-    it('should sort by value descending', () => {
-      const result = transformToMinerTypeBarData(mockApiData)
-
-      // First value should be highest
-      expect(result.series[0].values[0]).toBeGreaterThan(result.series[0].values[1])
-    })
-
-    it('should map miner type IDs to display names', () => {
-      const result = transformToMinerTypeBarData(mockApiData)
-
-      expect(result.labels).toContain('Antminer S19XP')
-      expect(result.labels).toContain('WhatsMiner M56S')
-    })
-
-    it('should filter out zero values', () => {
-      const result = transformToMinerTypeBarData(mockApiData)
-
-      // miner-av-a1346 has 0 value, should not be included
-      expect(result.labels).not.toContain('Avalon A1346')
-      expect(result.labels).not.toContain('miner-av-a1346')
+    it('honours the selected miner types filter', () => {
+      const result = transformToMinerTypeBarData(minerLog, ['miner-wm-m56s'])
+      expect(result.labels).toEqual(['WhatsMiner M56S'])
+      expect(result.series[0].values).toEqual([3.2])
     })
   })
 
   describe('transformToMiningUnitBarData', () => {
-    it('should return empty data when API data is undefined', () => {
-      const result = transformToMiningUnitBarData(undefined)
-      expect(result).toEqual({ labels: [], series: [] })
+    it('returns empty data when log is missing or empty', () => {
+      expect(transformToMiningUnitBarData(undefined)).toEqual({ labels: [], series: [] })
+      expect(transformToMiningUnitBarData([])).toEqual({ labels: [], series: [] })
     })
 
-    it('should return empty data when API data is empty', () => {
-      const result = transformToMiningUnitBarData([])
-      expect(result).toEqual({ labels: [], series: [] })
-    })
-
-    it('should transform API data to bar chart format', () => {
-      const result = transformToMiningUnitBarData(mockApiData)
-
-      expect(result.labels).toHaveLength(2)
-      expect(result.series).toHaveLength(1)
-    })
-
-    it('should map container IDs to display names', () => {
-      const result = transformToMiningUnitBarData(mockApiData)
-
-      expect(result.labels).toContain('Bitdeer 1A')
-      expect(result.labels).toContain('Bitdeer 4A')
-    })
-
-    it('should filter out zero values', () => {
-      const result = transformToMiningUnitBarData(mockApiData)
-
-      expect(result.labels).not.toContain('Maintenance')
-      expect(result.labels).not.toContain('maintenance')
-    })
-
-    it('should sort by value descending', () => {
-      const result = transformToMiningUnitBarData(mockApiData)
-
-      expect(result.series[0].values[0]).toBeGreaterThan(result.series[0].values[1])
+    it('drops BE-leaked rollup keys (group-N, maintenance)', () => {
+      const result = transformToMiningUnitBarData(containerLog)
+      expect(result.labels).toEqual(['Bitdeer 1A', 'Bitdeer 4A'])
+      expect(result.series[0].values).toEqual([4.2, 2.1])
     })
   })
 
-  describe('getMinerTypeOptionsFromApi', () => {
-    it('should return empty array when data is undefined', () => {
-      const result = getMinerTypeOptionsFromApi(undefined)
-
-      expect(result).toEqual([])
+  describe('option helpers', () => {
+    it('getMinerTypeOptionsFromApi returns non-zero miner types with display labels', () => {
+      const options = getMinerTypeOptionsFromApi(minerLog)
+      expect(options).toContainEqual({ value: 'miner-am-s19xp', label: 'Antminer S19XP' })
+      expect(options).toContainEqual({ value: 'miner-wm-m56s', label: 'WhatsMiner M56S' })
+      expect(options.map((o) => o.value)).not.toContain('miner-av-a1346')
     })
 
-    it('should return empty array when data is empty', () => {
-      const result = getMinerTypeOptionsFromApi([])
-
-      expect(result).toEqual([])
-    })
-
-    it('should include non-zero miner types', () => {
-      const result = getMinerTypeOptionsFromApi(mockApiData)
-
-      expect(result).toContainEqual({ value: 'miner-am-s19xp', label: 'Antminer S19XP' })
-      expect(result).toContainEqual({ value: 'miner-wm-m56s', label: 'WhatsMiner M56S' })
-    })
-
-    it('should exclude zero-value miner types', () => {
-      const result = getMinerTypeOptionsFromApi(mockApiData)
-
-      const values = result.map((o) => o.value)
-      expect(values).not.toContain('miner-av-a1346')
-    })
-  })
-
-  describe('getMiningUnitOptionsFromApi', () => {
-    it('should return empty array when data is undefined', () => {
-      const result = getMiningUnitOptionsFromApi(undefined)
-
-      expect(result).toEqual([])
-    })
-
-    it('should return empty array when data is empty', () => {
-      const result = getMiningUnitOptionsFromApi([])
-
-      expect(result).toEqual([])
-    })
-
-    it('should include non-zero containers', () => {
-      const result = getMiningUnitOptionsFromApi(mockApiData)
-
-      expect(result).toContainEqual({ value: 'bitdeer-1a', label: 'Bitdeer 1A' })
-      expect(result).toContainEqual({ value: 'bitdeer-4a', label: 'Bitdeer 4A' })
-    })
-
-    it('should exclude zero-value containers', () => {
-      const result = getMiningUnitOptionsFromApi(mockApiData)
-
-      const values = result.map((o) => o.value)
+    it('getMiningUnitOptionsFromApi excludes leaked rollup keys', () => {
+      const options = getMiningUnitOptionsFromApi(containerLog)
+      const values = options.map((o) => o.value)
+      expect(values).toEqual(['bitdeer-1a', 'bitdeer-4a'])
       expect(values).not.toContain('maintenance')
+      expect(values).not.toContain('group-1')
+      expect(values).not.toContain('group-7')
     })
   })
 })

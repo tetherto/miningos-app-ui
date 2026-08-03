@@ -52,6 +52,12 @@ export const InfoList = styled.div<StyledProps>`
   color: ${COLOR.WHITE_ALPHA_05};
 `
 
+export const InfoListItem = styled.div<{ $primary?: boolean }>`
+  span {
+    color: ${(props) => (props.$primary ? COLOR.COLD_ORANGE : 'inherit')};
+  }
+`
+
 export const OverridesUnit = styled.span<StyledProps>`
   ${({ $value }: StyledProps) =>
     (($value as number) ?? 0) > 0

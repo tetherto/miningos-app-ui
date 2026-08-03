@@ -24,12 +24,13 @@ describe('ListView filter options', () => {
 
       const statusValues = statusFilter!.children.map((child) => child.value)
 
-      expect(statusValues).not.toContain(MinerStatuses.MAINTENANCE)
+      expect(statusValues).not.toContain(MinerStatuses.NOT_MINING)
       expect(statusValues).not.toContain(MinerStatuses.ALERT)
       expect(statusValues).toContain(MinerStatuses.MINING)
       expect(statusValues).toContain(MinerStatuses.OFFLINE)
       expect(statusValues).toContain(MinerStatuses.SLEEPING)
       expect(statusValues).toContain(MinerStatuses.ERROR)
+      expect(statusValues).toContain(MinerStatuses.MAINTENANCE)
     })
   })
 
@@ -46,12 +47,13 @@ describe('ListView filter options', () => {
 
       const statusValues = minerStatusFilter!.children.map((child) => child.value)
 
-      expect(statusValues).not.toContain(MinerStatuses.MAINTENANCE)
+      expect(statusValues).not.toContain(MinerStatuses.NOT_MINING)
       expect(statusValues).not.toContain(MinerStatuses.ALERT)
       expect(statusValues).toContain(MinerStatuses.MINING)
       expect(statusValues).toContain(MinerStatuses.OFFLINE)
       expect(statusValues).toContain(MinerStatuses.SLEEPING)
       expect(statusValues).toContain(MinerStatuses.ERROR)
+      expect(statusValues).toContain(MinerStatuses.MAINTENANCE)
     })
   })
 })

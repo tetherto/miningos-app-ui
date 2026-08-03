@@ -42,7 +42,7 @@ const Hashrate = lazy(() => import('@/MultiSiteViews/Dashboard/Hashrate'))
 const MonthlyAvgDowntime = lazy(() => import('@/MultiSiteViews/Dashboard/MonthlyAvgDowntime'))
 const CostInput = lazy(() => import('@/MultiSiteViews/RevenueAndCost/CostInput/CostInput'))
 
-export const getMultiSiteRouter = () =>
+const createRouter = () =>
   createBrowserRouter(
     [
       {
@@ -223,3 +223,11 @@ export const getMultiSiteRouter = () =>
     ],
     { basename: import.meta.env.VITE_BASE_URL ?? '/' },
   )
+
+let cachedRouter: ReturnType<typeof createRouter> | undefined
+
+/**
+ * The router instance must be created once, not per `App` render — see the note
+ * on `getSingleSiteRouter` in ./singleSiteRouter.tsx.
+ */
+export const getMultiSiteRouter = () => (cachedRouter ??= createRouter())

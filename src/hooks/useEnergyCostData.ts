@@ -6,8 +6,6 @@ import _reduce from 'lodash/reduce'
 import _startsWith from 'lodash/startsWith'
 import _values from 'lodash/values'
 
-import type { UnknownRecord } from '../app/utils/deviceUtils/types'
-
 import useMultiSiteRTRequestParams from './useMultiSiteRTRequestParams'
 
 import {
@@ -15,12 +13,14 @@ import {
   useGetOperationsConsumptionQuery,
   useGetRevenueQuery,
 } from '@/app/services/api'
+import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
 import { PERIOD } from '@/constants/ranges'
 import { useMultiSiteMode } from '@/hooks/useMultiSiteMode'
 import {
   getSiteOperationConfigEnd,
   getSiteOperationConfigStart,
 } from '@/MultiSiteViews/SiteOperations/SiteOperations.helper'
+import type { CostOperationalEntry } from '@/types/api'
 import type { MultiSiteDateRange } from '@/types/redux'
 
 interface GetMetricsParams {
@@ -162,42 +162,34 @@ export const useEnergyCostData = ({ dateRange }: UseEnergyCostDataParams) => {
     }
   }
 
-  const entries = _values((costOperationalDataRaw as UnknownRecord)?.summary || {})
+  const entries = _values(costOperationalDataRaw?.summary || {})
   const count = entries.length
 
-  const costOperationalData: UnknownRecord = {}
+  const costOperationalData: CostOperationalEntry = {}
 
   if (entries.length > 0) {
-    const firstEntry = entries[0] as UnknownRecord
+    const firstEntry = entries[0]
     for (const key in firstEntry) {
-      const values = _map(entries, (obj: unknown) => (obj as UnknownRecord)[key])
+      const values = _map(entries, (obj) => obj[key]) as (number | undefined)[]
       if (_startsWith(key, 'avg')) {
-        costOperationalData[key] =
-          _reduce(values, (sum, val) => (sum as number) + (val as number), 0) / count
+        costOperationalData[key] = _reduce(values, (sum, val) => (sum ?? 0) + (val ?? 0), 0) / count
       } else {
-        costOperationalData[key] = _reduce(
-          values,
-          (sum, val) => (sum as number) + (val as number),
-          0,
-        )
+        costOperationalData[key] = _reduce(values, (sum, val) => (sum ?? 0) + (val ?? 0), 0)
       }
     }
   }
 
+  const powerDataRecord = powerData as UnknownRecord | undefined
   const avgPowerConsumption =
     _meanBy(
-      (((powerData as UnknownRecord)?.data as UnknownRecord)?.log as UnknownRecord[]) || [],
+      ((powerDataRecord?.data as UnknownRecord)?.log as UnknownRecord[]) || [],
       ({ consumption }) => (consumption as UnknownRecord)?.consumption ?? 0,
     ) || 0
-  const avgPowerAvailability = ((powerData as UnknownRecord)?.availablePower as number) || 0
-  const avgAllInCost = (costOperationalData?.avgAllInCostsUSD as number) || 0
-  const avgEnergyCost = (costOperationalData?.avgEnergyCostsUSD as number) || 0
-  const avgOperationsCost = (costOperationalData?.avgOperationalCostsUSD as number) || 0
-  const avgEnergyRevenue = _get(
-    revenueData as UnknownRecord,
-    ['summary', 'avg', 'revenueUSD'],
-    0,
-  ) as number
+  const avgPowerAvailability = (powerDataRecord?.availablePower as number) ?? 0
+  const avgAllInCost = costOperationalData.avgAllInCostsUSD ?? 0
+  const avgEnergyCost = costOperationalData.avgEnergyCostsUSD ?? 0
+  const avgOperationsCost = costOperationalData.avgOperationalCostsUSD ?? 0
+  const avgEnergyRevenue = _get(revenueData, ['summary', 'avg', 'revenueUSD'], 0) as number
 
   const metrics = getMetrics({
     avgPowerConsumption,
@@ -223,6 +215,6 @@ export const useEnergyCostData = ({ dateRange }: UseEnergyCostDataParams) => {
     powerData,
     isRevenueDataLoading,
     costData: costOperationalData,
-    revenueData: (revenueData as UnknownRecord)?.log,
+    revenueData: revenueData?.log,
   }
 }

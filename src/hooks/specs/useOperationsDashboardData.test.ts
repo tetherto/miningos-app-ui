@@ -1,21 +1,25 @@
 import { renderHook } from '@testing-library/react'
-import { describe, expect, it, Mock, vi } from 'vitest'
+import { beforeEach, describe, expect, it, Mock, vi } from 'vitest'
 
 import { useOperationsDashboardData } from '../useOperationsDashboardData'
 
 import {
   useGetGlobalConfigQuery,
+  useGetMetricsConsumptionQuery,
+  useGetMetricsEfficiencyQuery,
+  useGetMetricsHashrateQuery,
   useGetTailLogQuery,
-  useGetTailLogRangeAggrQuery,
 } from '@/app/services/api'
 
 vi.mock('@/app/services/api', () => ({
   useGetGlobalConfigQuery: vi.fn(),
-  useGetTailLogRangeAggrQuery: vi.fn(),
+  useGetMetricsHashrateQuery: vi.fn(),
+  useGetMetricsConsumptionQuery: vi.fn(),
+  useGetMetricsEfficiencyQuery: vi.fn(),
   useGetTailLogQuery: vi.fn(),
 }))
 
-vi.mock('@/Views/ReportingTool/OperationsDashboard/utils', () => ({
+vi.mock('@/Views/Reports/OperationsDashboard/utils', () => ({
   sumObjectValues: (obj: Record<string, number>) =>
     Object.values(obj || {}).reduce((a, b) => a + b, 0),
 
@@ -32,39 +36,27 @@ const mockGlobalConfig = [
     nominalSiteWeightedAvgEfficiency: 70,
   },
 ]
-const mockHashrateData = [
-  [
-    {
-      type: 'miner',
-      data: [
-        { ts: 1, val: { hashrate_mhs_5m_sum_aggr: 123 } },
-        { ts: 2, val: { hashrate_mhs_5m_sum_aggr: 456 } },
-      ],
-    },
+const mockHashrateResponse = {
+  log: [
+    { ts: 1, hashrateMhs: 123 },
+    { ts: 2, hashrateMhs: 456 },
   ],
-]
-const mockEfficiencyData = [
-  [
-    {
-      type: 'miner',
-      data: [
-        { ts: 1, val: { efficiency_w_ths_avg_aggr: 11 } },
-        { ts: 2, val: { efficiency_w_ths_avg_aggr: 22 } },
-      ],
-    },
+  summary: { avgHashrateMhs: 289.5, totalHashrateMhs: 579 },
+}
+const mockEfficiencyResponse = {
+  log: [
+    { ts: 1, efficiencyWThs: 11 },
+    { ts: 2, efficiencyWThs: 22 },
   ],
-]
-const mockConsumptionData = [
-  [
-    {
-      type: 'powermeter',
-      data: [
-        { ts: 1, val: { site_power_w: 1000 } },
-        { ts: 2, val: { site_power_w: 2000 } },
-      ],
-    },
+  summary: { avgEfficiencyWThs: 16.5 },
+}
+const mockConsumptionResponse = {
+  log: [
+    { ts: 1, powerW: 1000, consumptionMWh: 24 },
+    { ts: 2, powerW: 2000, consumptionMWh: 48 },
   ],
-]
+  summary: { avgPowerW: 1500, totalConsumptionMWh: 72 },
+}
 const mockMinersData = [
   {
     ts: 1,
@@ -75,45 +67,43 @@ const mockMinersData = [
   },
 ]
 
-const mockedUseGetTailLogRangeAggrQuery = vi.mocked(useGetTailLogRangeAggrQuery) as unknown as Mock
 const mockedUseGetGlobalConfigQuery = vi.mocked(useGetGlobalConfigQuery) as unknown as Mock
+const mockedUseGetMetricsHashrateQuery = vi.mocked(useGetMetricsHashrateQuery) as unknown as Mock
+const mockedUseGetMetricsEfficiencyQuery = vi.mocked(
+  useGetMetricsEfficiencyQuery,
+) as unknown as Mock
+const mockedUseGetMetricsConsumptionQuery = vi.mocked(
+  useGetMetricsConsumptionQuery,
+) as unknown as Mock
 const mockedUseGetTailLogQuery = vi.mocked(useGetTailLogQuery) as unknown as Mock
+
+const idleQuery = { data: undefined, isLoading: false, isFetching: false, error: null }
 
 describe('useOperationsDashboardData', () => {
   beforeEach(() => {
     vi.resetAllMocks()
   })
+
   it('should correctly map all chart data', () => {
     mockedUseGetGlobalConfigQuery.mockReturnValue({
       data: mockGlobalConfig,
       isLoading: false,
     })
-
-    mockedUseGetTailLogRangeAggrQuery
-      .mockReturnValueOnce({
-        data: mockHashrateData,
-        isLoading: false,
-        isFetching: false,
-        error: null,
-      })
-      .mockReturnValueOnce({
-        data: mockEfficiencyData,
-        isLoading: false,
-        isFetching: false,
-        error: null,
-      })
-      .mockReturnValueOnce({
-        data: mockConsumptionData,
-        isLoading: false,
-        isFetching: false,
-        error: null,
-      })
-
+    mockedUseGetMetricsHashrateQuery.mockReturnValue({
+      ...idleQuery,
+      data: mockHashrateResponse,
+    })
+    mockedUseGetMetricsEfficiencyQuery.mockReturnValue({
+      ...idleQuery,
+      data: mockEfficiencyResponse,
+    })
+    mockedUseGetMetricsConsumptionQuery.mockReturnValue({
+      ...idleQuery,
+      data: mockConsumptionResponse,
+    })
     mockedUseGetTailLogQuery.mockReturnValue({
+      ...idleQuery,
       data: mockMinersData,
-      isLoading: false,
-      isFetching: false,
-      error: null,
     })
 
     const { result } = renderHook(() => useOperationsDashboardData(mockDateRange))
@@ -137,84 +127,13 @@ describe('useOperationsDashboardData', () => {
     expect(data.consumption.nominalValue).toBe(5_000_000) // MW → Watts
     expect(data.miners.data?.dataset).toEqual([
       {
-        '01-01': {
-          style: {
-            backgroundColor: ['#03C04A4d', '#03C04A1a'],
-            borderColor: '#03C04A',
-            borderWidth: {
-              top: 2,
-            },
-            legendColor: '#03C04A',
-          },
-          value: 10,
-        },
-        label: 'Online',
-        legendColor: '#03C04A',
-        stackGroup: 'miners',
-      },
-      {
-        '01-01': {
-          style: {
-            backgroundColor: ['#EF44444d', '#EF44441a'],
-            borderColor: '#EF4444',
-            borderWidth: {
-              top: 2,
-            },
-            legendColor: '#EF4444',
-          },
-          value: 0,
-        },
-        label: 'Error',
-        legendColor: '#EF4444',
-        stackGroup: 'miners',
-      },
-      {
-        '01-01': {
-          style: {
-            backgroundColor: ['#FFFFFF4d', '#FFFFFF1a'],
-            borderColor: '#FFFFFF',
-            borderWidth: {
-              top: 2,
-            },
-            legendColor: '#FFFFFF',
-          },
-          value: 2,
-        },
-        label: 'Offline',
-        legendColor: '#FFFFFF',
-        stackGroup: 'miners',
-      },
-      {
-        '01-01': {
-          style: {
-            backgroundColor: ['#3B82F64d', '#3B82F61a'],
-            borderColor: '#3B82F6',
-            borderWidth: {
-              top: 2,
-            },
-            legendColor: '#3B82F6',
-          },
-          value: 0,
-        },
-        label: 'Sleep',
-        legendColor: '#3B82F6',
-        stackGroup: 'miners',
-      },
-      {
-        '01-01': {
-          style: {
-            backgroundColor: ['#F59E0B4d', '#F59E0B1a'],
-            borderColor: '#F59E0B',
-            borderWidth: {
-              top: 2,
-            },
-            legendColor: '#F59E0B',
-          },
-          value: 4,
-        },
-        label: 'Maintenance',
-        legendColor: '#F59E0B',
-        stackGroup: 'miners',
+        ts: 1,
+        online: 10,
+        error: 0,
+        notMining: 5,
+        offline: 2,
+        sleep: 0,
+        maintenance: 4,
       },
     ])
 
@@ -223,18 +142,10 @@ describe('useOperationsDashboardData', () => {
 
   it('should return empty arrays when APIs return nothing', () => {
     mockedUseGetGlobalConfigQuery.mockReturnValue({ data: [], isLoading: false })
-    mockedUseGetTailLogRangeAggrQuery.mockReturnValue({
-      data: [],
-      isLoading: false,
-      isFetching: false,
-      error: null,
-    })
-    mockedUseGetTailLogQuery.mockReturnValue({
-      data: [],
-      isLoading: false,
-      isFetching: false,
-      error: null,
-    })
+    mockedUseGetMetricsHashrateQuery.mockReturnValue(idleQuery)
+    mockedUseGetMetricsEfficiencyQuery.mockReturnValue(idleQuery)
+    mockedUseGetMetricsConsumptionQuery.mockReturnValue(idleQuery)
+    mockedUseGetTailLogQuery.mockReturnValue({ ...idleQuery, data: [] })
 
     const { result } = renderHook(() => useOperationsDashboardData({ start: 0, end: 0 }))
 
@@ -247,18 +158,10 @@ describe('useOperationsDashboardData', () => {
 
   it('should return loading=true if any API is loading', () => {
     mockedUseGetGlobalConfigQuery.mockReturnValue({ data: [], isLoading: true })
-    mockedUseGetTailLogRangeAggrQuery.mockReturnValue({
-      data: [],
-      isLoading: true,
-      isFetching: false,
-      error: null,
-    })
-    mockedUseGetTailLogQuery.mockReturnValue({
-      data: [],
-      isLoading: true,
-      isFetching: false,
-      error: null,
-    })
+    mockedUseGetMetricsHashrateQuery.mockReturnValue({ ...idleQuery, isLoading: true })
+    mockedUseGetMetricsEfficiencyQuery.mockReturnValue({ ...idleQuery, isLoading: true })
+    mockedUseGetMetricsConsumptionQuery.mockReturnValue({ ...idleQuery, isLoading: true })
+    mockedUseGetTailLogQuery.mockReturnValue({ ...idleQuery, isLoading: true })
 
     const { result } = renderHook(() => useOperationsDashboardData(mockDateRange))
 

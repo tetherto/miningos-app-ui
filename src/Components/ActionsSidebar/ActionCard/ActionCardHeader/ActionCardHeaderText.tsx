@@ -1,4 +1,9 @@
 import { head as _head, isBoolean as _isBoolean, isEmpty as _isEmpty, size as _size } from 'lodash'
+import _get from 'lodash/get'
+import _includes from 'lodash/includes'
+import _isNil from 'lodash/isNil'
+import _join from 'lodash/join'
+import _map from 'lodash/map'
 import pluralize from 'pluralize'
 import { FC } from 'react'
 
@@ -42,14 +47,25 @@ interface ActionCardHeaderTextProps {
 }
 
 const ActionCardHeaderText: FC<ActionCardHeaderTextProps> = ({ cardAction }) => {
-  const { params, action, tags, isBulkContainerAction, actionCardType, codesList, targets } =
-    cardAction as CardAction & {
-      params?: Array<{ query?: { id?: string } }>
-      isBulkContainerAction?: boolean
-      actionCardType?: string
-      codesList?: string[]
-      targets?: Record<string, { calls: Array<{ id: string; code?: string }> }>
-    }
+  const {
+    params,
+    action,
+    tags,
+    isBulkContainerAction,
+    actionCardType,
+    codesList,
+    containersList,
+    targets,
+    query,
+    poolName,
+  } = cardAction as CardAction & {
+    params?: Array<{ query?: { id?: string } }>
+    isBulkContainerAction?: boolean
+    actionCardType?: string
+    codesList?: string[]
+    containersList?: string[]
+    targets?: Record<string, { calls: Array<{ id: string; code?: string }> }>
+  }
   const sizeTags = _size(tags)
 
   const devices = getDevices(codesList, targets, sizeTags)
@@ -173,6 +189,55 @@ const ActionCardHeaderText: FC<ActionCardHeaderTextProps> = ({ cardAction }) => 
         actionCardType={actionCardType}
         leftText={`${params?.length} ${pluralize('Miner', sizeCodesList)} - Set Led ${_head(params) ? 'On' : 'Off'}`}
         rightText={`Update Led status on ${pluralize('miner', sizeCodesList - 1)}${deviceCodesString ? `: ${deviceCodesString}` : ''}`}
+      />
+    )
+  }
+
+  if (action === ACTION_TYPES.SETUP_POOLS) {
+    let rightText = 'Assign pools'
+    let leftText = 'Assign Pool'
+
+    const hasMiners = !_isNil(codesList)
+    const hasContainers = !_isNil(containersList)
+
+    if (hasMiners) {
+      const targets = query?.id.$in as string[]
+      const numTargets = _size(targets)
+      leftText = `${numTargets} ${pluralize('Miner', numTargets)} - Assign pools`
+      rightText = `Assign Pool ${poolName ? `: ${poolName}` : ''} to miners${deviceCodesString ? `: ${deviceCodesString}` : ''}`
+    } else if (hasContainers) {
+      const targets = query?.tags?.$in as string[]
+      const numTargets = _size(targets)
+      leftText = `${numTargets} ${pluralize('Container', numTargets)} - Assign pools`
+      const containerNames = _join(containersList, ', ')
+      rightText = `Assign Pool ${poolName ? `: ${poolName}` : ''} to units: ${containerNames}`
+    }
+
+    return (
+      <HeaderTextComponent
+        actionCardType={actionCardType}
+        leftText={leftText}
+        rightText={rightText}
+      />
+    )
+  }
+
+  if (_includes([ACTION_TYPES.REGISTER_POOL_CONFIG, ACTION_TYPES.UPDATE_POOL_CONFIG], action)) {
+    const data = _get(params, ['0', 'data'], {})
+    const name = _get(data, ['poolConfigName'])
+    const description = _get(data, ['description'])
+    const urls = JSON.stringify(_map(_get(data, ['poolUrls']) as { url: string }[], 'url'))
+
+    let actionDescription = 'Add Pool Config'
+    if (action === ACTION_TYPES.UPDATE_POOL_CONFIG) {
+      actionDescription = 'Update Pool Config'
+    }
+
+    return (
+      <HeaderTextComponent
+        actionCardType={actionCardType}
+        leftText={`${actionDescription}: ${name}. Description: ${description}`}
+        rightText={`URLS: ${urls}`}
       />
     )
   }

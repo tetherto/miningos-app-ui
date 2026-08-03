@@ -305,7 +305,7 @@ describe('reportingToolsUtils', () => {
         {
           ts: 1706853600000,
           pool_snap: {
-            haven7346: {
+            pooluser1: {
               success: true,
               raw_errors: ['error1'],
               stats: {
@@ -336,7 +336,7 @@ describe('reportingToolsUtils', () => {
               },
               config: {},
             },
-            haven7347: {
+            pooluser2: {
               success: true,
               raw_errors: ['error2'],
               stats: {

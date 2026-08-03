@@ -108,9 +108,9 @@ export const useMinersStatusChartData = (): UseMinersStatusChartDataReturn => {
   // Process miners data
   let chartData: BarChartData | null = null
 
-  const minersDataHead = _head(rawMinersData)
+  const minersDataHead = _head(rawMinersData as unknown[])
 
-  const minersData = _isArray(minersDataHead) ? minersDataHead : rawMinersData
+  const minersData = _isArray(minersDataHead) ? minersDataHead : (rawMinersData as unknown[])
 
   if (minersData && Array.isArray(minersData) && minersData.length > 0) {
     // Transform raw data - backend already provides daily averages

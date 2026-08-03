@@ -26,7 +26,7 @@ import { calculateTransactionSum } from '@/app/utils/transactionUtils'
 import { PERIOD } from '@/constants/ranges'
 import { useMultiSiteDateRange } from '@/hooks/useMultiSiteDateRange'
 import { useMultiSiteMode } from '@/hooks/useMultiSiteMode'
-import { getStartOfDay } from '@/Views/Financial/RevenueSummary/hooks/revenueSummaryHelpers'
+import { getStartOfDay } from '@/Views/Financial/common/financial.helpers'
 
 // Flag to enable/disable mocks - set to true to use mock data
 export const USE_MOCKS = false
@@ -250,7 +250,11 @@ export const useAvgAllInPowerCostData = (): UseAvgAllInPowerCostDataReturn => {
     const btcPricesByDay: Record<number, number> = {}
     if (finalBtcPricesData) {
       // Handle ApiResponse format: { data: [...], success: true }
-      const pricesData = 'data' in finalBtcPricesData ? finalBtcPricesData.data : finalBtcPricesData
+      const typedBtcPricesData = finalBtcPricesData as Record<string, unknown> | unknown[]
+      const pricesData =
+        !Array.isArray(typedBtcPricesData) && 'data' in typedBtcPricesData
+          ? typedBtcPricesData.data
+          : typedBtcPricesData
       if (_isArray(pricesData)) {
         const pricesArray = _head(pricesData) as
           | Array<{ ts?: number; priceUSD?: number }>

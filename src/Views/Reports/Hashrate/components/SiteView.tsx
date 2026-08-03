@@ -11,7 +11,6 @@ import {
   FiltersRow,
   TabContent,
 } from '../Hashrate.styles'
-import type { HashrateApiDataPoint } from '../Hashrate.types'
 import { getMinerTypeOptionsFromApi, transformToSiteViewData } from '../Hashrate.utils'
 import { useHashrateData } from '../hooks/useHashrateData'
 
@@ -49,18 +48,14 @@ const SiteView = () => {
     defaultRange: defaultDateRange,
   })
 
-  // Fetch hashrate data from API
-  const { data: apiData, isLoading } = useHashrateData({ dateRange })
+  // Fetch hashrate grouped by miner type — needed for the filter dropdown
+  // and for summing across selected types.
+  const { data: apiData, isLoading } = useHashrateData({ dateRange, groupBy: 'miner' })
 
-  // Generate filter options from API data
-  const minerTypeOptions = useMemo(
-    () => getMinerTypeOptionsFromApi(apiData as HashrateApiDataPoint[] | undefined),
-    [apiData],
-  )
+  const minerTypeOptions = useMemo(() => getMinerTypeOptionsFromApi(apiData?.log), [apiData])
 
-  // Transform API data to chart format with filters applied
   const chartData = useMemo(
-    () => transformToSiteViewData(apiData as HashrateApiDataPoint[] | undefined, filters.minerType),
+    () => transformToSiteViewData(apiData?.log, filters.minerType),
     [apiData, filters.minerType],
   )
 

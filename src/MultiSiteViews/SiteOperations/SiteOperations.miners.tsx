@@ -26,7 +26,11 @@ const SiteOperationsMiners = () => {
 
   const customDateFormat = timeframeType === TIMEFRAME_TYPE.YEAR ? 'yyyy-MM' : 'MM-dd'
 
-  const minersData = responseData?.data
+  const minersData = (
+    responseData as
+      | { data?: unknown[] | { [key: string]: unknown; dataset?: unknown[]; log?: unknown[] } }
+      | undefined
+  )?.data
   const chartConfig = SITE_OPERATION_CHART_CONFIG.miners
 
   return (
@@ -48,7 +52,11 @@ const SiteOperationsMiners = () => {
           isLoading: isLoading || isFetching,
           data: minersData || [],
           propName: chartConfig.propName,
-          nominalValue: chartConfig.nominalKey ? minersData?.[chartConfig.nominalKey] : undefined,
+          nominalValue: chartConfig.nominalKey
+            ? ((minersData as Record<string, unknown> | undefined)?.[chartConfig.nominalKey] as
+                | number
+                | undefined)
+            : undefined,
           legend: chartConfig.legend,
           yTicksFormatter: chartConfig.yTicksFormatter,
           customDateFormat,

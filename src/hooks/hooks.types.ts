@@ -149,6 +149,7 @@ export interface Device {
   info?: {
     container?: string
     pos?: string
+    poolConfig?: string
     [key: string]: unknown
   }
   containerId?: string

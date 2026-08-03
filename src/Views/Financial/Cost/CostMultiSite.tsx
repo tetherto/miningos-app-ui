@@ -10,7 +10,7 @@ const CostMultiSite = () => {
     onTableDateRangeChange,
     isDataLoading,
     isRevenueDataLoading,
-    metrcis,
+    metrics,
   } = useCostData()
 
   return (
@@ -21,7 +21,7 @@ const CostMultiSite = () => {
       onTableDateRangeChange={onTableDateRangeChange}
       isDataLoading={isDataLoading}
       isRevenueDataLoading={isRevenueDataLoading}
-      metrcis={metrcis}
+      metrics={metrics}
     />
   )
 }

@@ -5,11 +5,14 @@ interface UseContextualModalParams {
   onClose?: VoidFunction
 }
 
-export const useContextualModal = ({ onOpen, onClose }: UseContextualModalParams = {}) => {
+export const useContextualModal = <T = unknown>({
+  onOpen,
+  onClose,
+}: UseContextualModalParams = {}) => {
   const [modalOpen, setModalOpen] = useState(false)
-  const [subject, setSubject] = useState<unknown>(null)
+  const [subject, setSubject] = useState<T | null>(null)
 
-  const handleOpen = (sub: unknown) => {
+  const handleOpen = (sub: T | null) => {
     if (sub) {
       setSubject(sub)
     }

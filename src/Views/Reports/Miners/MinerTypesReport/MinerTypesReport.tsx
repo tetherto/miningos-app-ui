@@ -55,7 +55,7 @@ const MinerTypesReport = () => {
 
   const chartData = getChartData({
     filter,
-    tailLogData,
+    tailLogData: tailLogData as Record<string, Record<string, number>>[],
   })
 
   const isLoading = isTailLogDataFetching || isTailLogDataLoading

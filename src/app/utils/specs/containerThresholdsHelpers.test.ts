@@ -3,16 +3,23 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 // Mock getContainerSettingsModel before imports
 vi.mock('../containerUtils', () => ({
   getContainerSettingsModel: vi.fn(),
+  isBitdeer: vi.fn(),
+  isAntspaceHydro: vi.fn(),
+  isMicroBT: vi.fn(),
+  isAntspaceImmersion: vi.fn(),
+  isBitmainImmersion: vi.fn(),
 }))
 
 import {
   findMatchingContainer,
   shouldAutoSaveDefaults,
   prepareSavePayload,
+  determineThresholdsToUse,
 } from '../containerThresholdsHelpers'
 import { getContainerSettingsModel } from '../containerUtils'
 
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
+import { COMPLETE_CONTAINER_TYPE } from '@/constants/containerConstants'
 import { CONTAINER_SETTINGS_MODEL } from '@/constants/containerConstants'
 
 type ContainerSetting = {
@@ -171,9 +178,14 @@ describe('containerThresholdsHelpers', () => {
       it('should match MicroBT containers using fallback', () => {
         mockGetContainerSettingsModel.mockReturnValue(CONTAINER_SETTINGS_MODEL.MICROBT)
 
-        const result = findMatchingContainer(mockContainerSettings, 'container-mbt-kehua-001')
+        const result = findMatchingContainer(
+          mockContainerSettings,
+          `${COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA}-001`,
+        )
 
-        expect(mockGetContainerSettingsModel).toHaveBeenCalledWith('container-mbt-kehua-001')
+        expect(mockGetContainerSettingsModel).toHaveBeenCalledWith(
+          `${COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA}-001`,
+        )
         expect(result).toEqual(mockContainerSettings[3]) // Should match 'mbt' model
       })
 
@@ -451,6 +463,66 @@ describe('containerThresholdsHelpers', () => {
           site: 'SITE_NAME',
         },
       })
+    })
+  })
+
+  describe('determineThresholdsToUse', () => {
+    it('returns matchingContainer thresholds when they exist and are non-empty', () => {
+      const matchingContainer = { thresholds: { oilTemp: 42 } }
+      const result = determineThresholdsToUse({
+        matchingContainer,
+        containerType: 'bd',
+      })
+      expect(result).toEqual({ oilTemp: 42 })
+    })
+
+    it('returns parentThresholds when matchingContainer has no thresholds', () => {
+      const result = determineThresholdsToUse({
+        matchingContainer: null,
+        parentThresholds: { waterTemp: 35 },
+        containerType: 'mbt',
+      })
+      expect(result).toEqual({ waterTemp: 35 })
+    })
+
+    it('returns defaultThresholds when matchingContainer and parentThresholds are absent', () => {
+      const defaultThresholds = { criticalHigh: 50 }
+      const result = determineThresholdsToUse({
+        matchingContainer: null,
+        parentThresholds: null,
+        containerType: 'unknown',
+        defaultThresholds,
+      })
+      expect(result).toEqual({ criticalHigh: 50 })
+    })
+
+    it('falls back to getDefaultThresholdStructure when nothing else is available', () => {
+      const result = determineThresholdsToUse({
+        matchingContainer: null,
+        parentThresholds: null,
+        containerType: 'unknown-type',
+        defaultThresholds: null,
+      })
+      expect(result).toBeDefined()
+    })
+
+    it('prioritises matchingContainer thresholds over parentThresholds', () => {
+      const matchingContainer = { thresholds: { from: 'container' } }
+      const result = determineThresholdsToUse({
+        matchingContainer,
+        parentThresholds: { from: 'parent' },
+        containerType: 'bd',
+      })
+      expect(result).toEqual({ from: 'container' })
+    })
+
+    it('skips matchingContainer when thresholds object is empty', () => {
+      const result = determineThresholdsToUse({
+        matchingContainer: { thresholds: {} },
+        parentThresholds: { from: 'parent' },
+        containerType: 'bd',
+      })
+      expect(result).toEqual({ from: 'parent' })
     })
   })
 })

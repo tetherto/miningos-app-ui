@@ -91,15 +91,3 @@ export interface MinerTypeViewFilters {
 export interface MiningUnitViewFilters {
   minerType: string[]
 }
-
-// API response types
-export interface HashrateApiDataPoint {
-  hashrate_mhs_5m_type_group_sum_aggr: Record<string, number>
-  hashrate_mhs_5m_container_group_sum_aggr: Record<string, number>
-  ts: string // Format: "startTs-endTs"
-  aggrTsRange: string
-  aggrCount: number
-  aggrIntervals: number
-}
-
-export type HashrateApiResponse = HashrateApiDataPoint[]

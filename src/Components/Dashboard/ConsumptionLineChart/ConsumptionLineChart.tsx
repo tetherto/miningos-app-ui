@@ -16,8 +16,8 @@ import {
 import { getTimeRange } from '../../../app/utils/getTimeRange'
 import { CHART_COLORS } from '../../../constants/colors'
 import { useHeaderStats } from '../../../hooks/useHeaderStats'
-import { Consumption } from '../../Farms/FarmCard/StatBox/Icons/Consumption'
 import LineChartCard from '../../LineChartCard/LineChartCard'
+import { Consumption } from '../../StatBox/Icons/Consumption'
 
 import { CHART_TITLES } from '@/constants/charts'
 
