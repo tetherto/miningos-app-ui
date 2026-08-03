@@ -28,7 +28,7 @@ import { isDemoMode } from '@/app/services/api.utils'
 import { percentage } from '@/app/utils/numberUtils'
 import ChartLoadingSkeleton from '@/Components/ChartLoadingSkeleton/ChartLoadingSkeleton'
 import { SOCKET_CONTAINER_COLOR } from '@/Components/Container/Socket/Socket.styles'
-import { MinersActivityBarsColors } from '@/Theme/GlobalColors'
+import { MinersActivityBarsColors, StatusColorMap } from '@/Theme/GlobalColors'
 
 const MIN_BAR_WIDTH = 3
 
@@ -76,6 +76,7 @@ interface MinersActivityChartProps {
   isError?: boolean
   error?: MinerActivityChartErrorProp
   showLabel?: boolean
+  statusColors?: Partial<StatusColorMap>
 }
 
 const MinersActivityChart: FC<MinersActivityChartProps> = ({
@@ -87,6 +88,7 @@ const MinersActivityChart: FC<MinersActivityChartProps> = ({
   isError = false,
   error = null,
   showLabel = true,
+  statusColors = {},
 }) => {
   const itemsRoot = showBarChart ? MINERS_ACTIVITY_ITEMS.SHORT : MINERS_ACTIVITY_ITEMS.EXTENDED
 
@@ -95,6 +97,11 @@ const MinersActivityChart: FC<MinersActivityChartProps> = ({
   // In demo mode, if there's an error (missing mock data), use empty data instead
   const displayData = isError && isDemoMode ? {} : data
   const totalValues = _sum(_compact(_values(displayData)))
+
+  const statusItemsColors = {
+    ...MinersActivityBarsColors,
+    ...statusColors,
+  }
 
   // In demo mode, hide errors and show empty data instead
   if (isError && !isDemoMode) {
@@ -148,7 +155,7 @@ const MinersActivityChart: FC<MinersActivityChartProps> = ({
         {_map(items, (value) => {
           const itemNode = (
             <MinersActivityChartItem
-              $textColor={MinersActivityBarsColors[value]}
+              $textColor={statusItemsColors[value]}
               key={value}
               $large={large}
             >

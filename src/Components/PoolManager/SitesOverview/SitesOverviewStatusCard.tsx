@@ -1,5 +1,6 @@
 import Checkbox from 'antd/es/checkbox'
 import type { CheckboxChangeEvent } from 'antd/es/checkbox'
+import _isNil from 'lodash/isNil'
 import type { FC, MouseEvent } from 'react'
 
 import {
@@ -12,6 +13,7 @@ import {
   Card,
   Header,
   InfoList,
+  InfoListItem,
   StatusBadge,
   UnitInfo,
   UnitName,
@@ -43,6 +45,8 @@ const SitesOverviewStatusCard: FC<SitesOverviewStatusCardProps> = ({
   onClick,
   checked,
   selectable = true,
+  pool,
+  overrides,
 }) => (
   <Card onClick={onClick}>
     <Header>
@@ -56,6 +60,7 @@ const SitesOverviewStatusCard: FC<SitesOverviewStatusCardProps> = ({
         )}
         <UnitName>{unit}</UnitName>
       </UnitInfo>
+      {/* TODO: Override status should be shown here once API is available */}
       <StatusBadge
         $textColor={
           SITE_OVERVIEW_STATUS_COLORS[status] ?? SITE_OVERVIEW_STATUS_COLORS[STATUS_DEFAULT]
@@ -66,12 +71,18 @@ const SitesOverviewStatusCard: FC<SitesOverviewStatusCardProps> = ({
     </Header>
 
     <InfoList>
-      <div>
+      <InfoListItem>
+        Pool: <span>{pool}</span>
+      </InfoListItem>
+      <InfoListItem>
         Hashrate: <span>{hashrate}</span>
-      </div>
-      <div>
+      </InfoListItem>
+      <InfoListItem>
         Miners: <span>{miners}</span>
-      </div>
+      </InfoListItem>
+      <InfoListItem $primary={!_isNil(overrides) && overrides > 0}>
+        Overrides: <span>{overrides}</span>
+      </InfoListItem>
     </InfoList>
   </Card>
 )

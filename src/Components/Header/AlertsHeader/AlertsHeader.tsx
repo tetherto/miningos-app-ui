@@ -5,7 +5,7 @@ import BellIcon from '../Icons/BellIcon'
 
 import { AlertsHeaderOuterContainer, AlertsIconContainer } from './AlarmsHeader.styles'
 
-import AlertsBox from '@/Components/Farms/FarmCard/StatBox/AlertsBox'
+import AlertsBox from '@/Components/StatBox/AlertsBox'
 import { ROUTE } from '@/constants/routes'
 import { useHeaderStats } from '@/hooks/useHeaderStats'
 

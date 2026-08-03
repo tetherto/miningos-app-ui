@@ -131,8 +131,12 @@ export const MINER_STATUS_TO_IN_POOL_STATUS = {
 } as const
 
 // Popups are disabled in V1
-export const ADD_POOL_ENABLED = false
-export const ADD_ENDPOINT_ENABLED = false
-export const EDIT_ENDPOINT_ENABLED = false
+export const ADD_POOL_ENABLED = true
+export const ADD_ENDPOINT_ENABLED = true
+export const EDIT_ENDPOINT_ENABLED = true
+export const ASSIGN_POOL_POPUP_ENABLED = true
 export const POOL_STATUS_INDICATOR_ENABLED = false
-export const ASSIGN_POOL_POPUP_ENABLED = false
+export const SHOW_POOL_VALIDATION = false
+export const SHOW_CREDENTIAL_TEMPLATE = false
+
+export const MAX_POOL_ENDPOINTS = 3

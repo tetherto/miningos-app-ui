@@ -178,7 +178,7 @@ const LineChartWrapperComponent = ({
   )
 
   useEffect(() => {
-    const dataToProcess = datasetProp || _head(tailLogData)
+    const dataToProcess = datasetProp || _head(tailLogData as unknown[])
     const processedData = dataProcessor ? dataProcessor(dataToProcess) : dataToProcess
 
     setDataset((state: ChartDataPoint[]) => {
@@ -189,7 +189,7 @@ const LineChartWrapperComponent = ({
   }, [tailLogData, end, dataProcessor, datasetProp])
 
   useEffect(() => {
-    const updatedData = _head(tailLogDataUpdates)
+    const updatedData = _head(tailLogDataUpdates as unknown[])
     const tailLogDataSize = updatedData ? _size(updatedData as string | unknown[]) : 0
     if (skipPolling || tailLogDataSize > 1 || datasetProp) return
     const processedData = dataProcessor ? dataProcessor(updatedData) : updatedData

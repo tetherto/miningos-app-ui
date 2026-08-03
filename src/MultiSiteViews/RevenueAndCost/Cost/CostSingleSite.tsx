@@ -18,7 +18,7 @@ const CostSingleSite = () => {
   const operationsCost = 0
 
   // Create metrics structure using the same getMetrics function
-  const metrcis = getMetrics({
+  const metrics = getMetrics({
     allInCost,
     energyCost,
     operationsCost,
@@ -41,7 +41,7 @@ const CostSingleSite = () => {
       onTableDateRangeChange={onTableDateRangeChange}
       isDataLoading={isDataLoading}
       isRevenueDataLoading={isRevenueDataLoading}
-      metrcis={metrcis}
+      metrics={metrics}
     />
   )
 }

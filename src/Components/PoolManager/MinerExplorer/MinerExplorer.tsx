@@ -1,9 +1,12 @@
 import { SearchOutlined } from '@ant-design/icons'
+import Alert from 'antd/es/alert'
 import Select from 'antd/es/select'
 import type { ColumnsType } from 'antd/es/table'
 import _capitalize from 'lodash/capitalize'
+import _compact from 'lodash/compact'
 import _get from 'lodash/get'
 import _head from 'lodash/head'
+import _isEmpty from 'lodash/isEmpty'
 import _isNil from 'lodash/isNil'
 import _isNumber from 'lodash/isNumber'
 import _map from 'lodash/map'
@@ -12,6 +15,8 @@ import _toPairs from 'lodash/toPairs'
 import _values from 'lodash/values'
 import type { ComponentProps, FC } from 'react'
 import { useEffect, useState } from 'react'
+
+import { usePoolConfigs } from '../Pools/PoolManager.hooks'
 
 import {
   DropdownFilters,
@@ -40,21 +45,11 @@ import { CROSS_THING_TYPES } from '@/constants/devices'
 import type { Device } from '@/hooks/hooks.types'
 import { useListViewFilters } from '@/hooks/useListViewFilters'
 import useTimezone from '@/hooks/useTimezone'
-
-interface MinerRecord {
-  id: string
-  code: string
-  status?: string
-  unit?: string
-  hashrate?: number
-  lastSyncedAt: Date
-  tags?: string[]
-  raw: Device
-}
+import { MinerRecord } from '@/Views/PoolManager/types'
 
 interface MinerExplorerProps {
-  selectedDeviceIds: string[]
-  setSelectedDeviceIds: (ids: string[] | ((prev: string[]) => string[])) => void
+  selectedDevices: MinerRecord[]
+  onSelectionChange: (miners: MinerRecord[]) => void
 }
 
 const getMinerTableColumns = (
@@ -71,6 +66,12 @@ const getMinerTableColumns = (
     key: 'unit',
     title: 'Unit',
     sorter: (a: MinerRecord, b: MinerRecord) => (a.unit || '').localeCompare(b.unit || ''),
+  },
+  {
+    dataIndex: 'pool',
+    key: 'pool',
+    title: 'Current Pool',
+    sorter: (a: MinerRecord, b: MinerRecord) => (a.pool || '').localeCompare(b.pool || ''),
   },
   {
     dataIndex: 'status',
@@ -123,10 +124,7 @@ const minerStatusOptions = _map(_toPairs(MinerStatuses), ([label, value]) => ({
   label,
 }))
 
-export const MinerExplorer: FC<MinerExplorerProps> = ({
-  selectedDeviceIds,
-  setSelectedDeviceIds,
-}) => {
+export const MinerExplorer: FC<MinerExplorerProps> = ({ selectedDevices, onSelectionChange }) => {
   const { getFormattedDate } = useTimezone()
   const [filterTags, setFilterTags] = useState<string[]>([])
   const [page, setPage] = useState({
@@ -135,10 +133,23 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({
   })
   const [modelFilter, setModelFilter] = useState<string | null>(null)
   const [statusFilter, setStatusFilter] = useState<string | null>(null)
+  const [poolFilter, setPoolFilter] = useState<string | null>(null)
 
   const minerTableColumns = getMinerTableColumns(getFormattedDate)
 
-  const { data: siteData, isLoading: isSiteLoading } = useGetSiteQuery(undefined)
+  const {
+    pools,
+    poolIdMap,
+    isLoading: isPoolDataLoading,
+    error: poolConfigLoadingError,
+  } = usePoolConfigs()
+
+  const {
+    data: siteData,
+    isLoading: isSiteLoading,
+    error: siteLoadingError,
+  } = useGetSiteQuery(undefined)
+
   const site = _capitalize(_get(siteData, ['site']))
   const { onFiltersChange, filters } = useListViewFilters({
     selectedType: CROSS_THING_TYPES.MINER,
@@ -159,13 +170,18 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({
       nextFilters.push(['last.snap.stats.status', statusFilter])
     }
 
+    if (!_isNil(poolFilter)) {
+      nextFilters.push(['info.poolConfig', poolFilter])
+    }
+
     onFiltersChange(nextFilters as unknown as Array<[string, string]>)
-  }, [modelFilter, onFiltersChange, statusFilter])
+  }, [modelFilter, onFiltersChange, statusFilter, poolFilter])
 
   const {
     data: minerListData,
     isLoading: isMinerListDataLoading,
     isFetching: isMinerListDataFetching,
+    error: minerListLoadingError,
   } = useGetListThingsQuery({
     status: 1,
     fields: JSON.stringify({
@@ -187,20 +203,13 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({
     _map(
       _head(minerListData as Device[][] | undefined) as Device[] | undefined,
       (device: Device) => {
-        const deviceData = getTableDeviceData(device) as {
-          id?: string
-          code?: string
-          tags?: string[]
-          stats?: { status?: string; hashrate_mhs?: { t_5m?: number } }
-          info?: { container?: string }
-          [key: string]: unknown
-        }
+        const deviceData = getTableDeviceData(device)
         const code = deviceData.code as string | undefined
         const tags = deviceData.tags as string[] | undefined
         const stats = deviceData.stats as
           | { status?: string; hashrate_mhs?: { t_5m?: number } }
           | undefined
-        const info = deviceData.info as { container?: string } | undefined
+        const info = deviceData.info
         const shortCode = getMinerShortCode(code, tags || [])
         const deviceId = deviceData.id as string
         const lastTs = device.last?.ts
@@ -212,22 +221,28 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({
           hashrate: stats?.hashrate_mhs?.t_5m,
           lastSyncedAt: lastTs && _isNumber(lastTs) ? new Date(lastTs) : new Date(0),
           tags: tags || [],
+          pool: info?.poolConfig ? poolIdMap[info?.poolConfig].name : undefined,
           raw: device,
         }
       },
     ) || []
 
+  const poolFilterOptions = _map(pools, (pool) => ({
+    key: pool.id,
+    label: pool.name,
+  }))
+
   const setMinerSelection = (miner: MinerRecord, isSelected: boolean) => {
     if (!isSelected) {
-      setSelectedDeviceIds(_reject(selectedDeviceIds, (id: string) => miner.id === id))
+      onSelectionChange(_reject(selectedDevices, ({ id }) => miner.id === id))
       return
     }
 
-    return setSelectedDeviceIds([...selectedDeviceIds, miner.id])
+    return onSelectionChange([...selectedDevices, miner])
   }
 
   const handlePageChange = (pageNumber: number, pageSize: number) => {
-    setSelectedDeviceIds([])
+    onSelectionChange([])
 
     setPage({
       pageNumber,
@@ -237,20 +252,20 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({
 
   const handleSelectAll = (isChecked: boolean) => {
     if (!isChecked) {
-      return setSelectedDeviceIds([])
+      return onSelectionChange([])
     }
 
     const sliceStart = (page.pageNumber - 1) * page.pageSize
     const sliceEnd = page.pageNumber * page.pageSize
-    setSelectedDeviceIds(
-      _map(
-        _reject(mappedMiners.slice(sliceStart, sliceEnd), ['status', 'offline']),
-        ({ id }: MinerRecord) => id,
-      ),
-    )
+    onSelectionChange(_reject(mappedMiners.slice(sliceStart, sliceEnd), ['status', 'offline']))
   }
 
-  const isLoading = isSiteLoading || isMinerListDataLoading
+  const isLoading = isSiteLoading || isMinerListDataLoading || isPoolDataLoading
+  const hasError = !_isEmpty(
+    _compact([minerListLoadingError, siteLoadingError, poolConfigLoadingError]),
+  )
+
+  const selectedRowKeys = _map(selectedDevices, 'id')
 
   return (
     <MinerExplorerWrapper>
@@ -258,81 +273,105 @@ export const MinerExplorer: FC<MinerExplorerProps> = ({
         <Spinner />
       ) : (
         <>
-          <Header>
-            <FilterRow>
-              <FullWidthSelect
-                suffixIcon={<SearchOutlined />}
-                mode="tags"
-                placeholder="Search by ID, IP, MAC, Serial"
-                onChange={(value: unknown) => handleSearch(value as string[])}
-                tokenSeparators={[',']}
-                value={filterTags}
-              />
-            </FilterRow>
-            <DropdownFilters>
-              <FullWidthSelect
-                placeholder="Model"
-                value={modelFilter}
-                onSelect={(value: unknown) => {
-                  setModelFilter(value as string | null)
-                }}
-                allowClear
-                onClear={() => setModelFilter(null)}
-              >
-                {_map(minerTypeOptions, (item: unknown) => {
-                  const itemTyped = item as { key: string; label: string }
-                  return (
-                    <Select.Option key={itemTyped.key} value={itemTyped.key}>
-                      {itemTyped.label}
-                    </Select.Option>
-                  )
-                })}
-              </FullWidthSelect>
-              <FullWidthSelect
-                placeholder="Status"
-                value={statusFilter}
-                onSelect={(value: unknown) => {
-                  setStatusFilter(value as string | null)
-                }}
-                allowClear
-                onClear={() => setStatusFilter(null)}
-              >
-                {_map(minerStatusOptions, (item: unknown) => {
-                  const itemTyped = item as { key: string; label: string }
-                  return (
-                    <Select.Option key={itemTyped.key} value={itemTyped.key}>
-                      {itemTyped.label}
-                    </Select.Option>
-                  )
-                })}
-              </FullWidthSelect>
-            </DropdownFilters>
-          </Header>
-          {isMinerListDataFetching ? (
-            <Spinner />
+          {hasError ? (
+            <Alert type="error" message="Error loading data" />
           ) : (
-            <AppTable
-              {...({
-                columns: minerTableColumns,
-                dataSource: mappedMiners,
-                rowKey: (record: MinerRecord) => record.id,
-                rowSelection: {
-                  type: 'checkbox' as const,
-                  selectedRowKeys: selectedDeviceIds,
-                  onSelect: (record: MinerRecord, selected: boolean) =>
-                    setMinerSelection(record, selected),
-                  onSelectAll: handleSelectAll,
-                  getCheckboxProps: (record: MinerRecord) => ({
-                    disabled: record.status === 'offline',
-                  }),
-                },
-                pagination: {
-                  current: page.pageNumber,
-                  pageSize: page.pageSize,
-                  onChange: handlePageChange,
-                },
-              } as unknown as ComponentProps<typeof AppTable>)}
-            />
+            <>
+              <Header>
+                <FilterRow>
+                  <FullWidthSelect
+                    suffixIcon={<SearchOutlined />}
+                    mode="tags"
+                    placeholder="Search by ID, IP, MAC, Serial"
+                    onChange={(value: unknown) => handleSearch(value as string[])}
+                    tokenSeparators={[',']}
+                    value={filterTags}
+                  />
+                </FilterRow>
+                <DropdownFilters>
+                  <FullWidthSelect
+                    placeholder="Model"
+                    value={modelFilter}
+                    onSelect={(value: unknown) => {
+                      setModelFilter(value as string | null)
+                    }}
+                    allowClear
+                    onClear={() => setModelFilter(null)}
+                  >
+                    {_map(minerTypeOptions, (item: unknown) => {
+                      const itemTyped = item as { key: string; label: string }
+                      return (
+                        <Select.Option key={itemTyped.key} value={itemTyped.key}>
+                          {itemTyped.label}
+                        </Select.Option>
+                      )
+                    })}
+                  </FullWidthSelect>
+                  <FullWidthSelect
+                    placeholder="Status"
+                    value={statusFilter}
+                    onSelect={(value: unknown) => {
+                      setStatusFilter(value as string | null)
+                    }}
+                    allowClear
+                    onClear={() => setStatusFilter(null)}
+                  >
+                    {_map(minerStatusOptions, (item: unknown) => {
+                      const itemTyped = item as { key: string; label: string }
+                      return (
+                        <Select.Option key={itemTyped.key} value={itemTyped.key}>
+                          {itemTyped.label}
+                        </Select.Option>
+                      )
+                    })}
+                  </FullWidthSelect>
+                  <FullWidthSelect
+                    placeholder="Current Pool"
+                    value={poolFilter}
+                    onSelect={(value: unknown) => {
+                      setPoolFilter(value as string | null)
+                    }}
+                    allowClear
+                    onClear={() => setPoolFilter(null)}
+                  >
+                    {_map(poolFilterOptions, (item: unknown) => {
+                      const itemTyped = item as { key: string; label: string }
+                      return (
+                        <Select.Option key={itemTyped.key} value={itemTyped.key}>
+                          {itemTyped.label}
+                        </Select.Option>
+                      )
+                    })}
+                  </FullWidthSelect>
+                </DropdownFilters>
+              </Header>
+              {isMinerListDataFetching ? (
+                <Spinner />
+              ) : (
+                <AppTable
+                  {...({
+                    columns: minerTableColumns,
+                    dataSource: mappedMiners,
+                    rowKey: (record: MinerRecord) => record.id,
+                    rowSelection: {
+                      type: 'checkbox' as const,
+                      selectedRowKeys,
+                      onSelect: (record: MinerRecord, selected: boolean) =>
+                        setMinerSelection(record, selected),
+                      onSelectAll: handleSelectAll,
+                      getCheckboxProps: (record: MinerRecord) => ({
+                        disabled: record.status === 'offline',
+                      }),
+                    },
+                    pagination: {
+                      current: page.pageNumber,
+                      pageSize: page.pageSize,
+                      onChange: handlePageChange,
+                    },
+                  } as unknown as ComponentProps<typeof AppTable>)}
+                />
+              )}
+            </>
           )}
         </>
       )}

@@ -55,6 +55,10 @@ export const EndpointsSection = styled.div<StyledProps>`
   gap: 16px;
 `
 
+export const EndpointsSectionError = styled.div<StyledProps>`
+  color: ${COLOR.RED};
+`
+
 export const EndpointsSectionHeader = styled.div<StyledProps>`
   ${flexRow};
   justify-content: space-between;

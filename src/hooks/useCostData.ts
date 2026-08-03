@@ -5,11 +5,11 @@ import _startsWith from 'lodash/startsWith'
 import _values from 'lodash/values'
 
 import { useGetBtcDataHashPriceQuery, useGetCostOperationalEnergyQuery } from '@/app/services/api'
-import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
 import { useEnergyCostData } from '@/hooks/useEnergyCostData'
 import { useMultiSiteDateRange } from '@/hooks/useMultiSiteDateRange'
 import { useMultiSiteMode } from '@/hooks/useMultiSiteMode'
 import useMultiSiteRTRequestParams from '@/hooks/useMultiSiteRTRequestParams'
+import type { CostOperationalEntry, RevenueLogEntry } from '@/types/api'
 
 const DOLLAR_PER_MWH = '$/MWh'
 
@@ -81,21 +81,23 @@ export const useCostData = () => {
     dateRange,
   })
 
+  const emptyMetrics = getMetrics({ allInCost: 0, energyCost: 0, operationsCost: 0 })
+
   // Early return for single-site mode to prevent API call failures
   if (!isMultiSiteModeEnabled) {
     return {
       data: {
-        costData: {},
-        revenueData: [],
+        costData: {} as CostOperationalEntry,
+        revenueData: [] as RevenueLogEntry[],
         allInCost: 0,
         energyCost: 0,
         operationsCost: 0,
         btcData: [],
-        metrcis: {},
+        metrics: emptyMetrics,
       },
       isDataLoading: false,
       isRevenueDataLoading: false,
-      metrcis: {},
+      metrics: emptyMetrics,
       dateRange,
       onTableDateRangeChange,
       siteId,
@@ -108,30 +110,25 @@ export const useCostData = () => {
   const entries = _values(costOperationalDataRaw || {})
   const count = entries.length
 
-  const costOperationalData: UnknownRecord = {}
+  const costOperationalData: CostOperationalEntry = {}
 
   if (entries.length > 0) {
-    const firstEntry = entries[0] as UnknownRecord
+    const firstEntry = entries[0]
     for (const key in firstEntry) {
-      const values = _map(entries, (obj: unknown) => (obj as UnknownRecord)[key])
+      const values = _map(entries, (obj) => obj[key]) as (number | undefined)[]
       if (_startsWith(key, 'avg')) {
-        costOperationalData[key] =
-          _reduce(values, (sum, val) => (sum as number) + (val as number), 0) / count
+        costOperationalData[key] = _reduce(values, (sum, val) => (sum ?? 0) + (val ?? 0), 0) / count
       } else {
-        costOperationalData[key] = _reduce(
-          values,
-          (sum, val) => (sum as number) + (val as number),
-          0,
-        )
+        costOperationalData[key] = _reduce(values, (sum, val) => (sum ?? 0) + (val ?? 0), 0)
       }
     }
   }
 
-  const allInCost = (costOperationalData?.allInCostsUSD as number) || 0
-  const energyCost = (costOperationalData?.energyCostsUSD as number) || 0
-  const operationsCost = (costOperationalData?.operationalCostsUSD as number) || 0
+  const allInCost = costOperationalData.allInCostsUSD ?? 0
+  const energyCost = costOperationalData.energyCostsUSD ?? 0
+  const operationsCost = costOperationalData.operationalCostsUSD ?? 0
 
-  const metrcis = getMetrics({
+  const metrics = getMetrics({
     allInCost,
     energyCost,
     operationsCost,
@@ -153,12 +150,12 @@ export const useCostData = () => {
       allInCost,
       energyCost,
       operationsCost,
-      btcData,
-      metrcis,
+      btcData: btcData?.log ?? [],
+      metrics,
     },
     isDataLoading,
     isRevenueDataLoading,
-    metrcis,
+    metrics,
     dateRange,
     onTableDateRangeChange,
     siteId,

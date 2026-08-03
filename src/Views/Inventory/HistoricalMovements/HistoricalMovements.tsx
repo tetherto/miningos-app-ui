@@ -103,7 +103,7 @@ const HistoricalMovements = () => {
     (_head(_head(listThingsData as unknown[]) as unknown[]) as UnknownRecord | undefined)
 
   const getMappedItems = (): MovementRecord[] => {
-    const dataArray = _head(data) as UnknownRecord[] | undefined
+    const dataArray = _head(data as UnknownRecord[][] | undefined) as UnknownRecord[] | undefined
     if (isMovementsLoading || !dataArray?.length) {
       return []
     }

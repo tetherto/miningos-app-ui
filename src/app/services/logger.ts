@@ -26,7 +26,8 @@ export const Logger: LoggerService = (() => {
   }
 
   const logToSentry = (level: LogLevel, message: string, extra?: unknown): void => {
-    Sentry.captureMessage(message, level as Sentry.SeverityLevel)
+    const sentryLevel = (level === 'warn' ? 'warning' : level) as Sentry.SeverityLevel
+    Sentry.captureMessage(message, sentryLevel)
     if (extra) {
       Sentry.captureException(extra)
     }

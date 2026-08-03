@@ -32,6 +32,20 @@ export const CONTAINER_TYPE = {
   MICROBT: 'mbt',
 } as const
 
+/**
+ * Container types as the backend reports them.
+ *
+ * These are wire identifiers: they travel in `global/data?model=`, in
+ * `setContainerSettings` bodies and in `listThings` `type:{$in:[…]}` filters, and the UI
+ * matches several of them by *substring* — `isMicroBT` and `getContainerSettingsModel`
+ * look for `mbt`, which every MicroBT value must therefore still contain. A value that
+ * disagrees with the backend breaks container detection, PDU layouts and settings
+ * resolution silently, with no type error to catch it.
+ *
+ * The MicroBT variants use `alpha`/`beta` rather than vendor names, matching the
+ * vocabulary `@tetherto/mdk` already ships in `ui-foundation`. **This requires the
+ * backend to speak the same vocabulary** — see the note in the PR that introduced it.
+ */
 export const COMPLETE_CONTAINER_TYPE = {
   BITDEER_M30: 'container-bd-d40-m30',
   BITDEER_A1346: 'container-bd-d40-a1346',
@@ -39,10 +53,15 @@ export const COMPLETE_CONTAINER_TYPE = {
   BITDEER_S19XP: 'container-bd-d40-s19xp',
   BITMAIN_HYDRO: 'container-as-hk3',
   BITMAIN_IMMERSION: 'container-as-immersion',
-  MICROBT_WONDERINT: 'container-mbt-wonderint',
-  MICROBT_KEHUA: 'container-mbt-kehua',
+  MICROBT_BETA: 'container-mbt-beta',
+  MICROBT_ALPHA: 'container-mbt-alpha',
 } as const
 
+/**
+ * Display labels. Each must stay exactly two space-separated words — `getContainerName`
+ * splits on that space and rebuilds the result as `<vendor> <id> <model>`, so a one- or
+ * three-word label silently produces a broken name rather than a type error.
+ */
 export const CONTAINER_TYPE_NAME_MAP = {
   [COMPLETE_CONTAINER_TYPE.BITDEER_M30]: 'Bitdeer M30',
   [COMPLETE_CONTAINER_TYPE.BITDEER_A1346]: 'Bitdeer A1346',
@@ -50,8 +69,8 @@ export const CONTAINER_TYPE_NAME_MAP = {
   [COMPLETE_CONTAINER_TYPE.BITDEER_S19XP]: 'Bitdeer S19XP',
   [COMPLETE_CONTAINER_TYPE.BITMAIN_HYDRO]: 'Bitmain Hydro',
   [COMPLETE_CONTAINER_TYPE.BITMAIN_IMMERSION]: 'Bitmain Imm',
-  [COMPLETE_CONTAINER_TYPE.MICROBT_WONDERINT]: 'MicroBT Wonder',
-  [COMPLETE_CONTAINER_TYPE.MICROBT_KEHUA]: 'MicroBT Kehua',
+  [COMPLETE_CONTAINER_TYPE.MICROBT_BETA]: 'MicroBT Beta',
+  [COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA]: 'MicroBT Alpha',
 } as const
 
 export const CONTAINER_TACTICS_TYPE = {
@@ -87,6 +106,7 @@ export const CONTAINER_TAB = {
   SETTINGS: 'settings',
   CHARTS: 'charts',
   HEATMAP: 'heatmap',
+  LAYOUT: 'layout',
 } as const
 
 // Type exports

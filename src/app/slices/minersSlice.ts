@@ -8,10 +8,9 @@ import _keys from 'lodash/keys'
 import _map from 'lodash/map'
 import _reduce from 'lodash/reduce'
 
-import { columnItems } from '../../Components/MinersOverview/ColumnButton/ColumnsBtn.data'
-
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
-import type { MinersState, MinerEntity, RootState } from '@/types/redux'
+import { MINER_COLUMN_ITEMS } from '@/Components/Inventory/Miners/Miners.constants'
+import type { MinerEntity, MinersState, RootState } from '@/types/redux'
 
 interface MinerData {
   mac: string
@@ -112,7 +111,7 @@ const setSelectedMiners = (state: MinersState, { payload }: PayloadAction<string
 const initialState: MinersState = {
   entities: {},
   visibleColumns: _reduce(
-    columnItems,
+    MINER_COLUMN_ITEMS,
     (acc: Record<string, boolean>, item: ColumnItem) => {
       if (item.children) {
         _forEach(item.children, (child: { key: string }) => {

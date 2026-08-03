@@ -21,8 +21,13 @@ const useAuthToken = () => {
     if (!token) return
     if (authToken === token) return
 
-    searchParams.delete('authToken')
-    setSearchParams(searchParams)
+    // Copy rather than mutate: `searchParams` is the live object this effect
+    // depends on, and the update is applied in a transition, so mutating it
+    // would let a re-run observe the stripped params before the URL commits.
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('authToken')
+
+    setSearchParams(nextParams, { replace: true })
     dispatch(setToken(token))
   }, [searchParams, setSearchParams, authToken, dispatch])
 

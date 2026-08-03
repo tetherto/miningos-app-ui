@@ -1,7 +1,12 @@
-import Select from 'antd/es/select'
+import Alert from 'antd/es/alert'
 import Typography from 'antd/es/typography'
+import { FormikProvider, useFormik } from 'formik'
+import _isNil from 'lodash/isNil'
 import _map from 'lodash/map'
-import { useState } from 'react'
+import * as yup from 'yup'
+
+import { POOL_ENDPOINT_ROLES_LABELS, SHOW_CREDENTIAL_TEMPLATE } from '../../PoolManager.constants'
+import { usePoolConfigs } from '../../Pools/PoolManager.hooks'
 
 import {
   ButtonContainer,
@@ -22,21 +27,54 @@ import {
   SubTitle,
   Wrapper,
 } from './SetPoolConfiguration.styles'
-const { Option } = Select
+
+import { FormikSelect } from '@/Components/FormInputs'
+import { Spinner } from '@/Components/Spinner/Spinner'
+import { PoolSummary } from '@/Views/PoolManager/types'
+
 const { Text } = Typography
 
-export const SetPoolConfiguration = () => {
-  const [selectedPool, setSelectedPool] = useState('Foundry-EU')
+// TODO: Show error when no pool is selected
+const validationSchema = yup.object({
+  selectedPoolId: yup.string().required('Pool is required'),
+})
 
-  const pools = [
-    { name: 'Foundry-EU', units: 9, miners: 2806 },
-    { name: 'Foundry-US', units: 12, miners: 3500 },
-  ]
+export const SetPoolConfiguration = ({
+  onSubmit,
+}: {
+  onSubmit: (values: { pool: PoolSummary }) => Promise<void> | void
+}) => {
+  const formik = useFormik({
+    initialValues: {
+      selectedPoolId: null,
+    },
+    validationSchema,
+    onSubmit: async (values) => {
+      const { selectedPoolId } = values
 
-  const endpoints = [
-    { key: 1, host: 'stratum.foundry.eu', port: 4444, role: 'PRIMARY' },
-    { key: 2, host: 'backup.foundry.eu', port: 4444, role: 'FAILOVER' },
-  ]
+      if (_isNil(selectedPoolId)) {
+        return
+      }
+
+      const selectedPool = pools.find((p) => p.id === selectedPoolId)
+
+      if (_isNil(selectedPool)) {
+        return
+      }
+
+      onSubmit({
+        pool: selectedPool,
+      })
+    },
+  })
+
+  const { pools, isLoading, error } = usePoolConfigs()
+
+  const poolOptions = _map(pools, (poolData) => ({
+    key: poolData.id,
+    value: poolData.id,
+    label: poolData.name,
+  }))
 
   const columns = [
     { title: 'Host', dataIndex: 'host', key: 'host' },
@@ -45,59 +83,87 @@ export const SetPoolConfiguration = () => {
       title: 'Role',
       dataIndex: 'role',
       key: 'role',
-      render: (role: string) => <RoleTag $primary={role === 'PRIMARY'}>{role}</RoleTag>,
+      render: (role: string) => (
+        <RoleTag $primary={role === 'PRIMARY'}>
+          {POOL_ENDPOINT_ROLES_LABELS[role as keyof typeof POOL_ENDPOINT_ROLES_LABELS]}
+        </RoleTag>
+      ),
     },
   ]
 
-  const currentPool = pools.find((p) => p.name === selectedPool)
+  const currentPool = pools.find((p) => p.id === formik.values.selectedPoolId)
 
   return (
     <Wrapper>
-      <Container>
-        <StyledTitle level={4}>Set Pool Configuration</StyledTitle>
+      <FormikProvider value={formik}>
+        <form onSubmit={formik.handleSubmit}>
+          <Container>
+            <StyledTitle level={4}>Set Pool Configuration</StyledTitle>
+            {isLoading ? (
+              <Spinner />
+            ) : (
+              <>
+                {error ? (
+                  <Alert type="error" message="Error loading data" />
+                ) : (
+                  <>
+                    <Section>
+                      <SubTitle>Choose Pool</SubTitle>
+                      <Label>Pool</Label>
+                      <FormikSelect name="selectedPoolId" options={poolOptions} />
+                      {!_isNil(formik.values.selectedPoolId) && (
+                        <InfoRow>
+                          <Text type="secondary">#Units: {currentPool?.units ?? 0}</Text>
+                          <Text type="secondary">#Miners: {currentPool?.miners ?? 0}</Text>
+                        </InfoRow>
+                      )}
+                    </Section>
 
-        <Section>
-          <SubTitle>Choose Pool</SubTitle>
-          <Label>Pool</Label>
-          <Select value={selectedPool} onChange={setSelectedPool} style={{ width: '100%' }}>
-            {_map(pools, (pool) => (
-              <Option key={pool.name} value={pool.name}>
-                {pool.name}
-              </Option>
-            ))}
-          </Select>
-          <InfoRow>
-            <Text type="secondary">#Units: {currentPool?.units}</Text>
-            <Text type="secondary">#Miners: {currentPool?.miners}</Text>
-          </InfoRow>
-        </Section>
+                    {!_isNil(currentPool) && (
+                      <>
+                        <Section>
+                          <SubTitle>Endpoints Preview</SubTitle>
+                          <StyledTable
+                            columns={columns}
+                            dataSource={currentPool.endpoints}
+                            pagination={false}
+                            size="small"
+                          />
+                        </Section>
 
-        <Section>
-          <SubTitle>Endpoints Preview</SubTitle>
-          <StyledTable columns={columns} dataSource={endpoints} pagination={false} size="small" />
-        </Section>
-
-        <Section>
-          <SubTitle>Credentials Template Preview</SubTitle>
-          <Credentials>
-            <CredentialsRow>
-              <CredentialLabel>Worker Name Pattern:</CredentialLabel>{' '}
-              <CredentialUnit>{'{unit_id}.{miner_id}'}</CredentialUnit>
-            </CredentialsRow>
-            <CredentialsRow $hasBorderBottom>
-              <CredentialLabel>Suffix Type:</CredentialLabel>{' '}
-              <CredentialUnit>Sequential</CredentialUnit>
-            </CredentialsRow>
-            <Example>
-              <CredentialLabel>Example Preview:</CredentialLabel>{' '}
-              <ExampleValue>unit01.miner001</ExampleValue>
-            </Example>
-          </Credentials>
-        </Section>
-      </Container>
-      <ButtonContainer>
-        <StyledButton block>Assign Configuration</StyledButton>
-      </ButtonContainer>
+                        {SHOW_CREDENTIAL_TEMPLATE && (
+                          <Section>
+                            <SubTitle>Credentials Template Preview</SubTitle>
+                            <Credentials>
+                              <CredentialsRow>
+                                <CredentialLabel>Worker Name Pattern:</CredentialLabel>{' '}
+                                <CredentialUnit>{'{unit_id}.{miner_id}'}</CredentialUnit>
+                              </CredentialsRow>
+                              <CredentialsRow $hasBorderBottom>
+                                <CredentialLabel>Suffix Type:</CredentialLabel>{' '}
+                                <CredentialUnit>Sequential</CredentialUnit>
+                              </CredentialsRow>
+                              <Example>
+                                <CredentialLabel>Example Preview:</CredentialLabel>{' '}
+                                <ExampleValue>unit01.miner001</ExampleValue>
+                              </Example>
+                            </Credentials>
+                          </Section>
+                        )}
+                      </>
+                    )}
+                  </>
+                )}
+              </>
+            )}
+          </Container>
+          <ButtonContainer>
+            <StyledButton block disabled={isLoading} htmlType="submit">
+              Assign Pool
+            </StyledButton>
+          </ButtonContainer>
+        </form>
+      </FormikProvider>
     </Wrapper>
   )
 }

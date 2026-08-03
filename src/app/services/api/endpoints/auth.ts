@@ -24,4 +24,9 @@ export const authEndpoints = (builder: EndpointBuilder<BaseQueryFn, string, stri
   getUserPermissions: builder.query({
     query: () => ({ url: 'permissions', method: 'GET' }),
   }),
+
+  getRolesPermissions: builder.query({
+    query: () => ({ url: 'roles/permissions', method: 'GET' }),
+    providesTags: ['RolePermissions'],
+  }),
 })

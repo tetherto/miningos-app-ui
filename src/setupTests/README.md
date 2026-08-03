@@ -26,7 +26,6 @@ Mocks heavy libraries that slow down test execution:
 - `jspdf` - PDF generation
 - `html2canvas` - HTML to canvas conversion
 - `html-to-image` - Image generation utilities
-- `howler` - Audio library
 
 ### 2. Styled Components (`styledComponents.js`)
 

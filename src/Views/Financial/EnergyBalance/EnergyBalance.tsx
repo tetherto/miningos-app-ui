@@ -2,7 +2,7 @@ import { format } from 'date-fns/format'
 import _isEmpty from 'lodash/isEmpty'
 import _map from 'lodash/map'
 
-import { checkIfAllValuesAreZero } from '../EBITDA/EBITDA.helpers'
+import { checkIfAllValuesAreZero } from '../common/financial.helpers'
 import { PageTitle } from '../FinancialShared.styles'
 
 import {

@@ -57,7 +57,7 @@ describe('useSubmitActions', () => {
     vi.mocked(executeCreateAction).mockResolvedValue({
       isBatch: true,
       newActionPayload: mockPayload,
-      data: undefined,
+      data: undefined as unknown,
       error: undefined,
     })
 
@@ -75,7 +75,7 @@ describe('useSubmitActions', () => {
     vi.mocked(executeCreateAction).mockResolvedValue({
       isBatch: true,
       newActionPayload: { action: 'test' },
-      data: undefined,
+      data: undefined as unknown,
       error: { data: { message: 'Error' } },
     })
 

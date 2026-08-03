@@ -1,7 +1,12 @@
+import _fromPairs from 'lodash/fromPairs'
 import _head from 'lodash/head'
 import _map from 'lodash/map'
 
-import { useGetListThingsQuery, useGetTailLogQuery } from '@/app/services/api'
+import {
+  useGetContainerPoolStatsQuery,
+  useGetListThingsQuery,
+  useGetTailLogQuery,
+} from '@/app/services/api'
 import { megaToTera } from '@/app/utils/deviceUtils'
 import { formatValueUnit } from '@/app/utils/format'
 import { convertUnits, UNIT_LABELS } from '@/app/utils/numberUtils'
@@ -9,6 +14,7 @@ import { CONTAINER_STATUS, ContainerStatus } from '@/app/utils/statusUtils'
 import { SITE_OVERVIEW_STATUSES } from '@/Components/PoolManager/PoolManager.constants'
 import { STAT_REALTIME } from '@/constants/tailLogStatKeys.constants'
 import { UNITS } from '@/constants/units'
+import type { ContainerPoolStat } from '@/types/api'
 import {
   getContainerMinersChartData,
   MinerTailLogItem,
@@ -20,6 +26,7 @@ export interface ContainerUnit {
   info?: {
     container?: string
     nominalMinerCapacity?: string
+    poolConfig?: string
   }
   miners?: {
     total: number
@@ -45,6 +52,7 @@ export interface ContainerUnit {
 export interface ProcessedContainerUnit extends ContainerUnit {
   hashrate: string
   status: typeof SITE_OVERVIEW_STATUSES.MINING | typeof SITE_OVERVIEW_STATUSES.OFFLINE
+  poolStats?: ContainerPoolStat
 }
 
 export interface UseSitesOverviewDataResult {
@@ -79,9 +87,15 @@ export const useSitesOverviewData = (): UseSitesOverviewDataResult => {
     limit: 1,
   })
 
+  const { data: containerPoolStats, isLoading: isContainerPoolStatsLoading } =
+    useGetContainerPoolStatsQuery({})
+
   // Process units data
   const unitsDataArray = Array.isArray(unitsData) ? unitsData : []
-  const tailLogArray = (_head(minerTailLogData) as MinerTailLogItem[] | undefined) || []
+  const tailLogArray =
+    (_head(minerTailLogData as MinerTailLogItem[][] | undefined) as
+      | MinerTailLogItem[]
+      | undefined) || []
   const tailLogItem = _head(tailLogArray) ?? ({} as MinerTailLogItem)
 
   const rawUnits = _map(
@@ -106,17 +120,21 @@ export const useSitesOverviewData = (): UseSitesOverviewDataResult => {
     return formatValueUnit(hashRatePhs, UNITS.HASHRATE_PH_S)
   }
 
+  const poolStatsList = (containerPoolStats ?? []) as ContainerPoolStat[]
+  const containerPoolStatsMap = _fromPairs(_map(poolStatsList, (stat) => [stat.container, stat]))
+
   // Process units with hash rate and status
   const units: ProcessedContainerUnit[] = _map(rawUnits, (unit: ContainerUnit) => ({
     ...unit,
     hashrate: getHashRate(unit),
+    poolStats: unit.info?.container ? containerPoolStatsMap[unit.info?.container] : undefined,
     status:
       unit.last?.snap?.stats?.status === CONTAINER_STATUS.RUNNING
         ? SITE_OVERVIEW_STATUSES.MINING
         : SITE_OVERVIEW_STATUSES.OFFLINE,
   }))
 
-  const isLoading = isMinerTailLogLoading || isUnitsDataLoading
+  const isLoading = isMinerTailLogLoading || isUnitsDataLoading || isContainerPoolStatsLoading
 
   return {
     units,

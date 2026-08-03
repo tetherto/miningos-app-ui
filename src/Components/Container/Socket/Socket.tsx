@@ -2,6 +2,7 @@ import { PlusOutlined } from '@ant-design/icons'
 import Tooltip from 'antd/es/tooltip'
 import _isBoolean from 'lodash/isBoolean'
 import _isNil from 'lodash/isNil'
+import _round from 'lodash/round'
 import type React from 'react'
 
 import useTimezone from '../../../hooks/useTimezone'
@@ -87,6 +88,7 @@ interface SocketProps {
   isEmptyPowerDashed?: boolean
   isContainerControlSupported?: boolean
   pdu?: Pdu
+  showPowerPercentage?: boolean
 }
 
 const Socket = ({
@@ -104,6 +106,7 @@ const Socket = ({
   isEmptyPowerDashed = false,
   isContainerControlSupported = false,
   pdu,
+  showPowerPercentage = false,
 }: SocketProps) => {
   const { getFormattedDate } = useTimezone()
 
@@ -127,6 +130,9 @@ const Socket = ({
         [key: string]: unknown
       }
     | undefined
+  const rawPowerPct = (snap?.stats as { miner_specific?: { power_pct?: number } } | undefined)
+    ?.miner_specific?.power_pct
+  const powerPct = _isNil(rawPowerPct) ? undefined : _round(rawPowerPct)
   const hashRate = snap?.stats?.hashrate_mhs?.t_5m
   const hashRateLabel =
     hashRate !== null && hashRate !== undefined ? getHashrateString(hashRate) : ''
@@ -212,7 +218,13 @@ const Socket = ({
                     </Value>
                   )}
                 {!_isBoolean(cooling) &&
-                  !(status === SOCKET_STATUSES.MINER_DISCONNECTED && enabled) && (
+                  !(status === SOCKET_STATUSES.MINER_DISCONNECTED && enabled) &&
+                  (showPowerPercentage ? (
+                    <Value $status={status} $enabled={enabled}>
+                      {powerPct ?? 0}
+                      {UNITS.PERCENT}
+                    </Value>
+                  ) : (
                     <>
                       <Value $status={status} $enabled={enabled}>
                         {formatValueUnit(
@@ -224,7 +236,7 @@ const Socket = ({
                         {formatValueUnit(current_a ?? 0, 'A')}
                       </Value>
                     </>
-                  )}
+                  ))}
               </ConsumptionBox>
             )}
             <Index $status={status} $enabled={enabled}>

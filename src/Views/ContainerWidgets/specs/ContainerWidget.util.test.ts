@@ -4,6 +4,8 @@ import {
   Container,
   ContainerSettings,
   getContainerMinersChartData,
+  getMinersSummaryBoxData,
+  getSupplyLiquidBoxItems,
   getWidgetAlarmState,
   MinerTailLogItem,
 } from '../ContainerWidget.util'
@@ -14,6 +16,7 @@ import * as BitdeerUtils from '@/Components/Explorer/Containers/Bitdeer/Settings
 import * as HydroUtils from '@/Components/Explorer/Containers/BitMainHydro/HydroSettings.utils'
 import * as ImmersionUtils from '@/Components/Explorer/Containers/BitMainImmersion/ImmersionSettings.utils'
 import * as MicroBTUtils from '@/Components/Explorer/Containers/MicroBT/MicroBTSettings/MicorBTSettingsUtils'
+import { COMPLETE_CONTAINER_TYPE } from '@/constants/containerConstants'
 
 vi.mock('@/Components/Explorer/Containers/Bitdeer/Settings/BitdeerSettings.utils')
 vi.mock('@/Components/Explorer/Containers/BitMainHydro/HydroSettings.utils')
@@ -25,6 +28,7 @@ vi.mock('@/Components/Container/ContentBox/helper', () => ({
 vi.mock('@/app/utils/deviceUtils', () => ({
   getContainerSpecificStats: vi.fn(() => ({})),
   getStats: vi.fn(() => ({ status: CONTAINER_STATUS.RUNNING })),
+  megaToTera: vi.fn((v: number) => v / 1_000_000),
 }))
 
 describe('getWidgetAlarmState', () => {
@@ -269,7 +273,7 @@ describe('getWidgetAlarmState', () => {
     it('should use default thresholds when containerSettings is null', () => {
       const container: Container = {
         id: 'container-321',
-        type: 'container-mbt-kehua',
+        type: COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA,
         info: { container: 'microbt-1' },
       }
       vi.mocked(deviceUtils.getContainerSpecificStats).mockReturnValue({
@@ -291,11 +295,11 @@ describe('getWidgetAlarmState', () => {
     it('should use custom thresholds when containerSettings is provided', () => {
       const container: Container = {
         id: 'container-321',
-        type: 'container-mbt-kehua',
+        type: COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA,
         info: { container: 'microbt-1' },
       }
       const containerSettings: ContainerSettings = {
-        model: 'container-mbt-kehua-001',
+        model: `${COMPLETE_CONTAINER_TYPE.MICROBT_ALPHA}-001`,
         thresholds: {
           waterTemperature: {
             criticalLow: 20,
@@ -324,6 +328,89 @@ describe('getWidgetAlarmState', () => {
         containerSettings,
       )
       expect(result).toEqual({ shouldFlash: true, isCriticallyHigh: true })
+    })
+  })
+
+  describe('getSupplyLiquidBoxItems', () => {
+    it('returns three items for flow, pressure, and temperature', () => {
+      const container: Container = {
+        id: 'container-hydro',
+        type: 'container-as-hk3',
+        info: { container: 'bitmain-hydro-1' },
+        last: {
+          snap: {
+            stats: {
+              container_specific: {
+                supply_liquid_flow: 2.5,
+                supply_liquid_pressure: 0.5,
+                supply_liquid_temp: 35,
+              },
+            },
+          },
+        },
+      }
+      vi.mocked(HydroUtils.getAntspaceSupplyLiquidPressureColor).mockReturnValue('green')
+      vi.mocked(HydroUtils.shouldAntspacePressureFlash).mockReturnValue(false)
+      vi.mocked(HydroUtils.getAntspaceSupplyLiquidTemperatureColor).mockReturnValue('yellow')
+      vi.mocked(HydroUtils.shouldAntspaceSupplyLiquidTempFlash).mockReturnValue(false)
+
+      const result = getSupplyLiquidBoxItems(container, null)
+
+      expect(result).toHaveLength(3)
+      expect(result[0].name).toBe('Flow')
+      expect(result[0].value).toBe(2.5)
+      expect(result[1].name).toBe('Pressure')
+      expect(result[2].name).toBe('Temperature')
+      expect(result[2].value).toBe(35)
+    })
+
+    it('returns items with flashing state when alarms are triggered', () => {
+      const container: Container = {
+        id: 'container-hydro',
+        type: 'container-as-hk3',
+        info: { container: 'bitmain-hydro-1' },
+        last: {
+          snap: {
+            stats: {
+              container_specific: {
+                supply_liquid_flow: 5,
+                supply_liquid_pressure: 0.9,
+                supply_liquid_temp: 55,
+              },
+            },
+          },
+        },
+      }
+      vi.mocked(HydroUtils.getAntspaceSupplyLiquidPressureColor).mockReturnValue('red')
+      vi.mocked(HydroUtils.shouldAntspacePressureFlash).mockReturnValue(true)
+      vi.mocked(HydroUtils.getAntspaceSupplyLiquidTemperatureColor).mockReturnValue('red')
+      vi.mocked(HydroUtils.shouldAntspaceSupplyLiquidTempFlash).mockReturnValue(true)
+
+      const result = getSupplyLiquidBoxItems(container, null)
+
+      expect(result[1].flash).toBe(true)
+      expect(result[2].flash).toBe(true)
+    })
+  })
+
+  describe('getMinersSummaryBoxData', () => {
+    it('returns dash when minerTailLogItem is empty', () => {
+      const result = getMinersSummaryBoxData('container-bd-d40', {} as MinerTailLogItem)
+      expect(result.hashrate).toBe('-')
+      expect(result.maxtemp).toBe('-')
+      expect(result.avgtemp).toBe('-')
+    })
+
+    it('computes hashrate and temps when data is available', () => {
+      const minerTailLogItem = {
+        hashrate_mhs_1m_group_sum_aggr: { 'container-bd-d40': 100_000_000 },
+        temperature_c_group_max_aggr: { 'container-bd-d40': 75 },
+        temperature_c_group_avg_aggr: { 'container-bd-d40': 65 },
+      } as unknown as MinerTailLogItem
+      const result = getMinersSummaryBoxData('container-bd-d40', minerTailLogItem)
+      expect(typeof result.hashrate).toBe('number')
+      expect(result.maxtemp).toBe('75')
+      expect(result.avgtemp).toBe('65')
     })
   })
 

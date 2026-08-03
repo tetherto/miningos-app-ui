@@ -17,7 +17,7 @@ export const mockTransactionsData = [
       workers: [],
       transactions: [
         {
-          username: 'haven7346',
+          username: 'pooluser1',
           id: 564786701,
           type: 'revenue_fpps',
           changed_balance: 0.12, // Increased from 0.0012 (~100x increase)
@@ -44,7 +44,7 @@ export const mockTransactionsData = [
       workers: [],
       transactions: [
         {
-          username: 'haven7346',
+          username: 'pooluser1',
           id: 564786702,
           type: 'revenue_fpps',
           changed_balance: 0.11, // Increased from 0.0011 (~100x increase)
@@ -71,7 +71,7 @@ export const mockTransactionsData = [
       workers: [],
       transactions: [
         {
-          username: 'haven7346',
+          username: 'pooluser1',
           id: 564786703,
           type: 'revenue_fpps',
           changed_balance: 0.13, // Increased from 0.0013 (~100x increase)
@@ -98,7 +98,7 @@ export const mockTransactionsData = [
       workers: [],
       transactions: [
         {
-          username: 'haven7346',
+          username: 'pooluser1',
           id: 564786704,
           type: 'revenue_fpps',
           changed_balance: 0.15, // Increased from 0.0018094665835364325 (~83x increase)
@@ -125,7 +125,7 @@ export const mockTransactionsData = [
       workers: [],
       transactions: [
         {
-          username: 'haven7346',
+          username: 'pooluser1',
           id: 564786705,
           type: 'revenue_fpps',
           changed_balance: 0.14, // Increased from 0.0014 (~100x increase)
@@ -152,7 +152,7 @@ export const mockTransactionsData = [
       workers: [],
       transactions: [
         {
-          username: 'haven7346',
+          username: 'pooluser1',
           id: 564786706,
           type: 'revenue_fpps',
           changed_balance: 0.18, // Increased from 0.0015 (~120x increase)
@@ -179,7 +179,7 @@ export const mockTransactionsData = [
       workers: [],
       transactions: [
         {
-          username: 'haven7346',
+          username: 'pooluser1',
           id: 564786707,
           type: 'revenue_fpps',
           changed_balance: 0.16, // Increased from 0.0016 (~100x increase)
@@ -206,7 +206,7 @@ export const mockTransactionsData = [
       workers: [],
       transactions: [
         {
-          username: 'haven7346',
+          username: 'pooluser1',
           id: 564786708,
           type: 'revenue_fpps',
           changed_balance: 0.17, // Increased from 0.0017 (~100x increase)
@@ -233,7 +233,7 @@ export const mockTransactionsData = [
       workers: [],
       transactions: [
         {
-          username: 'haven7346',
+          username: 'pooluser1',
           id: 564786709,
           type: 'revenue_fpps',
           changed_balance: 0.19, // Increased from 0.0018 (~105x increase)
@@ -260,7 +260,7 @@ export const mockTransactionsData = [
       workers: [],
       transactions: [
         {
-          username: 'haven7346',
+          username: 'pooluser1',
           id: 564786710,
           type: 'revenue_fpps',
           changed_balance: 0.2, // Increased from 0.0019 (~105x increase)
@@ -287,7 +287,7 @@ export const mockTransactionsData = [
       workers: [],
       transactions: [
         {
-          username: 'haven7346',
+          username: 'pooluser1',
           id: 564786711,
           type: 'revenue_fpps',
           changed_balance: 0.22, // Increased from 0.002 (~110x increase)
@@ -314,7 +314,7 @@ export const mockTransactionsData = [
       workers: [],
       transactions: [
         {
-          username: 'haven7346',
+          username: 'pooluser1',
           id: 564786712,
           type: 'revenue_fpps',
           changed_balance: 0.21, // Increased from 0.0021 (~100x increase)

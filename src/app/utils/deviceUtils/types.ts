@@ -11,6 +11,7 @@ export type UnknownRecord = Record<string, unknown>
 export interface DeviceInfo {
   container?: string
   pos?: string
+  poolConfig?: string
   [key: string]: unknown
 }
 

@@ -40,6 +40,10 @@ export interface CardAction {
   deviceId?: string
   deviceIds?: string[]
   createdAt?: number
+  query?: {
+    id: UnknownRecord
+    tags?: UnknownRecord
+  }
   [key: string]: unknown
 }
 

@@ -1,4 +1,4 @@
-import { checkPermission } from '../authUtils'
+import { checkPermission, getSignInRedirectUrl } from '../authUtils'
 
 describe('Auth utils', () => {
   describe('checkPermission', () => {
@@ -172,5 +172,35 @@ describe('Auth utils', () => {
         ).toBe(false)
       })
     })
+  })
+
+  describe('checkPermission with null/undefined config', () => {
+    it('returns false when config is null', () => {
+      expect(checkPermission(null, { perm: 'miner:r' })).toBe(false)
+    })
+
+    it('returns false when config is undefined', () => {
+      expect(checkPermission(undefined, { perm: 'miner:r' })).toBe(false)
+    })
+
+    it('returns false when no check is specified', () => {
+      expect(checkPermission({ superAdmin: false }, {})).toBe(false)
+    })
+  })
+})
+
+describe('getSignInRedirectUrl', () => {
+  it('returns "/" for empty/null token', () => {
+    expect(getSignInRedirectUrl(null)).toBe('/')
+    expect(getSignInRedirectUrl('')).toBe('/')
+    expect(getSignInRedirectUrl(undefined)).toBe('/')
+  })
+
+  it('returns "/" for a token with no special role', () => {
+    // A valid-ish JWT-style token but with a role that doesn't trigger redirect
+    const tokenWithUnknownRole = btoa(JSON.stringify({ roles: ['admin'] }))
+    const fakeToken = `header.${tokenWithUnknownRole}.sig`
+    const result = getSignInRedirectUrl(fakeToken)
+    expect(result).toBe('/')
   })
 })

@@ -1,7 +1,12 @@
 import { CheckSquareFilled, CloseCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 import Button from 'antd/es/button'
 import { FormikProvider, useFormik } from 'formik'
+import _get from 'lodash/get'
+import _isNil from 'lodash/isNil'
+import _map from 'lodash/map'
 import _pullAt from 'lodash/pullAt'
+import _size from 'lodash/size'
+import { useDispatch } from 'react-redux'
 import * as yup from 'yup'
 
 import {
@@ -13,7 +18,14 @@ import {
   ModalTitle,
   StyledModal,
 } from '../../PoolManager.common.styles'
-import { POOL_CREDENTIAL_TEMPLATE_SUFFIX_TYPE_OPTIONS } from '../../PoolManager.constants'
+import {
+  MAX_POOL_ENDPOINTS,
+  POOL_CREDENTIAL_TEMPLATE_SUFFIX_TYPE_OPTIONS,
+  POOL_ENDPOINT_INDEX_ROLES,
+  POOL_ENDPOINT_ROLES_LABELS,
+  SHOW_CREDENTIAL_TEMPLATE,
+  SHOW_POOL_VALIDATION,
+} from '../../PoolManager.constants'
 import { AddPoolEndpointModal } from '../AddPoolEndpointModal/AddPoolEndpointModal'
 
 import {
@@ -22,6 +34,7 @@ import {
   EndpointHeader,
   EndpointPointRole,
   EndpointsSection,
+  EndpointsSectionError,
   EndpointsSectionHeader,
   EndpointsWrapper,
   EndpointWrapper,
@@ -34,40 +47,40 @@ import {
   ValidationStatusWrapper,
 } from './AddPoolModal.styles'
 
+import { actionsSlice } from '@/app/slices/actionsSlice'
+import { notifyInfo } from '@/app/utils/NotificationService'
 import { FormikInput, FormikSelect } from '@/Components/FormInputs'
 import { Spinner } from '@/Components/Spinner/Spinner'
+import { ACTION_TYPES } from '@/constants/actions'
 import { COLOR } from '@/constants/colors'
 import { useContextualModal } from '@/hooks/useContextualModal'
+import { PoolEndpoint } from '@/Views/PoolManager/types'
 
 const validationSchema = yup.object({
-  role: yup.string().required('Role is required'),
-  host: yup.string().required('Host is required'),
-  port: yup.string().required('Port is required'),
-  region: yup.string().required('Region is required'),
+  groupName: yup.string().required('Name is required'),
+  description: yup.string(),
+  workerName: yup.string().required('Pool Username is required'),
+  endpoints: yup.array().required().min(1, 'At least one endpoint is needed'),
 })
-
-interface Endpoint {
-  role: string
-  host: string
-  port: string
-  region: string
-}
 
 interface FormValues {
   groupName: string
   description: string
   workerName: string
   suffixType: string | null
-  endpoints: Endpoint[]
+  endpoints: PoolEndpoint[]
 }
 
 interface AddPoolModalProps {
   isOpen?: boolean
-  onClose?: () => void
+  onClose: () => void
 }
+
+const { setAddPendingSubmissionAction } = actionsSlice.actions
 
 export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
   const isLoading = false
+  const dispatch = useDispatch()
 
   const formik = useFormik<FormValues>({
     initialValues: {
@@ -75,17 +88,40 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
       description: '',
       workerName: '',
       suffixType: null,
-      endpoints: [
-        {
-          role: 'PRIMARY',
-          host: 'abcd',
-          port: 'abcd',
-          region: 'EUROPE',
-        },
-      ],
+      endpoints: [],
     },
     validationSchema,
-    onSubmit: () => {},
+    onSubmit: async (values) => {
+      const { groupName, description, workerName, endpoints } = values
+
+      dispatch(
+        setAddPendingSubmissionAction({
+          type: 'voting',
+          action: ACTION_TYPES.REGISTER_POOL_CONFIG,
+          params: [
+            {
+              type: 'pool',
+              data: {
+                poolConfigName: groupName,
+                description,
+                poolUrls: _map(endpoints, (endpoint) => {
+                  const { host, port, pool } = endpoint
+                  return {
+                    url: `stratum+tcp://${host}:${port}`,
+                    workerName,
+                    workerPassword: '.',
+                    pool,
+                  }
+                }),
+              },
+            },
+          ],
+        }),
+      )
+
+      notifyInfo('Action added', 'Pool config registration')
+      onClose()
+    },
   })
 
   const {
@@ -94,9 +130,13 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
     handleClose: closeAddEndpointModal,
   } = useContextualModal()
 
-  const handleAddEndpointSubmit = (values: Endpoint) => {
-    const { host, port, role, region } = values
-    formik.setFieldValue('endpoints', [...formik.values.endpoints, { host, port, role, region }])
+  const handleAddEndpointSubmit = (values: PoolEndpoint) => {
+    const { host, port, role, region, pool } = values
+    formik.setFieldValue('endpoints', [
+      ...formik.values.endpoints,
+      { host, port, role, region, pool },
+    ])
+    closeAddEndpointModal()
   }
 
   const deleteEndpointAtIndex = (index: number) => {
@@ -107,9 +147,15 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
   const isPoolValidated = false
   const poolValidationColor = isPoolValidated ? COLOR.GREEN : COLOR.RED
 
+  const disableAddEndpointButton = _size(formik.values.endpoints) >= MAX_POOL_ENDPOINTS
+  const endpointsError = formik.errors.endpoints
+  const showEndpointsError =
+    !_isNil(endpointsError) && formik.touched.endpoints && typeof endpointsError === 'string'
+
+  // TODO: Remove worker name and password
   return (
     <StyledModal
-      title={<ModalTitle>Add Endpoint</ModalTitle>}
+      title={<ModalTitle>Add Pool</ModalTitle>}
       open={isOpen}
       footer={false}
       onCancel={onClose}
@@ -122,21 +168,36 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
         <FormikProvider value={formik}>
           <form onSubmit={formik.handleSubmit}>
             <ModalBody>
-              <FormSectionHeader>GROUP INFO</FormSectionHeader>
+              <FormSectionHeader>POOL INFO</FormSectionHeader>
               <FormField>
-                <FieldLabel>Group Name</FieldLabel>
+                <FieldLabel>Pool Name</FieldLabel>
                 <FormikInput name="groupName" />
+              </FormField>
+              <FormField>
+                <FieldLabel>Description</FieldLabel>
+                <FormikInput name="description" />
               </FormField>
               <EndpointsSection>
                 <EndpointsSectionHeader>
                   <FormSectionHeader>ENDPOINTS CONFIGURATION</FormSectionHeader>
-                  <Button onClick={openAddEndpointModal}>Add Endpoint</Button>
+                  <Button onClick={openAddEndpointModal} disabled={disableAddEndpointButton}>
+                    Add Endpoint
+                  </Button>
                 </EndpointsSectionHeader>
+                {showEndpointsError && (
+                  <EndpointsSectionError>{endpointsError}</EndpointsSectionError>
+                )}
                 <EndpointsWrapper>
                   {formik.values.endpoints.map((endpoint, index) => (
                     <EndpointWrapper key={index}>
                       <EndpointHeader>
-                        <EndpointPointRole>{endpoint.role}</EndpointPointRole>
+                        <EndpointPointRole>
+                          {_get(
+                            POOL_ENDPOINT_ROLES_LABELS,
+                            _get(POOL_ENDPOINT_INDEX_ROLES, index, 'FAILOVER'),
+                            'FAILOVER',
+                          )}
+                        </EndpointPointRole>
                         <Button
                           icon={<DeleteOutlined />}
                           onClick={() => deleteEndpointAtIndex(index)}
@@ -158,34 +219,38 @@ export const AddPoolModal = ({ isOpen, onClose }: AddPoolModalProps) => {
               </EndpointsSection>
               <FormSectionHeader>CREDENTIALS TEMPLATE</FormSectionHeader>
               <FormField>
-                <FieldLabel>Worker Name</FieldLabel>
+                <FieldLabel>Pool Username</FieldLabel>
                 <FormikInput name="workerName" />
               </FormField>
-              <FormField>
-                <FieldLabel>Suffix Type</FieldLabel>
-                <FormikSelect
-                  name="suffixType"
-                  options={POOL_CREDENTIAL_TEMPLATE_SUFFIX_TYPE_OPTIONS}
-                />
-              </FormField>
-              <ValidationStatusSection>
-                <SectionHeader>
-                  <SectionHeaderTitle>Validation Status</SectionHeaderTitle>
-                </SectionHeader>
-                <ValidationStatusWrapper>
-                  <ValidationStatusIndicator>
-                    <ValidationStatusIcon $color={poolValidationColor}>
-                      {isPoolValidated ? <CheckSquareFilled /> : <CloseCircleOutlined />}
-                    </ValidationStatusIcon>
-                    <ValidationStatus $color={poolValidationColor}>
-                      {isPoolValidated
-                        ? 'Configuration validated successfully'
-                        : 'Configuration not validated'}
-                    </ValidationStatus>
-                  </ValidationStatusIndicator>
-                  <Button>Test Configuration</Button>
-                </ValidationStatusWrapper>
-              </ValidationStatusSection>
+              {SHOW_CREDENTIAL_TEMPLATE && (
+                <FormField>
+                  <FieldLabel>Suffix Type</FieldLabel>
+                  <FormikSelect
+                    name="suffixType"
+                    options={POOL_CREDENTIAL_TEMPLATE_SUFFIX_TYPE_OPTIONS}
+                  />
+                </FormField>
+              )}
+              {SHOW_POOL_VALIDATION && (
+                <ValidationStatusSection>
+                  <SectionHeader>
+                    <SectionHeaderTitle>Validation Status</SectionHeaderTitle>
+                  </SectionHeader>
+                  <ValidationStatusWrapper>
+                    <ValidationStatusIndicator>
+                      <ValidationStatusIcon $color={poolValidationColor}>
+                        {isPoolValidated ? <CheckSquareFilled /> : <CloseCircleOutlined />}
+                      </ValidationStatusIcon>
+                      <ValidationStatus $color={poolValidationColor}>
+                        {isPoolValidated
+                          ? 'Configuration validated successfully'
+                          : 'Configuration not validated'}
+                      </ValidationStatus>
+                    </ValidationStatusIndicator>
+                    <Button>Test Configuration</Button>
+                  </ValidationStatusWrapper>
+                </ValidationStatusSection>
+              )}
               <FormActions>
                 <Button type="primary" htmlType="submit" loading={formik.isSubmitting}>
                   Save

@@ -1,4 +1,6 @@
-import { collectionToCSV } from '../downloadUtils'
+import { vi } from 'vitest'
+
+import { collectionToCSV, downloadFileFromData } from '../downloadUtils'
 
 import type { UnknownRecord } from '@/app/utils/deviceUtils/types'
 
@@ -89,5 +91,73 @@ describe('collectionToCSV', () => {
     const csvResult = collectionToCSV(collection, ['name'])
 
     expect(csvResult).toEqual(expectedCSV)
+  })
+
+  it('formats array values as semicolon-separated list', () => {
+    const collection = [{ id: 1, tags: ['alpha', 'beta'] }]
+    const csv = collectionToCSV(collection)
+    expect(csv).toContain('alpha; beta')
+  })
+
+  it('formats array of objects using convertObjectToString', () => {
+    const collection = [{ id: 1, items: [{ key: 'a', val: 1 }] }]
+    const csv = collectionToCSV(collection)
+    expect(csv).toContain('key: a')
+  })
+
+  it('formats nested object values using convertObjectToString', () => {
+    const collection = [{ id: 1, meta: { type: 'test', count: 3 } }]
+    const csv = collectionToCSV(collection)
+    // flattenObject expands nested keys, so meta.type and meta.count appear as columns
+    expect(csv).toContain('meta.type')
+  })
+})
+
+describe('downloadFileFromData', () => {
+  it('creates an anchor element and triggers download for string data', () => {
+    const createElementSpy = vi.spyOn(document, 'createElement')
+    const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation((el) => el)
+    const removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation((el) => el)
+    const clickSpy = vi.fn()
+
+    createElementSpy.mockReturnValueOnce({
+      href: '',
+      download: '',
+      click: clickSpy,
+    } as unknown as HTMLAnchorElement)
+
+    URL.createObjectURL = vi.fn(() => 'blob:mock-url')
+    URL.revokeObjectURL = vi.fn()
+
+    downloadFileFromData('csv-content', 'text/csv', 'export.csv')
+
+    expect(clickSpy).toHaveBeenCalled()
+    expect(removeChildSpy).toHaveBeenCalled()
+
+    createElementSpy.mockRestore()
+    appendChildSpy.mockRestore()
+    removeChildSpy.mockRestore()
+  })
+
+  it('JSON-stringifies object data before creating blob', () => {
+    const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation((el) => el)
+    const removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation((el) => el)
+    const clickSpy = vi.fn()
+
+    vi.spyOn(document, 'createElement').mockReturnValueOnce({
+      href: '',
+      download: '',
+      click: clickSpy,
+    } as unknown as HTMLAnchorElement)
+
+    URL.createObjectURL = vi.fn(() => 'blob:mock-url')
+    URL.revokeObjectURL = vi.fn()
+
+    downloadFileFromData({ key: 'value' }, 'application/json', 'data.json')
+
+    expect(clickSpy).toHaveBeenCalled()
+
+    appendChildSpy.mockRestore()
+    removeChildSpy.mockRestore()
   })
 })

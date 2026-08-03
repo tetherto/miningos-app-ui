@@ -1,10 +1,5 @@
 import _head from 'lodash/head'
 
-import {
-  mockGlobalConfigFromDoc,
-  USE_DOCUMENTATION_MOCKS,
-} from '../Views/Financial/RevenueSummary/hooks/documentationMocks'
-
 import { useGetGlobalConfigQuery } from '@/app/services/api'
 
 interface NominalConfigValuesResult {
@@ -14,11 +9,7 @@ interface NominalConfigValuesResult {
 }
 
 export const useNominalConfigValues = (): NominalConfigValuesResult => {
-  const { data: globalConfigFromApi, isLoading: isGlobalConfigLoadingFromApi } =
-    useGetGlobalConfigQuery({}, { skip: USE_DOCUMENTATION_MOCKS })
-
-  const globalConfig = USE_DOCUMENTATION_MOCKS ? mockGlobalConfigFromDoc : globalConfigFromApi
-  const isLoading = USE_DOCUMENTATION_MOCKS ? false : isGlobalConfigLoadingFromApi
+  const { data: globalConfig, isLoading } = useGetGlobalConfigQuery({})
 
   const getNominalAvailablePowerMWh = (): number => {
     if (!globalConfig) return 0

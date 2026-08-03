@@ -34,7 +34,7 @@ interface CostContentProps {
   ) => void
   isDataLoading: boolean
   isRevenueDataLoading: boolean
-  metrcis: Record<string, Metric>
+  metrics: Record<string, Metric>
   showHeader?: boolean
 }
 
@@ -49,7 +49,7 @@ const CostContent = ({
   onTableDateRangeChange,
   isDataLoading,
   isRevenueDataLoading,
-  metrcis,
+  metrics,
   showHeader = true,
 }: CostContentProps) => {
   const isPeriodMonthly = dateRange?.period === PERIOD.MONTHLY
@@ -106,9 +106,9 @@ const CostContent = ({
           isLoading={isDataLoading}
         />
 
-        {!_isEmpty(metrcis) && (
+        {!_isEmpty(metrics) && (
           <MetricCardWrapper>
-            {_map(_values(metrcis), (metric: Metric) => (
+            {_map(_values(metrics), (metric: Metric) => (
               <MetricCard
                 key={metric.label}
                 isHighlighted={metric.isHighlighted}
