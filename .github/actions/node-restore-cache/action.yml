@@ -1,5 +1,5 @@
 name: Restore node_modules cache
-description: Restore node_modules from cache; npm ci only on cache miss.
+description: Restore node_modules from the exact setup cache key; npm ci only on a genuine miss (authenticating private git deps when credentials are provided).
 
 inputs:
   cache-key:
@@ -12,6 +12,14 @@ inputs:
     description: Directory containing package.json (use . for repo root)
     required: false
     default: '.'
+  app-id:
+    description: miningos-read GitHub App id/client-id, used to authenticate private git deps if the cache misses and npm has to reinstall.
+    required: false
+    default: ''
+  private-key:
+    description: miningos-read GitHub App private key (paired with app-id).
+    required: false
+    default: ''
 
 runs:
   using: composite
@@ -29,19 +37,37 @@ runs:
           echo "node-modules-path=${WD}/node_modules" >> "$GITHUB_OUTPUT"
         fi
 
+    # Exact key only: node-setup-cache now writes a per-PR / per-ref key, so the
+    # exact key reliably exists. A broad `restore-keys` prefix would instead pull
+    # a stale cache from another PR/lockfile and force a needless reinstall.
     - name: Restore node_modules cache
       id: cache-node-modules
       uses: actions/cache/restore@v4
       with:
         path: ${{ steps.paths.outputs.node-modules-path }}
         key: ${{ inputs.cache-key }}
-        restore-keys: |
-          node-modules-${{ runner.os }}-
 
     - name: Setup Node.js
       uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
       with:
         node-version: ${{ inputs.node-version }}
+
+    # On a genuine cache miss the reinstall must clone private git deps, so
+    # authenticate here too (only when creds are supplied and the cache missed).
+    - name: Generate miningos-read app token
+      id: app-token
+      if: steps.cache-node-modules.outputs.cache-hit != 'true' && inputs.app-id != ''
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ inputs.app-id }}
+        private-key: ${{ inputs.private-key }}
+        owner: ${{ github.repository_owner }}
+
+    - name: Configure git auth for private dependencies
+      if: steps.cache-node-modules.outputs.cache-hit != 'true' && inputs.app-id != ''
+      uses: ./.github/actions/setup-git-credentials
+      with:
+        token: ${{ steps.app-token.outputs.token }}
 
     - name: Install dependencies
       if: steps.cache-node-modules.outputs.cache-hit != 'true'
@@ -51,9 +77,7 @@ runs:
       run: |
         set -euo pipefail
         WD="${PKG_DIR:-.}"
-        if [ "$WD" != "." ]; then
-          cd "$WD"
-        fi
+        if [ "$WD" != "." ]; then cd "$WD"; fi
         if [ -f package-lock.json ]; then
           npm ci --ignore-scripts --no-audit --no-fund
         else

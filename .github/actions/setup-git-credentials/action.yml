@@ -1,0 +1,47 @@
+name: Setup git credentials
+description: Configure git to authenticate to private GitHub git dependencies using a provided token.
+
+inputs:
+  token:
+    description: Token with read access to the private git dependency repos (e.g. a miningos-read GitHub App installation token).
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Configure git URL rewrites
+      shell: bash
+      env:
+        GIT_TOKEN: ${{ inputs.token }}
+      run: |
+        # The default GITHUB_TOKEN is scoped to this repo only and cannot clone
+        # private cross-repo git dependencies. A token with read access to the
+        # dependency repos (provided by the miningos-read GitHub App) is used
+        # instead, rewriting every github.com remote form to authenticated HTTPS.
+        git config --global url."https://x-access-token:${GIT_TOKEN}@github.com/".insteadOf "git://github.com/"
+        git config --global --add url."https://x-access-token:${GIT_TOKEN}@github.com/".insteadOf "ssh://git@github.com/"
+        git config --global --add url."https://x-access-token:${GIT_TOKEN}@github.com/".insteadOf "git@github.com:"
+        git config --global --add url."https://x-access-token:${GIT_TOKEN}@github.com/".insteadOf "https://github.com/"
+
+    - name: Remove checkout credential overrides
+      shell: bash
+      run: |
+        # actions/checkout can persist a repo-scoped token via http.extraheader /
+        # includeIf entries. That header takes priority over our URL rewrites and
+        # breaks cross-repo private clones, so remove it. (Harmless when checkout
+        # ran with persist-credentials: false and nothing was persisted.)
+        for key in $(git config --local --name-only --get-regexp '^includeIf\.gitdir:' 2>/dev/null || true); do
+          value=$(git config --local --get "$key" 2>/dev/null || true)
+          if [[ "$value" == *"git-credentials-"* ]]; then
+            git config --local --unset "$key" || true
+            rm -f "$value" 2>/dev/null || true
+          fi
+        done
+        git config --local --unset-all http.https://github.com/.extraheader 2>/dev/null || true
+        git config --global --unset-all http.https://github.com/.extraheader 2>/dev/null || true
+
+    - name: Verify git auth configuration
+      shell: bash
+      run: |
+        echo "Active git URL rewrite targets (token values are redacted by the runner):"
+        git config --global --name-only --get-regexp 'url\..*\.insteadOf' || true
