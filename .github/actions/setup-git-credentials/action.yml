@@ -1,47 +1,39 @@
 name: Setup git credentials
-description: Configure git to authenticate to private GitHub git dependencies using a provided token.
+description: Optionally mint the miningos-read token and rewrite github.com git remotes to authenticated HTTPS. No-op unless enabled=true.
 
 inputs:
-  token:
-    description: Token with read access to the private git dependency repos (e.g. a miningos-read GitHub App installation token).
-    required: true
+  enabled:
+    description: When 'true', mint the app token and configure git auth for private deps. Otherwise a no-op (public deps clone anonymously).
+    required: false
+    default: 'false'
+  app-id:
+    description: miningos-read GitHub App id/client-id.
+    required: false
+    default: ''
+  private-key:
+    description: miningos-read GitHub App private key.
+    required: false
+    default: ''
 
 runs:
   using: composite
   steps:
-    - name: Configure git URL rewrites
+    - name: Generate miningos-read app token
+      id: app-token
+      if: ${{ inputs.enabled == 'true' }}
+      uses: actions/create-github-app-token@v2
+      with:
+        app-id: ${{ inputs.app-id }}
+        private-key: ${{ inputs.private-key }}
+        owner: ${{ github.repository_owner }}
+
+    - name: Configure git url rewrites
+      if: ${{ inputs.enabled == 'true' }}
       shell: bash
       env:
-        GIT_TOKEN: ${{ inputs.token }}
+        GIT_TOKEN: ${{ steps.app-token.outputs.token }}
       run: |
-        # The default GITHUB_TOKEN is scoped to this repo only and cannot clone
-        # private cross-repo git dependencies. A token with read access to the
-        # dependency repos (provided by the miningos-read GitHub App) is used
-        # instead, rewriting every github.com remote form to authenticated HTTPS.
         git config --global url."https://x-access-token:${GIT_TOKEN}@github.com/".insteadOf "git://github.com/"
         git config --global --add url."https://x-access-token:${GIT_TOKEN}@github.com/".insteadOf "ssh://git@github.com/"
         git config --global --add url."https://x-access-token:${GIT_TOKEN}@github.com/".insteadOf "git@github.com:"
         git config --global --add url."https://x-access-token:${GIT_TOKEN}@github.com/".insteadOf "https://github.com/"
-
-    - name: Remove checkout credential overrides
-      shell: bash
-      run: |
-        # actions/checkout can persist a repo-scoped token via http.extraheader /
-        # includeIf entries. That header takes priority over our URL rewrites and
-        # breaks cross-repo private clones, so remove it. (Harmless when checkout
-        # ran with persist-credentials: false and nothing was persisted.)
-        for key in $(git config --local --name-only --get-regexp '^includeIf\.gitdir:' 2>/dev/null || true); do
-          value=$(git config --local --get "$key" 2>/dev/null || true)
-          if [[ "$value" == *"git-credentials-"* ]]; then
-            git config --local --unset "$key" || true
-            rm -f "$value" 2>/dev/null || true
-          fi
-        done
-        git config --local --unset-all http.https://github.com/.extraheader 2>/dev/null || true
-        git config --global --unset-all http.https://github.com/.extraheader 2>/dev/null || true
-
-    - name: Verify git auth configuration
-      shell: bash
-      run: |
-        echo "Active git URL rewrite targets (token values are redacted by the runner):"
-        git config --global --name-only --get-regexp 'url\..*\.insteadOf' || true

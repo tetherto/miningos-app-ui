@@ -1,5 +1,5 @@
 name: Restore node_modules cache
-description: Restore node_modules from the exact setup cache key; npm ci only on a genuine miss (authenticating private git deps when credentials are provided).
+description: Restore node_modules from the exact key; on a miss, optionally authenticate private git deps (via setup-git-credentials, gated by enabled) and npm ci.
 
 inputs:
   cache-key:
@@ -12,12 +12,14 @@ inputs:
     description: Directory containing package.json (use . for repo root)
     required: false
     default: '.'
+  enabled:
+    description: When 'true', authenticate private git deps before a fallback npm ci.
+    required: false
+    default: 'false'
   app-id:
-    description: miningos-read GitHub App id/client-id, used to authenticate private git deps if the cache misses and npm has to reinstall.
     required: false
     default: ''
   private-key:
-    description: miningos-read GitHub App private key (paired with app-id).
     required: false
     default: ''
 
@@ -37,9 +39,6 @@ runs:
           echo "node-modules-path=${WD}/node_modules" >> "$GITHUB_OUTPUT"
         fi
 
-    # Exact key only: node-setup-cache now writes a per-PR / per-ref key, so the
-    # exact key reliably exists. A broad `restore-keys` prefix would instead pull
-    # a stale cache from another PR/lockfile and force a needless reinstall.
     - name: Restore node_modules cache
       id: cache-node-modules
       uses: actions/cache/restore@v4
@@ -52,22 +51,13 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
 
-    # On a genuine cache miss the reinstall must clone private git deps, so
-    # authenticate here too (only when creds are supplied and the cache missed).
-    - name: Generate miningos-read app token
-      id: app-token
-      if: steps.cache-node-modules.outputs.cache-hit != 'true' && inputs.app-id != ''
-      uses: actions/create-github-app-token@v2
-      with:
-        app-id: ${{ inputs.app-id }}
-        private-key: ${{ inputs.private-key }}
-        owner: ${{ github.repository_owner }}
-
     - name: Configure git auth for private dependencies
-      if: steps.cache-node-modules.outputs.cache-hit != 'true' && inputs.app-id != ''
+      if: steps.cache-node-modules.outputs.cache-hit != 'true'
       uses: ./.github/actions/setup-git-credentials
       with:
-        token: ${{ steps.app-token.outputs.token }}
+        enabled: ${{ inputs.enabled }}
+        app-id: ${{ inputs.app-id }}
+        private-key: ${{ inputs.private-key }}
 
     - name: Install dependencies
       if: steps.cache-node-modules.outputs.cache-hit != 'true'
