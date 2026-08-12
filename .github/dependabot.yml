@@ -1,0 +1,15 @@
+version: 2
+updates:
+  # Keep GitHub Actions pinned versions (workflows + local composite actions) current.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    groups:
+      # Bundle routine minor/patch bumps into one PR. Majors (e.g. actions/checkout
+      # v6->v7, upload/download-artifact) open their own PR so breaking changes are
+      # reviewed in isolation.
+      actions-minor:
+        update-types:
+          - "minor"
+          - "patch"
