@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="icon" href="/favicon-32x32.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <meta name="description" content="Bitcoin Mining Platform" />
+    <link rel="apple-touch-icon" href="/favicon-32x32.png" />
+    <link rel="manifest" href="/manifest.json" />
+
+    <!-- Performance: Preload LCP image with high priority -->
+    <link rel="preload" href="/src/Components/Header/Icons/mos-logo.webp" as="image" type="image/webp" fetchpriority="high" />
+
+    <!-- Performance: Preload critical local fonts to prevent CLS -->
+    <link rel="preload" href="/fonts/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/JetBrainsMono-Medium.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/JetBrainsMono-Bold.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+    <div id="root"></div>
+    <script type="module" src="src/index.tsx"></script>
+  </body>
+</html>

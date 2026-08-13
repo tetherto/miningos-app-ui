@@ -1,0 +1,153 @@
+/* JetBrains Mono */
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: optional;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('/fonts/JetBrainsMono-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: optional;
+}
+
+:root {
+  --miningos-brown-1: #17130f;
+  --miningos-brown-2: #0e0e0e;
+  --miningos-gray-1: #2d2d2d;
+  --miningos-yellow: #ffc107;
+  --miningos-orange: #ff6a00;
+  --miningos-orange-hover: #c4730f;
+  --miningos-orange-dark: var(--miningos-orange-hover);
+  --miningos-cold-orange: #f7931a;
+
+  --miningos-primary: var(--miningos-cold-orange);
+  --miningos-primary-dark: var(--miningos-orange-dark);
+  --miningos-primary-bg: color(
+    var(--miningos-cold-orange),
+    srgb r g b / 0.2
+  ); /* Same as cold orange with 20% opacity */
+
+  /*@deprecated Please use the colors from colors.js */
+  --miningos-link-color: var(--miningos-yellow);
+  --miningos-charts-bg-1: #17130f;
+  --miningos-succes-color: #72f59e;
+  --miningos-danger-color: #ef4444;
+  --miningos-green-1: #009393;
+  --miningos-green-2: #14b8a6;
+  --miningos-yellow-1: #facc15;
+}
+
+body {
+  margin: 0;
+  overflow-x: hidden;
+  font-family: 'JetBrains Mono', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  height: 100%;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+html {
+  overscroll-behavior-y: none;
+}
+
+code {
+  font-family: 'JetBrains Mono', sans-serif;
+}
+
+a {
+  color: var(--miningos-link-color);
+
+  &:hover {
+    color: color(var(--miningos-cold-orange), srgb r g b / 0.8);
+  }
+}
+
+.ant-input,
+.ant-select-selector,
+.ant-select-item,
+.ant-tabs-tab,
+.ant-modal-content,
+.ant-modal-close,
+.ant-popover-inner,
+.ant-tooltip-inner,
+.ant-notification-notice,
+.ant-notification-notice-wrapper,
+.ant-notification-notice-error,
+.ant-notification-notice-closable,
+.ant-input-group,
+.ant-input-affix-wrapper,
+.ant-table-container,
+.ant-table-content table,
+.ant-table-thead,
+.ant-table-thead tr,
+.ant-table-cell,
+button {
+  border-radius: 0 !important;
+}
+
+button:last-child,
+.ant-radio-button-wrapper:last-child {
+  border-top-right-radius: 0 !important;
+  border-bottom-right-radius: 0 !important;
+}
+
+button:first-child,
+.ant-radio-button-wrapper:first-child {
+  border-top-left-radius: 0 !important;
+  border-bottom-left-radius: 0 !important;
+}
+
+.ant-input[readonly],
+.ant-input[disabled],
+.ant-input-disabled,
+.ant-input-affix-wrapper-readonly {
+  background: var(--miningos-primary-bg);
+  border: none;
+  cursor: not-allowed;
+  color: #fff;
+}
+
+.ant-table-wrapper .ant-table-column-sorter {
+  transform: scale(1.5);
+}
+
+.ant-modal-root .ant-modal {
+  margin: 0 auto;
+}
+
+.ant-switch {
+  border-radius: 0;
+
+  .ant-switch-handle {
+    &::before {
+      border-radius: 0;
+    }
+  }
+}
+
+.ant-table-column-title {
+  word-break: keep-all !important;
+  overflow-wrap: normal !important;
+}
+
+/* Prevent filter popover from jumping when content changes */
+.list-view-filter-popover {
+  position: fixed !important;
+}
+
+.list-view-filter-cascader-popup {
+  position: fixed !important;
+}

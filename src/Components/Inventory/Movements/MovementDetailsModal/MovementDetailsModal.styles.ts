@@ -1,0 +1,165 @@
+import Modal from 'antd/es/modal'
+import styled from 'styled-components'
+
+interface StyledProps {
+  $margin?: string | number
+}
+
+import { flexCenterRow, flexColumn, flexRow } from '../../../../app/mixins'
+import { ColoredValue } from '../../InventoryTable/InventoryTable.styles'
+
+import { COLOR } from '@/constants/colors'
+
+export const StyledModal = styled(Modal)<StyledProps>`
+  min-width: 660px;
+`
+
+export const ModalTitle = styled.div<StyledProps>`
+  ${flexRow};
+  color: ${COLOR.WHITE};
+  font-weight: 700;
+  font-size: 18px;
+  padding-bottom: 28px;
+  background-color: ${COLOR.SIMPLE_BLACK};
+  border-bottom: 1px solid ${COLOR.WHITE_ALPHA_01};
+  ${({ $margin }) => $margin && 'margin: 20px 0'}
+`
+
+export const ModalBody = styled.div<StyledProps>`
+  ${flexColumn};
+  gap: 36px;
+`
+
+export const StatusSection = styled.div<StyledProps>`
+  ${flexRow};
+  gap: 36px;
+`
+
+export const LeftPanel = styled.div<StyledProps>`
+  ${flexColumn};
+  flex: 1;
+`
+
+export const RightPanel = styled.div<StyledProps>`
+  ${flexColumn};
+  flex: 1;
+`
+
+export const MinerDetailsPanel = styled.div<StyledProps>`
+  ${flexRow};
+  gap: 12px;
+  margin: 20px 0;
+  flex-wrap: wrap;
+`
+
+export const AttributeRow = styled.div<StyledProps>`
+  ${flexRow};
+  gap: 4px;
+`
+
+export const AttributeName = styled.div<StyledProps>`
+  font-weight: 700;
+`
+
+export const AttributeValue = styled.div<StyledProps>`
+  margin: 0 2px;
+`
+
+export const FormHeader = styled.div<StyledProps>`
+  color: ${COLOR.COLD_ORANGE};
+  font-weight: 400;
+  font-weight: 17px;
+`
+
+export const FormBody = styled.div<StyledProps>`
+  ${flexColumn};
+  gap: 25px;
+`
+
+export const TargetStateFields = styled.div<StyledProps>`
+  ${flexRow};
+  gap: 12px;
+  align-items: flex-start;
+`
+
+export const TargetStateField = styled.div<StyledProps>`
+  ${flexRow};
+  gap: 14px;
+  flex: 1;
+  align-items: center;
+`
+
+export const StatusFields = styled.div<StyledProps>`
+  ${flexColumn};
+  gap: 24px;
+  flex: 1;
+`
+
+export const FormActions = styled.div<StyledProps>`
+  ${flexRow};
+  flex-direction: row-reverse;
+  gap: 4px;
+`
+
+export const FormStatus = styled.div<StyledProps>`
+   ;
+`
+
+export const MoveForm = styled.div<StyledProps>`
+  ${flexColumn};
+  gap: 6px;
+`
+
+export const LargeStatusFields = styled.div<StyledProps>`
+  ${flexColumn};
+  gap: 15px;
+  flex: 1;
+  flex-basis: 1;
+`
+
+export const LargeStatusField = styled.div<StyledProps>`
+  ${flexRow};
+  align-items: center;
+  gap: 24px;
+`
+
+export const LargeStatusFieldName = styled.div<StyledProps>`
+  min-width: 72px;
+  line-height: 20px;
+  font-size: 15px;
+`
+
+export const LargeStatusFieldValue = styled(ColoredValue)<StyledProps>`
+  ${flexCenterRow};
+  height: 40px;
+  width: 150px;
+  padding: 0 20px;
+  font-weight: 400;
+  font-size: 16px;
+  line-height: 22px;
+`
+
+export const MovementPreview = styled.div<StyledProps>`
+  ${flexRow};
+  gap: 20px;
+`
+
+export const ArrowWrapper = styled.div<StyledProps>`
+  flex: 1;
+  flex-basis: 2;
+`
+
+export const ConfirmationText = styled.div<StyledProps>`
+  font-weight: 700;
+  text-align: center;
+  line-height: 38px;
+  size: 19px;
+`
+
+export const TargetStateDropdownValue = styled(ColoredValue)<StyledProps>`
+  height: 32px;
+  width: 210px;
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 22px;
+`

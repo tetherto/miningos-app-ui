@@ -1,0 +1,34 @@
+{
+  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
+  "high": true,
+  "allowlist": [
+    // Internal package installed from git (github.com/tetherto/tether-wrk-base); GHSA is a false positive for that source.
+    "GHSA-wvh9-3hgj-7f22",
+
+    // brace-expansion CVE-2026-14257 (OOM via unbounded expansion length).
+    // The advisory declares one flat range, "<= 5.0.7", instead of per-major
+    // ranges, so it also matches the 1.x and 2.x releases that DID receive the
+    // backport. We resolve 1.1.18 (eslint -> minimatch@3), 2.1.4 (glob ->
+    // minimatch@9) and 5.0.9 (top level), and all three carry the actual fix -
+    // the EXPANSION_MAX_LENGTH = 4_000_000 accumulator cap and the rewritten
+    // combine(). Verified by running the advisory's own PoC under a 256MB heap:
+    // "{a,b}".repeat(1500) OOM-crashes on 1.1.15 and returns bounded output
+    // (2666 results / ~4M chars) on 1.1.18, 2.1.4 and 5.0.9.
+    // Only dev tooling is affected (eslint, glob, test-exclude,
+    // @vitest/coverage-v8); brace-expansion is never in the browser bundle.
+    // Remove this entry once the advisory publishes per-major ranges.
+    "GHSA-mh99-v99m-4gvg",
+
+    // react-router "RSC Mode CSRF Bypass" (>= 7.12.0, < 8.3.0). The advisory
+    // states: "This only affects your application if you are using the unstable
+    // RSC APIs." This app is a client-only Vite SPA - no SSR, no RSC, no
+    // react-router-dom/server, and no loaders, actions or unstable_* APIs
+    // anywhere (both routers are pure `element:` trees), so the affected code
+    // path is never reached.
+    // It is also not actionable yet: the fix landed in react-router 8.3.0, but
+    // `react-router-dom` has no 8.x release - it ends at 7.18.2 - so clearing
+    // this requires migrating all ~100 `react-router-dom` imports to
+    // `react-router` and taking the v8 major. Tracked as follow-up work.
+    "GHSA-qwww-vcr4-c8h2"
+  ]
+}
