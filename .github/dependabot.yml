@@ -1,0 +1,13 @@
+version: 2
+updates:
+  # Only raise PRs for MAJOR GitHub Actions updates. Minor/patch version bumps are
+  # ignored; security updates are unaffected by these ignore rules and still come through.
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    ignore:
+      - dependency-name: "*"
+        update-types:
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
