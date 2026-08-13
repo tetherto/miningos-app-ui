@@ -1,15 +1,13 @@
 version: 2
 updates:
-  # Keep GitHub Actions pinned versions (workflows + local composite actions) current.
+  # Only raise PRs for MAJOR GitHub Actions updates. Minor/patch version bumps are
+  # ignored; security updates are unaffected by these ignore rules and still come through.
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
       interval: "weekly"
-    groups:
-      # Bundle routine minor/patch bumps into one PR. Majors (e.g. actions/checkout
-      # v6->v7, upload/download-artifact) open their own PR so breaking changes are
-      # reviewed in isolation.
-      actions-minor:
+    ignore:
+      - dependency-name: "*"
         update-types:
-          - "minor"
-          - "patch"
+          - "version-update:semver-minor"
+          - "version-update:semver-patch"
