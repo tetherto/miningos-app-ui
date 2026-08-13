@@ -1,0 +1,7 @@
+export const YAXIS_TOOLTIP_LABEL_STYLES = {
+  PADDING: 10,
+  FONT_SIZE: 12,
+  MAX_WIDTH: 300,
+  LINE_HEIGHT: 16,
+  FONT_FAMILY: 'JetBrains Mono',
+}
