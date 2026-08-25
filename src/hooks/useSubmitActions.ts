@@ -91,6 +91,12 @@ export const useSubmitActions = ({ actions }: { actions: SubmittableAction[] }) 
               case ACTION_STATUS_TYPES.APPROVED:
                 notifySuccess('Submitted Action', 'Action was submitted successfully')
                 break
+              case ACTION_STATUS_TYPES.COMPLETED:
+                notifySuccess('Submitted Action', 'Action was executed successfully')
+                break
+              case ACTION_STATUS_TYPES.FAILED:
+                notifyError('Submitted Action', 'Action failed to execute')
+                break
               default:
                 break
             }
