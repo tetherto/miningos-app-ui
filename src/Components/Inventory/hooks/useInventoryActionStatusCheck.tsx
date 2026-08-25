@@ -23,8 +23,7 @@ const areActionsCompleted = (requiredActionIds: Set<string>, response: ActionRes
     | undefined
   const doneItems = _head(data)?.done as Array<{ id?: string; status?: string }> | undefined
   const doneActionIds = new Set(_map(_filter(doneItems, ['status', 'COMPLETED']), 'id') as string[])
-  const difference = new Set([...requiredActionIds].filter((x: string) => doneActionIds.has(x)))
-  return difference.size === 0
+  return [...requiredActionIds].every((x: string) => doneActionIds.has(x))
 }
 
 export class ActionsIncompleteError extends Error {
