@@ -1,9 +1,10 @@
 import _filter from 'lodash/filter'
 import _head from 'lodash/head'
 import _map from 'lodash/map'
-import pRetry from 'p-retry'
+import pRetry, { AbortError } from 'p-retry'
 
 import { useLazyGetActionsQuery } from '@/app/services/api'
+import { ACTION_STATUS_TYPES } from '@/constants/actions'
 
 interface ActionResponse {
   data?: Array<{
@@ -17,13 +18,43 @@ interface ActionResponse {
   [key: string]: unknown
 }
 
-const areActionsCompleted = (requiredActionIds: Set<string>, response: ActionResponse): boolean => {
-  const data = response.data as
-    | Array<{ done?: Array<{ id?: string; status?: string; [key: string]: unknown }> }>
-    | undefined
-  const doneItems = _head(data)?.done as Array<{ id?: string; status?: string }> | undefined
-  const doneActionIds = new Set(_map(_filter(doneItems, ['status', 'COMPLETED']), 'id') as string[])
-  return [...requiredActionIds].every((x: string) => doneActionIds.has(x))
+type DoneItem = { id?: string; status?: string }
+
+const TERMINAL_FAILURE_STATUSES = new Set<string>([
+  ACTION_STATUS_TYPES.FAILED,
+  ACTION_STATUS_TYPES.DENIED,
+])
+
+const getDoneItems = (response: ActionResponse): DoneItem[] => {
+  const data = response.data as Array<{ done?: DoneItem[] }> | undefined
+  return (_head(data)?.done as DoneItem[] | undefined) ?? []
+}
+
+export const areActionsCompleted = (
+  requiredActionIds: Set<string>,
+  response: ActionResponse,
+): boolean => {
+  const doneItems = getDoneItems(response)
+  const doneActionIds = new Set(
+    _map(_filter(doneItems, ['status', ACTION_STATUS_TYPES.COMPLETED]), 'id') as string[],
+  )
+  return (
+    requiredActionIds.size > 0 && [...requiredActionIds].every((x: string) => doneActionIds.has(x))
+  )
+}
+
+export const hasFailedActions = (
+  requiredActionIds: Set<string>,
+  response: ActionResponse,
+): boolean => {
+  const doneItems = getDoneItems(response)
+  const failedActionIds = new Set(
+    _map(
+      _filter(doneItems, (item: DoneItem) => TERMINAL_FAILURE_STATUSES.has(item.status ?? '')),
+      'id',
+    ) as string[],
+  )
+  return [...requiredActionIds].some((x: string) => failedActionIds.has(x))
 }
 
 export class ActionsIncompleteError extends Error {
@@ -38,11 +69,24 @@ export class ActionsIncompleteError extends Error {
   }
 }
 
+export class ActionsFailedError extends Error {
+  constructor(...params: unknown[]) {
+    super(...(params as [string?]))
+
+    if (Error.captureStackTrace) {
+      Error.captureStackTrace(this, ActionsFailedError)
+    }
+
+    this.name = 'ActionsFailedError'
+  }
+}
+
 export const useInventoryActionStatusCheck = () => {
   const [getActions] = useLazyGetActionsQuery()
 
   /**
-   * Returns true if status of the actions is completed. This reconfirms their status twice if they are incomplete.
+   * Returns true if status of the actions is completed. This reconfirms their status twice if they
+   * are incomplete, and stops retrying as soon as any action is found failed or denied.
    * @returns {boolean} completion of actions
    */
   const checkStatus = async ({
@@ -51,6 +95,10 @@ export const useInventoryActionStatusCheck = () => {
     actions: Array<{ id?: string; [key: string]: unknown }>
   }) => {
     const requiredActionIds = new Set(_map(actions, 'id') as string[])
+
+    if (requiredActionIds.size === 0) {
+      return false
+    }
 
     try {
       return await pRetry(
@@ -65,6 +113,10 @@ export const useInventoryActionStatusCheck = () => {
             ]),
           })
 
+          if (hasFailedActions(requiredActionIds, response as ActionResponse)) {
+            throw new AbortError(new ActionsFailedError('Actions failed'))
+          }
+
           const complete = areActionsCompleted(requiredActionIds, response as ActionResponse)
           if (!complete) {
             throw new ActionsIncompleteError('Actions not complete')
@@ -75,7 +127,7 @@ export const useInventoryActionStatusCheck = () => {
         { retries: 2, factor: 1, minTimeout: 2000 },
       )
     } catch (error) {
-      if (error instanceof ActionsIncompleteError) {
+      if (error instanceof ActionsIncompleteError || error instanceof ActionsFailedError) {
         return false
       }
 

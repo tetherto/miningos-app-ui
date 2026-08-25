@@ -152,6 +152,47 @@ describe('useSubmitActions', () => {
     expect(refetchActionsDataMock).toHaveBeenCalled()
   })
 
+  it('should handle instantly executed COMPLETED action', async () => {
+    const headItem = { id: '1', data: { status: ACTION_STATUS_TYPES.COMPLETED } }
+    vi.mocked(executeCreateAction).mockResolvedValue({
+      isBatch: false,
+      newActionPayload: { action: 'test' },
+      data: [headItem],
+      error: undefined,
+    })
+
+    const actions = [{ create: true }]
+    const { result } = renderHook(() => useSubmitActions({ actions }))
+
+    await result.current.submitActions()
+
+    expect(notifySuccessMock).toHaveBeenCalledWith(
+      'Submitted Action',
+      'Action was executed successfully',
+    )
+    expect(dispatchMock).toHaveBeenCalled()
+    expect(refetchActionsDataMock).toHaveBeenCalled()
+  })
+
+  it('should handle instantly executed FAILED action', async () => {
+    const headItem = { id: '1', data: { status: ACTION_STATUS_TYPES.FAILED } }
+    vi.mocked(executeCreateAction).mockResolvedValue({
+      isBatch: false,
+      newActionPayload: { action: 'test' },
+      data: [headItem],
+      error: undefined,
+    })
+
+    const actions = [{ create: true }]
+    const { result } = renderHook(() => useSubmitActions({ actions }))
+
+    await result.current.submitActions()
+
+    expect(notifyErrorMock).toHaveBeenCalledWith('Submitted Action', 'Action failed to execute')
+    expect(dispatchMock).toHaveBeenCalled()
+    expect(refetchActionsDataMock).toHaveBeenCalled()
+  })
+
   it('should show generic error when data is invalid', async () => {
     vi.mocked(executeCreateAction).mockResolvedValue({
       isBatch: false,
